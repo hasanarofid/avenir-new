@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\MigratedPasswordController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/katalog', [HomeController::class, 'katalog'])->name('katalog');
+Route::get('/katalog/{slug}', [HomeController::class, 'katalogDetail'])->name('katalog.detail');
 Route::get('/artikel', [HomeController::class, 'artikel'])->name('artikel');
 Route::get('/artikel/{slug}', [HomeController::class, 'artikelDetail'])->name('artikel.detail');
 Route::get('/news', [HomeController::class, 'news'])->name('news');

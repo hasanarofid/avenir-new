@@ -16,10 +16,26 @@ class ResearchSeeder extends Seeder
         $data = json_decode($json, true);
         
         foreach ($data as $item) {
+            $ticker = $item['ticker'] ?? null;
+            // Generate slug dari ticker, fallback ke title jika tidak ada ticker
+            if ($ticker) {
+                $parts = explode(':', $ticker);
+                $slug  = strtolower(trim(end($parts)));
+                $slug  = preg_replace('/[^a-z0-9]/', '', $slug);
+            } else {
+                // Buat slug dari title: lowercase, strip "PT"/"Tbk"/spasi → dash
+                $slug = \Illuminate\Support\Str::slug($item['title']);
+                // Bersihkan kata generik: pt-, -tbk
+                $slug = preg_replace('/^pt-/', '', $slug);
+                $slug = preg_replace('/-tbk$/', '', $slug);
+                $slug = preg_replace('/-+/', '-', trim($slug, '-'));
+            }
+
             \App\Models\Research::create([
                 'title'    => $item['title'],
+                'slug'     => $slug,
                 'subtitle' => $item['subtitle'],
-                'ticker'   => $item['ticker'],
+                'ticker'   => $ticker,
                 'sector'   => $item['sector'],
                 'revenue'  => $item['revenue'],
                 'patmi'    => $item['patmi'],

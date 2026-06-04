@@ -455,7 +455,7 @@ const handleCloseModal = () => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
 .sub-dark-wrapper {
   background-color: #090b0a;
@@ -516,7 +516,7 @@ const handleCloseModal = () => {
 }
 
 .sub-header h1 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: clamp(28px, 5vw, 44px);
   font-weight: 700;
   line-height: 1.15;
@@ -584,7 +584,7 @@ const handleCloseModal = () => {
 }
 
 .banner-lbl {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -702,7 +702,7 @@ const handleCloseModal = () => {
   position: absolute;
   top: 14px;
   right: 14px;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -738,7 +738,7 @@ const handleCloseModal = () => {
 }
 
 .plan-title {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;
@@ -759,7 +759,7 @@ const handleCloseModal = () => {
 }
 
 .amount {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #ffffff;
@@ -783,7 +783,7 @@ const handleCloseModal = () => {
   width: 100%;
   padding: 12px;
   border-radius: 50px;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
@@ -838,7 +838,7 @@ const handleCloseModal = () => {
 }
 
 .faq-section h2 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 24px;
   font-weight: 600;
   color: #ffffff;
@@ -862,7 +862,7 @@ const handleCloseModal = () => {
 }
 
 .faq-card h3 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: #ffffff;
@@ -947,7 +947,7 @@ const handleCloseModal = () => {
 }
 
 .modal-step-content h2 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;
@@ -1040,7 +1040,7 @@ const handleCloseModal = () => {
 }
 
 .highlight-row .price-val {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #10b981;
@@ -1067,7 +1067,7 @@ const handleCloseModal = () => {
   background: #10b981;
   color: #090b0a;
   border: none;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 13px;
   font-weight: 700;
   padding: 14px;
@@ -1091,7 +1091,7 @@ const handleCloseModal = () => {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #64748b;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 13px;
   font-weight: 600;
   padding: 12px;

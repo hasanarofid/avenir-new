@@ -37,6 +37,111 @@ class HomeController extends Controller
     }
 
     /**
+     * Render research catalog detail by slug (or legacy ID).
+     */
+    public function katalogDetail($slug)
+    {
+        // Cari research berdasarkan slug
+        $research = Research::where('slug', $slug)->first();
+
+        // Fallback: jika slug tidak ketemu, coba cari by ID (untuk URL lama)
+        if (!$research && is_numeric($slug)) {
+            $research = Research::find((int) $slug);
+            // Redirect ke URL slug jika ditemukan
+            if ($research && $research->slug) {
+                return redirect()->route('katalog.detail', ['slug' => $research->slug], 301);
+            }
+        }
+
+        if (!$research) {
+            abort(404);
+        }
+
+        // Cek apakah user punya akses
+        $isSubscriber = false;
+        $isUnlocked   = false;
+        if (auth()->check()) {
+            $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
+                ->where('user_id', auth()->id())
+                ->first();
+            if ($profile && $profile->is_subscriber) {
+                $isSubscriber = true;
+                $isUnlocked   = true;
+            }
+            if (!$isUnlocked && $research->ticker) {
+                $isUnlocked = \Illuminate\Support\Facades\DB::table('unlocked_research')
+                    ->where('user_id', auth()->id())
+                    ->where('ticker', $research->ticker)
+                    ->exists();
+            }
+        }
+
+        // Baca konten dari file HTML di app/website/{slug}.html
+        $filePath = base_path("app/website/{$slug}.html");
+        $content  = null;
+
+        if (file_exists($filePath)) {
+            $html = file_get_contents($filePath);
+
+            // Ambil konten di dalam guest-lock-content
+            $startToken = '<div class="guest-lock-content">';
+            $endToken   = '<div class="guest-lock-overlay"';
+            $startPos   = strpos($html, $startToken);
+            if ($startPos !== false) {
+                $startPos += strlen($startToken);
+                $endPos = strpos($html, $endToken, $startPos);
+                if ($endPos !== false) {
+                    $content = trim(substr($html, $startPos, $endPos - $startPos));
+                }
+            }
+
+            // Fallback: ambil seluruh konten di dalam .art-page
+            if (!$content) {
+                $startToken = '<div class="art-page">';
+                $startPos   = strpos($html, $startToken);
+                if ($startPos !== false) {
+                    $content = trim(substr($html, $startPos));
+                }
+            }
+
+            // Fallback: ambil dari <body>
+            if (!$content) {
+                $startPos = strpos($html, '<body>');
+                $endPos   = strpos($html, '</body>');
+                if ($startPos !== false && $endPos !== false) {
+                    $content = trim(substr($html, $startPos + strlen('<body>'), $endPos - $startPos - strlen('<body>')));
+                }
+            }
+        }
+
+        // Default content jika file tidak ditemukan
+        if (!$content) {
+            $content = '<div class="art-body"><p>Detail laporan riset <strong>' 
+                . htmlspecialchars($research->title) . ' (' . htmlspecialchars($research->ticker ?? '') . ')'
+                . '</strong> sedang dalam proses migrasi ke platform baru.</p></div>';
+        }
+
+        return Inertia::render('KatalogDetail', [
+            'research' => [
+                'title'       => $research->title,
+                'ticker'      => $research->ticker,
+                'sector'      => $research->sector,
+                'slug'        => $research->slug,
+                'subtitle'    => $research->subtitle,
+                'revenue'     => $research->revenue,
+                'patmi'       => $research->patmi,
+                'sales'       => $research->sales,
+                'price'       => $research->price,
+                'date'        => $research->date,
+                'image'       => $research->image,
+                'content'     => $content,
+                'is_paid'     => true,
+                'is_unlocked' => $isUnlocked,
+            ],
+        ]);
+    }
+
+    /**
      * Render article list.
      */
     public function artikel()

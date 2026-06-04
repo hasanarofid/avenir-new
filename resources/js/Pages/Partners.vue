@@ -226,7 +226,7 @@ const TIER_BAGIAN = [
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
 .partners-dark-wrapper {
   background-color: #090b0a;
@@ -287,7 +287,7 @@ const TIER_BAGIAN = [
 }
 
 .partners-hero h1 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: clamp(28px, 5vw, 46px);
   font-weight: 700;
   line-height: 1.15;
@@ -319,7 +319,7 @@ const TIER_BAGIAN = [
 }
 
 .formula-header {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -329,7 +329,7 @@ const TIER_BAGIAN = [
 }
 
 .formula-equation {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 14.5px;
   line-height: 2;
   color: #f8fafc;
@@ -358,7 +358,7 @@ const TIER_BAGIAN = [
 }
 
 .tier-box-title {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -404,7 +404,7 @@ const TIER_BAGIAN = [
 }
 
 .rank-pct {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -422,7 +422,7 @@ const TIER_BAGIAN = [
 }
 
 .section-divider {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -470,7 +470,7 @@ const TIER_BAGIAN = [
 }
 
 .step-num {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
   font-weight: 700;
   background: #10b981;
@@ -485,7 +485,7 @@ const TIER_BAGIAN = [
 }
 
 .step-card h3 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 17px;
   font-weight: 600;
   color: #ffffff;
@@ -507,7 +507,7 @@ const TIER_BAGIAN = [
 }
 
 .partners-simulation h2 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 22px;
   font-weight: 600;
   color: #ffffff;
@@ -538,7 +538,7 @@ const TIER_BAGIAN = [
 .simulation-table th {
   background: #090b0a;
   color: #64748b;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -562,7 +562,7 @@ const TIER_BAGIAN = [
 }
 
 .mono {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .text-right {
@@ -612,7 +612,7 @@ const TIER_BAGIAN = [
 }
 
 .feature-card h3 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 17px;
   font-weight: 600;
   color: #ffffff;
@@ -640,7 +640,7 @@ const TIER_BAGIAN = [
 }
 
 .verified-eyebrow {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -649,7 +649,7 @@ const TIER_BAGIAN = [
 }
 
 .verified-header h2 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 26px;
   font-weight: 600;
   color: #ffffff;
@@ -703,7 +703,7 @@ const TIER_BAGIAN = [
   margin: 0 auto 16px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 28px;
   font-weight: 700;
   display: flex;
@@ -713,7 +713,7 @@ const TIER_BAGIAN = [
 }
 
 .verified-name {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
@@ -758,7 +758,7 @@ const TIER_BAGIAN = [
 }
 
 .join-cta-box h2 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: clamp(24px, 4vw, 32px);
   font-weight: 700;
   margin-bottom: 12px;

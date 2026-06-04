@@ -20,8 +20,9 @@ jobs:
             # 1. Pindah ke direktori web
             cd /home/avenir/public_html
             
-            # 2. Tarik kode terbaru dari branch master
-            git pull origin master
+            # 2. Tarik kode terbaru dari branch master (paksa buang perubahan lokal jika ada)
+            git fetch --all
+            git reset --hard origin/master
             
             # 3. Update library PHP
             composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -31,9 +32,10 @@ jobs:
             npm install
             npm run build
             
-            # 5. Jalankan migrasi database (jika ada perubahan) & bersihkan cache
+            # 5. Jalankan migrasi database & bersihkan seluruh cache Laravel
             php artisan migrate --force
             php artisan optimize:clear
+            php artisan view:clear
             
             # 6. Rapikan kembali hak akses agar tidak Forbidden
             chown -R avenir:avenir /home/avenir/public_html

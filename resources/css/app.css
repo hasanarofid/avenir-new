@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -8,15 +9,23 @@
   --color-avenir-neon-glow: rgba(16, 185, 129, 0.4);
   --color-avenir-text-muted: #9CA3AF;
   
+  /* Updated font system — corporate grade like think.id */
   --font-sans: 'Inter', sans-serif;
-  --font-roboto: 'Roboto', sans-serif;
-  --font-mono: 'Fira Code', monospace;
+  --font-heading: 'Sora', 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
   
   --shadow-neon: 0 0 15px rgba(16, 185, 129, 0.3);
   --shadow-neon-hover: 0 0 25px rgba(16, 185, 129, 0.6);
 }
 
-/* Custom Scrollbar for Hacker Aesthetic */
+/* Global font baseline — corporate clean */
+html, body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--color-avenir-bg); }
 ::-webkit-scrollbar-thumb { background: var(--color-avenir-surface-hover); border-radius: 4px; }

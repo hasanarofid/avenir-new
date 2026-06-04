@@ -70,7 +70,7 @@ import { Link } from '@inertiajs/vue3';
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
 .about-dark-wrapper {
   background-color: #090b0a;
@@ -131,7 +131,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .about-header h1 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: clamp(28px, 5vw, 44px);
   font-weight: 700;
   line-height: 1.15;
@@ -187,7 +187,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .about-card h3 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
@@ -220,7 +220,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .stats-num {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 54px;
   font-weight: 700;
   color: #10b981;
@@ -228,7 +228,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .stats-text strong {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 16px;
   color: #ffffff;
   display: block;
@@ -250,7 +250,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .about-cta-box h2 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 24px;
   font-weight: 600;
   color: #ffffff;

@@ -48,7 +48,7 @@ defineProps({
       </div>
       <div class="cdiv"></div>
       <div class="card-ft">
-        <Link :href="`/property/${data.id}`" class="cta">
+        <Link :href="data.slug ? `/katalog/${data.slug}` : `/katalog/${data.id}`" class="cta">
           Lihat Detail
         </Link>
       </div>
@@ -146,7 +146,7 @@ defineProps({
 }
 
 .ticker {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
   font-size: 11px;
   color: #10b981;
   background: rgba(16, 185, 129, 0.07);
@@ -157,7 +157,7 @@ defineProps({
 }
 
 h2 {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Sora', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -201,7 +201,7 @@ h2 {
 }
 
 .cmv {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 13px;
   font-weight: 700;
   color: #ffffff;

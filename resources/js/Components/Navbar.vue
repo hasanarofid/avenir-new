@@ -8,7 +8,7 @@ const user = computed(() => page.props.auth?.user);
 
 const dropdownOpen = ref(false);
 const mobileMenuOpen = ref(false);
-const isHomePage = computed(() => ['Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 'About', 'Partners', 'Subscription'].includes(page.component));
+const isHomePage = computed(() => ['Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 'About', 'Partners', 'Subscription', 'KatalogDetail'].includes(page.component));
 
 const handleLogout = () => {
     dropdownOpen.value = false;
@@ -25,7 +25,7 @@ const handleLogout = () => {
         </Link>
         <div class="nav-links">
           <Link href="/" class="nav-link" :class="{ active: $page.component === 'Home' }">Beranda</Link>
-          <Link href="/katalog" class="nav-link" :class="{ active: $page.component === 'Dashboard' }">Katalog</Link>
+          <Link href="/katalog" class="nav-link" :class="{ active: $page.component === 'Dashboard' || $page.component === 'KatalogDetail' }">Katalog</Link>
           <Link href="/artikel" class="nav-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }">Artikel</Link>
           <Link href="/news" class="nav-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }">News</Link>
           <Link href="/tentang" class="nav-link" :class="{ active: $page.component === 'About' }">Tentang</Link>
@@ -101,7 +101,7 @@ const handleLogout = () => {
       <div v-if="mobileMenuOpen" class="nav-mobile-drawer">
         <div class="nav-mobile-links">
           <Link href="/" class="nav-mobile-link" :class="{ active: $page.component === 'Home' }" @click="mobileMenuOpen = false">Beranda</Link>
-          <Link href="/katalog" class="nav-mobile-link" :class="{ active: $page.component === 'Dashboard' }" @click="mobileMenuOpen = false">Katalog</Link>
+          <Link href="/katalog" class="nav-mobile-link" :class="{ active: $page.component === 'Dashboard' || $page.component === 'KatalogDetail' }" @click="mobileMenuOpen = false">Katalog</Link>
           <Link href="/artikel" class="nav-mobile-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }" @click="mobileMenuOpen = false">Artikel</Link>
           <Link href="/news" class="nav-mobile-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }" @click="mobileMenuOpen = false">News</Link>
           <Link href="/tentang" class="nav-mobile-link" :class="{ active: $page.component === 'About' }" @click="mobileMenuOpen = false">Tentang</Link>
