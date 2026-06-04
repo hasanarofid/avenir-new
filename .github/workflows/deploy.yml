@@ -26,7 +26,8 @@ jobs:
             # 3. Update library PHP
             composer install --no-interaction --prefer-dist --optimize-autoloader
             
-            # 4. Compile frontend Vue
+            # 4. Compile frontend Vue (bersih dari nol agar tidak ada permission/binary rusak)
+            rm -rf node_modules
             npm install
             npm run build
             
