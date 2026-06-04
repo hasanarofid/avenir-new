@@ -1,0 +1,39 @@
+name: Deploy Laravel Vue to VPS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mengeksekusi Deployment via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            # 1. Pindah ke direktori web
+            cd /home/avenir/public_html
+            
+            # 2. Tarik kode terbaru dari branch master
+            git pull origin master
+            
+            # 3. Update library PHP
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            
+            # 4. Compile frontend Vue
+            npm install
+            npm run build
+            
+            # 5. Jalankan migrasi database (jika ada perubahan) & bersihkan cache
+            php artisan migrate --force
+            php artisan optimize:clear
+            
+            # 6. Rapikan kembali hak akses agar tidak Forbidden
+            chown -R avenir:avenir /home/avenir/public_html
+            chmod -R 775 /home/avenir/public_html/storage /home/avenir/public_html/bootstrap/cache
