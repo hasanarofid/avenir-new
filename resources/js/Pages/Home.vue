@@ -411,7 +411,7 @@ import { authStore } from '@/Stores/authStore';
 
 /* Typography styles */
 h1, h2, h3, h4 {
-  font-family: 'Sora', 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #ffffff;
 }
 
@@ -483,7 +483,7 @@ h1, h2, h3, h4 {
   background: rgba(34, 197, 94, 0.08);
   border: 1px solid rgba(34, 197, 94, 0.2);
   color: #4ade80;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -576,7 +576,7 @@ h1, h2, h3, h4 {
   align-items: flex-start;
 }
 .stat-num {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;
@@ -725,7 +725,7 @@ h1, h2, h3, h4 {
   display: block;
 }
 .card-num {
-  font-family: 'Sora', 'Fira Code', monospace;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: rgba(255, 255, 255, 0.2);
   font-weight: 700;
@@ -782,7 +782,7 @@ h1, h2, h3, h4 {
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 .featured-eyebrow {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 11px;
   color: #6b7280;
   letter-spacing: 0.08em;
@@ -811,7 +811,7 @@ h1, h2, h3, h4 {
   background-color: rgba(34, 197, 94, 0.1);
   border: 1px solid rgba(34, 197, 94, 0.2);
   color: #4ade80;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 10px;
   font-weight: 700;
   margin-bottom: 20px;
@@ -840,7 +840,7 @@ h1, h2, h3, h4 {
   flex-direction: column;
 }
 .m-val {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: #ffffff;
@@ -892,7 +892,7 @@ h1, h2, h3, h4 {
   align-items: center;
 }
 .dial-number {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #22c55e;
@@ -912,7 +912,7 @@ h1, h2, h3, h4 {
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 .why-eyebrow {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 11px;
   color: #6b7280;
   letter-spacing: 0.08em;
@@ -961,7 +961,7 @@ h1, h2, h3, h4 {
   background-color: #141817;
 }
 .why-num {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 14px;
   color: #6b7280;
   font-weight: 600;
@@ -982,7 +982,7 @@ h1, h2, h3, h4 {
 }
 .why-badge {
   align-self: flex-start;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 10px;
   color: #4ade80;
   background: rgba(34, 197, 94, 0.06);
@@ -1043,7 +1043,7 @@ h1, h2, h3, h4 {
   border-color: rgba(255,255,255,0.08);
 }
 .tier-trial {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 10px;
   font-weight: 700;
   color: #6b7280;
@@ -1066,7 +1066,7 @@ h1, h2, h3, h4 {
   color: #6b7280;
 }
 .t-amount {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 40px;
   font-weight: 700;
   color: #ffffff;

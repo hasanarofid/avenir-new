@@ -62,7 +62,7 @@ defineProps({
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
 
 .news-dark-wrapper {
   background-color: #090b0a;
@@ -134,7 +134,7 @@ defineProps({
 }
 
 .news-page-header h1 {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(28px, 4vw, 42px);
   font-weight: 700;
   line-height: 1.2;
@@ -193,7 +193,7 @@ defineProps({
 }
 
 .news-card-title {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(18px, 2.5vw, 22px);
   font-weight: 600;
   color: #f8fafc;
@@ -252,7 +252,7 @@ defineProps({
 }
 
 .news-empty h3 {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #f8fafc;

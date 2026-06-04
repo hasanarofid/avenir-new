@@ -45,7 +45,7 @@ defineProps({
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
 
 .news-detail-page {
   background-color: #090b0a;
@@ -125,7 +125,7 @@ defineProps({
 }
 
 .news-title {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(26px, 4vw, 36px);
   font-weight: 700;
   line-height: 1.25;
@@ -142,7 +142,7 @@ defineProps({
 }
 
 .news-meta .date {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Deep Styles for News Html Content */
@@ -158,7 +158,7 @@ defineProps({
 }
 
 :deep(.art-body h2) {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 24px;
   font-weight: 600;
   color: #ffffff;
@@ -168,7 +168,7 @@ defineProps({
 }
 
 :deep(.art-body h3) {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
@@ -252,7 +252,7 @@ defineProps({
 }
 
 :deep(.art-timeline-date) {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 13px;
   color: #10b981;
   font-weight: 700;

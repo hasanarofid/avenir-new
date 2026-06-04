@@ -202,7 +202,7 @@ const submitRegister = () => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
 
 .auth-overlay {
   position: fixed;
@@ -252,7 +252,7 @@ const submitRegister = () => {
 }
 
 .auth-view h3 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Inter', sans-serif;
   font-size: 24px;
   font-weight: 600;
   margin: 0 0 6px;

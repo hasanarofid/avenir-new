@@ -146,7 +146,7 @@ defineProps({
 }
 
 .ticker {
-  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 11px;
   color: #10b981;
   background: rgba(16, 185, 129, 0.07);
@@ -157,7 +157,7 @@ defineProps({
 }
 
 h2 {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -201,7 +201,7 @@ h2 {
 }
 
 .cmv {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 13px;
   font-weight: 700;
   color: #ffffff;

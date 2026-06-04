@@ -94,7 +94,7 @@ const hasCustomHtml = computed(() => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
 
 .article-detail-page {
   background-color: #090b0a;
@@ -180,7 +180,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .gl-title {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #ffffff;
@@ -297,7 +297,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .article-detail-page .art-title {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(30px, 5vw, 48px) !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -352,7 +352,7 @@ const hasCustomHtml = computed(() => {
 
 .article-detail-page .guest-lock-content h2,
 .article-detail-page .db-content h2 {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: 28px !important;
   font-weight: 600 !important;
   color: #ffffff !important;
@@ -363,7 +363,7 @@ const hasCustomHtml = computed(() => {
 
 .article-detail-page .guest-lock-content h3,
 .article-detail-page .db-content h3 {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: 20px !important;
   font-weight: 600 !important;
   color: #ffffff !important;
@@ -456,7 +456,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .article-detail-page .art-stat .sv {
-  font-family: 'IBM Plex Mono', monospace !important;
+  font-family: 'Roboto', sans-serif;
   font-size: 24px !important;
   font-weight: 700 !important;
   color: #10B981 !important;
@@ -479,7 +479,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .article-detail-page .art-toc h4 {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: 11px !important;
   font-weight: 700 !important;
   letter-spacing: .12em !important;
@@ -531,7 +531,7 @@ const hasCustomHtml = computed(() => {
   background: #090b0a !important;
   color: #10B981 !important;
   border: 1px solid rgba(16, 185, 129, 0.15) !important;
-  font-family: 'IBM Plex Mono', monospace !important;
+  font-family: 'Roboto', sans-serif;
   font-size: 14px !important;
   font-weight: 700 !important;
   width: 36px !important;
@@ -577,7 +577,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .db-article-title {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(30px, 5vw, 48px) !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -603,7 +603,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .db-article-meta .date {
-  font-family: 'IBM Plex Mono', monospace !important;
+  font-family: 'Roboto', sans-serif;
 }
 
 .db-article-meta .meta-sep {
@@ -637,7 +637,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .article-detail-page .guest-lock-content.db-content h2 {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: 28px !important;
   font-weight: 600 !important;
   color: #ffffff !important;
@@ -647,7 +647,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .article-detail-page .guest-lock-content.db-content h3 {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: 20px !important;
   font-weight: 600 !important;
   color: #ffffff !important;

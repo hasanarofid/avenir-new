@@ -138,7 +138,7 @@ const formattedPrice = computed(() => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
 
 /* ── Page wrapper ── */
 .kdp-page {
@@ -201,7 +201,7 @@ const formattedPrice = computed(() => {
   margin-bottom: 18px;
 }
 .kdp-badge-ticker {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 11px;
   font-weight: 700;
   color: #10B981;
@@ -225,7 +225,7 @@ const formattedPrice = computed(() => {
 
 /* Title */
 .kdp-h1 {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(26px, 4.5vw, 42px) !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -257,7 +257,7 @@ const formattedPrice = computed(() => {
 }
 .kdp-meta-author { color: #94a3b8; font-weight: 600; }
 .kdp-meta-sep { color: #334155; }
-.kdp-meta-date { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; }
+.kdp-meta-date { font-family: 'Roboto', sans-serif; font-size: 11.5px; }
 .kdp-meta-price {
   display: inline-flex;
   align-items: center;
@@ -287,7 +287,7 @@ const formattedPrice = computed(() => {
   flex-shrink: 0;
 }
 .kdp-metric-val {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Roboto', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #10B981;
@@ -342,7 +342,7 @@ const formattedPrice = computed(() => {
 }
 .gl-icon { font-size: 36px; margin-bottom: 20px; }
 .gl-title {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 30px;
   font-weight: 700;
   color: #fff;
@@ -400,7 +400,7 @@ const formattedPrice = computed(() => {
   color: #cbd5e1 !important;
 }
 .kdp-page .guest-lock-content h2 {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: 26px !important; font-weight: 600 !important;
   color: #fff !important; margin: 44px 0 18px !important;
   padding-top: 24px !important;
@@ -425,7 +425,7 @@ const formattedPrice = computed(() => {
   margin-bottom: 18px !important;
 }
 .kdp-page .art-title {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(26px, 4vw, 40px) !important; font-weight: 700 !important;
   color: #fff !important; margin: 0 0 16px !important; letter-spacing: -0.02em !important;
 }
@@ -445,13 +445,13 @@ const formattedPrice = computed(() => {
 }
 .kdp-page .art-body p { margin: 0 0 22px !important; }
 .kdp-page .art-body h2 {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: 26px !important; font-weight: 600 !important; color: #fff !important;
   margin: 48px 0 18px !important; padding-top: 24px !important;
   border-top: 1px solid rgba(255,255,255,0.05) !important;
 }
 .kdp-page .art-body h3 {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Inter', sans-serif;
   font-size: 19px !important; font-weight: 600 !important;
   color: #fff !important; margin: 36px 0 14px !important;
 }
@@ -490,20 +490,20 @@ const formattedPrice = computed(() => {
   color: #fff !important; border-radius: 12px !important;
   padding: 18px !important; box-shadow: 0 4px 15px rgba(0,0,0,.2) !important;
 }
-.kdp-page .art-stat .sv { font-family: 'IBM Plex Mono', monospace !important; font-size: 22px !important; font-weight: 700 !important; color: #10B981 !important; margin-bottom: 5px !important; }
+.kdp-page .art-stat .sv { font-family: 'Roboto', sans-serif; font-size: 22px !important; font-weight: 700 !important; color: #10B981 !important; margin-bottom: 5px !important; }
 .kdp-page .art-stat .sl { font-size: 10px !important; color: #94a3b8 !important; font-weight: 600 !important; letter-spacing: .08em !important; }
 .kdp-page .art-toc {
   background: #111413 !important; border: 1px solid rgba(255,255,255,.05) !important;
   border-radius: 12px !important; padding: 22px !important; margin: 28px 0 !important;
 }
-.kdp-page .art-toc h4 { font-family: 'Sora', sans-serif !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .12em !important; color: #64748b !important; text-transform: uppercase !important; margin: 0 0 14px !important; }
+.kdp-page .art-toc h4 { font-family: 'Inter', sans-serif; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .12em !important; color: #64748b !important; text-transform: uppercase !important; margin: 0 0 14px !important; }
 .kdp-page .art-toc ol { font-size: 14px !important; line-height: 2 !important; color: #cbd5e1 !important; }
 .kdp-page .art-toc ol li a { color: #10B981 !important; }
 .kdp-page .art-toc ol li a:hover { color: #34d399 !important; text-decoration: underline !important; }
 .kdp-page .art-sources { font-size: 12px !important; line-height: 1.8 !important; color: #64748b !important; margin-top: 52px !important; padding-top: 26px !important; border-top: 1px solid rgba(255,255,255,.05) !important; }
 .kdp-page .art-sources strong { color: #cbd5e1 !important; }
 .kdp-page .art-poin { display: flex !important; gap: 16px !important; padding: 18px !important; background: #111413 !important; border: 1px solid rgba(255,255,255,.03) !important; border-radius: 12px !important; margin: 14px 0 !important; }
-.kdp-page .art-poin-num { background: #090b0a !important; color: #10B981 !important; border: 1px solid rgba(16,185,129,.15) !important; font-family: 'IBM Plex Mono', monospace !important; font-size: 13px !important; font-weight: 700 !important; width: 34px !important; height: 34px !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+.kdp-page .art-poin-num { background: #090b0a !important; color: #10B981 !important; border: 1px solid rgba(16,185,129,.15) !important; font-family: 'Roboto', sans-serif; font-size: 13px !important; font-weight: 700 !important; width: 34px !important; height: 34px !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
 .kdp-page .art-poin-body { font-size: 14px !important; line-height: 1.75 !important; color: #cbd5e1 !important; }
 .kdp-page .photo-band { margin: 36px 0 !important; border-radius: 12px !important; border: 1px solid rgba(255,255,255,.05) !important; width: 100%; }
 

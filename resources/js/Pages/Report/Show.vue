@@ -74,7 +74,7 @@ defineProps({
 <style scoped>
 /* You can add specific typography styles here, or let Tailwind's typography plugin handle it */
 :deep(h2) {
-  font-family: 'Sora', Georgia, serif;
+  font-family: 'Inter', sans-serif;
   color: #18211D;
   margin-top: 2rem;
   margin-bottom: 1rem;
