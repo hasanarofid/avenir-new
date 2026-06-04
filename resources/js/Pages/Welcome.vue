@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import { 
   Phone, 
   Download, 
@@ -32,6 +33,7 @@ const props = defineProps({
 
 const pageData = usePage();
 const user = pageData.props.auth?.user;
+const mobileMenuOpen = ref(false);
 
 // Helper to find specific section by key
 const getSection = (key) => {
@@ -80,12 +82,13 @@ const testimonialsSection = getSection('testimonials');
           </Link>
         </div>
 
-        <!-- Auth Actions -->
+        <!-- Auth Actions & Mobile Hamburger -->
         <div class="flex items-center gap-4">
+          <!-- Desktop Auth Buttons -->
           <Link 
             v-if="user" 
             :href="route('admin.dashboard')" 
-            class="inline-flex items-center justify-center px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-xs font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200"
+            class="hidden md:inline-flex items-center justify-center px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-xs font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200"
           >
             Dashboard Admin
             <ArrowUpRight class="w-3.5 h-3.5 ml-1" />
@@ -93,19 +96,82 @@ const testimonialsSection = getSection('testimonials');
           <template v-else>
             <Link 
               :href="route('login')" 
-              class="text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+              class="hidden md:inline-block text-xs font-semibold text-slate-400 hover:text-white transition-colors"
             >
               Sign In
             </Link>
             <Link 
               :href="route('register')" 
-              class="hidden sm:inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200"
+              class="hidden md:inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200"
             >
               Daftar Gratis
             </Link>
           </template>
+
+          <!-- Mobile Hamburger Toggle -->
+          <button 
+            @click="mobileMenuOpen = !mobileMenuOpen" 
+            class="md:hidden flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900/80 focus:outline-none transition-colors"
+            aria-label="Toggle menu"
+          >
+            <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       </div>
+
+      <!-- Mobile Menu Drawer -->
+      <transition name="slide-down">
+        <div v-if="mobileMenuOpen" class="md:hidden bg-slate-950/95 border-b border-slate-900/80 px-6 py-4 space-y-4 backdrop-blur-md">
+          <!-- Nav Links -->
+          <div class="flex flex-col space-y-3">
+            <Link 
+              v-for="nav in navigation" 
+              :key="nav.id" 
+              :href="nav.slug === 'home' ? '/' : `/${nav.slug}`"
+              class="text-sm font-medium text-slate-400 hover:text-white transition-colors py-2 block"
+              @click="mobileMenuOpen = false"
+            >
+              {{ nav.title }}
+            </Link>
+          </div>
+
+          <div class="border-t border-slate-900/80 my-3"></div>
+
+          <!-- Auth Actions -->
+          <div class="flex flex-col space-y-3 pt-2">
+            <Link 
+              v-if="user" 
+              :href="route('admin.dashboard')" 
+              class="inline-flex items-center justify-center w-full px-4 py-3 bg-indigo-650 hover:bg-indigo-700 text-xs font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200"
+              @click="mobileMenuOpen = false"
+            >
+              Dashboard Admin
+              <ArrowUpRight class="w-3.5 h-3.5 ml-1" />
+            </Link>
+            <template v-else>
+              <Link 
+                :href="route('login')" 
+                class="text-xs font-semibold text-slate-400 hover:text-white transition-colors py-2 text-center"
+                @click="mobileMenuOpen = false"
+              >
+                Sign In
+              </Link>
+              <Link 
+                :href="route('register')" 
+                class="inline-flex items-center justify-center w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200"
+                @click="mobileMenuOpen = false"
+              >
+                Daftar Gratis
+              </Link>
+            </template>
+          </div>
+        </div>
+      </transition>
     </nav>
 
     <!-- Hero Section -->
@@ -329,53 +395,86 @@ const testimonialsSection = getSection('testimonials');
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-900 bg-slate-950 py-16 text-slate-500 text-sm relative z-10">
+    <footer class="border-t border-slate-900 bg-[#090b0a] py-16 text-slate-400 text-sm relative z-10">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 text-left mb-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 text-left mb-12">
           <!-- Column 1: Info -->
-          <div class="md:col-span-2 space-y-4">
+          <div class="space-y-4">
             <span class="font-extrabold text-lg text-white tracking-tight">
-              {{ settings.site_name || 'CMS Boilerplate' }}
+              Avenir Research
             </span>
-            <p class="text-xs text-slate-450 leading-relaxed max-w-sm">
-              {{ settings.site_description || 'Boilerplate CMS premium berbasis Laravel 11, Vue 3, Inertia.js, dan Tailwind CSS.' }}
+            <p class="text-xs text-slate-450 leading-relaxed max-w-xs">
+              Riset ekuitas independen oleh PT Avenir Fortuna Corporindo. Berbasis laporan keuangan audited.
             </p>
           </div>
 
-          <!-- Column 2: Tautan Halaman -->
+          <!-- Column 2: Riset -->
           <div class="space-y-4">
-            <h4 class="text-xs font-bold text-slate-350 uppercase tracking-widest">Halaman</h4>
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Riset</h4>
             <ul class="space-y-2 text-xs">
-              <li v-for="nav in navigation" :key="nav.id">
-                <Link :href="nav.slug === 'home' ? '/' : `/${nav.slug}`" class="hover:text-white transition-colors">
-                  {{ nav.title }}
-                </Link>
+              <li>
+                <Link href="/katalog" class="hover:text-emerald-400 transition-colors">Katalog Riset</Link>
+              </li>
+              <li>
+                <Link href="/artikel" class="hover:text-emerald-400 transition-colors">Market News</Link>
               </li>
             </ul>
           </div>
 
-          <!-- Column 3: Kontak & Hak Cipta -->
+          <!-- Column 3: Perusahaan -->
           <div class="space-y-4">
-            <h4 class="text-xs font-bold text-slate-350 uppercase tracking-widest">Kontak</h4>
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Perusahaan</h4>
             <ul class="space-y-2 text-xs">
-              <li v-if="settings.whatsapp_number" class="flex items-center gap-1.5">
-                <Phone class="w-3.5 h-3.5 text-indigo-400" />
-                <span>+{{ settings.whatsapp_number }}</span>
+              <li>
+                <Link href="/tentang" class="hover:text-emerald-400 transition-colors">Tentang Avenir</Link>
               </li>
               <li>
-                <span>Email: support@cms.com</span>
+                <Link href="/mitra" class="hover:text-emerald-400 transition-colors">Mitra Terverifikasi</Link>
               </li>
+              <li>
+                <Link href="/langganan" class="hover:text-emerald-400 transition-colors">Panduan Pengguna</Link>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 4: Kontak -->
+          <div class="space-y-4">
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Kontak</h4>
+            <ul class="space-y-2 text-xs text-slate-400">
+              <li>
+                <a href="https://avenirfortuna.com" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-400 transition-colors font-medium">
+                  avenirfortuna.com
+                </a>
+              </li>
+              <li class="text-slate-300">PT Avenir Fortuna Corporindo</li>
+              <li class="text-slate-500">IDX Tower, Jakarta</li>
             </ul>
           </div>
         </div>
 
         <!-- Lower Footer -->
         <div class="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p class="text-xs text-slate-600">
-            &copy; {{ new Date().getFullYear() }} {{ settings.site_name || 'CMS Boilerplate' }}. All rights reserved.
+          <p class="text-xs text-slate-500">
+            &copy; {{ new Date().getFullYear() }} PT Avenir Fortuna Corporindo. Semua hak dilindungi.
+          </p>
+          <p class="text-xs text-slate-600 text-center sm:text-right">
+            Riset bersifat informatif & edukatif — bukan rekomendasi investasi.
           </p>
         </div>
       </div>
     </footer>
   </div>
 </template>
+
+<style scoped>
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+</style>

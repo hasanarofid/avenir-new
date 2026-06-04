@@ -88,79 +88,116 @@ import { authStore } from '@/Stores/authStore';
       <!-- RINGKASAN UTAMA (CATEGORY CARDS GRID) -->
       <section class="summary-section">
         <div class="section-container">
-          <h2 class="section-title">Ringkasan Utama</h2>
+          <div class="summary-header">
+            <h2 class="section-title">Ringkasan Utama</h2>
+            <p class="section-subtitle">Akses laporan analisis mendalam berdasarkan kategori riset pilihan</p>
+          </div>
           
           <div class="category-grid">
             <!-- Card 1: Makroekonomi -->
             <div class="category-card" @click="window.location.href='/katalog?cat=macro'">
-              <div class="card-bg-overlay"></div>
-              <!-- Custom SVG illustration representing macroeconomic growth -->
-              <div class="card-art">
-                <svg viewBox="0 0 100 100" class="art-svg-icon">
-                  <path d="M20,80 L35,65 L50,70 L70,45 L85,30" stroke="rgba(34, 197, 94, 0.4)" stroke-width="2" fill="none"/>
-                  <circle cx="85" cy="30" r="3" fill="#22c55e"/>
-                  <line x1="20" y1="80" x2="80" y2="80" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                  <line x1="20" y1="80" x2="20" y2="30" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-                </svg>
-              </div>
-              <div class="card-content">
+              <div class="card-header">
+                <div class="icon-wrapper">
+                  <svg viewBox="0 0 100 100" class="art-svg-icon">
+                    <path d="M20,80 L35,65 L50,70 L70,45 L85,30" stroke="#22c55e" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="85" cy="30" r="4" fill="#22c55e"/>
+                    <path d="M20,80 L35,65 L50,70 L70,45 L85,30 L85,80 L20,80 Z" fill="url(#macro-grad)" opacity="0.1"/>
+                    <defs>
+                      <linearGradient id="macro-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#22c55e" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
                 <span class="card-num">01</span>
+              </div>
+              <div class="card-body">
                 <h3 class="card-name">Makroekonomi</h3>
+                <p class="card-desc">Analisis indikator ekonomi makro, inflasi, suku bunga, dan kebijakan moneter.</p>
+              </div>
+              <div class="card-arrow">
+                <span>Lihat Riset</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </div>
 
             <!-- Card 2: Sektor & Industri -->
             <div class="category-card" @click="window.location.href='/katalog?cat=sector'">
-              <div class="card-bg-overlay"></div>
-              <!-- Custom SVG representing sectors / heavy industry logistics -->
-              <div class="card-art">
-                <svg viewBox="0 0 100 100" class="art-svg-icon">
-                  <rect x="25" y="55" width="12" height="25" fill="none" stroke="rgba(34, 197, 94, 0.3)" stroke-width="1.5"/>
-                  <rect x="42" y="45" width="12" height="35" fill="none" stroke="rgba(34, 197, 94, 0.3)" stroke-width="1.5"/>
-                  <rect x="59" y="35" width="12" height="45" fill="none" stroke="rgba(34, 197, 94, 0.3)" stroke-width="1.5"/>
-                </svg>
-              </div>
-              <div class="card-content">
+              <div class="card-header">
+                <div class="icon-wrapper">
+                  <svg viewBox="0 0 100 100" class="art-svg-icon">
+                    <rect x="25" y="55" width="12" height="25" rx="2" fill="none" stroke="#22c55e" stroke-width="2.5"/>
+                    <rect x="44" y="40" width="12" height="40" rx="2" fill="none" stroke="#22c55e" stroke-width="2.5"/>
+                    <rect x="63" y="25" width="12" height="55" rx="2" fill="none" stroke="#22c55e" stroke-width="2.5"/>
+                    <path d="M15,80 L85,80" stroke="rgba(34, 197, 94, 0.2)" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
                 <span class="card-num">02</span>
+              </div>
+              <div class="card-body">
                 <h3 class="card-name">Sektor & Industri</h3>
+                <p class="card-desc">Tinjauan mendalam performa sektor industri, logistik, manufaktur, dan finansial.</p>
+              </div>
+              <div class="card-arrow">
+                <span>Lihat Riset</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </div>
 
             <!-- Card 3: Komoditas -->
             <div class="category-card" @click="window.location.href='/katalog?cat=commodity'">
-              <div class="card-bg-overlay"></div>
-              <!-- Custom SVG representing materials/mining grid -->
-              <div class="card-art">
-                <svg viewBox="0 0 100 100" class="art-svg-icon">
-                  <polygon points="50,25 75,40 75,70 50,85 25,70 25,40" fill="none" stroke="rgba(34, 197, 94, 0.3)" stroke-width="1.5"/>
-                  <line x1="50" y1="25" x2="50" y2="85" stroke="rgba(34, 197, 94, 0.2)" stroke-width="1"/>
-                  <line x1="25" y1="40" x2="75" y2="70" stroke="rgba(34, 197, 94, 0.2)" stroke-width="1"/>
-                  <line x1="25" y1="70" x2="75" y2="40" stroke="rgba(34, 197, 94, 0.2)" stroke-width="1"/>
-                </svg>
-              </div>
-              <div class="card-content">
+              <div class="card-header">
+                <div class="icon-wrapper">
+                  <svg viewBox="0 0 100 100" class="art-svg-icon">
+                    <polygon points="50,20 80,35 80,65 50,80 20,65 20,35" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/>
+                    <line x1="50" y1="20" x2="50" y2="80" stroke="rgba(34, 197, 94, 0.4)" stroke-width="1.5"/>
+                    <line x1="20" y1="35" x2="80" y2="65" stroke="rgba(34, 197, 94, 0.4)" stroke-width="1.5"/>
+                    <line x1="20" y1="65" x2="80" y2="35" stroke="rgba(34, 197, 94, 0.4)" stroke-width="1.5"/>
+                  </svg>
+                </div>
                 <span class="card-num">03</span>
+              </div>
+              <div class="card-body">
                 <h3 class="card-name">Komoditas</h3>
+                <p class="card-desc">Riset pergerakan harga komoditas global, energi, logam, dan agrikultur.</p>
+              </div>
+              <div class="card-arrow">
+                <span>Lihat Riset</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </div>
 
             <!-- Card 4: Teknologi & Inovasi -->
             <div class="category-card" @click="window.location.href='/katalog?cat=tech'">
-              <div class="card-bg-overlay"></div>
-              <!-- Custom SVG representing microchips / tech networks -->
-              <div class="card-art">
-                <svg viewBox="0 0 100 100" class="art-svg-icon">
-                  <rect x="35" y="35" width="30" height="30" rx="3" fill="none" stroke="rgba(34, 197, 94, 0.4)" stroke-width="1.5"/>
-                  <circle cx="50" cy="50" r="5" fill="#22c55e" opacity="0.5"/>
-                  <line x1="50" y1="20" x2="50" y2="35" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-                  <line x1="50" y1="65" x2="50" y2="80" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-                  <line x1="20" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-                  <line x1="65" y1="50" x2="80" y2="50" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-                </svg>
-              </div>
-              <div class="card-content">
+              <div class="card-header">
+                <div class="icon-wrapper">
+                  <svg viewBox="0 0 100 100" class="art-svg-icon">
+                    <rect x="30" y="30" width="40" height="40" rx="6" fill="none" stroke="#22c55e" stroke-width="2.5"/>
+                    <circle cx="50" cy="50" r="6" fill="#22c55e"/>
+                    <line x1="50" y1="15" x2="50" y2="30" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="50" y1="70" x2="50" y2="85" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="15" y1="50" x2="30" y2="50" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="70" y1="50" x2="85" y2="50" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
                 <span class="card-num">04</span>
+              </div>
+              <div class="card-body">
                 <h3 class="card-name">Teknologi & Inovasi</h3>
+                <p class="card-desc">Evaluasi tren teknologi, startup, transformasi digital, dan disrupsi pasar.</p>
+              </div>
+              <div class="card-arrow">
+                <span>Lihat Riset</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </div>
           </div>
@@ -594,16 +631,25 @@ h1, h2, h3, h4 {
   padding: 80px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
-.section-title {
-  font-size: 24px;
-  font-weight: 700;
+.summary-header {
   margin-bottom: 40px;
-  letter-spacing: -0.01em;
+  text-align: left;
+}
+.section-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+}
+.section-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
 }
 .category-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 24px;
 }
 @media (min-width: 480px) {
   .category-grid {
@@ -618,63 +664,115 @@ h1, h2, h3, h4 {
 .category-card {
   position: relative;
   background-color: #111413;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-  padding: 24px;
-  height: 240px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 20px;
+  padding: 28px;
+  min-height: 250px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .category-card:hover {
-  border-color: rgba(34, 197, 94, 0.3);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(34, 197, 94, 0.05);
+  border-color: rgba(34, 197, 94, 0.25);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(34, 197, 94, 0.03);
 }
-.card-bg-overlay {
+.category-card::after {
+  content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(9, 11, 10, 0) 50%, rgba(9, 11, 10, 0.8) 100%);
+  background: radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.04) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
   z-index: 1;
 }
-.card-art {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  width: 100px;
-  height: 100px;
-  opacity: 0.65;
+.category-card:hover::after {
+  opacity: 1;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 24px;
+}
+.icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
 }
-.category-card:hover .card-art {
-  transform: scale(1.08) translate(-4px, 4px);
-  opacity: 0.9;
+.category-card:hover .icon-wrapper {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
+  transform: scale(1.05);
 }
 .art-svg-icon {
-  width: 100%;
-  height: 100%;
-}
-.card-content {
-  position: relative;
-  z-index: 5;
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 .card-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-family: 'Space Grotesk', 'Fira Code', monospace;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  transition: color 0.3s ease;
+}
+.category-card:hover .card-num {
   color: #22c55e;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 6px;
+}
+.card-body {
+  position: relative;
+  z-index: 2;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 16px;
 }
 .card-name {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
   color: #ffffff;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.015em;
+}
+.card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #8e9592;
   margin: 0;
-  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+.card-arrow {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #22c55e;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.category-card:hover .card-arrow {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* FEATURED SECTION (GLASSMORPHIC CARD) */

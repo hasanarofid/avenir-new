@@ -7,7 +7,8 @@ const page = usePage();
 const user = computed(() => page.props.auth?.user);
 
 const dropdownOpen = ref(false);
-const isHomePage = computed(() => page.component === 'Home');
+const mobileMenuOpen = ref(false);
+const isHomePage = computed(() => ['Home', 'Dashboard'].includes(page.component));
 
 const handleLogout = () => {
     dropdownOpen.value = false;
@@ -36,8 +37,8 @@ const handleLogout = () => {
       <div class="nav-col nav-right">
         <!-- Guest Menu -->
         <div v-if="!user" class="nav-auth">
-          <button class="nav-btn-login" @click="authStore.open('login')">Sign In</button>
-          <button class="nav-btn-register" @click="authStore.open('register')">Daftar</button>
+          <button class="nav-btn-login hidden-mobile" @click="authStore.open('login')">Sign In</button>
+          <button class="nav-btn-register hidden-mobile" @click="authStore.open('register')">Daftar</button>
           <button class="nav-btn-notif">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -45,11 +46,15 @@ const handleLogout = () => {
             </svg>
             <span class="notif-dot"></span>
           </button>
+          <button class="nav-btn-hamburger" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle menu">
+            <svg v-if="!mobileMenuOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
+            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
 
         <!-- User Menu dropdown -->
         <div v-else class="nav-auth">
-          <div style="position: relative;">
+          <div class="hidden-mobile" style="position: relative;">
             <button 
               class="nav-btn-user" 
               @click="dropdownOpen = !dropdownOpen"
@@ -83,9 +88,65 @@ const handleLogout = () => {
               </button>
             </div>
           </div>
+          <button class="nav-btn-hamburger" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle menu">
+            <svg v-if="!mobileMenuOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
+            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- Mobile Drawer -->
+    <transition name="slide-down">
+      <div v-if="mobileMenuOpen" class="nav-mobile-drawer">
+        <div class="nav-mobile-links">
+          <Link href="/" class="nav-mobile-link" :class="{ active: $page.component === 'Home' }" @click="mobileMenuOpen = false">Beranda</Link>
+          <Link href="/katalog" class="nav-mobile-link" :class="{ active: $page.component === 'Dashboard' }" @click="mobileMenuOpen = false">Katalog</Link>
+          <Link href="/artikel" class="nav-mobile-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }" @click="mobileMenuOpen = false">Artikel</Link>
+          <Link href="/news" class="nav-mobile-link" @click="mobileMenuOpen = false">News</Link>
+          <Link href="/tentang" class="nav-mobile-link" @click="mobileMenuOpen = false">Tentang</Link>
+          <Link href="/mitra" class="nav-mobile-link" @click="mobileMenuOpen = false">Mitra</Link>
+          <Link href="/langganan" class="nav-mobile-link" @click="mobileMenuOpen = false">Langganan</Link>
+        </div>
+
+        <div class="nav-mobile-divider"></div>
+
+        <!-- Guest Actions on Mobile -->
+        <div v-if="!user" class="nav-mobile-auth">
+          <button class="nav-mobile-btn-login" @click="authStore.open('login'); mobileMenuOpen = false">Sign In</button>
+          <button class="nav-mobile-btn-register" @click="authStore.open('register'); mobileMenuOpen = false">Daftar</button>
+        </div>
+
+        <!-- User Actions on Mobile -->
+        <div v-else class="nav-mobile-auth">
+          <div class="nav-mobile-user-info">
+            <span class="user-avatar">👤</span>
+            <span class="username-text-mobile">{{ user.name }}</span>
+          </div>
+          
+          <div class="nav-mobile-user-links">
+            <div class="user-dd-item-mobile">
+              <span class="user-dd-icon">👤</span>
+              <span>
+                <strong>Akun Saya</strong>
+                <span class="user-dd-hint">Profil &amp; pengaturan</span>
+              </span>
+            </div>
+            <div class="user-dd-item-mobile">
+              <span class="user-dd-icon">🎟️</span>
+              <span>
+                <strong>Status Langganan</strong>
+                <span class="user-dd-hint">Cek masa aktif</span>
+              </span>
+            </div>
+          </div>
+
+          <button class="user-dd-logout-mobile" @click="handleLogout(); mobileMenuOpen = false">
+            Keluar →
+          </button>
+        </div>
+      </div>
+    </transition>
   </nav>
 </template>
 
@@ -394,5 +455,284 @@ const handleLogout = () => {
 }
 .nav.nav-dark .nav-logo {
   filter: brightness(1.2) !important;
+}
+
+/* Responsive visibility utility classes */
+.hidden-mobile {
+  display: block;
+}
+.show-mobile {
+  display: none;
+}
+.nav-btn-hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #374151;
+  padding: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* On screens < 768px (Mobile & Tablet) */
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+  .show-mobile {
+    display: flex !important;
+  }
+  .nav-btn-hamburger {
+    display: flex;
+  }
+  .nav-links {
+    display: none; /* Hide desktop links */
+  }
+  .nav-auth {
+    gap: 12px;
+  }
+}
+
+/* Mobile Drawer Container */
+.nav-mobile-drawer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 24px 24px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 399;
+}
+
+/* Dark theme overrides for Mobile Drawer */
+.nav.nav-dark .nav-mobile-drawer {
+  background: #090b0a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.nav.nav-dark .nav-btn-hamburger {
+  color: #d1d5db !important;
+}
+
+.nav.nav-dark .nav-btn-hamburger:hover {
+  color: #ffffff !important;
+}
+
+.nav-mobile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-mobile-link {
+  font-size: 14px;
+  font-weight: 550;
+  color: #4b5563;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.nav-mobile-link:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.nav-mobile-link.active {
+  background: #ecfdf5;
+  color: #166534;
+  font-weight: 600;
+}
+
+/* Dark theme overrides for links */
+.nav.nav-dark .nav-mobile-link {
+  color: #9ca3af !important;
+}
+
+.nav.nav-dark .nav-mobile-link:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+}
+
+.nav.nav-dark .nav-mobile-link.active {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #22c55e !important;
+}
+
+.nav-mobile-divider {
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.nav.nav-dark .nav-mobile-divider {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-mobile-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-mobile-btn-login {
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 13px;
+  background: transparent;
+  cursor: pointer;
+  color: #374151;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.nav-mobile-btn-login:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.nav-mobile-btn-register {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #166534;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.nav-mobile-btn-register:hover {
+  background-color: #14532d;
+}
+
+/* Dark theme overrides for buttons */
+.nav.nav-dark .nav-mobile-btn-login {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #d1d5db !important;
+}
+
+.nav.nav-dark .nav-mobile-btn-login:hover {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.nav.nav-dark .nav-mobile-btn-register {
+  background-color: #22c55e !important;
+  color: #ffffff !important;
+}
+
+.nav.nav-dark .nav-mobile-btn-register:hover {
+  background-color: #16a34a !important;
+}
+
+/* User Profile Mobile View */
+.nav-mobile-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+.username-text-mobile {
+  font-weight: 600;
+  color: #111827;
+  font-size: 14px;
+}
+
+.nav.nav-dark .username-text-mobile {
+  color: #ffffff;
+}
+
+.nav-mobile-user-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-dd-item-mobile {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  color: #374151;
+  font-size: 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.user-dd-item-mobile:hover {
+  background: #f9fafb;
+}
+
+.nav.nav-dark .user-dd-item-mobile {
+  color: #d1d5db;
+}
+
+.nav.nav-dark .user-dd-item-mobile:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-mobile-user-links strong {
+  font-weight: 600;
+  color: #111827;
+  display: block;
+}
+
+.nav.nav-dark .nav-mobile-user-links strong {
+  color: #ffffff;
+}
+
+.user-dd-logout-mobile {
+  width: 100%;
+  text-align: center;
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px solid #fee2e2;
+  border-radius: 50px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.user-dd-logout-mobile:hover {
+  background: #fef2f2;
+}
+
+.nav.nav-dark .user-dd-logout-mobile {
+  border-color: rgba(220, 38, 38, 0.2) !important;
+}
+
+.nav.nav-dark .user-dd-logout-mobile:hover {
+  background: rgba(220, 38, 38, 0.1) !important;
+}
+
+/* Slide Down Transition */
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
 }
 </style>

@@ -23,9 +23,16 @@ class HomeController extends Controller
     public function katalog()
     {
         $researches = Research::all();
+        $unlockedTickers = auth()->check()
+            ? \Illuminate\Support\Facades\DB::table('unlocked_research')
+                ->where('user_id', auth()->id())
+                ->pluck('ticker')
+                ->toArray()
+            : [];
         
         return Inertia::render('Dashboard', [
-            'researches' => $researches
+            'researches' => $researches,
+            'unlockedTickers' => $unlockedTickers
         ]);
     }
 
