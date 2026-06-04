@@ -17,6 +17,10 @@ const isLoggedIn = computed(() => !!page.props.auth?.user);
 const isLocked = computed(() => {
     return props.article.is_paid && !isLoggedIn.value;
 });
+
+const hasCustomHtml = computed(() => {
+    return props.article.content && props.article.content.includes('art-page');
+});
 </script>
 
 <template>
@@ -32,9 +36,27 @@ const isLocked = computed(() => {
         class="guest-lock-wrap" 
         :class="{ 'is-guest': isLocked }"
       >
+        <!-- Dynamic Header for DB-seeded articles -->
+        <div v-if="!hasCustomHtml" class="db-article-header">
+          <div class="db-article-cat" v-if="article.category">{{ article.category }}</div>
+          <h1 class="db-article-title">{{ article.title }}</h1>
+          <div class="db-article-meta">
+            <span class="author">Oleh <strong>{{ article.author || 'Tim Avenir Research' }}</strong></span>
+            <span class="meta-sep">·</span>
+            <span class="date">{{ article.published_at }}</span>
+          </div>
+          <img 
+            v-if="article.cover_image" 
+            :src="article.cover_image" 
+            :alt="article.title" 
+            class="db-article-hero"
+          />
+        </div>
+
         <!-- Article HTML Content -->
         <div 
           class="guest-lock-content" 
+          :class="{ 'db-content': !hasCustomHtml }"
           v-html="article.content"
         />
 
@@ -520,6 +542,129 @@ const isLocked = computed(() => {
   margin: 40px 0 !important;
   border-radius: 12px !important;
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ── Dynamic Header for DB-seeded articles ── */
+.db-article-header {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px 0;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  z-index: 5;
+}
+
+.db-article-cat {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: #10B981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+  padding: 6px 14px !important;
+  border-radius: 100px !important;
+  margin-bottom: 20px !important;
+}
+
+.db-article-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: clamp(30px, 5vw, 48px) !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  color: #ffffff !important;
+  margin: 0 0 20px !important;
+  letter-spacing: -0.02em !important;
+}
+
+.db-article-meta {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 24px !important;
+  font-size: 12px !important;
+  color: #64748b !important;
+  padding-bottom: 24px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  margin-bottom: 36px !important;
+}
+
+.db-article-meta .author strong {
+  color: #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+.db-article-meta .date {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.db-article-meta .meta-sep {
+  color: #475569 !important;
+  margin: 0 4px !important;
+}
+
+.db-article-hero {
+  width: 100% !important;
+  aspect-ratio: 16/7 !important;
+  object-fit: cover !important;
+  border-radius: 12px !important;
+  margin-bottom: 36px !important;
+  background: #090b0a !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Fallback styles for database-seeded articles that don't have .art-page wrapper */
+.article-detail-page .guest-lock-content.db-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.article-detail-page .guest-lock-content.db-content p {
+  font-size: 16px !important;
+  line-height: 1.85 !important;
+  color: #cbd5e1 !important;
+  margin: 0 0 24px !important;
+}
+
+.article-detail-page .guest-lock-content.db-content h2 {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 28px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  margin: 48px 0 20px !important;
+  padding-top: 24px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.article-detail-page .guest-lock-content.db-content h3 {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  margin: 36px 0 14px !important;
+}
+
+.article-detail-page .guest-lock-content.db-content strong {
+  color: #ffffff !important;
+}
+
+.article-detail-page .guest-lock-content.db-content em {
+  font-style: italic !important;
+}
+
+.article-detail-page .guest-lock-content.db-content ul,
+.article-detail-page .guest-lock-content.db-content ol {
+  margin: 0 0 24px 24px !important;
+  color: #cbd5e1 !important;
+}
+
+.article-detail-page .guest-lock-content.db-content li {
+  font-size: 16px !important;
+  line-height: 1.85 !important;
+  margin-bottom: 8px !important;
 }
 
 @media (max-width: 600px) {
