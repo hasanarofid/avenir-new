@@ -143,6 +143,7 @@ const formattedPrice = computed(() => {
 /* ── Page wrapper ── */
 .kdp-page {
   background-color: #090b0a;
+  color: #cbd5e1;
   min-height: calc(100vh - 52px);
   position: relative;
   overflow: hidden;
@@ -388,18 +389,24 @@ const formattedPrice = computed(() => {
 .gl-link a:hover { text-decoration: underline; }
 
 /* ── Fallback content (non-art-page) ── */
-.kdp-page .guest-lock-content.db-content p {
+.kdp-page .guest-lock-content,
+.kdp-page .db-content {
   font-size: 16px !important; line-height: 1.85 !important;
-  color: #cbd5e1 !important; margin: 0 0 24px !important;
+  color: #cbd5e1 !important;
 }
-.kdp-page .guest-lock-content.db-content h2 {
+.kdp-page .guest-lock-content p,
+.kdp-page .db-content p {
+  margin: 0 0 24px !important;
+  color: #cbd5e1 !important;
+}
+.kdp-page .guest-lock-content h2 {
   font-family: 'Sora', sans-serif !important;
   font-size: 26px !important; font-weight: 600 !important;
   color: #fff !important; margin: 44px 0 18px !important;
   padding-top: 24px !important;
   border-top: 1px solid rgba(255,255,255,0.05) !important;
 }
-.kdp-page .guest-lock-content.db-content strong { color: #fff !important; }
+.kdp-page .guest-lock-content strong { color: #fff !important; }
 
 /* ── HTML art-page content overrides ── */
 .kdp-page .art-page {

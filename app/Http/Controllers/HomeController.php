@@ -76,40 +76,70 @@ class HomeController extends Controller
             }
         }
 
-        // Baca konten dari file HTML di app/website/{slug}.html
-        $filePath = base_path("app/website/{$slug}.html");
-        $content  = null;
+        // Cek DB dulu sesuai permintaan user
+        $content = $research->content;
 
-        if (file_exists($filePath)) {
-            $html = file_get_contents($filePath);
+        if (empty($content)) {
+            // Baca konten dari file HTML di app/website/{slug}.html
+            $filePath = base_path("app/website/{$slug}.html");
 
-            // Ambil konten di dalam guest-lock-content
-            $startToken = '<div class="guest-lock-content">';
-            $endToken   = '<div class="guest-lock-overlay"';
-            $startPos   = strpos($html, $startToken);
-            if ($startPos !== false) {
-                $startPos += strlen($startToken);
-                $endPos = strpos($html, $endToken, $startPos);
-                if ($endPos !== false) {
-                    $content = trim(substr($html, $startPos, $endPos - $startPos));
-                }
-            }
+            if (file_exists($filePath)) {
+                $html = file_get_contents($filePath);
 
-            // Fallback: ambil seluruh konten di dalam .art-page
-            if (!$content) {
-                $startToken = '<div class="art-page">';
+                // 1. Ambil konten di dalam guest-lock-content (untuk riset berbayar guest)
+                $startToken = '<div class="guest-lock-content">';
+                $endToken   = '<div class="guest-lock-overlay"';
                 $startPos   = strpos($html, $startToken);
                 if ($startPos !== false) {
-                    $content = trim(substr($html, $startPos));
+                    $startPos += strlen($startToken);
+                    $endPos = strpos($html, $endToken, $startPos);
+                    if ($endPos !== false) {
+                        $content = trim(substr($html, $startPos, $endPos - $startPos));
+                    }
                 }
-            }
 
-            // Fallback: ambil dari <body>
-            if (!$content) {
-                $startPos = strpos($html, '<body>');
-                $endPos   = strpos($html, '</body>');
-                if ($startPos !== false && $endPos !== false) {
-                    $content = trim(substr($html, $startPos + strlen('<body>'), $endPos - $startPos - strlen('<body>')));
+                // 2. Fallback: ambil konten di dalam .cnt (misal CRM.html)
+                if (!$content) {
+                    $startToken = '<div class="cnt">';
+                    $endToken   = '<footer';
+                    $startPos   = strpos($html, $startToken);
+                    if ($startPos !== false) {
+                        $endPos = strpos($html, $endToken, $startPos);
+                        if ($endPos !== false) {
+                            $content = trim(substr($html, $startPos, $endPos - $startPos));
+                        } else {
+                            $content = trim(substr($html, $startPos));
+                        }
+                    }
+                }
+
+                // 3. Fallback: ambil konten di dalam .art-body
+                if (!$content) {
+                    $startToken = '<div class="art-body">';
+                    $startPos   = strpos($html, $startToken);
+                    if ($startPos !== false) {
+                        $content = trim(substr($html, $startPos));
+                        // Hapus footer jika ikut terbawa
+                        if (($fPos = strpos($content, '<footer')) !== false) {
+                            $content = substr($content, 0, $fPos);
+                        }
+                    }
+                }
+
+                // 4. Fallback: ambil dari <body> tapi hilangkan nav, drawer, dan hero
+                if (!$content) {
+                    $startPos = strpos($html, '<body>');
+                    $endPos   = strpos($html, '</body>');
+                    if ($startPos !== false && $endPos !== false) {
+                        $rawBody = substr($html, $startPos + strlen('<body>'), $endPos - $startPos - strlen('<body>'));
+                        // Buang elemen header legacy yang merusak tampilan
+                        $rawBody = preg_replace('/<div class="nav">.*?<\/div>\s*<\/div>/s', '', $rawBody);
+                        $rawBody = preg_replace('/<div class="drawer.*?<\/div>/s', '', $rawBody);
+                        $rawBody = preg_replace('/<div class="overlay.*?<\/div>/s', '', $rawBody);
+                        $rawBody = preg_replace('/<div class="hero">.*?<\/div>\s*<\/div>\s*<\/div>/s', '', $rawBody);
+                        $rawBody = preg_replace('/<footer.*?<\/footer>/s', '', $rawBody);
+                        $content = trim($rawBody);
+                    }
                 }
             }
         }
@@ -162,7 +192,20 @@ class HomeController extends Controller
     {
         $article = Article::where('slug', $slug)
             ->where('status', 'published')
-            ->firstOrFail();
+            ->first();
+
+        // Fallback: jika slug tidak ketemu, coba cari by ID (untuk URL lama)
+        if (!$article && is_numeric($slug)) {
+            $article = Article::find((int) $slug);
+            // Redirect ke URL slug jika ditemukan
+            if ($article && $article->slug && $article->status === 'published') {
+                return redirect()->route('artikel.detail', ['slug' => $article->slug], 301);
+            }
+        }
+
+        if (!$article) {
+            abort(404);
+        }
 
         $content = $this->getArticleContent($article->slug) ?? $article->content;
 

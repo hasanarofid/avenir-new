@@ -98,6 +98,7 @@ const hasCustomHtml = computed(() => {
 
 .article-detail-page {
   background-color: #090b0a;
+  color: #cbd5e1;
   min-height: calc(100vh - 52px);
   padding: 40px 0;
   position: relative;
@@ -336,17 +337,21 @@ const hasCustomHtml = computed(() => {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
 }
 
-.article-detail-page .art-body {
+.article-detail-page .guest-lock-content,
+.article-detail-page .db-content {
   font-size: 16px !important;
   line-height: 1.85 !important;
   color: #cbd5e1 !important;
 }
 
-.article-detail-page .art-body p {
+.article-detail-page .guest-lock-content p,
+.article-detail-page .db-content p {
   margin: 0 0 24px !important;
+  color: #cbd5e1 !important;
 }
 
-.article-detail-page .art-body h2 {
+.article-detail-page .guest-lock-content h2,
+.article-detail-page .db-content h2 {
   font-family: 'Sora', sans-serif !important;
   font-size: 28px !important;
   font-weight: 600 !important;
@@ -356,7 +361,8 @@ const hasCustomHtml = computed(() => {
   border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
-.article-detail-page .art-body h3 {
+.article-detail-page .guest-lock-content h3,
+.article-detail-page .db-content h3 {
   font-family: 'Sora', sans-serif !important;
   font-size: 20px !important;
   font-weight: 600 !important;
@@ -364,7 +370,8 @@ const hasCustomHtml = computed(() => {
   margin: 36px 0 14px !important;
 }
 
-.article-detail-page .art-body strong {
+.article-detail-page .guest-lock-content strong,
+.article-detail-page .db-content strong {
   color: #ffffff !important;
   font-weight: 700 !important;
 }
