@@ -17,6 +17,12 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/katalog', [HomeController::class, 'katalog'])->name('katalog');
 Route::get('/artikel', [HomeController::class, 'artikel'])->name('artikel');
 Route::get('/artikel/{slug}', [HomeController::class, 'artikelDetail'])->name('artikel.detail');
+Route::get('/news', [HomeController::class, 'news'])->name('news');
+Route::get('/news/{slug}', [HomeController::class, 'newsDetail'])->name('news.detail');
+Route::get('/tentang', [HomeController::class, 'tentang'])->name('tentang');
+Route::get('/mitra', [HomeController::class, 'mitra'])->name('mitra');
+Route::get('/langganan', [HomeController::class, 'langganan'])->name('langganan');
+Route::post('/langganan/kirim', [HomeController::class, 'kirimPembayaran'])->name('langganan.kirim')->middleware('auth');
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);

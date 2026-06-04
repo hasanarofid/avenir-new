@@ -8,7 +8,7 @@ const user = computed(() => page.props.auth?.user);
 
 const dropdownOpen = ref(false);
 const mobileMenuOpen = ref(false);
-const isHomePage = computed(() => ['Home', 'Dashboard', 'Artikel', 'ArtikelDetail'].includes(page.component));
+const isHomePage = computed(() => ['Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 'About', 'Partners', 'Subscription'].includes(page.component));
 
 const handleLogout = () => {
     dropdownOpen.value = false;
@@ -27,10 +27,10 @@ const handleLogout = () => {
           <Link href="/" class="nav-link" :class="{ active: $page.component === 'Home' }">Beranda</Link>
           <Link href="/katalog" class="nav-link" :class="{ active: $page.component === 'Dashboard' }">Katalog</Link>
           <Link href="/artikel" class="nav-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }">Artikel</Link>
-          <Link href="/news" class="nav-link">News</Link>
-          <Link href="/tentang" class="nav-link">Tentang</Link>
-          <Link href="/mitra" class="nav-link">Mitra</Link>
-          <Link href="/langganan" class="nav-link">Langganan</Link>
+          <Link href="/news" class="nav-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }">News</Link>
+          <Link href="/tentang" class="nav-link" :class="{ active: $page.component === 'About' }">Tentang</Link>
+          <Link href="/mitra" class="nav-link" :class="{ active: $page.component === 'Partners' }">Mitra</Link>
+          <Link href="/langganan" class="nav-link" :class="{ active: $page.component === 'Subscription' }">Langganan</Link>
         </div>
       </div>
 
@@ -103,10 +103,10 @@ const handleLogout = () => {
           <Link href="/" class="nav-mobile-link" :class="{ active: $page.component === 'Home' }" @click="mobileMenuOpen = false">Beranda</Link>
           <Link href="/katalog" class="nav-mobile-link" :class="{ active: $page.component === 'Dashboard' }" @click="mobileMenuOpen = false">Katalog</Link>
           <Link href="/artikel" class="nav-mobile-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }" @click="mobileMenuOpen = false">Artikel</Link>
-          <Link href="/news" class="nav-mobile-link" @click="mobileMenuOpen = false">News</Link>
-          <Link href="/tentang" class="nav-mobile-link" @click="mobileMenuOpen = false">Tentang</Link>
-          <Link href="/mitra" class="nav-mobile-link" @click="mobileMenuOpen = false">Mitra</Link>
-          <Link href="/langganan" class="nav-mobile-link" @click="mobileMenuOpen = false">Langganan</Link>
+          <Link href="/news" class="nav-mobile-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }" @click="mobileMenuOpen = false">News</Link>
+          <Link href="/tentang" class="nav-mobile-link" :class="{ active: $page.component === 'About' }" @click="mobileMenuOpen = false">Tentang</Link>
+          <Link href="/mitra" class="nav-mobile-link" :class="{ active: $page.component === 'Partners' }" @click="mobileMenuOpen = false">Mitra</Link>
+          <Link href="/langganan" class="nav-mobile-link" :class="{ active: $page.component === 'Subscription' }" @click="mobileMenuOpen = false">Langganan</Link>
         </div>
 
         <div class="nav-mobile-divider"></div>
@@ -181,7 +181,6 @@ const handleLogout = () => {
   justify-content: flex-start;
 }
 .nav-right {
-  flex: 1;
   justify-content: flex-end;
   gap: 6px;
 }

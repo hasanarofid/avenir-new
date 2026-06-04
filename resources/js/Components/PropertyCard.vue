@@ -8,41 +8,50 @@ defineProps({
 
 <template>
   <div class="card">
-    <div class="card-hd">
-      <div class="badges">
-        <span class="badge bnew" v-if="data.status === 'available'">AVAILABLE</span>
-      </div>
-      <div class="card-meta">
-        <span class="sector" v-if="data.sector" v-html="data.sector"></span>
-        <span class="ticker" v-if="data.ticker">{{ data.ticker }}</span>
-      </div>
-      <h2>{{ data.title }}</h2>
-      <p class="card-sub" v-html="data.subtitle"></p>
+    <!-- Cover Image -->
+    <div class="card-cover" v-if="data.image">
+      <img :src="data.image" :alt="data.title" loading="lazy" />
+      <div class="card-cover-overlay" />
     </div>
-    <div class="cdiv"></div>
-    <div class="card-m">
-      <div v-if="data.revenue">
-        <div class="cmv">{{ data.revenue }}</div>
-        <div class="cml">Revenue</div>
-      </div>
-      <div v-if="data.patmi">
-        <div class="cmv">{{ data.patmi }}</div>
-        <div class="cml">PATMI</div>
-      </div>
-      <div v-if="data.sales">
-        <div class="cmv">{{ data.sales }}</div>
-        <div class="cml">Sales</div>
-      </div>
-      <div v-if="!data.revenue && data.price">
-        <div class="cmv">{{ data.price ? `Rp ${data.price}` : 'TBA' }}</div>
-        <div class="cml">Harga</div>
-      </div>
+    <div class="card-cover card-cover-placeholder" v-else>
+      <div class="placeholder-icon">📊</div>
     </div>
-    <div class="cdiv"></div>
-    <div class="card-ft">
-      <Link :href="`/property/${data.id}`" class="cta">
-        Lihat Detail
-      </Link>
+
+    <!-- Card Body -->
+    <div class="card-body">
+      <div class="card-hd">
+        <div class="card-meta">
+          <span class="sector" v-if="data.sector" v-html="data.sector"></span>
+          <span class="ticker" v-if="data.ticker">{{ data.ticker }}</span>
+        </div>
+        <h2>{{ data.title }}</h2>
+        <p class="card-sub" v-html="data.subtitle"></p>
+      </div>
+      <div class="cdiv"></div>
+      <div class="card-m">
+        <div v-if="data.revenue">
+          <div class="cmv">{{ data.revenue }}</div>
+          <div class="cml">Revenue</div>
+        </div>
+        <div v-if="data.patmi">
+          <div class="cmv">{{ data.patmi }}</div>
+          <div class="cml">PATMI</div>
+        </div>
+        <div v-if="data.sales">
+          <div class="cmv">{{ data.sales }}</div>
+          <div class="cml">Sales</div>
+        </div>
+        <div v-if="!data.revenue && data.price">
+          <div class="cmv">{{ data.price ? `Rp ${data.price}` : 'TBA' }}</div>
+          <div class="cml">Harga</div>
+        </div>
+      </div>
+      <div class="cdiv"></div>
+      <div class="card-ft">
+        <Link :href="`/property/${data.id}`" class="cta">
+          Lihat Detail
+        </Link>
+      </div>
     </div>
   </div>
 </template>
@@ -53,59 +62,70 @@ defineProps({
   background-color: #111413;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
-  padding: 24px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
   z-index: 1;
 }
 
-.card::after {
-  content: '';
+.card:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(16, 185, 129, 0.05);
+}
+
+/* ── Cover Image ── */
+.card-cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  background: #0d1110;
+  flex-shrink: 0;
+}
+
+.card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover .card-cover img {
+  transform: scale(1.06);
+}
+
+.card-cover-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.05) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-  z-index: -1;
+  background: linear-gradient(to bottom, transparent 40%, rgba(17, 20, 19, 0.7) 100%);
 }
 
-.card:hover {
-  border-color: rgba(34, 197, 94, 0.25);
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(34, 197, 94, 0.03);
+.card-cover-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #111413 0%, #161c1a 100%);
 }
 
-.card:hover::after {
-  opacity: 1;
+.placeholder-icon {
+  font-size: 36px;
+  opacity: 0.25;
+}
+
+/* ── Card Body ── */
+.card-body {
+  padding: 22px 24px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-hd {
   flex-grow: 1;
-}
-
-.badges {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.badge {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 3px 8px;
-  border-radius: 4px;
-  text-transform: uppercase;
-}
-
-.bnew {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .card-meta {
@@ -128,21 +148,26 @@ defineProps({
 .ticker {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 11px;
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.06);
-  border: 1px solid rgba(34, 197, 94, 0.18);
-  padding: 2px 6px;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.07);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 2px 7px;
   border-radius: 4px;
   font-weight: 600;
 }
 
 h2 {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
   margin: 0 0 10px 0;
   line-height: 1.4;
+  transition: color 0.2s ease;
+}
+
+.card:hover h2 {
+  color: #10b981;
 }
 
 .card-sub {
@@ -150,6 +175,10 @@ h2 {
   color: #9ca3af;
   line-height: 1.6;
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Deep rendering styling for sub field span formatting */
@@ -173,14 +202,14 @@ h2 {
 
 .cmv {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
   color: #ffffff;
   overflow-wrap: anywhere;
 }
 
 .cml {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
   color: #6b7280;
   text-transform: uppercase;
@@ -209,9 +238,9 @@ h2 {
 }
 
 .card:hover .cta {
-  border-color: #22c55e;
-  background: #22c55e;
-  color: #ffffff;
-  box-shadow: 0 0 15px rgba(34, 197, 94, 0.35);
+  border-color: #10b981;
+  background: #10b981;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
 }
 </style>

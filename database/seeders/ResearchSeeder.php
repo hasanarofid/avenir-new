@@ -17,16 +17,17 @@ class ResearchSeeder extends Seeder
         
         foreach ($data as $item) {
             \App\Models\Research::create([
-                'title' => $item['title'],
+                'title'    => $item['title'],
                 'subtitle' => $item['subtitle'],
-                'ticker' => $item['ticker'],
-                'sector' => $item['sector'],
-                'revenue' => $item['revenue'],
-                'patmi' => $item['patmi'],
-                'sales' => $item['sales'],
-                'price' => $item['price'],
-                'tags' => $item['tags'],
-                'date' => $item['date'],
+                'ticker'   => $item['ticker'],
+                'sector'   => $item['sector'],
+                'revenue'  => $item['revenue'],
+                'patmi'    => $item['patmi'],
+                'sales'    => $item['sales'],
+                'price'    => $item['price'],
+                'tags'     => $item['tags'],
+                'date'     => $item['date'],
+                'image'    => $item['image'] ?? null,
             ]);
         }
     }

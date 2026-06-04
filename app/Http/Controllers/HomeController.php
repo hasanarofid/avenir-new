@@ -153,4 +153,307 @@ class HomeController extends Controller
 
         return substr($content, 0, 2000);
     }
+
+    /**
+     * Render news list page.
+     */
+    public function news()
+    {
+        $newsList = [
+            [
+                'title' => 'PACK Tarik Perpetual Loan USD 93 Juta dari Pengendali untuk Akuisisi 29,25% Saham Dua Tambang Nikel Konawe Utara',
+                'slug' => 'news-pack-akuisisi-konawe-mei-2026',
+                'category' => 'PACK · Corporate Action · Nickel',
+                'excerpt' => 'PT Abadi Nusantara Hijau Investama Tbk merilis keterbukaan informasi material 19 Mei 2026. Pinjaman perpetual USD 93,1 juta dari pemegang saham pengendali PT Eco Energi Perkasa setara 48 persen ekuitas...',
+                'published_at' => '20 Mei 2026',
+                'is_paid' => false,
+            ],
+            [
+                'title' => 'ERAL Lepas 90,1% Saham EIDO ke XPENG: Restrukturisasi Manufaktur EV dan Posisi Baru Erajaya Active Lifestyle',
+                'slug' => 'news-eral-xpeng-eido-mei-2026',
+                'category' => 'ERAL · Corporate Action · EV · XPENG',
+                'excerpt' => 'PT Sinar Eka Selaras Tbk (ERAL) mengumumkan transfer 90,1 persen saham PT Era Industri Otomotif kepada XPENG International Holding Hong Kong. Manufaktur lepas ke XPENG, distribusi dan sales tetap di ERAL...',
+                'published_at' => '18 Mei 2026',
+                'is_paid' => false,
+            ],
+            [
+                'title' => 'Di Balik Rally 619% Saham CTTH: Realitas Q1 yang Pahit dan JV Kapur yang Belum Pasti',
+                'slug' => 'news-ctth-keterbukaan-mei-2026',
+                'category' => 'CTTH · Corporate Action · Marble · Limestone',
+                'excerpt' => 'PT Citatah Tbk merilis dua keterbukaan informasi material kepada Bursa Efek Indonesia awal Mei lalu — tanggapan permintaan penjelasan soal JV USD 10,5 juta dengan Chememan Thailand, dan studi kelayakan KJPP...',
+                'published_at' => '13 Mei 2026',
+                'is_paid' => false,
+            ],
+            [
+                'title' => 'MSCI Shock Mei 2026: Enam Saham RI Didepak, IHSG Sempat Sentuh 6.726',
+                'slug' => 'news-msci-deletion-ihsg-shock-mei2026',
+                'category' => 'Pasar · MSCI · IDX · Global Flow',
+                'excerpt' => 'MSCI menghapus AMMN, BREN, TPIA, DSSA, CUAN, dan AMRT dari Global Standard Indonesia. AMRT turun ke Small Cap, sementara IHSG sempat menyentuh 6.726 dari previous close 6.859...',
+                'published_at' => '13 Mei 2026',
+                'is_paid' => false,
+            ],
+            [
+                'title' => 'RATU–RAJA Masuk Ekosistem Kasuri: 5% PI Hulu, 5% PT LNG, dan Taruhan FLNG Pertama Indonesia',
+                'slug' => 'news-ratu-akuisisi-pi-kasuri',
+                'category' => 'Korporasi · Migas · LNG · RATU · RAJA',
+                'excerpt' => 'RATU melalui PT REN masuk 5% participating interest WK Kasuri senilai US$9,647 juta, sementara RAJA merencanakan akuisisi 5% PT Layar Nusantara Gas senilai US$38,575 juta...',
+                'published_at' => '11 Mei 2026',
+                'is_paid' => false,
+            ],
+            [
+                'title' => 'Hantavirus Sampai Indonesia: 23 Kasus, 3 Kematian — Saham Sektor Kesehatan Naik di Tengah IHSG Tertekan',
+                'slug' => 'news-hantavirus-saham-kesehatan',
+                'category' => 'Pandemi · Sektor Kesehatan · IDX',
+                'excerpt' => 'Kementerian Kesehatan RI mengonfirmasi 23 kasus dan 3 kematian akibat hantavirus di sembilan provinsi sejak 2024, sementara wabah viral MV Hondius di Atlantik Selatan menambah kewaspadaan global...',
+                'published_at' => '08 Mei 2026',
+                'is_paid' => false,
+            ],
+        ];
+
+        return Inertia::render('News', [
+            'newsList' => $newsList
+        ]);
+    }
+
+    /**
+     * Render news detail page.
+     */
+    public function newsDetail($slug)
+    {
+        $filePath = base_path("app/website/{$slug}.html");
+        
+        $newsList = [
+            'news-pack-akuisisi-konawe-mei-2026' => [
+                'title' => 'PACK Tarik Perpetual Loan USD 93 Juta dari Pengendali untuk Akuisisi 29,25% Saham Dua Tambang Nikel Konawe Utara',
+                'category' => 'PACK · Corporate Action · Nickel',
+                'published_at' => '20 Mei 2026',
+            ],
+            'news-eral-xpeng-eido-mei-2026' => [
+                'title' => 'ERAL Lepas 90,1% Saham EIDO ke XPENG: Restrukturisasi Manufaktur EV dan Posisi Baru Erajaya Active Lifestyle',
+                'category' => 'ERAL · Corporate Action · EV · XPENG',
+                'published_at' => '18 Mei 2026',
+            ],
+            'news-ctth-keterbukaan-mei-2026' => [
+                'title' => 'Di Balik Rally 619% Saham CTTH: Realitas Q1 yang Pahit dan JV Kapur yang Belum Pasti',
+                'category' => 'CTTH · Corporate Action · Marble · Limestone',
+                'published_at' => '13 Mei 2026',
+            ],
+            'news-msci-deletion-ihsg-shock-mei2026' => [
+                'title' => 'MSCI Shock Mei 2026: Enam Saham RI Didepak, IHSG Sempat Sentuh 6.726',
+                'category' => 'Pasar · MSCI · IDX · Global Flow',
+                'published_at' => '13 Mei 2026',
+            ],
+            'news-ratu-akuisisi-pi-kasuri' => [
+                'title' => 'RATU–RAJA Masuk Ekosistem Kasuri: 5% PI Hulu, 5% PT LNG, dan Taruhan FLNG Pertama Indonesia',
+                'category' => 'Korporasi · Migas · LNG · RATU · RAJA',
+                'published_at' => '11 Mei 2026',
+            ],
+            'news-hantavirus-saham-kesehatan' => [
+                'title' => 'Hantavirus Sampai Indonesia: 23 Kasus, 3 Kematian — Saham Sektor Kesehatan Naik di Tengah IHSG Tertekan',
+                'category' => 'Pandemi · Sektor Kesehatan · IDX',
+                'published_at' => '08 Mei 2026',
+            ],
+        ];
+
+        $meta = $newsList[$slug] ?? [
+            'title' => ucwords(str_replace('-', ' ', $slug)),
+            'category' => 'News · Market',
+            'published_at' => now()->format('d M Y'),
+        ];
+
+        $content = null;
+        if (file_exists($filePath)) {
+            $html = file_get_contents($filePath);
+            
+            // Look for guest-lock-content or general content
+            $startToken = '<div class="guest-lock-content">';
+            $endToken = '<div class="guest-lock-overlay"';
+            
+            $startPos = strpos($html, $startToken);
+            if ($startPos !== false) {
+                $startPos += strlen($startToken);
+                $endPos = strpos($html, $endToken, $startPos);
+                if ($endPos !== false) {
+                    $content = trim(substr($html, $startPos, $endPos - $startPos));
+                }
+            }
+            
+            if (!$content) {
+                $startToken = '<div class="news-page">';
+                $startPos = strpos($html, $startToken);
+                if ($startPos !== false) {
+                    $content = trim(substr($html, $startPos));
+                }
+            }
+
+            if (!$content) {
+                // Read from body tags
+                $startToken = '<body>';
+                $endToken = '</body>';
+                $startPos = strpos($html, $startToken);
+                if ($startPos !== false) {
+                    $startPos += strlen($startToken);
+                    $endPos = strpos($html, $endToken, $startPos);
+                    if ($endPos !== false) {
+                        $content = trim(substr($html, $startPos, $endPos - $startPos));
+                    }
+                }
+            }
+        }
+
+        if (!$content) {
+            $content = '<div class="art-body"><p>Detail berita ini sedang dimigrasikan ke platform baru.</p></div>';
+        }
+
+        return Inertia::render('NewsDetail', [
+            'news' => [
+                'title' => $meta['title'],
+                'slug' => $slug,
+                'category' => $meta['category'],
+                'published_at' => $meta['published_at'],
+                'content' => $content,
+            ]
+        ]);
+    }
+
+    /**
+     * Render tentang page.
+     */
+    public function tentang()
+    {
+        return Inertia::render('About');
+    }
+
+    /**
+     * Render mitra page.
+     */
+    public function mitra()
+    {
+        $partners = \Illuminate\Support\Facades\DB::table('partners')
+            ->join('users', 'partners.user_id', '=', 'users.id')
+            ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
+            ->where('partners.is_verified', true)
+            ->select(
+                'users.id',
+                'users.name',
+                'partners.certification',
+                'partners.specializations',
+                'user_profiles.first_name',
+                'user_profiles.last_name'
+            )
+            ->get()
+            ->map(function($p) {
+                return [
+                    'name' => $p->name ?? (trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) ?: 'Mitra Analis'),
+                    'certification' => $p->certification ?? 'Mitra Analis',
+                    'specializations' => json_decode($p->specializations ?? '[]'),
+                ];
+            });
+
+        return Inertia::render('Partners', [
+            'partners' => $partners
+        ]);
+    }
+
+    /**
+     * Render subscription page.
+     */
+    public function langganan()
+    {
+        $status = 'free'; // default
+        $pendingSubmission = null;
+        $isSubscriber = false;
+
+        if (auth()->check()) {
+            $user = auth()->user();
+            
+            // Check if user is subscriber in user_profiles
+            $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
+                ->where('user_id', $user->id)
+                ->first();
+            if ($profile && $profile->is_subscriber) {
+                $isSubscriber = true;
+                $status = 'active';
+            }
+
+            // Check if there is a pending payment submission
+            $pendingSubmission = \Illuminate\Support\Facades\DB::table('payment_submissions')
+                ->where('user_id', $user->id)
+                ->where('status', 'pending')
+                ->orderBy('submitted_at', 'desc')
+                ->first();
+            
+            if ($pendingSubmission) {
+                $status = 'pending';
+            }
+        } else {
+            $status = 'guest';
+        }
+
+        return Inertia::render('Subscription', [
+            'status' => $status,
+            'isSubscriber' => $isSubscriber,
+            'pendingSubmission' => $pendingSubmission ? [
+                'paket' => $pendingSubmission->paket,
+                'nominal' => $pendingSubmission->nominal,
+                'submitted_at' => $pendingSubmission->submitted_at,
+            ] : null
+        ]);
+    }
+
+    /**
+     * Handle payment submission request.
+     */
+    public function kirimPembayaran(Request $request)
+    {
+        $request->validate([
+            'paket' => 'required|string|in:1bulan,3bulan,6bulan,12bulan',
+            'durasi_hari' => 'required|integer',
+            'nominal' => 'required|integer',
+            'bukti_transfer' => 'required|image|mimes:jpeg,png,jpg,webp|max:3072',
+        ]);
+
+        $user = auth()->user();
+
+        // Check if there is already a pending submission to prevent duplicates
+        $existingPending = \Illuminate\Support\Facades\DB::table('payment_submissions')
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($existingPending) {
+            return back()->withErrors(['error' => 'Anda masih memiliki submission yang sedang diverifikasi.']);
+        }
+
+        // Store file
+        $file = $request->file('bukti_transfer');
+        $path = $file->store('payment_proofs', 'public');
+        $url = asset('storage/' . $path);
+
+        // Get user profile first name and last name
+        $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
+            ->where('user_id', $user->id)
+            ->first();
+
+        $userNama = $profile ? trim(($profile->first_name ?? '') . ' ' . ($profile->last_name ?? '')) : $user->name;
+
+        // Insert using query builder
+        \Illuminate\Support\Facades\DB::table('payment_submissions')->insert([
+            'id' => \Illuminate\Support\Str::uuid()->toString(),
+            'user_id' => $user->id,
+            'paket' => $request->input('paket'),
+            'durasi_hari' => $request->input('durasi_hari'),
+            'nominal' => $request->input('nominal'),
+            'bukti_url' => $url,
+            'bukti_path' => $path,
+            'status' => 'pending',
+            'submitted_at' => now(),
+            'user_email' => $user->email,
+            'user_nama' => $userNama ?: $user->name,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('langganan')->with('success', 'Bukti transfer berhasil dikirim. Admin akan segera memverifikasinya.');
+    }
 }
