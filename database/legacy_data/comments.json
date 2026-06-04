@@ -1,0 +1,24 @@
+[
+    {
+        "id": "b74a0da2-d48f-465b-a13c-6bc549119942",
+        "research_id": "powr",
+        "user_id": "2574c6d5-dc40-4831-b3d2-fd4b0b027176",
+        "parent_id": "",
+        "body": "Gacor",
+        "like_count": "0",
+        "is_deleted": "false",
+        "created_at": "2026-05-10 01:37:32.251914+00",
+        "updated_at": "2026-05-10 01:37:32.251914+00"
+    },
+    {
+        "id": "ed11917c-6f91-4f75-a974-3494bcccbbf0",
+        "research_id": "powr",
+        "user_id": "084bb1aa-9506-49fd-8f5a-49bdc7731cd8",
+        "parent_id": "",
+        "body": "Test",
+        "like_count": "0",
+        "is_deleted": "false",
+        "created_at": "2026-05-10 01:28:26.274582+00",
+        "updated_at": "2026-05-10 01:28:26.274582+00"
+    }
+]

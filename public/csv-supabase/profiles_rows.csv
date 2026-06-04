@@ -1,0 +1,77 @@
+id,nama_depan,nama_belakang,profil_investor,created_at,trial_started_at,subscription_until,is_mitra,no_hp,sertifikasi,bio,spesialisasi,link_portfolio,foto_url,is_user,bank_name,rekening_number,rekening_holder,is_admin
+04aee73a-83b4-4fc5-97f4-1f5778f448f5,Yayah,Masruriyah,Investor Individu,2026-05-05 11:36:15.673735+00,,,false,,,,,,,true,,,,false
+084bb1aa-9506-49fd-8f5a-49bdc7731cd8,Tim Avenir,Research,Fund Manager,2026-05-08 07:21:56.979235+00,2026-05-08 07:21:56.526+00,2026-11-09 07:58:31.48+00,false,089520719806,CSA (Certified Securities Analyst),Saya adalah seorang profesional yang memiliki pengalaman lebih dari 5 tahun di market,"[""Mining"",""Telco"",""Agribusiness""]",https://www.linkedin.com/in/roziana-arum-sari-s-ak-220a86279/,,true,BRI,322701013927507,Marta FIkri,true
+09565b14-539a-458f-b54a-da9024b17195,Abdul,Rohman,Investor Individu,2026-05-06 07:22:53.675626+00,,,false,,,,,,,true,,,,false
+0ceb03f1-a8c8-4d64-8d84-6b4733ab0dc8,Nabila,Amalina,Investor Individu,2026-05-05 16:17:30.540397+00,,,false,,,,,,,true,,,,false
+0f96bdce-fb1f-45b4-9fb8-64bafe902faa,Ahmad Hikam,Wardhana,Investor Individu,2026-05-18 07:02:48.411051+00,2026-05-18 07:02:48.469+00,,false,,,,,,,true,,,,false
+13dd3da3-7b29-4e53-bc9b-7efd8ad0fd39,hady,wijaa,Investor Individu,2026-05-11 04:45:01.182717+00,2026-05-11 04:45:01.413+00,,false,,,,,,,true,,,,false
+1574d56f-99c3-46aa-a7bd-1bf8909fcd07,Liaa,Lila,Investor Individu,2026-05-06 05:35:21.682878+00,,,false,,,,,,,true,,,,false
+1785e5e6-1cd8-4a2f-b560-804d7cdf860a,Ahmad,Hanafi,Investor Individu,2026-05-24 12:55:16.534021+00,2026-05-24 12:55:16.046+00,,false,,,,,,,true,,,,false
+17ad5586-c7c9-4e2b-94e7-ac92f1a6647c,Widi,Pardiyawan,Investor Individu,2026-05-08 02:35:49.30234+00,2026-05-08 02:35:49.406+00,,false,,,,,,,true,,,,false
+180ad079-a40e-4012-9dae-ab0eeef06da6,Apriyadi,Apriyadi,Investor Individu,2026-05-05 12:34:40.846686+00,,,false,,,,,,,true,,,,false
+199497bd-ee0b-4b1b-b723-bed36539f1ee,Fajar,Anwar,Investor Individu,2026-05-07 01:05:07.645696+00,,,false,,,,,,,true,,,,false
+1a5a1092-0c2b-42e5-b88d-2a6b92a45982,Juki,Mano,,2026-05-07 09:27:38.99572+00,,,false,,,,,,,true,,,,false
+1b9ed029-7cd3-457f-8713-dcee92363c1c,Kemal,Akbar,Investor Individu,2026-05-24 22:02:40.665137+00,2026-05-24 22:02:40.789+00,,false,,,,,,,true,,,,false
+1f6d8c16-ace1-4e70-9c3b-2eb1141dbfa6,Leo,Tiofan,Investor Individu,2026-05-13 14:40:48.190346+00,2026-05-13 14:40:48.213+00,,false,,,,,,,true,,,,false
+2574c6d5-dc40-4831-b3d2-fd4b0b027176,Otong,Sayur,Trader Aktif,2026-05-10 01:36:11.468734+00,2026-05-10 01:36:12.392+00,,false,,,,,,,true,,,,false
+2d73f8f4-df25-4c7f-bad7-a8eb16d43f9b,heru,w,Investor Individu,2026-05-18 06:42:18.019246+00,2026-05-18 06:42:17.89+00,,false,,,,,,,true,,,,false
+38c8ee21-d926-43a7-a3cc-eede2aab4951,Adi,Perda,Investor Individu,2026-05-09 23:53:11.16767+00,2026-05-09 23:53:11.068+00,,false,,,,,,,true,,,,false
+41a7bcfe-ef46-4945-bb52-a9001a333cb2,Nur,Rizal,Investor Individu,2026-05-12 04:16:51.491076+00,2026-05-12 04:16:50.819+00,,false,,,,,,,true,,,,false
+4384589a-de08-4ab0-87fa-d7defc9b0acd,Nichol,Nibraas,Investor Individu,2026-05-10 09:32:56.81551+00,2026-05-10 09:32:56.068+00,,false,,,,,,,true,,,,false
+4809089d-8e54-42a9-b747-a4812d23a475,Ykang,Yuyy,Investor Individu,2026-05-11 04:38:48.26988+00,2026-05-11 04:38:48.427+00,,false,,,,,,,true,,,,false
+48117d1f-4978-40f3-980a-d18082dbb532,budi,santoso,Investor Individu,2026-05-10 01:38:16.110433+00,2026-05-10 01:38:21.201+00,,false,,,,,,,true,,,,false
+4a787492-50be-4f0a-a91a-e22a073f5efc,Andrew,Mikael,Investor Individu,2026-05-17 04:50:43.234645+00,2026-05-17 04:50:43.564+00,,false,,,,,,,true,,,,false
+518ef540-983b-4413-a797-e24f686974df,Fajar Sidik,Nugroho,Investor Individu,2026-05-07 15:18:07.46078+00,2026-05-07 15:18:07.327+00,,false,,,,,,,true,,,,false
+58f4d7cd-8c0e-437d-8a1f-04db72a8e10f,Reza,Aji,Investor Individu,2026-05-05 23:20:27.237367+00,,,false,,,,,,,true,,,,false
+5f687bb4-9d3f-405b-b517-f1fdb2b291d4,D,Angga,Investor Individu,2026-05-08 06:39:23.117447+00,2026-05-08 06:39:23.929+00,,false,,,,,,,true,,,,false
+6589207e-4593-4f7c-b79e-1c817eaaa976,Gesha,Anggara,Investor Individu,2026-05-13 07:54:20.603234+00,2026-05-13 07:54:20.931+00,,false,,,,,,,true,,,,false
+65a565c0-2224-4fda-af11-aea9dc0c2f13,Vin,Bayu,Investor Individu,2026-05-05 10:22:48.156244+00,,,false,,,,,,,true,,,,false
+6e666cf6-f7c6-411c-b7a2-5d96690c4611,lala,iseula,Investor Individu,2026-05-05 11:01:58.308935+00,,,false,,,,,,,true,,,,false
+74126dc8-1e36-457a-bbf8-51277b12ef68,Ramadhan,,,2026-05-18 18:31:33.02679+00,2026-05-07 12:47:58.022378+00,,false,,,,,,,true,,,,false
+78128b3e-0542-4f09-8509-106ec3a24821,Naufal,Meidianto,Investor Individu,2026-05-12 12:40:59.141659+00,2026-05-12 12:40:59.358+00,,false,,,,,,,true,,,,false
+7b67ff8d-b09c-4557-bb23-ac3d7f45634f,Marta,Fikri,,2026-05-05 08:50:53.672142+00,,,true,081296012577,CSA ( Certified Securuties Analyst ),saya seorang profesional yang terlinat dalam berbagai proyek ondovidu maupun seoran,"[""Agribisnis""]",https://www.linkedin.com/in/roziana-arum-sari-s-ak-220a86279/,https://wkcqnqtwuxzcjagitkmk.supabase.co/storage/v1/object/public/mitra-photos/7b67ff8d-b09c-4557-bb23-ac3d7f45634f/profile.png?t=1778336682979,true,OCBC,123456789,marti lubis,false
+7dd6fe2d-3e21-4b13-b0d3-0b1af2ff2fea,EDY,PARAJAI,Investor Individu,2026-05-12 02:11:41.481589+00,2026-05-12 02:11:41.522+00,,false,,,,,,,true,,,,false
+7e5f2b05-cfa0-49f3-847a-01a6318376ba,Fajar,Candra,Investor Individu,2026-05-08 23:33:57.102045+00,2026-05-08 23:33:57.484+00,,false,,,,,,,true,,,,false
+88620643-e2ee-4911-a0c7-4d5413b7bd3e,Yuyu,kangkang,Investor Individu,2026-05-06 02:51:12.362659+00,,,false,,,,,,,true,,,,false
+8ae6495f-d8e5-4a93-938e-5b2d0a332ef5,Ahmad,Nur Fadhian,Investor Individu,2026-05-11 02:35:07.184871+00,2026-05-11 02:35:08.374+00,,false,,,,,,,true,,,,false
+8b94e477-846c-4e19-aedd-40289a6bc5b5,Ketut,Soedirman,Investor Individu,2026-05-14 05:15:23.056673+00,2026-05-14 05:15:23.224+00,,false,,,,,,,true,,,,false
+8ec42d68-745e-4fb7-a5e7-33c52a978daf,Muhammad,Ghaffar,Investor Individu,2026-05-11 10:52:48.609172+00,2026-05-11 10:52:48.026+00,,false,,,,,,,true,,,,false
+94c5ff2c-ab41-42ec-864f-832df48bf7fa,adrian,lee,Investor Individu,2026-05-08 11:03:23.975597+00,2026-05-08 11:03:24.099+00,,false,,,,,,,true,,,,false
+950e2ad1-9927-4985-9b6e-3a86025f8d86,Satriyo,.,Investor Individu,2026-05-06 06:35:52.53895+00,,,false,,,,,,,true,,,,false
+9852f905-330d-42b9-9c63-7badbde0c278,Ilham,Cholid,Investor Individu,2026-05-18 21:00:43.612117+00,2026-05-18 21:00:43.101+00,,false,,,,,,,true,,,,false
+9b40251b-eb8c-43ad-8fab-3af6676af883,Ahmad,BS,Investor Individu,2026-05-14 07:47:10.864762+00,2026-05-14 07:47:09.977+00,,false,,,,,,,true,,,,false
+9fa4e1c5-2bd3-484f-8be8-8dde5c24edf1,fari,pratomosiwi,Investor Individu,2026-05-10 07:42:15.490136+00,2026-05-10 07:42:15.782+00,,false,,,,,,,true,,,,false
+a3546453-b532-40fa-b809-ef50348f7bd7,Gede,Agus,Investor Individu,2026-05-19 15:31:15.969392+00,2026-05-19 15:31:15.966+00,2026-07-19 18:16:34.384+00,false,,,,,,,true,,,,false
+a3f74529-a665-4169-937e-3df12fd5e1df,Panji,Muhammad,Investor Individu,2026-05-07 00:00:52.919938+00,,,false,,,,,,,true,,,,false
+a55b64e4-c847-4752-884b-ffd79fc8dfcf,Freddy,Gunawan,Investor Individu,2026-05-23 02:49:24.584872+00,2026-05-23 02:49:24.696+00,,false,,,,,,,true,,,,false
+a5c4f4f2-8674-437e-92a9-0091100de9c1,Aini,Sari,Mitra Analis,2026-05-07 17:51:13.078358+00,2026-05-07 17:51:13.648+00,,false,,,,,,,true,,,,false
+a706a9a8-e35d-4cc0-8237-d546f1aa7533,Muh,Darwis,Investor Individu,2026-05-10 06:00:17.186794+00,2026-05-10 06:00:17.543+00,,false,,,,,,,true,,,,false
+a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c,Roziana,,,2026-05-18 18:31:33.02679+00,2026-05-05 04:36:26.769562+00,,false,,,,,,,true,,,,false
+aed0bc13-47ba-4439-8bd7-7ee22b8344bb,lana,len,Investor Individu,2026-05-12 07:04:33.300779+00,2026-05-12 07:04:33.166+00,,false,,,,,,,true,,,,false
+b40c050e-d03d-420f-aa88-c433023e4a0e,Rendy,Robert,Investor Individu,2026-05-14 01:27:41.761596+00,2026-05-14 01:27:42.31+00,,false,,,,,,,true,,,,false
+b8721cb5-40c2-4552-86f2-e9ac517df3c8,ABDUL,HALIM,Investor Individu,2026-05-24 17:26:17.011899+00,2026-05-24 17:26:18.367+00,,false,,,,,,,true,,,,false
+b8a1d8ae-fb05-405d-87ee-e0e84b5e8440,adawd,adwada,Investor Individu,2026-05-15 14:16:38.385115+00,2026-05-15 14:16:38.493+00,,false,,,,,,,true,,,,false
+bc60a62c-8b8d-413c-847e-282562a61f9e,ahmad,fauzi,Investor Individu,2026-05-16 11:57:59.448102+00,2026-05-16 11:58:01.278+00,,false,,,,,,,true,,,,false
+c8636545-84f5-4328-8583-371d8dd41923,Rahma,Maulida,Investor Individu,2026-05-10 08:55:33.281051+00,2026-05-10 08:55:34.351+00,,false,,,,,,,true,,,,false
+c9919e07-6657-4789-982f-f3dbe8c4a674,God,Mocker,Investor Individu,2026-05-08 06:55:09.980947+00,2026-05-08 06:55:10.04+00,,false,,,,,,,true,,,,false
+caa892cd-5fcb-4b95-8d8d-d6f71e861bb8,Bagust,Dwicahya,Investor Individu,2026-05-09 03:52:05.643739+00,2026-05-09 03:52:04.743+00,,false,,,,,,,true,,,,false
+cb3cc540-3478-4a00-a94c-02975b1f944b,Hanief,Hanief,Investor Individu,2026-05-12 06:52:53.020013+00,2026-05-12 06:52:53.09+00,,false,,,,,,,true,,,,false
+cc91f008-ccc6-4881-89e9-36910a22d135,Hendra,Arbi,Investor Individu,2026-05-05 13:50:21.912191+00,,,false,,,,,,,true,,,,false
+cd45eb9f-7acb-4398-86ae-8eeaee74b8e1,Andri,Chen,Investor Individu,2026-05-08 03:21:45.342729+00,2026-05-08 03:21:46.506+00,,false,,,,,,,true,,,,false
+d0144c72-1e97-4f7c-90c8-0d5e66bb889c,Jonathan,Febrianto,Investor Individu,2026-05-15 00:51:48.765176+00,2026-05-15 00:51:48.718+00,,false,,,,,,,true,,,,false
+d16c532f-210e-4c62-a529-2c2493c7005d,Tang,Sun,Investor Individu,2026-05-11 13:49:26.250284+00,2026-05-11 13:49:28.35+00,,false,,,,,,,true,,,,false
+d7e77536-33fa-4908-9edc-e9e0eb7c7650,Wahyu,Adriansyah,Investor Individu,2026-05-10 11:39:26.017154+00,2026-05-10 11:39:25.871+00,,false,,,,,,,true,,,,false
+d899b3be-6272-46cf-9260-40a4f7a22d2d,Raja,Manru,,2026-05-06 03:27:32.04222+00,,,false,,,,,,,true,,,,false
+dc7472d8-53e3-4925-a781-45b67030cc42,Bos,Tom,,2026-05-07 15:15:09.474825+00,,,false,,,,,,,true,,,,false
+dc9eeeed-9c2e-46d5-a8da-a3af09b635a4,Vin,Bayu,Investor Individu,2026-05-18 08:35:34.977748+00,2026-05-18 08:35:34.631+00,,false,,,,,,,true,,,,false
+dd78f100-0754-4f85-8df5-5bdf69cf5662,Naufal,Maulana,Investor Individu,2026-05-07 19:17:15.538192+00,2026-05-07 19:17:16.39+00,,false,,,,,,,true,,,,false
+e74cb95d-6a50-4402-acb9-80dc05f6ed2d,Ridwan,Gunawan,Investor Individu,2026-05-07 12:26:09.090098+00,2026-05-07 12:26:10.845+00,,false,,,,,,,true,,,,false
+e76124dc-b56d-4d75-a027-78bb3fe1bee1,Panji,Muhammad,Investor Individu,2026-05-12 00:57:00.721269+00,2026-05-12 00:57:01.909+00,,false,,,,,,,true,,,,false
+e7e728aa-14bf-44b5-9360-85f3ea083de1,Sean,Tanadi,Trader Aktif,2026-05-09 11:23:25.367164+00,2026-05-09 11:23:24.271+00,,false,,,,,,,true,,,,false
+e8d1d332-a2dc-4d68-b170-1a2c2c7e3c83,Kandias Radista,Wardhana,Investor Individu,2026-05-18 06:38:03.1871+00,2026-05-18 06:38:03.351+00,,false,,,,,,,true,,,,false
+e996ac60-9715-4163-a53e-1a11070effde,Randy,Deth,Investor Individu,2026-05-15 11:09:06.274204+00,2026-05-15 11:09:06.508+00,,false,,,,,,,true,,,,false
+eca09d66-0e2e-48b4-8fd2-39662248e49d,Ishamuddin,Syahid,Investor Individu,2026-05-13 07:07:26.846385+00,2026-05-13 07:07:28.008+00,,false,,,,,,,true,,,,false
+f3c3c080-3585-4ab6-b9d5-8efdbf9ff126,Ihsan,,,2026-05-18 18:31:33.02679+00,2026-05-05 08:59:45.431505+00,,false,,,,,,,true,,,,false
+f4f5b656-cb33-4aaa-8f98-6b30e0be31ce,Charlie,Charlie,Investor Individu,2026-05-06 14:01:30.206735+00,,,false,,,,,,,true,,,,false
+fa636ae1-18fb-434a-a465-c0b2090938e2,nodo,sariwa,Investor Individu,2026-05-19 15:22:36.623974+00,2026-05-19 15:22:36.688+00,,false,,,,,,,true,,,,false
+fbd16c1e-e03d-4c19-9a4b-624c23d63b8f,Hanief,Hanief,Investor Individu,2026-05-21 16:12:11.914939+00,2026-05-21 16:12:12.367+00,,false,,,,,,,true,,,,false

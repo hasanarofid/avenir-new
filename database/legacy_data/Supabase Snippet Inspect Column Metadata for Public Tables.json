@@ -1,0 +1,534 @@
+[
+    {
+        "table_name": "avenir_team_emails",
+        "column_name": "email",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "avenir_team_emails",
+        "column_name": "note",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "avenir_team_emails",
+        "column_name": "added_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "comment_likes",
+        "column_name": "comment_id",
+        "data_type": "uuid",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "comment_likes",
+        "column_name": "user_id",
+        "data_type": "uuid",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "comment_likes",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "comments",
+        "column_name": "id",
+        "data_type": "uuid",
+        "is_nullable": "NO",
+        "column_default": "gen_random_uuid()"
+    },
+    {
+        "table_name": "comments",
+        "column_name": "research_id",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "comments",
+        "column_name": "user_id",
+        "data_type": "uuid",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "comments",
+        "column_name": "parent_id",
+        "data_type": "uuid",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "comments",
+        "column_name": "body",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "comments",
+        "column_name": "like_count",
+        "data_type": "integer",
+        "is_nullable": "YES",
+        "column_default": "0"
+    },
+    {
+        "table_name": "comments",
+        "column_name": "is_deleted",
+        "data_type": "boolean",
+        "is_nullable": "YES",
+        "column_default": "false"
+    },
+    {
+        "table_name": "comments",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "comments",
+        "column_name": "updated_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "nextval('notifications_id_seq'::regclass)"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "title",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "url",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "category",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'Artikel'::text"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "is_new",
+        "data_type": "boolean",
+        "is_nullable": "YES",
+        "column_default": "true"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "published_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "updated_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "email_sent_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "notifications",
+        "column_name": "email_sent_count",
+        "data_type": "integer",
+        "is_nullable": "YES",
+        "column_default": "0"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "id",
+        "data_type": "bigint",
+        "is_nullable": "NO",
+        "column_default": "nextval('payment_submissions_id_seq'::regclass)"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "user_id",
+        "data_type": "uuid",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "paket",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "durasi_hari",
+        "data_type": "integer",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "nominal",
+        "data_type": "integer",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "bukti_url",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "bukti_path",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "status",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "'pending'::text"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "submitted_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "NO",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "verified_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "verified_by",
+        "data_type": "uuid",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "admin_notes",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "user_email",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "payment_submissions",
+        "column_name": "user_nama",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "id",
+        "data_type": "uuid",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "nama_depan",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "nama_belakang",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "profil_investor",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "trial_started_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "subscription_until",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "is_mitra",
+        "data_type": "boolean",
+        "is_nullable": "YES",
+        "column_default": "false"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "no_hp",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "sertifikasi",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "bio",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "spesialisasi",
+        "data_type": "ARRAY",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "link_portfolio",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "foto_url",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "is_user",
+        "data_type": "boolean",
+        "is_nullable": "YES",
+        "column_default": "true"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "bank_name",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "rekening_number",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "rekening_holder",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "profiles",
+        "column_name": "is_admin",
+        "data_type": "boolean",
+        "is_nullable": "YES",
+        "column_default": "false"
+    },
+    {
+        "table_name": "research_likes",
+        "column_name": "id",
+        "data_type": "uuid",
+        "is_nullable": "NO",
+        "column_default": "gen_random_uuid()"
+    },
+    {
+        "table_name": "research_likes",
+        "column_name": "research_id",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "research_likes",
+        "column_name": "user_id",
+        "data_type": "uuid",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "research_likes",
+        "column_name": "created_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "now()"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "research_id",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "mitra_id",
+        "data_type": "uuid",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "title",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "ticker",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "sector",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "type",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "'mitra'::text"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "published_at",
+        "data_type": "date",
+        "is_nullable": "YES",
+        "column_default": "CURRENT_DATE"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "author_type",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "'tim_avenir'::text"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "author_id",
+        "data_type": "uuid",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "research_meta",
+        "column_name": "author_display_name",
+        "data_type": "text",
+        "is_nullable": "YES",
+        "column_default": "'Tim Avenir'::text"
+    },
+    {
+        "table_name": "unlocked_research",
+        "column_name": "id",
+        "data_type": "uuid",
+        "is_nullable": "NO",
+        "column_default": "gen_random_uuid()"
+    },
+    {
+        "table_name": "unlocked_research",
+        "column_name": "user_id",
+        "data_type": "uuid",
+        "is_nullable": "YES",
+        "column_default": "null"
+    },
+    {
+        "table_name": "unlocked_research",
+        "column_name": "ticker",
+        "data_type": "text",
+        "is_nullable": "NO",
+        "column_default": "null"
+    },
+    {
+        "table_name": "unlocked_research",
+        "column_name": "unlocked_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": "now()"
+    }
+]

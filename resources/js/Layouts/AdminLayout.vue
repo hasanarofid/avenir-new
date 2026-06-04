@@ -37,12 +37,12 @@ const logout = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-900 text-slate-100 font-sans antialiased relative overflow-hidden">
+  <div class="min-h-screen bg-[#090b0a] text-slate-100 font-sans antialiased relative overflow-hidden">
     <!-- Mobile Sidebar Backdrop -->
     <div 
       v-if="isSidebarOpen" 
       @click="isSidebarOpen = false" 
-      class="fixed inset-0 z-40 bg-slate-950/80 lg:hidden transition-opacity"
+      class="fixed inset-0 z-40 bg-[#090b0a]/80 lg:hidden transition-opacity"
     ></div>
 
     <!-- Sidebar for Mobile and Desktop -->
@@ -50,19 +50,16 @@ const logout = () => {
       :class="[
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
-        'fixed top-0 bottom-0 left-0 z-50 w-72 bg-slate-950 border-r border-slate-800/80 transition-all duration-300 ease-in-out lg:fixed flex flex-col justify-between'
+        'fixed top-0 bottom-0 left-0 z-50 w-72 bg-[#121614] border-r border-emerald-950/20 transition-all duration-300 ease-in-out lg:fixed flex flex-col justify-between'
       ]"
     >
       <div>
         <!-- Sidebar Header / Logo -->
-        <div :class="[isSidebarCollapsed ? 'lg:px-0 lg:justify-center' : 'px-6 justify-between', 'flex items-center h-20 border-b border-slate-800']">
+        <div :class="[isSidebarCollapsed ? 'lg:px-2 lg:justify-center' : 'px-6 justify-between', 'flex items-center h-20 border-b border-emerald-950/20']">
           <Link :href="route('admin.dashboard')" class="flex items-center gap-3">
-            <div class="p-2.5 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-650/30 shrink-0">
-              <Layers class="w-5 h-5 text-white" />
-            </div>
-            <div :class="[isSidebarCollapsed ? 'lg:hidden' : 'block', 'transition-opacity duration-300']">
-              <h1 class="text-sm font-bold tracking-tight text-white uppercase">CMS Panel</h1>
-              <p class="text-xxs text-indigo-400 font-medium tracking-wide">SaaS SaaS-Boilerplate</p>
+            <img src="/images/logo.png" :class="[isSidebarCollapsed ? 'h-5' : 'h-7', 'w-auto object-contain transition-all']" alt="Avenir" />
+            <div v-if="!isSidebarCollapsed" class="transition-opacity duration-300">
+              <h1 class="text-xs font-bold tracking-tight text-white uppercase">Admin Panel</h1>
             </div>
           </Link>
           <button 
@@ -81,8 +78,8 @@ const logout = () => {
             :href="item.href"
             :class="[
               item.current 
-                ? 'bg-gradient-to-r from-indigo-600/15 to-indigo-600/5 text-indigo-455 border-l-4 border-indigo-650' 
-                : 'text-slate-450 hover:bg-slate-900/55 hover:text-slate-200 border-l-4 border-transparent',
+                ? 'bg-gradient-to-r from-emerald-600/15 to-emerald-600/5 text-emerald-400 border-l-4 border-emerald-500' 
+                : 'text-slate-450 hover:bg-emerald-900/55 hover:text-slate-200 border-l-4 border-transparent',
               isSidebarCollapsed ? 'lg:justify-center lg:px-0' : 'px-4',
               'group flex items-center py-3.5 text-sm font-semibold rounded-r-xl transition-all duration-300'
             ]"
@@ -91,7 +88,7 @@ const logout = () => {
             <component 
               :is="item.icon" 
               :class="[
-                item.current ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-350',
+                item.current ? 'text-emerald-400' : 'text-slate-500 group-hover:text-slate-350',
                 isSidebarCollapsed ? 'lg:mr-0' : 'mr-3',
                 'h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:scale-105'
               ]" 
@@ -102,11 +99,11 @@ const logout = () => {
       </div>
 
       <!-- Sidebar Footer / Template Owner & Profile -->
-      <div :class="[isSidebarCollapsed ? 'lg:p-2' : 'p-4', 'border-t border-slate-800/80 bg-slate-950/50']">
+      <div :class="[isSidebarCollapsed ? 'lg:p-2' : 'p-4', 'border-t border-emerald-950/20 bg-[#121614]/50']">
         <!-- Template Owner & Collapse Toggle Row -->
         <div :class="[isSidebarCollapsed ? 'lg:px-0 lg:justify-center' : 'px-2 justify-between', 'mb-4 flex items-center text-xxs text-slate-500 font-bold uppercase tracking-wider transition-opacity duration-300']">
           <div v-if="!isSidebarCollapsed" class="flex items-center gap-1">
-            <a href="https://hasanarofid.site" target="_blank" class="text-indigo-400 hover:text-indigo-300 transition-colors normal-case">
+            <a href="https://hasanarofid.site" target="_blank" class="text-emerald-400 hover:text-emerald-300 transition-colors normal-case">
               @hasanarofid.site
             </a>
           </div>
@@ -122,8 +119,8 @@ const logout = () => {
           </div>
         </div>
 
-        <div :class="[isSidebarCollapsed ? 'lg:px-0 lg:justify-center' : 'px-2 gap-3', 'flex items-center pt-3 border-t border-slate-800/60']">
-          <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400 border border-slate-700 shrink-0">
+        <div :class="[isSidebarCollapsed ? 'lg:px-0 lg:justify-center' : 'px-2 gap-3', 'flex items-center pt-3 border-t border-emerald-950/20']">
+          <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-emerald-450 border border-slate-700 shrink-0">
             {{ user.name.charAt(0).toUpperCase() }}
           </div>
           <div :class="[isSidebarCollapsed ? 'lg:hidden' : 'block', 'flex-1 min-w-0 transition-opacity duration-300']">
@@ -150,7 +147,7 @@ const logout = () => {
       ]"
     >
       <!-- Top header bar (Sticky Glassmorphic) -->
-      <header class="flex items-center justify-between h-20 px-6 md:px-8 border-b border-slate-800/80 bg-slate-950/40 backdrop-blur sticky top-0 z-30">
+      <header class="flex items-center justify-between h-20 px-6 md:px-8 border-b border-emerald-950/20 bg-[#121614]/40 backdrop-blur sticky top-0 z-30">
         <div class="flex items-center gap-6 flex-1 max-w-md">
           <button 
             @click="isSidebarOpen = true" 
@@ -167,7 +164,7 @@ const logout = () => {
             <input 
               type="text" 
               placeholder="Ketik '/' untuk mencari..."
-              class="w-full bg-slate-900/60 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-250 placeholder-slate-550 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+              class="w-full bg-slate-900/60 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-250 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
             />
             <span class="absolute right-3.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 bg-slate-800 text-[10px] font-bold text-slate-500 rounded border border-slate-700">
               /
@@ -187,9 +184,9 @@ const logout = () => {
           <div class="relative">
             <button 
               @click="isUserMenuOpen = !isUserMenuOpen"
-              class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-850 border border-transparent hover:border-slate-800/80 transition-all text-slate-200"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#121614] border border-transparent hover:border-emerald-950/20 transition-all text-slate-200"
             >
-              <div class="w-7 h-7 rounded-lg bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-xs">
+              <div class="w-7 h-7 rounded-lg bg-emerald-600/10 border border-emerald-500/20 text-emerald-450 font-bold flex items-center justify-center text-xs">
                 {{ user.name.charAt(0).toUpperCase() }}
               </div>
               <span class="text-xs font-semibold hidden md:inline-block">{{ user.name }}</span>
@@ -202,7 +199,7 @@ const logout = () => {
             ></div>
             <div 
               v-if="isUserMenuOpen" 
-              class="absolute right-0 mt-2 w-48 rounded-2xl bg-slate-950 border border-slate-800 shadow-xl shadow-slate-950/50 py-1.5 z-20 overflow-hidden transform origin-top-right transition-all"
+              class="absolute right-0 mt-2 w-48 rounded-2xl bg-[#121614] border border-emerald-950/20 shadow-xl shadow-slate-950/50 py-1.5 z-20 overflow-hidden transform origin-top-right transition-all"
             >
               <Link 
                 :href="route('profile.edit')" 
@@ -222,7 +219,7 @@ const logout = () => {
       </header>
 
       <!-- Main Panel Page -->
-      <main class="flex-1 p-6 md:p-8 bg-slate-900/60">
+      <main class="flex-1 p-6 md:p-8 bg-[#090b0a]/60">
         <!-- Toast Notification Alert if session contains flash success/error -->
         <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-between">
           <div class="flex items-center gap-2">

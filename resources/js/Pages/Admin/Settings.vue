@@ -64,13 +64,13 @@ const submit = () => {
       </div>
 
       <!-- Navigation Tabs (SaaS Style) -->
-      <div class="flex border-b border-slate-800">
+      <div class="flex border-b border-emerald-950/30">
         <button 
           @click="currentTab = 'site'"
           :class="[
             currentTab === 'site' 
-              ? 'border-indigo-500 text-indigo-400 bg-slate-900/10' 
-              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700',
+              ? 'border-emerald-500 text-emerald-450 bg-[#090b0a]/10' 
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-emerald-800',
             'px-6 py-3 border-b-2 font-semibold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer'
           ]"
         >
@@ -83,8 +83,8 @@ const submit = () => {
           @click="currentTab = 'links'"
           :class="[
             currentTab === 'links' 
-              ? 'border-indigo-500 text-indigo-400 bg-slate-900/10' 
-              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700',
+              ? 'border-emerald-500 text-emerald-450 bg-[#090b0a]/10' 
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-emerald-800',
             'px-6 py-3 border-b-2 font-semibold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer'
           ]"
         >
@@ -97,8 +97,8 @@ const submit = () => {
           @click="currentTab = 'logo'"
           :class="[
             currentTab === 'logo' 
-              ? 'border-indigo-500 text-indigo-400 bg-slate-900/10' 
-              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700',
+              ? 'border-emerald-500 text-emerald-450 bg-[#090b0a]/10' 
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-emerald-800',
             'px-6 py-3 border-b-2 font-semibold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer'
           ]"
         >
@@ -110,7 +110,7 @@ const submit = () => {
       </div>
 
       <!-- Settings Card -->
-      <form @submit.prevent="submit" class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-xl shadow-slate-950/20">
+      <form @submit.prevent="submit" class="bg-[#121614] border border-emerald-950/30 rounded-2xl overflow-hidden shadow-xl shadow-slate-950/20">
         <div class="p-6 md:p-8">
           
           <!-- Tab 1: Profil Situs -->
@@ -126,7 +126,7 @@ const submit = () => {
                   id="site_name"
                   v-model="form.site_name"
                   type="text" 
-                  class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-250"
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
                   placeholder="Masukkan Nama Web..."
                 />
                 <div v-if="form.errors.site_name" class="text-xs text-rose-500 font-semibold mt-1">
@@ -146,7 +146,7 @@ const submit = () => {
                   id="site_description"
                   v-model="form.site_description"
                   rows="5"
-                  class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-250 resize-none"
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250 resize-none"
                   placeholder="Tulis deskripsi singkat..."
                 ></textarea>
                 <div v-if="form.errors.site_description" class="text-xs text-rose-500 font-semibold mt-1">
@@ -172,7 +172,7 @@ const submit = () => {
                   id="whatsapp_number"
                   v-model="form.whatsapp_number"
                   type="text" 
-                  class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-250"
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
                   placeholder="628123456..."
                 />
                 <div v-if="form.errors.whatsapp_number" class="text-xs text-rose-500 font-semibold mt-1">
@@ -192,7 +192,7 @@ const submit = () => {
                   id="playstore_link"
                   v-model="form.playstore_link"
                   type="url" 
-                  class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-250"
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
                   placeholder="https://play.google.com/store/apps/details?id=..."
                 />
                 <div v-if="form.errors.playstore_link" class="text-xs text-rose-500 font-semibold mt-1">
@@ -217,7 +217,7 @@ const submit = () => {
                   @dragleave.prevent="isDragging = false"
                   @drop.prevent="handleDrop"
                   :class="[
-                    isDragging ? 'border-indigo-500 bg-indigo-500/5' : 'border-slate-800 bg-slate-900/20 hover:border-slate-700',
+                    isDragging ? 'border-emerald-500 bg-emerald-500/5' : 'border-emerald-950/45 bg-[#090b0a]/20 hover:border-emerald-800',
                     'border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 relative min-h-[220px]'
                   ]"
                 >
@@ -238,7 +238,7 @@ const submit = () => {
                     />
                   </div>
                   <div v-else class="flex flex-col items-center gap-3">
-                    <div class="p-4 bg-indigo-500/10 rounded-2xl text-indigo-400 border border-indigo-500/20">
+                    <div class="p-4 bg-emerald-500/10 rounded-2xl text-emerald-400 border border-emerald-500/20">
                       <ImageIcon class="w-8 h-8" />
                     </div>
                     <div>
@@ -259,11 +259,11 @@ const submit = () => {
         </div>
 
         <!-- Footer Action -->
-        <div class="px-6 py-4 bg-slate-900/40 border-t border-slate-800 flex justify-end">
+        <div class="px-6 py-4 bg-[#090b0a]/40 border-t border-emerald-950/30 flex justify-end">
           <button 
             type="submit" 
             :disabled="form.processing"
-            class="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-sm font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 transition-all duration-200 cursor-pointer"
+            class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-sm font-semibold text-white rounded-xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 transition-all duration-200 cursor-pointer"
           >
             <Save class="w-4 h-4 mr-2" />
             Simpan Konfigurasi

@@ -1,0 +1,77 @@
+table_name,column_name,data_type,is_nullable,column_default
+avenir_team_emails,email,text,NO,null
+avenir_team_emails,note,text,YES,null
+avenir_team_emails,added_at,timestamp with time zone,YES,now()
+comment_likes,comment_id,uuid,NO,null
+comment_likes,user_id,uuid,NO,null
+comment_likes,created_at,timestamp with time zone,YES,now()
+comments,id,uuid,NO,gen_random_uuid()
+comments,research_id,text,NO,null
+comments,user_id,uuid,NO,null
+comments,parent_id,uuid,YES,null
+comments,body,text,NO,null
+comments,like_count,integer,YES,0
+comments,is_deleted,boolean,YES,false
+comments,created_at,timestamp with time zone,YES,now()
+comments,updated_at,timestamp with time zone,YES,now()
+notifications,id,bigint,NO,nextval('notifications_id_seq'::regclass)
+notifications,title,text,NO,null
+notifications,url,text,NO,null
+notifications,category,text,NO,'Artikel'::text
+notifications,is_new,boolean,YES,true
+notifications,published_at,timestamp with time zone,NO,now()
+notifications,created_at,timestamp with time zone,YES,now()
+notifications,updated_at,timestamp with time zone,YES,now()
+notifications,email_sent_at,timestamp with time zone,YES,null
+notifications,email_sent_count,integer,YES,0
+payment_submissions,id,bigint,NO,nextval('payment_submissions_id_seq'::regclass)
+payment_submissions,user_id,uuid,NO,null
+payment_submissions,paket,text,NO,null
+payment_submissions,durasi_hari,integer,NO,null
+payment_submissions,nominal,integer,NO,null
+payment_submissions,bukti_url,text,YES,null
+payment_submissions,bukti_path,text,YES,null
+payment_submissions,status,text,NO,'pending'::text
+payment_submissions,submitted_at,timestamp with time zone,NO,now()
+payment_submissions,verified_at,timestamp with time zone,YES,null
+payment_submissions,verified_by,uuid,YES,null
+payment_submissions,admin_notes,text,YES,null
+payment_submissions,user_email,text,YES,null
+payment_submissions,user_nama,text,YES,null
+profiles,id,uuid,NO,null
+profiles,nama_depan,text,YES,null
+profiles,nama_belakang,text,YES,null
+profiles,profil_investor,text,YES,null
+profiles,created_at,timestamp with time zone,YES,now()
+profiles,trial_started_at,timestamp with time zone,YES,null
+profiles,subscription_until,timestamp with time zone,YES,null
+profiles,is_mitra,boolean,YES,false
+profiles,no_hp,text,YES,null
+profiles,sertifikasi,text,YES,null
+profiles,bio,text,YES,null
+profiles,spesialisasi,ARRAY,YES,null
+profiles,link_portfolio,text,YES,null
+profiles,foto_url,text,YES,null
+profiles,is_user,boolean,YES,true
+profiles,bank_name,text,YES,null
+profiles,rekening_number,text,YES,null
+profiles,rekening_holder,text,YES,null
+profiles,is_admin,boolean,YES,false
+research_likes,id,uuid,NO,gen_random_uuid()
+research_likes,research_id,text,NO,null
+research_likes,user_id,uuid,NO,null
+research_likes,created_at,timestamp with time zone,YES,now()
+research_meta,research_id,text,NO,null
+research_meta,mitra_id,uuid,YES,null
+research_meta,title,text,YES,null
+research_meta,ticker,text,YES,null
+research_meta,sector,text,YES,null
+research_meta,type,text,YES,'mitra'::text
+research_meta,published_at,date,YES,CURRENT_DATE
+research_meta,author_type,text,YES,'tim_avenir'::text
+research_meta,author_id,uuid,YES,null
+research_meta,author_display_name,text,YES,'Tim Avenir'::text
+unlocked_research,id,uuid,NO,gen_random_uuid()
+unlocked_research,user_id,uuid,YES,null
+unlocked_research,ticker,text,NO,null
+unlocked_research,unlocked_at,timestamp with time zone,YES,now()

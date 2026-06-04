@@ -1,0 +1,146 @@
+[
+    {
+        "id": "0cd1ffed-293e-4f3b-b6b3-b988068f9867",
+        "research_id": "gfs",
+        "user_id": "084bb1aa-9506-49fd-8f5a-49bdc7731cd8",
+        "created_at": "2026-05-26 16:12:36.596316+00"
+    },
+    {
+        "id": "0f62fce1-b0da-40a3-852f-f4deb3819370",
+        "research_id": "smar",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:36.335086+00"
+    },
+    {
+        "id": "122a7a7f-c2e0-481f-a385-667bdb3ee58d",
+        "research_id": "gfs",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:30.846673+00"
+    },
+    {
+        "id": "1ec6b80b-c618-411d-a944-8eb5f06ad1be",
+        "research_id": "ades",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:33.314975+00"
+    },
+    {
+        "id": "24266672-3a7c-476c-aa26-06115a820efe",
+        "research_id": "asgr",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:34.407905+00"
+    },
+    {
+        "id": "2be0c887-bb68-488f-9f5e-f0334e8cec6c",
+        "research_id": "powr",
+        "user_id": "084bb1aa-9506-49fd-8f5a-49bdc7731cd8",
+        "created_at": "2026-05-10 01:25:54.219693+00"
+    },
+    {
+        "id": "35f0c8aa-01aa-4b5d-b132-a18db82657d2",
+        "research_id": "powr",
+        "user_id": "2574c6d5-dc40-4831-b3d2-fd4b0b027176",
+        "created_at": "2026-05-10 01:37:21.740337+00"
+    },
+    {
+        "id": "40b4095b-b304-4c27-a10c-403328f88104",
+        "research_id": "asgr",
+        "user_id": "084bb1aa-9506-49fd-8f5a-49bdc7731cd8",
+        "created_at": "2026-05-10 01:36:00.662635+00"
+    },
+    {
+        "id": "42727e2a-3edb-4bd5-ae50-26d7a38d0288",
+        "research_id": "pyfa",
+        "user_id": "084bb1aa-9506-49fd-8f5a-49bdc7731cd8",
+        "created_at": "2026-05-13 10:16:50.600357+00"
+    },
+    {
+        "id": "5d1d803d-c129-47c0-a5d9-e952381582a9",
+        "research_id": "dmas",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:31.180238+00"
+    },
+    {
+        "id": "713b846b-d546-49a4-b52a-fe548516aa97",
+        "research_id": "powr",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:28.011841+00"
+    },
+    {
+        "id": "72cb5607-cb67-4109-b44c-6c5d6b5756af",
+        "research_id": "nisp",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:36.824615+00"
+    },
+    {
+        "id": "7e3ffb19-e082-4013-95e5-bf234cd7f072",
+        "research_id": "ptro",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:46.727478+00"
+    },
+    {
+        "id": "90c925d0-2ab4-454c-b133-50743bdd9025",
+        "research_id": "powr",
+        "user_id": "65a565c0-2224-4fda-af11-aea9dc0c2f13",
+        "created_at": "2026-05-10 13:44:57.236541+00"
+    },
+    {
+        "id": "aee53409-96c9-4591-9102-1a12cddada3d",
+        "research_id": "smar",
+        "user_id": "b8a1d8ae-fb05-405d-87ee-e0e84b5e8440",
+        "created_at": "2026-05-15 14:24:15.689714+00"
+    },
+    {
+        "id": "b342b9ee-06e8-4d7a-8fea-43b0d677491a",
+        "research_id": "dewa",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:39.250173+00"
+    },
+    {
+        "id": "bb0f9d12-bcb8-47f2-b7fc-600fe4f656e8",
+        "research_id": "cmry",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:47.529411+00"
+    },
+    {
+        "id": "d5f385c4-24e5-441e-817e-43d2880e651a",
+        "research_id": "part",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:45.111695+00"
+    },
+    {
+        "id": "d90a0a8e-90fb-4a65-8ace-84c3b62a6630",
+        "research_id": "pyfa",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:29.252772+00"
+    },
+    {
+        "id": "dc12ddf7-7c81-49ac-b056-5334e12fb0fb",
+        "research_id": "tins",
+        "user_id": "084bb1aa-9506-49fd-8f5a-49bdc7731cd8",
+        "created_at": "2026-05-13 10:16:51.718152+00"
+    },
+    {
+        "id": "e0e32b8e-1d8a-421c-9c06-fbb76d9ac245",
+        "research_id": "avia",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:49.073632+00"
+    },
+    {
+        "id": "ede0d8d7-8d6a-46b5-b864-ea8a5d5372dc",
+        "research_id": "wifi",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:42.178623+00"
+    },
+    {
+        "id": "ef665172-a06d-494a-b467-8a6de5d86af6",
+        "research_id": "crm",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:42.729706+00"
+    },
+    {
+        "id": "f58f2082-9d64-4a63-9458-5a037386908c",
+        "research_id": "mrvl",
+        "user_id": "a97e4c2c-99a3-4d6f-a136-7cc8a9e4093c",
+        "created_at": "2026-05-10 06:24:43.957764+00"
+    }
+]

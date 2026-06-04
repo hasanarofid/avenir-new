@@ -41,9 +41,9 @@ const filteredItems = computed(() => {
 </script>
 
 <template>
-  <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-xl shadow-slate-950/20">
+  <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl overflow-hidden shadow-xl shadow-slate-950/20">
     <!-- Header Controls -->
-    <div class="p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="p-6 border-b border-emerald-950/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="relative max-w-md w-full">
         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
           <Search class="w-5 h-5" />
@@ -52,7 +52,7 @@ const filteredItems = computed(() => {
           v-model="search"
           type="text" 
           :placeholder="searchPlaceholder"
-          class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors"
+          class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors"
         />
       </div>
       <div class="flex items-center gap-2">
@@ -64,7 +64,7 @@ const filteredItems = computed(() => {
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="border-b border-slate-800 bg-slate-900/40">
+          <tr class="border-b border-emerald-950/30 bg-[#090b0a]/40">
             <th 
               v-for="header in headers" 
               :key="header.value" 
@@ -77,11 +77,11 @@ const filteredItems = computed(() => {
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-800/60">
+        <tbody class="divide-y divide-emerald-950/20">
           <tr 
             v-for="(item, index) in filteredItems" 
             :key="item.id || index"
-            class="hover:bg-slate-900/30 transition-colors"
+            class="hover:bg-[#090b0a]/30 transition-colors"
           >
             <td 
               v-for="header in headers" 
@@ -120,7 +120,7 @@ const filteredItems = computed(() => {
               <div class="flex items-center justify-end gap-2">
                 <button 
                   @click="emit('edit', item)" 
-                  class="p-2 text-indigo-400 hover:bg-indigo-600/10 rounded-lg transition-colors"
+                  class="p-2 text-emerald-400 hover:bg-emerald-600/10 rounded-lg transition-colors"
                   title="Edit"
                 >
                   <Edit2 class="w-4 h-4" />

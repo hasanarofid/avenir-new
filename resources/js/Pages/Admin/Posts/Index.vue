@@ -75,14 +75,14 @@ const handleDelete = (item) => {
         <div class="flex items-center gap-3">
           <button 
             @click="isCategoryModalOpen = true"
-            class="inline-flex items-center px-4 py-2.5 bg-slate-950 border border-slate-800 hover:bg-slate-900 text-sm font-semibold text-slate-200 rounded-xl transition-all cursor-pointer"
+            class="inline-flex items-center px-4 py-2.5 bg-[#121614] border border-emerald-950/25 hover:bg-[#090b0a] text-sm font-semibold text-slate-200 rounded-xl transition-all cursor-pointer"
           >
-            <FolderPlus class="w-4.5 h-4.5 mr-1.5 text-indigo-400" />
+            <FolderPlus class="w-4.5 h-4.5 mr-1.5 text-emerald-400" />
             Kategori Baru
           </button>
           <Link 
             :href="route('admin.posts.create')"
-            class="inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all cursor-pointer"
+            class="inline-flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-sm font-semibold text-white rounded-xl shadow-lg shadow-emerald-600/20 transition-all cursor-pointer"
           >
             <Plus class="w-4.5 h-4.5 mr-1.5" />
             Tulis Postingan
@@ -104,13 +104,13 @@ const handleDelete = (item) => {
         </div>
 
         <!-- Categories Sidebar Card -->
-        <div class="lg:col-span-1 bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl shadow-slate-950/20 space-y-4">
-          <h3 class="text-sm font-bold text-white uppercase tracking-wider pb-3 border-b border-slate-800">Daftar Kategori</h3>
+        <div class="lg:col-span-1 bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl shadow-slate-950/20 space-y-4">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider pb-3 border-b border-emerald-950/30">Daftar Kategori</h3>
           <div class="space-y-2 max-h-96 overflow-y-auto pr-1">
             <div 
               v-for="cat in categories" 
               :key="cat.id"
-              class="flex items-center justify-between p-3 bg-slate-900 rounded-xl border border-slate-850 group text-sm"
+              class="flex items-center justify-between p-3 bg-[#090b0a] rounded-xl border border-emerald-950/20 group text-sm"
             >
               <div>
                 <p class="font-semibold text-slate-200">{{ cat.name }}</p>
@@ -131,13 +131,12 @@ const handleDelete = (item) => {
         </div>
       </div>
 
-      <!-- Category Modal -->
       <div v-if="isCategoryModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div @click="isCategoryModalOpen = false" class="fixed inset-0 bg-slate-950/80"></div>
-        <div class="relative bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl z-10">
-          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+        <div @click="isCategoryModalOpen = false" class="fixed inset-0 bg-[#090b0a]/80"></div>
+        <div class="relative bg-[#121614] border border-emerald-950/30 rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl z-10">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-emerald-950/30">
             <h3 class="text-base font-bold text-white">Buat Kategori Baru</h3>
-            <button @click="isCategoryModalOpen = false" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+            <button @click="isCategoryModalOpen = false" class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-[#090b0a]">
               <X class="w-5 h-5" />
             </button>
           </div>
@@ -149,24 +148,24 @@ const handleDelete = (item) => {
                 v-model="categoryForm.name"
                 type="text" 
                 required
-                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-250"
+                class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-650 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
                 placeholder="Contoh: Tekno, Edukasi"
               />
               <div v-if="categoryForm.errors.name" class="text-xs text-rose-500 font-semibold">{{ categoryForm.errors.name }}</div>
             </div>
 
-            <div class="pt-4 border-t border-slate-800 flex justify-end gap-3">
+            <div class="pt-4 border-t border-emerald-950/30 flex justify-end gap-3">
               <button 
                 type="button" 
                 @click="isCategoryModalOpen = false" 
-                class="px-4 py-2 bg-slate-850 hover:bg-slate-750 text-sm font-semibold text-slate-300 rounded-xl transition-colors cursor-pointer"
+                class="px-4 py-2 bg-[#090b0a] hover:bg-[#090b0a]/80 border border-emerald-950/20 text-sm font-semibold text-slate-300 rounded-xl transition-colors cursor-pointer"
               >
                 Batal
               </button>
               <button 
                 type="submit" 
                 :disabled="categoryForm.processing"
-                class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-sm font-semibold text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all cursor-pointer"
+                class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-sm font-semibold text-white rounded-xl shadow-lg shadow-emerald-600/20 transition-all cursor-pointer"
               >
                 <Save class="w-4 h-4 mr-1.5" />
                 Simpan Kategori
