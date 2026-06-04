@@ -151,6 +151,8 @@ class HomeController extends Controller
                 . '</strong> sedang dalam proses migrasi ke platform baru.</p></div>';
         }
 
+        $content = $this->cleanHtmlForDarkMode($content);
+
         return Inertia::render('KatalogDetail', [
             'research' => [
                 'title'       => $research->title,
@@ -216,6 +218,8 @@ class HomeController extends Controller
         if ($isPaid && $isGuest) {
             $content = $this->truncateForGuest($content);
         }
+
+        $content = $this->cleanHtmlForDarkMode($content);
 
         return Inertia::render('ArtikelDetail', [
             'article' => [
@@ -453,6 +457,8 @@ class HomeController extends Controller
             $content = '<div class="art-body"><p>Detail berita ini sedang dimigrasikan ke platform baru.</p></div>';
         }
 
+        $content = $this->cleanHtmlForDarkMode($content);
+
         return Inertia::render('NewsDetail', [
             'news' => [
                 'title' => $meta['title'],
@@ -603,5 +609,49 @@ class HomeController extends Controller
         ]);
 
         return redirect()->route('langganan')->with('success', 'Bukti transfer berhasil dikirim. Admin akan segera memverifikasinya.');
+    }
+
+    /**
+     * Cleans up dark inline text colors from statically exported HTML
+     * if they are not inside a light-colored background box.
+     */
+    private function cleanHtmlForDarkMode($html) {
+        if (empty($html)) return $html;
+
+        $dom = new \DOMDocument();
+        @$dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+        $xpath = new \DOMXPath($dom);
+        $elements = $xpath->query('//*[@style]');
+
+        foreach ($elements as $el) {
+            $style = $el->getAttribute('style');
+            
+            $hasLightBg = false;
+            $current = $el;
+            while ($current !== null && $current->nodeType === XML_ELEMENT_NODE) {
+                if ($current->hasAttribute('style')) {
+                    $currStyle = $current->getAttribute('style');
+                    if (preg_match('/background(-color)?\s*:\s*(#[eEfF][a-zA-Z0-9]{2,5}|rgba?\([^)]+,\s*0\.[0-9]+\s*\))/i', $currStyle)) {
+                        $hasLightBg = true;
+                        break;
+                    }
+                }
+                $current = $current->parentNode;
+            }
+            
+            if (!$hasLightBg) {
+                $style = preg_replace('/color\s*:\s*#(1f2937|0f172a|374151|475569|000000|111827|1a1a1a|080D09|4b5563|6b7280|64748b|333333|222222)\s*;?/i', '', $style);
+                if (trim($style) === '' || trim($style) === ';') {
+                    $el->removeAttribute('style');
+                } else {
+                    $el->setAttribute('style', $style);
+                }
+            }
+        }
+
+        $cleaned = $dom->saveHTML();
+        $cleaned = str_replace('<?xml encoding="UTF-8">', '', $cleaned);
+        return trim($cleaned);
     }
 }

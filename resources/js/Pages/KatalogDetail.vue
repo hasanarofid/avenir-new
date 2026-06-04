@@ -397,16 +397,15 @@ const formattedPrice = computed(() => {
 .kdp-page .guest-lock-content p,
 .kdp-page .db-content p {
   margin: 0 0 24px !important;
-  color: #cbd5e1 !important;
 }
 .kdp-page .guest-lock-content h2 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif !important;
   font-size: 26px !important; font-weight: 600 !important;
-  color: #fff !important; margin: 44px 0 18px !important;
+  color: #fff; margin: 44px 0 18px !important;
   padding-top: 24px !important;
   border-top: 1px solid rgba(255,255,255,0.05) !important;
 }
-.kdp-page .guest-lock-content strong { color: #fff !important; }
+.kdp-page .guest-lock-content strong { color: #fff; }
 
 /* ── HTML art-page content overrides ── */
 .kdp-page .art-page {

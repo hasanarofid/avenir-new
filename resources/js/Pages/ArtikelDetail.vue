@@ -347,15 +347,14 @@ const hasCustomHtml = computed(() => {
 .article-detail-page .guest-lock-content p,
 .article-detail-page .db-content p {
   margin: 0 0 24px !important;
-  color: #cbd5e1 !important;
 }
 
 .article-detail-page .guest-lock-content h2,
 .article-detail-page .db-content h2 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif !important;
   font-size: 28px !important;
   font-weight: 600 !important;
-  color: #ffffff !important;
+  color: #ffffff;
   margin: 48px 0 20px !important;
   padding-top: 24px !important;
   border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
@@ -363,16 +362,16 @@ const hasCustomHtml = computed(() => {
 
 .article-detail-page .guest-lock-content h3,
 .article-detail-page .db-content h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', sans-serif !important;
   font-size: 20px !important;
   font-weight: 600 !important;
-  color: #ffffff !important;
-  margin: 36px 0 14px !important;
+  color: #ffffff;
+  margin: 32px 0 16px !important;
 }
 
 .article-detail-page .guest-lock-content strong,
 .article-detail-page .db-content strong {
-  color: #ffffff !important;
+  color: #ffffff;
   font-weight: 700 !important;
 }
 
