@@ -572,7 +572,8 @@ h1, h2, h3, h4 {
 }
 .stat-item {
   display: flex;
-  flex-col: column;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .stat-num {
   font-family: 'Space Grotesk', sans-serif;

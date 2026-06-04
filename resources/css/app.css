@@ -8,7 +8,8 @@
   --color-avenir-neon-glow: rgba(16, 185, 129, 0.4);
   --color-avenir-text-muted: #9CA3AF;
   
-  --font-sans: 'Inter', 'Plus Jakarta Sans', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
   --font-mono: 'Fira Code', monospace;
   
   --shadow-neon: 0 0 15px rgba(16, 185, 129, 0.3);
