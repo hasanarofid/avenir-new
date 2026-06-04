@@ -8,7 +8,7 @@ const user = computed(() => page.props.auth?.user);
 
 const dropdownOpen = ref(false);
 const mobileMenuOpen = ref(false);
-const isHomePage = computed(() => ['Home', 'Dashboard'].includes(page.component));
+const isHomePage = computed(() => ['Home', 'Dashboard', 'Artikel', 'ArtikelDetail'].includes(page.component));
 
 const handleLogout = () => {
     dropdownOpen.value = false;
