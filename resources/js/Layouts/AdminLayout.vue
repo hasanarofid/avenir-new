@@ -103,9 +103,9 @@ const logout = () => {
         <!-- Template Owner & Collapse Toggle Row -->
         <div :class="[isSidebarCollapsed ? 'lg:px-0 lg:justify-center' : 'px-2 justify-between', 'mb-4 flex items-center text-xxs text-slate-500 font-bold uppercase tracking-wider transition-opacity duration-300']">
           <div v-if="!isSidebarCollapsed" class="flex items-center gap-1">
-            <a href="https://hasanarofid.site" target="_blank" class="text-emerald-400 hover:text-emerald-300 transition-colors normal-case">
-              @hasanarofid.site
-            </a>
+            <Link href="/" target="_blank" class="text-emerald-400 hover:text-emerald-300 transition-colors normal-case">
+              Halaman Depan
+            </Link>
           </div>
           <!-- Collapse Toggle for Desktop -->
           <div class="hidden lg:block">
