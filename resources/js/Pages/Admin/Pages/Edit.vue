@@ -193,7 +193,7 @@ const removeTestimonialItem = (index) => {
             <form @submit.prevent="updateSection(activeSectionId)" class="p-6 md:p-8 space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-1">
-                  <label class="text-xs font-bold text-slate-450 uppercase tracking-wider">Judul Section (Internal)</label>
+                  <label class="text-xs font-bold text-slate-450 uppercase tracking-wider">Judul Section (Robotonal)</label>
                   <input 
                     v-model="sectionForm.title"
                     type="text" 

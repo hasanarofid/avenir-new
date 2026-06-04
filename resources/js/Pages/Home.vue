@@ -403,7 +403,7 @@ import { authStore } from '@/Stores/authStore';
 .landing-dark-wrapper {
   background-color: #090b0a;
   color: #d1d5db;
-  font-family: 'Inter', 'Inter', sans-serif;
+  font-family: 'Roboto', 'Roboto', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
@@ -411,7 +411,7 @@ import { authStore } from '@/Stores/authStore';
 
 /* Typography styles */
 h1, h2, h3, h4 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: #ffffff;
 }
 
@@ -576,7 +576,7 @@ h1, h2, h3, h4 {
   align-items: flex-start;
 }
 .stat-num {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;
@@ -725,7 +725,7 @@ h1, h2, h3, h4 {
   display: block;
 }
 .card-num {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 14px;
   color: rgba(255, 255, 255, 0.2);
   font-weight: 700;
@@ -840,7 +840,7 @@ h1, h2, h3, h4 {
   flex-direction: column;
 }
 .m-val {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: #ffffff;
@@ -892,7 +892,7 @@ h1, h2, h3, h4 {
   align-items: center;
 }
 .dial-number {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #22c55e;
@@ -1066,7 +1066,7 @@ h1, h2, h3, h4 {
   color: #6b7280;
 }
 .t-amount {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 40px;
   font-weight: 700;
   color: #ffffff;

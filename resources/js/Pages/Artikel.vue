@@ -84,7 +84,7 @@ defineProps({
 .artikel-dark-wrapper {
   background-color: #090b0a;
   color: #cbd5e1;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -164,7 +164,7 @@ defineProps({
 }
 
 .artikel-page-header h1 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(32px, 5vw, 48px);
   font-weight: 700;
   line-height: 1.15;
@@ -291,7 +291,7 @@ defineProps({
 }
 
 .artikel-card-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 20px;
   font-weight: 600;
   line-height: 1.3;
@@ -390,7 +390,7 @@ defineProps({
 }
 
 .artikel-empty h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: #ffffff;
   font-size: 20px;
   font-weight: 600;

@@ -167,7 +167,7 @@ const selectSector = (sector) => {
 .katalog-dark-wrapper {
   background-color: #090b0a;
   color: #cbd5e1;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -235,7 +235,7 @@ const selectSector = (sector) => {
 }
 
 .idx-hero h1 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 38px;
   font-weight: 700;
   color: #ffffff;
@@ -287,7 +287,7 @@ const selectSector = (sector) => {
 }
 
 .stat-val {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: #22c55e;
@@ -434,7 +434,7 @@ const selectSector = (sector) => {
 }
 
 .empty-state h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #ffffff;

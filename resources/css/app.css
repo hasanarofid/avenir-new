@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -10,8 +10,8 @@
   --color-avenir-text-muted: #9CA3AF;
   
   /* Updated font system — corporate grade like think.id */
-  --font-sans: 'Inter', sans-serif;
-  --font-heading: 'Sora', 'Inter', sans-serif;
+  --font-sans: 'Roboto', sans-serif;
+  --font-heading: 'Sora', 'Roboto', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
   
   --shadow-neon: 0 0 15px rgba(16, 185, 129, 0.3);
@@ -20,7 +20,7 @@
 
 /* Global font baseline — corporate clean */
 html, body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

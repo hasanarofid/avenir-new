@@ -67,7 +67,7 @@ defineProps({
 .news-dark-wrapper {
   background-color: #090b0a;
   color: #cbd5e1;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -134,7 +134,7 @@ defineProps({
 }
 
 .news-page-header h1 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(28px, 4vw, 42px);
   font-weight: 700;
   line-height: 1.2;
@@ -193,7 +193,7 @@ defineProps({
 }
 
 .news-card-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(18px, 2.5vw, 22px);
   font-weight: 600;
   color: #f8fafc;
@@ -252,7 +252,7 @@ defineProps({
 }
 
 .news-empty h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #f8fafc;

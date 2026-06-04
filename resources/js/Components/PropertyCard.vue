@@ -157,7 +157,7 @@ defineProps({
 }
 
 h2 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;

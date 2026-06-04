@@ -180,7 +180,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .gl-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #ffffff;
@@ -278,7 +278,7 @@ const hasCustomHtml = computed(() => {
   max-width: 800px;
   margin: 0 auto;
   padding: 40px 24px 80px;
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
 }
 
 .article-detail-page .art-label {
@@ -297,7 +297,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .article-detail-page .art-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(30px, 5vw, 48px) !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -351,7 +351,7 @@ const hasCustomHtml = computed(() => {
 
 .article-detail-page .guest-lock-content h2,
 .article-detail-page .db-content h2 {
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
   font-size: 28px !important;
   font-weight: 600 !important;
   color: #ffffff;
@@ -362,7 +362,7 @@ const hasCustomHtml = computed(() => {
 
 .article-detail-page .guest-lock-content h3,
 .article-detail-page .db-content h3 {
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
   font-size: 20px !important;
   font-weight: 600 !important;
   color: #ffffff;
@@ -478,7 +478,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .article-detail-page .art-toc h4 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 11px !important;
   font-weight: 700 !important;
   letter-spacing: .12em !important;
@@ -555,7 +555,7 @@ const hasCustomHtml = computed(() => {
   max-width: 800px;
   margin: 0 auto;
   padding: 40px 24px 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   position: relative;
   z-index: 5;
 }
@@ -576,7 +576,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .db-article-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(30px, 5vw, 48px) !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -636,7 +636,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .article-detail-page .guest-lock-content.db-content h2 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 28px !important;
   font-weight: 600 !important;
   color: #ffffff !important;
@@ -646,7 +646,7 @@ const hasCustomHtml = computed(() => {
 }
 
 .article-detail-page .guest-lock-content.db-content h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 20px !important;
   font-weight: 600 !important;
   color: #ffffff !important;

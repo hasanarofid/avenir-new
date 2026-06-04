@@ -231,7 +231,7 @@ const TIER_BAGIAN = [
 .partners-dark-wrapper {
   background-color: #090b0a;
   color: #cbd5e1;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -287,7 +287,7 @@ const TIER_BAGIAN = [
 }
 
 .partners-hero h1 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(28px, 5vw, 46px);
   font-weight: 700;
   line-height: 1.15;
@@ -319,7 +319,7 @@ const TIER_BAGIAN = [
 }
 
 .formula-header {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -358,7 +358,7 @@ const TIER_BAGIAN = [
 }
 
 .tier-box-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -404,7 +404,7 @@ const TIER_BAGIAN = [
 }
 
 .rank-pct {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #ffffff;
@@ -422,7 +422,7 @@ const TIER_BAGIAN = [
 }
 
 .section-divider {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -485,7 +485,7 @@ const TIER_BAGIAN = [
 }
 
 .step-card h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 17px;
   font-weight: 600;
   color: #ffffff;
@@ -507,7 +507,7 @@ const TIER_BAGIAN = [
 }
 
 .partners-simulation h2 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 22px;
   font-weight: 600;
   color: #ffffff;
@@ -538,7 +538,7 @@ const TIER_BAGIAN = [
 .simulation-table th {
   background: #090b0a;
   color: #64748b;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -612,7 +612,7 @@ const TIER_BAGIAN = [
 }
 
 .feature-card h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 17px;
   font-weight: 600;
   color: #ffffff;
@@ -640,7 +640,7 @@ const TIER_BAGIAN = [
 }
 
 .verified-eyebrow {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -649,7 +649,7 @@ const TIER_BAGIAN = [
 }
 
 .verified-header h2 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 26px;
   font-weight: 600;
   color: #ffffff;
@@ -703,7 +703,7 @@ const TIER_BAGIAN = [
   margin: 0 auto 16px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 28px;
   font-weight: 700;
   display: flex;
@@ -713,7 +713,7 @@ const TIER_BAGIAN = [
 }
 
 .verified-name {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
@@ -758,7 +758,7 @@ const TIER_BAGIAN = [
 }
 
 .join-cta-box h2 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(24px, 4vw, 32px);
   font-weight: 700;
   margin-bottom: 12px;

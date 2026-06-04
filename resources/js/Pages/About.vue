@@ -75,7 +75,7 @@ import { Link } from '@inertiajs/vue3';
 .about-dark-wrapper {
   background-color: #090b0a;
   color: #cbd5e1;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -131,7 +131,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .about-header h1 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(28px, 5vw, 44px);
   font-weight: 700;
   line-height: 1.15;
@@ -187,7 +187,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .about-card h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
@@ -220,7 +220,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .stats-num {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 54px;
   font-weight: 700;
   color: #10b981;
@@ -228,7 +228,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .stats-text strong {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 16px;
   color: #ffffff;
   display: block;
@@ -250,7 +250,7 @@ import { Link } from '@inertiajs/vue3';
 }
 
 .about-cta-box h2 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 24px;
   font-weight: 600;
   color: #ffffff;

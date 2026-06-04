@@ -214,7 +214,7 @@ const submitRegister = () => {
   z-index: 100000;
   padding: 16px;
   backdrop-filter: blur(4px);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .auth-box {
@@ -252,7 +252,7 @@ const submitRegister = () => {
 }
 
 .auth-view h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 24px;
   font-weight: 600;
   margin: 0 0 6px;

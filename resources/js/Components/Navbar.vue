@@ -203,7 +203,7 @@ const handleLogout = () => {
 .nav-link {
   padding: 6px 14px;
   border-radius: 50px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   border: none;
   background: transparent;
@@ -233,7 +233,7 @@ const handleLogout = () => {
   border: 1px solid #d1d5db;
   border-radius: 50px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 14px;
   background: transparent;
   cursor: pointer;
   color: #374151;
@@ -250,7 +250,7 @@ const handleLogout = () => {
   border: none;
   border-radius: 50px;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   font-family: inherit;
   transition: background 0.2s;
@@ -288,7 +288,7 @@ const handleLogout = () => {
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
   border-radius: 50px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -326,7 +326,7 @@ const handleLogout = () => {
   padding: 11px 14px;
   text-decoration: none;
   color: #374151;
-  font-size: 12px;
+  font-size: 14px;
   transition: background .15s;
   cursor: pointer;
   text-align: left;
@@ -350,7 +350,7 @@ const handleLogout = () => {
 }
 
 .user-dd-hint {
-  font-size: 10.5px;
+  font-size: 12px;
   color: #9ca3af;
   font-weight: 400;
   display: block;
@@ -367,7 +367,7 @@ const handleLogout = () => {
   border: none;
   border-top: 1px solid #f3f4f6;
   color: #dc2626;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -381,8 +381,8 @@ const handleLogout = () => {
   .nav-links { display: none; }
 }
 @media (max-width: 600px) {
-  .nav-btn-login { padding: 6px 12px; font-size: 11px; }
-  .nav-btn-register { padding: 6px 12px; font-size: 11px; }
+  .nav-btn-login { padding: 6px 12px; font-size: 12px; }
+  .nav-btn-register { padding: 6px 12px; font-size: 12px; }
 }
 
 /* Dark glassmorphic override for landing page */
@@ -531,7 +531,7 @@ const handleLogout = () => {
 }
 
 .nav-mobile-link {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 550;
   color: #4b5563;
   padding: 8px 12px;
@@ -587,7 +587,7 @@ const handleLogout = () => {
   border: 1px solid #d1d5db;
   border-radius: 50px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   background: transparent;
   cursor: pointer;
   color: #374151;
@@ -608,7 +608,7 @@ const handleLogout = () => {
   border: none;
   border-radius: 50px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   text-align: center;
   transition: background 0.2s;
@@ -650,7 +650,7 @@ const handleLogout = () => {
 .username-text-mobile {
   font-weight: 600;
   color: #111827;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .nav.nav-dark .username-text-mobile {
@@ -669,7 +669,7 @@ const handleLogout = () => {
   align-items: flex-start;
   padding: 10px 12px;
   color: #374151;
-  font-size: 13px;
+  font-size: 14px;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s;
@@ -705,7 +705,7 @@ const handleLogout = () => {
   border: 1px solid #fee2e2;
   border-radius: 50px;
   color: #dc2626;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;

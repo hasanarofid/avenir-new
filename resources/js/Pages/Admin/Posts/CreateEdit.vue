@@ -205,7 +205,7 @@ const submit = () => {
                   v-model="form.status"
                   class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
                 >
-                  <option value="draft">Draft (Simpan Internal)</option>
+                  <option value="draft">Draft (Simpan Robotonal)</option>
                   <option value="published">Published (Tampil Publik)</option>
                 </select>
               </div>

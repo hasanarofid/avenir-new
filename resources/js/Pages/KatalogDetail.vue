@@ -147,7 +147,7 @@ const formattedPrice = computed(() => {
   min-height: calc(100vh - 52px);
   position: relative;
   overflow: hidden;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .kdp-glow {
@@ -225,7 +225,7 @@ const formattedPrice = computed(() => {
 
 /* Title */
 .kdp-h1 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(26px, 4.5vw, 42px) !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -342,7 +342,7 @@ const formattedPrice = computed(() => {
 }
 .gl-icon { font-size: 36px; margin-bottom: 20px; }
 .gl-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 30px;
   font-weight: 700;
   color: #fff;
@@ -399,7 +399,7 @@ const formattedPrice = computed(() => {
   margin: 0 0 24px !important;
 }
 .kdp-page .guest-lock-content h2 {
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
   font-size: 26px !important; font-weight: 600 !important;
   color: #fff; margin: 44px 0 18px !important;
   padding-top: 24px !important;
@@ -409,7 +409,7 @@ const formattedPrice = computed(() => {
 
 /* ── HTML art-page content overrides ── */
 .kdp-page .art-page {
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
   padding: 0 !important;
   margin: 0 !important;
   max-width: 100% !important;
@@ -424,7 +424,7 @@ const formattedPrice = computed(() => {
   margin-bottom: 18px !important;
 }
 .kdp-page .art-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(26px, 4vw, 40px) !important; font-weight: 700 !important;
   color: #fff !important; margin: 0 0 16px !important; letter-spacing: -0.02em !important;
 }
@@ -444,13 +444,13 @@ const formattedPrice = computed(() => {
 }
 .kdp-page .art-body p { margin: 0 0 22px !important; }
 .kdp-page .art-body h2 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 26px !important; font-weight: 600 !important; color: #fff !important;
   margin: 48px 0 18px !important; padding-top: 24px !important;
   border-top: 1px solid rgba(255,255,255,0.05) !important;
 }
 .kdp-page .art-body h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 19px !important; font-weight: 600 !important;
   color: #fff !important; margin: 36px 0 14px !important;
 }
@@ -495,7 +495,7 @@ const formattedPrice = computed(() => {
   background: #111413 !important; border: 1px solid rgba(255,255,255,.05) !important;
   border-radius: 12px !important; padding: 22px !important; margin: 28px 0 !important;
 }
-.kdp-page .art-toc h4 { font-family: 'Inter', sans-serif; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .12em !important; color: #64748b !important; text-transform: uppercase !important; margin: 0 0 14px !important; }
+.kdp-page .art-toc h4 { font-family: 'Roboto', sans-serif; font-size: 11px !important; font-weight: 700 !important; letter-spacing: .12em !important; color: #64748b !important; text-transform: uppercase !important; margin: 0 0 14px !important; }
 .kdp-page .art-toc ol { font-size: 14px !important; line-height: 2 !important; color: #cbd5e1 !important; }
 .kdp-page .art-toc ol li a { color: #10B981 !important; }
 .kdp-page .art-toc ol li a:hover { color: #34d399 !important; text-decoration: underline !important; }
