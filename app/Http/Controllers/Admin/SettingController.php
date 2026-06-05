@@ -44,6 +44,9 @@ class SettingController extends Controller
             'site_logo'           => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
             'trial_artikel_limit' => 'nullable|integer|min:0|max:100',
             'trial_riset_limit'   => 'nullable|integer|min:0|max:100',
+            'openrouter_api_key'        => 'nullable|string|max:255',
+            'openrouter_default_model'  => 'nullable|string|max:100',
+            'openrouter_fallback_model' => 'nullable|string|max:100',
         ]);
 
         // Process site logo file upload
@@ -71,6 +74,11 @@ class SettingController extends Controller
         // Trial access limits
         Setting::setValue('trial_artikel_limit', (string) ($validatedData['trial_artikel_limit'] ?? 3), 'number');
         Setting::setValue('trial_riset_limit',   (string) ($validatedData['trial_riset_limit']   ?? 3), 'number');
+
+        // AI Configuration
+        Setting::setValue('openrouter_api_key', $validatedData['openrouter_api_key'] ?? '', 'text');
+        Setting::setValue('openrouter_default_model', $validatedData['openrouter_default_model'] ?? 'anthropic/claude-3.5-sonnet', 'text');
+        Setting::setValue('openrouter_fallback_model', $validatedData['openrouter_fallback_model'] ?? 'openai/gpt-4o', 'text');
 
         return redirect()->back()->with('success', 'Konfigurasi website berhasil diperbarui.');
     }

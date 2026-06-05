@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'openrouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'default_model' => env('OPENROUTER_DEFAULT_MODEL', 'anthropic/claude-3.5-sonnet'),
+        'fallback_model' => env('OPENROUTER_FALLBACK_MODEL', 'openai/gpt-4o'),
+    ],
+
 ];

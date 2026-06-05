@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Save, Image as ImageIcon, Link as LinkIcon, Phone, FileText, Globe, CreditCard, UserCheck, BookOpen, BarChart2 } from '@lucide/vue';
+import { Save, Image as ImageIcon, Link as LinkIcon, Phone, FileText, Globe, CreditCard, UserCheck, BookOpen, BarChart2, BrainCircuit } from '@lucide/vue';
 
 const props = defineProps({
   settings: {
@@ -21,6 +21,9 @@ const form = useForm({
   bank_account_info: props.settings.bank_account_info || '',
   trial_artikel_limit: parseInt(props.settings.trial_artikel_limit ?? 3),
   trial_riset_limit:   parseInt(props.settings.trial_riset_limit   ?? 3),
+  openrouter_api_key: props.settings.openrouter_api_key || '',
+  openrouter_default_model: props.settings.openrouter_default_model || 'anthropic/claude-3.5-sonnet',
+  openrouter_fallback_model: props.settings.openrouter_fallback_model || 'openai/gpt-4o',
   site_logo: null
 });
 
@@ -136,6 +139,20 @@ const submit = () => {
           <span class="flex items-center gap-2">
             <UserCheck class="w-4 h-4" />
             Akses Trial
+          </span>
+        </button>
+        <button 
+          @click="currentTab = 'ai'"
+          :class="[
+            currentTab === 'ai' 
+              ? 'border-emerald-500 text-emerald-450 bg-[#090b0a]/10' 
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-emerald-800',
+            'px-6 py-3 border-b-2 font-semibold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer'
+          ]"
+        >
+          <span class="flex items-center gap-2">
+            <BrainCircuit class="w-4 h-4" />
+            AI Config
           </span>
         </button>
       </div>
@@ -386,6 +403,62 @@ const submit = () => {
               <p class="font-semibold text-slate-300 mb-2">Pratinjau konfigurasi saat ini:</p>
               <p>📄 Trial user dapat membaca <span class="text-white font-bold">{{ form.trial_artikel_limit }} artikel</span> terbaru secara penuh. Sisanya akan dipotong (paywall).</p>
               <p>📊 Trial user dapat mengakses <span class="text-white font-bold">{{ form.trial_riset_limit }} riset</span> terbaru secara penuh. Sisanya terkunci.</p>
+            </div>
+          </div>
+
+          <!-- Tab 6: AI Config -->
+          <div v-if="currentTab === 'ai'" class="space-y-6 animate-fadeIn">
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-indigo-500/8 border border-indigo-500/20">
+              <BrainCircuit class="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p class="text-sm font-semibold text-indigo-300">OpenRouter Integration</p>
+                <p class="text-xs text-slate-400 mt-1">
+                  Konfigurasi API Key dan model AI yang digunakan untuk generate riset otomatis.
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">API Key</label>
+              <div class="md:col-span-2 relative">
+                <input 
+                  v-model="form.openrouter_api_key"
+                  type="password" 
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
+                  placeholder="sk-or-v1-..."
+                />
+                <div v-if="form.errors.openrouter_api_key" class="text-xs text-rose-500 font-semibold mt-1">
+                  {{ form.errors.openrouter_api_key }}
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Default Model</label>
+                <p class="text-xxs text-slate-550 mt-1">Digunakan untuk mayoritas tugas.</p>
+              </div>
+              <div class="md:col-span-2 relative">
+                <input 
+                  v-model="form.openrouter_default_model"
+                  type="text" 
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Fallback Model</label>
+                <p class="text-xxs text-slate-550 mt-1">Digunakan jika model default gagal atau butuh penalaran tingkat lanjut.</p>
+              </div>
+              <div class="md:col-span-2 relative">
+                <input 
+                  v-model="form.openrouter_fallback_model"
+                  type="text" 
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
+                />
+              </div>
             </div>
           </div>
 

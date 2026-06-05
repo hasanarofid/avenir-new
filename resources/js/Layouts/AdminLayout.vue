@@ -17,7 +17,8 @@ import {
   ChevronRight,
   CreditCard,
   UserCheck,
-  Bell
+  Bell,
+  BrainCircuit
 } from '@lucide/vue';
 
 const page = usePage();
@@ -29,6 +30,7 @@ const isUserMenuOpen = ref(false);
 
 const navigation = [
   { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, current: route().current('admin.dashboard') },
+  { name: 'AI Generator', href: route('admin.research-generator.index'), icon: BrainCircuit, current: route().current('admin.research-generator.*') },
   { name: 'Pembayaran', href: route('admin.payments.index'), icon: CreditCard, current: route().current('admin.payments.*') },
   { name: 'Mitra Analis', href: route('admin.mitra.index'), icon: UserCheck, current: route().current('admin.mitra.*') },
   { name: 'Subscriber', href: route('admin.users.index'), icon: Users, current: route().current('admin.users.*') },

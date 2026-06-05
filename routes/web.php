@@ -72,6 +72,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('posts', PostController::class);
     Route::post('categories', [PostController::class, 'storeCategory'])->name('categories.store');
     Route::delete('categories/{category}', [PostController::class, 'destroyCategory'])->name('categories.destroy');
+
+    // Research Generator
+    Route::get('/research-generator', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'index'])->name('research-generator.index');
+    Route::get('/research-generator/create', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'create'])->name('research-generator.create');
+    Route::post('/research-generator', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'store'])->name('research-generator.store');
+    Route::get('/research-generator/{project}', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'show'])->name('research-generator.show');
+    Route::post('/research-generator/{project}/generate', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'generate'])->name('research-generator.generate');
 });
 
 require __DIR__.'/auth.php';
