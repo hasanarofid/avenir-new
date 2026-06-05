@@ -1,12 +1,15 @@
 <script setup>
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { authStore } from '@/Stores/authStore';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
+const notifications = computed(() => page.props.notifications ?? []);
+const hasNotifications = computed(() => notifications.value.length > 0);
 
 const dropdownOpen = ref(false);
+const notifOpen = ref(false);
 const mobileMenuOpen = ref(false);
 const isHomePage = computed(() => ['Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 'About', 'Partners', 'Subscription', 'KatalogDetail'].includes(page.component));
 
@@ -14,6 +17,75 @@ const handleLogout = () => {
     dropdownOpen.value = false;
     router.post('/logout');
 };
+
+function toggleNotif() {
+    notifOpen.value = !notifOpen.value;
+    dropdownOpen.value = false;
+}
+
+function closeNotif() {
+    notifOpen.value = false;
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+const categoryColors = {
+    // Content types
+    'ARTIKEL':      { bg: 'rgba(99,102,241,0.14)', color: '#818cf8', border: 'rgba(99,102,241,0.3)' },
+    'Artikel':      { bg: 'rgba(99,102,241,0.14)', color: '#818cf8', border: 'rgba(99,102,241,0.3)' },
+    'NEWS':         { bg: 'rgba(251,146,60,0.14)', color: '#fb923c', border: 'rgba(251,146,60,0.3)' },
+    'News':         { bg: 'rgba(251,146,60,0.14)', color: '#fb923c', border: 'rgba(251,146,60,0.3)' },
+    // Admin-defined categories
+    'Riset Baru':   { bg: 'rgba(34,197,94,0.12)',  color: '#22c55e', border: 'rgba(34,197,94,0.25)' },
+    'Info Sistem':  { bg: 'rgba(59,130,246,0.12)', color: '#60a5fa', border: 'rgba(59,130,246,0.25)' },
+    'Promo / Event':{ bg: 'rgba(234,179,8,0.12)',  color: '#facc15', border: 'rgba(234,179,8,0.25)' },
+    'Alert':        { bg: 'rgba(239,68,68,0.12)',  color: '#f87171', border: 'rgba(239,68,68,0.25)' },
+    'General':      { bg: 'rgba(156,163,175,0.12)',color: '#9ca3af', border: 'rgba(156,163,175,0.25)' },
+};
+
+function catStyle(cat) {
+    return categoryColors[cat] ?? categoryColors['General'];
+}
+
+// Build correct URL — stored format: "artikel-slug.html" or "news-slug.html"
+// Artikel: strip "artikel-" prefix → /artikel/{slug}
+// News: keep full slug (news- prefix is part of the slug) → /news/{news-slug}
+function notifUrl(url, category) {
+    if (!url) return '#';
+    const cat = (category || '').toUpperCase();
+    // Strip .html extension and leading slashes
+    let raw = url.replace(/\.html$/i, '').replace(/^\/+/, '');
+
+    if (cat === 'ARTIKEL') {
+        // Remove stored /artikel/ path prefix if present
+        let slug = raw.replace(/^artikel\//i, '');
+        // Remove embedded "artikel-" filename prefix
+        slug = slug.replace(/^artikel-/i, '');
+        return '/artikel/' + slug;
+    }
+    if (cat === 'NEWS') {
+        // News slugs already include "news-" prefix (e.g. news-btpn-xxx)
+        // Just strip any path prefix, keep the full slug
+        let slug = raw.replace(/^news\//i, '');
+        return '/news/' + slug;
+    }
+    // Other categories: return as-is (external URLs kept intact)
+    return raw.startsWith('http') ? raw : '/' + raw;
+}
+
+// Close notification dropdown when clicking outside
+const notifRef = ref(null);
+function handleOutsideClick(e) {
+    if (notifRef.value && !notifRef.value.contains(e.target)) {
+        notifOpen.value = false;
+    }
+}
+onMounted(() => document.addEventListener('mousedown', handleOutsideClick));
+onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideClick));
 </script>
 
 <template>
@@ -39,13 +111,50 @@ const handleLogout = () => {
         <div v-if="!user" class="nav-auth">
           <button class="nav-btn-login hidden-mobile" @click="authStore.open('login')">Sign In</button>
           <button class="nav-btn-register hidden-mobile" @click="authStore.open('register')">Daftar</button>
-          <button class="nav-btn-notif">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-            <span class="notif-dot"></span>
-          </button>
+
+          <!-- Notification Bell -->
+          <div class="notif-wrapper" ref="notifRef">
+            <button class="nav-btn-notif" @click="toggleNotif" :class="{ active: notifOpen }">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <span v-if="hasNotifications" class="notif-dot"></span>
+            </button>
+
+            <!-- Notification Dropdown -->
+            <transition name="notif-drop">
+              <div v-if="notifOpen" class="notif-dropdown">
+                <div class="notif-header">
+                  <span class="notif-header-title">Notifikasi</span>
+                  <span class="notif-count">{{ notifications.length }}</span>
+                </div>
+                <div class="notif-list">
+                  <div v-if="notifications.length === 0" class="notif-empty">
+                    Belum ada notifikasi.
+                  </div>
+                  <template v-else>
+                    <a
+                      v-for="notif in notifications"
+                      :key="notif.id"
+                      :href="notifUrl(notif.url, notif.category)"
+                      :target="notif.url ? '_self' : '_self'"
+                      class="notif-item"
+                      @click="closeNotif"
+                    >
+                      <span
+                        class="notif-cat-badge"
+                        :style="{ background: catStyle(notif.category).bg, color: catStyle(notif.category).color, borderColor: catStyle(notif.category).border }"
+                      >{{ notif.category }}</span>
+                      <span class="notif-item-title">{{ notif.title }}</span>
+                      <span class="notif-item-date">{{ formatDate(notif.published_at) }}</span>
+                    </a>
+                  </template>
+                </div>
+              </div>
+            </transition>
+          </div>
+
           <button class="nav-btn-hamburger" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle menu">
             <svg v-if="!mobileMenuOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
             <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -281,6 +390,135 @@ const handleLogout = () => {
   height: 6px;
   background-color: #ef4444;
   border-radius: 50%;
+  animation: notif-pulse 2s infinite;
+}
+@keyframes notif-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
+}
+
+/* Notification wrapper & dropdown */
+.notif-wrapper {
+  position: relative;
+}
+.nav-btn-notif.active {
+  border-color: #22c55e !important;
+  background: rgba(34,197,94,0.08) !important;
+  color: #22c55e !important;
+}
+.notif-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+  z-index: 500;
+  overflow: hidden;
+}
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+.notif-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+.notif-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: #ecfdf5;
+  color: #166534;
+  border-radius: 50px;
+  padding: 1px 8px;
+}
+.notif-list {
+  max-height: 340px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.notif-empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #9ca3af;
+}
+.notif-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 16px;
+  text-decoration: none;
+  border-bottom: 1px solid #f9fafb;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: #f9fafb; }
+.notif-cat-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 50px;
+  border: 1px solid;
+  width: fit-content;
+}
+.notif-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+}
+.notif-item-date {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* Dark mode overrides for notif dropdown */
+.nav.nav-dark .notif-dropdown {
+  background: #121614 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5) !important;
+}
+.nav.nav-dark .notif-header {
+  border-bottom-color: rgba(255,255,255,0.06) !important;
+}
+.nav.nav-dark .notif-header-title {
+  color: #ffffff !important;
+}
+.nav.nav-dark .notif-count {
+  background: rgba(34,197,94,0.15) !important;
+  color: #22c55e !important;
+}
+.nav.nav-dark .notif-item {
+  border-bottom-color: rgba(255,255,255,0.04) !important;
+}
+.nav.nav-dark .notif-item:hover {
+  background: rgba(255,255,255,0.04) !important;
+}
+.nav.nav-dark .notif-item-title {
+  color: #f3f4f6 !important;
+}
+.nav.nav-dark .notif-item-date {
+  color: #6b7280 !important;
+}
+
+/* Notif dropdown transition */
+.notif-drop-enter-active, .notif-drop-leave-active {
+  transition: all 0.2s ease-out;
+}
+.notif-drop-enter-from, .notif-drop-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
 }
 
 .nav-btn-user {

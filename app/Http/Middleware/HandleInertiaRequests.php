@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -34,6 +35,18 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'notifications' => DB::table('notifications')
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(fn($n) => [
+                    'id'           => $n->id,
+                    'title'        => $n->title,
+                    'category'     => $n->category ?? 'General',
+                    'url'          => $n->url ?? null,
+                    'is_new'       => $n->is_new ?? true,
+                    'published_at' => $n->published_at ?? $n->created_at,
+                ]),
         ];
     }
 }
