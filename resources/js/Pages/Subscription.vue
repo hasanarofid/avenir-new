@@ -16,6 +16,10 @@ const props = defineProps({
   pendingSubmission: {
     type: Object,
     default: null
+  },
+  bankAccountInfo: {
+    type: String,
+    default: 'Marta Fikri 3370748356 bank BCA'
   }
 });
 
@@ -345,20 +349,12 @@ const handleCloseModal = () => {
             </div>
 
             <div class="bank-details-card">
-              <div class="detail-row">
-                <span class="lbl">Bank</span>
-                <span class="val">BCA</span>
-              </div>
-              <div class="detail-row">
-                <span class="lbl">No. Rekening</span>
-                <span class="val font-mono">3370748356</span>
-                <button @click="handleCopy('3370748356', 'rek')" class="copy-btn" :class="{ copied: copyBtnText.rek.includes('✓') }">
-                  {{ copyBtnText.rek }}
+              <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+                <span class="lbl">Informasi Rekening Tujuan</span>
+                <div class="val font-mono" style="white-space: pre-wrap; line-height: 1.5;">{{ bankAccountInfo }}</div>
+                <button @click="handleCopy(bankAccountInfo, 'rek')" class="copy-btn" :class="{ copied: copyBtnText.rek.includes('✓') }" style="align-self: flex-start; margin-top: 4px;">
+                  Salin Informasi Rekening
                 </button>
-              </div>
-              <div class="detail-row">
-                <span class="lbl">Atas Nama</span>
-                <span class="val">Marta Fikri</span>
               </div>
               <div class="detail-row highlight-row">
                 <span class="lbl">Nominal Transfer</span>

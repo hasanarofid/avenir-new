@@ -14,7 +14,10 @@ import {
   Search,
   Server,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CreditCard,
+  UserCheck,
+  Bell
 } from '@lucide/vue';
 
 const page = usePage();
@@ -26,6 +29,10 @@ const isUserMenuOpen = ref(false);
 
 const navigation = [
   { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, current: route().current('admin.dashboard') },
+  { name: 'Pembayaran', href: route('admin.payments.index'), icon: CreditCard, current: route().current('admin.payments.*') },
+  { name: 'Mitra Analis', href: route('admin.mitra.index'), icon: UserCheck, current: route().current('admin.mitra.*') },
+  { name: 'Subscriber', href: route('admin.users.index'), icon: Users, current: route().current('admin.users.*') },
+  { name: 'Notifikasi & Blast', href: route('admin.notifications.index'), icon: Bell, current: route().current('admin.notifications.*') },
   { name: 'Pages & Sections', href: route('admin.pages.index'), icon: Layers, current: route().current('admin.pages.*') },
   { name: 'Posts & Categories', href: route('admin.posts.index'), icon: FileText, current: route().current('admin.posts.*') },
   { name: 'Web Settings', href: route('admin.settings.index'), icon: SettingsIcon, current: route().current('admin.settings.index') },
@@ -164,7 +171,7 @@ const logout = () => {
             <input 
               type="text" 
               placeholder="Ketik '/' untuk mencari..."
-              class="w-full bg-slate-900/60 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-250 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+              class="w-full bg-[#090b0a] border border-[#090b0a] rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-250 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
             />
             <span class="absolute right-3.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 bg-slate-800 text-[10px] font-bold text-slate-500 rounded border border-slate-700">
               /

@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Save, Image as ImageIcon, Link as LinkIcon, Phone, FileText, Globe } from '@lucide/vue';
+import { Save, Image as ImageIcon, Link as LinkIcon, Phone, FileText, Globe, CreditCard } from '@lucide/vue';
 
 const props = defineProps({
   settings: {
@@ -18,6 +18,7 @@ const form = useForm({
   site_description: props.settings.site_description || '',
   whatsapp_number: props.settings.whatsapp_number || '',
   playstore_link: props.settings.playstore_link || '',
+  bank_account_info: props.settings.bank_account_info || '',
   site_logo: null
 });
 
@@ -105,6 +106,20 @@ const submit = () => {
           <span class="flex items-center gap-2">
             <ImageIcon class="w-4 h-4" />
             Logo Website
+          </span>
+        </button>
+        <button 
+          @click="currentTab = 'bank'"
+          :class="[
+            currentTab === 'bank' 
+              ? 'border-emerald-500 text-emerald-450 bg-[#090b0a]/10' 
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-emerald-800',
+            'px-6 py-3 border-b-2 font-semibold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer'
+          ]"
+        >
+          <span class="flex items-center gap-2">
+            <CreditCard class="w-4 h-4" />
+            Informasi Rekening
           </span>
         </button>
       </div>
@@ -251,6 +266,28 @@ const submit = () => {
                 <p class="text-xxs text-slate-500">Maksimal ukuran berkas 2 MB (PNG, JPG, JPEG, WEBP)</p>
                 <div v-if="form.errors.site_logo" class="text-xs text-rose-500 font-semibold mt-1">
                   {{ form.errors.site_logo }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 4: Informasi Rekening -->
+          <div v-if="currentTab === 'bank'" class="space-y-6 animate-fadeIn">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div>
+                <label for="bank_account_info" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Rekening Tujuan</label>
+                <p class="text-xxs text-slate-550 mt-1">Informasi rekening yang ditampilkan ke pengguna saat akan melakukan pembayaran atau perpanjangan berlangganan.</p>
+              </div>
+              <div class="md:col-span-2">
+                <textarea 
+                  id="bank_account_info"
+                  v-model="form.bank_account_info"
+                  rows="3"
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250 resize-none"
+                  placeholder="Misal: Marta Fikri 3370748356 bank BCA"
+                ></textarea>
+                <div v-if="form.errors.bank_account_info" class="text-xs text-rose-500 font-semibold mt-1">
+                  {{ form.errors.bank_account_info }}
                 </div>
               </div>
             </div>

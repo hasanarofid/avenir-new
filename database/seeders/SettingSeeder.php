@@ -38,6 +38,11 @@ class SettingSeeder extends Seeder
                 'value' => 'https://play.google.com/store/apps/details?id=com.mycms.app',
                 'type' => 'url',
             ],
+            [
+                'key' => 'bank_account_info',
+                'value' => 'Marta Fikri 3370748356 bank BCA',
+                'type' => 'textarea',
+            ],
         ];
 
         foreach ($settings as $setting) {

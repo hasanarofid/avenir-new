@@ -547,6 +547,7 @@ class HomeController extends Controller
         return Inertia::render('Subscription', [
             'status' => $status,
             'isSubscriber' => $isSubscriber,
+            'bankAccountInfo' => \App\Models\Setting::getValue('bank_account_info', 'Marta Fikri 3370748356 bank BCA'),
             'pendingSubmission' => $pendingSubmission ? [
                 'paket' => $pendingSubmission->paket,
                 'nominal' => $pendingSubmission->nominal,
