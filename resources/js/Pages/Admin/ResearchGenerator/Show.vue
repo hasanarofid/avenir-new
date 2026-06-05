@@ -1,8 +1,9 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { ArrowLeft, Play, FileText, CheckCircle, RefreshCcw, Save, Settings as SettingsIcon } from '@lucide/vue';
+import { ArrowLeft, Play, FileText, CheckCircle, RefreshCcw, Save, Settings as SettingsIcon, Globe } from '@lucide/vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     project: Object,
@@ -23,6 +24,36 @@ const generateDraft = () => {
     });
 };
 
+const publishToKatalog = () => {
+    Swal.fire({
+        title: 'Terbitkan ke Katalog?',
+        text: "Data JSON ini akan otomatis dikonversi menjadi halaman Katalog.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#059669',
+        cancelButtonColor: '#1e293b',
+        confirmButtonText: 'Ya, Terbitkan!',
+        cancelButtonText: 'Batal',
+        background: '#121614',
+        color: '#f8fafc',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.post(route('admin.research-generator.publish', props.project.id), {}, {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Riset berhasil diterbitkan ke Katalog.',
+                        background: '#121614',
+                        color: '#f8fafc',
+                        confirmButtonColor: '#059669'
+                    });
+                }
+            });
+        }
+    });
+};
+
 const getLatestDraft = () => {
     if (!props.project.drafts || props.project.drafts.length === 0) return null;
     // Get the most recent draft
@@ -35,8 +66,71 @@ const draftForm = useForm({
     structured_json: latestDraft.value ? latestDraft.value.structured_json : null,
 });
 
-// Since we only do simple rendering for MVP, if we want to save edits, we need an endpoint.
-// For now, we will display the JSON.
+let pollInterval = null;
+const draftCount = ref(props.project.drafts ? props.project.drafts.length : 0);
+
+const startPolling = () => {
+    if (!pollInterval) {
+        pollInterval = setInterval(() => {
+            router.reload({
+                only: ['project'],
+                preserveScroll: true,
+                onSuccess: () => {
+                    const newDraftsLength = props.project.drafts ? props.project.drafts.length : 0;
+                    
+                    if (props.project.status !== 'generating') {
+                        stopPolling();
+                        
+                        if (newDraftsLength > draftCount.value) {
+                            // Success: New draft added!
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Draft riset berhasil di-generate.',
+                                background: '#121614',
+                                color: '#f8fafc',
+                                confirmButtonColor: '#059669'
+                            });
+                            const newDraft = getLatestDraft();
+                            latestDraft.value = newDraft;
+                            draftForm.structured_json = newDraft.structured_json;
+                            draftCount.value = newDraftsLength;
+                        } else if (props.project.status === 'draft') {
+                            // Failed: Status reverted to draft but no new draft
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal',
+                                text: 'Proses generate gagal. Pastikan API Key valid dan saldo OpenRouter cukup, atau cek log server.',
+                                background: '#121614',
+                                color: '#f8fafc',
+                                confirmButtonColor: '#059669'
+                            });
+                        }
+                    }
+                }
+            });
+        }, 3000);
+    }
+};
+
+const stopPolling = () => {
+    if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+    }
+};
+
+watch(() => props.project.status, (newStatus) => {
+    if (newStatus === 'generating') {
+        startPolling();
+    } else {
+        stopPolling();
+    }
+}, { immediate: true });
+
+onUnmounted(() => {
+    stopPolling();
+});
 </script>
 
 <template>
@@ -159,10 +253,14 @@ const draftForm = useForm({
                                     </div>
                                 </div>
 
-                                <div class="flex justify-end mt-4">
+                                <div class="flex justify-end mt-6 gap-3">
                                     <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
                                         <Save class="w-4 h-4" />
                                         Simpan Draft
+                                    </button>
+                                    <button @click="publishToKatalog" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2">
+                                        <Globe class="w-4 h-4" />
+                                        Terbitkan ke Katalog
                                     </button>
                                 </div>
                             </div>

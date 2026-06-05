@@ -22,7 +22,7 @@ class HomeController extends Controller
      */
     public function katalog()
     {
-        $researches = Research::all();
+        $researches = Research::latest()->get();
         $unlockedTickers = auth()->check()
             ? \Illuminate\Support\Facades\DB::table('unlocked_research')
                 ->where('user_id', auth()->id())
@@ -341,56 +341,22 @@ class HomeController extends Controller
      */
     public function news()
     {
-        $newsList = [
-            [
-                'title' => 'PACK Tarik Perpetual Loan USD 93 Juta dari Pengendali untuk Akuisisi 29,25% Saham Dua Tambang Nikel Konawe Utara',
-                'slug' => 'news-pack-akuisisi-konawe-mei-2026',
-                'category' => 'PACK · Corporate Action · Nickel',
-                'excerpt' => 'PT Abadi Nusantara Hijau Investama Tbk merilis keterbukaan informasi material 19 Mei 2026. Pinjaman perpetual USD 93,1 juta dari pemegang saham pengendali PT Eco Energi Perkasa setara 48 persen ekuitas...',
-                'published_at' => '20 Mei 2026',
-                'is_paid' => false,
-            ],
-            [
-                'title' => 'ERAL Lepas 90,1% Saham EIDO ke XPENG: Restrukturisasi Manufaktur EV dan Posisi Baru Erajaya Active Lifestyle',
-                'slug' => 'news-eral-xpeng-eido-mei-2026',
-                'category' => 'ERAL · Corporate Action · EV · XPENG',
-                'excerpt' => 'PT Sinar Eka Selaras Tbk (ERAL) mengumumkan transfer 90,1 persen saham PT Era Industri Otomotif kepada XPENG International Holding Hong Kong. Manufaktur lepas ke XPENG, distribusi dan sales tetap di ERAL...',
-                'published_at' => '18 Mei 2026',
-                'is_paid' => false,
-            ],
-            [
-                'title' => 'Di Balik Rally 619% Saham CTTH: Realitas Q1 yang Pahit dan JV Kapur yang Belum Pasti',
-                'slug' => 'news-ctth-keterbukaan-mei-2026',
-                'category' => 'CTTH · Corporate Action · Marble · Limestone',
-                'excerpt' => 'PT Citatah Tbk merilis dua keterbukaan informasi material kepada Bursa Efek Indonesia awal Mei lalu — tanggapan permintaan penjelasan soal JV USD 10,5 juta dengan Chememan Thailand, dan studi kelayakan KJPP...',
-                'published_at' => '13 Mei 2026',
-                'is_paid' => false,
-            ],
-            [
-                'title' => 'MSCI Shock Mei 2026: Enam Saham RI Didepak, IHSG Sempat Sentuh 6.726',
-                'slug' => 'news-msci-deletion-ihsg-shock-mei2026',
-                'category' => 'Pasar · MSCI · IDX · Global Flow',
-                'excerpt' => 'MSCI menghapus AMMN, BREN, TPIA, DSSA, CUAN, dan AMRT dari Global Standard Indonesia. AMRT turun ke Small Cap, sementara IHSG sempat menyentuh 6.726 dari previous close 6.859...',
-                'published_at' => '13 Mei 2026',
-                'is_paid' => false,
-            ],
-            [
-                'title' => 'RATU–RAJA Masuk Ekosistem Kasuri: 5% PI Hulu, 5% PT LNG, dan Taruhan FLNG Pertama Indonesia',
-                'slug' => 'news-ratu-akuisisi-pi-kasuri',
-                'category' => 'Korporasi · Migas · LNG · RATU · RAJA',
-                'excerpt' => 'RATU melalui PT REN masuk 5% participating interest WK Kasuri senilai US$9,647 juta, sementara RAJA merencanakan akuisisi 5% PT Layar Nusantara Gas senilai US$38,575 juta...',
-                'published_at' => '11 Mei 2026',
-                'is_paid' => false,
-            ],
-            [
-                'title' => 'Hantavirus Sampai Indonesia: 23 Kasus, 3 Kematian — Saham Sektor Kesehatan Naik di Tengah IHSG Tertekan',
-                'slug' => 'news-hantavirus-saham-kesehatan',
-                'category' => 'Pandemi · Sektor Kesehatan · IDX',
-                'excerpt' => 'Kementerian Kesehatan RI mengonfirmasi 23 kasus dan 3 kematian akibat hantavirus di sembilan provinsi sejak 2024, sementara wabah viral MV Hondius di Atlantik Selatan menambah kewaspadaan global...',
-                'published_at' => '08 Mei 2026',
-                'is_paid' => false,
-            ],
-        ];
+        $newsList = Article::where('category', 'like', '%News%')
+            ->where('status', 'published')
+            ->orderByDesc('published_at')
+            ->get()
+            ->map(function ($news) {
+                return [
+                    'title' => $news->title,
+                    'slug' => $news->slug,
+                    'category' => $news->category,
+                    'badge' => $news->badge,
+                    'excerpt' => $news->excerpt,
+                    'published_at' => $news->published_at ? $news->published_at->format('d M Y') : null,
+                    'cover_image' => $news->cover_image,
+                    'is_paid' => $news->is_paid,
+                ];
+            });
 
         return Inertia::render('News', [
             'newsList' => $newsList
@@ -402,76 +368,20 @@ class HomeController extends Controller
      */
     public function newsDetail($slug)
     {
-        $filePath = base_path("app/website/{$slug}.html");
-        
-        $newsList = [
-            'news-pack-akuisisi-konawe-mei-2026' => [
-                'title' => 'PACK Tarik Perpetual Loan USD 93 Juta dari Pengendali untuk Akuisisi 29,25% Saham Dua Tambang Nikel Konawe Utara',
-                'category' => 'PACK · Corporate Action · Nickel',
-                'published_at' => '20 Mei 2026',
-            ],
-            'news-eral-xpeng-eido-mei-2026' => [
-                'title' => 'ERAL Lepas 90,1% Saham EIDO ke XPENG: Restrukturisasi Manufaktur EV dan Posisi Baru Erajaya Active Lifestyle',
-                'category' => 'ERAL · Corporate Action · EV · XPENG',
-                'published_at' => '18 Mei 2026',
-            ],
-            'news-ctth-keterbukaan-mei-2026' => [
-                'title' => 'Di Balik Rally 619% Saham CTTH: Realitas Q1 yang Pahit dan JV Kapur yang Belum Pasti',
-                'category' => 'CTTH · Corporate Action · Marble · Limestone',
-                'published_at' => '13 Mei 2026',
-            ],
-            'news-msci-deletion-ihsg-shock-mei2026' => [
-                'title' => 'MSCI Shock Mei 2026: Enam Saham RI Didepak, IHSG Sempat Sentuh 6.726',
-                'category' => 'Pasar · MSCI · IDX · Global Flow',
-                'published_at' => '13 Mei 2026',
-            ],
-            'news-ratu-akuisisi-pi-kasuri' => [
-                'title' => 'RATU–RAJA Masuk Ekosistem Kasuri: 5% PI Hulu, 5% PT LNG, dan Taruhan FLNG Pertama Indonesia',
-                'category' => 'Korporasi · Migas · LNG · RATU · RAJA',
-                'published_at' => '11 Mei 2026',
-            ],
-            'news-hantavirus-saham-kesehatan' => [
-                'title' => 'Hantavirus Sampai Indonesia: 23 Kasus, 3 Kematian — Saham Sektor Kesehatan Naik di Tengah IHSG Tertekan',
-                'category' => 'Pandemi · Sektor Kesehatan · IDX',
-                'published_at' => '08 Mei 2026',
-            ],
-        ];
+        $article = Article::where('slug', $slug)
+            ->where('category', 'like', '%News%')
+            ->where('status', 'published')
+            ->first();
 
-        $meta = $newsList[$slug] ?? [
-            'title' => ucwords(str_replace('-', ' ', $slug)),
-            'category' => 'News · Market',
-            'published_at' => now()->format('d M Y'),
-        ];
-
-        $content = null;
-        if (file_exists($filePath)) {
-            $html = file_get_contents($filePath);
-            
-            // Look for guest-lock-content or general content
-            $startToken = '<div class="guest-lock-content">';
-            $endToken = '<div class="guest-lock-overlay"';
-            
-            $startPos = strpos($html, $startToken);
-            if ($startPos !== false) {
-                $startPos += strlen($startToken);
-                $endPos = strpos($html, $endToken, $startPos);
-                if ($endPos !== false) {
-                    $content = trim(substr($html, $startPos, $endPos - $startPos));
-                }
-            }
-            
-            if (!$content) {
-                $startToken = '<div class="news-page">';
-                $startPos = strpos($html, $startToken);
-                if ($startPos !== false) {
-                    $content = trim(substr($html, $startPos));
-                }
-            }
-
-            if (!$content) {
-                // Read from body tags
-                $startToken = '<body>';
-                $endToken = '</body>';
+        // Legacy check / fallback
+        if (!$article) {
+            $filePath = base_path("app/website/{$slug}.html");
+            if (file_exists($filePath)) {
+                $html = file_get_contents($filePath);
+                $content = null;
+                // Look for guest-lock-content or general content
+                $startToken = '<div class="guest-lock-content">';
+                $endToken = '<div class="guest-lock-overlay"';
                 $startPos = strpos($html, $startToken);
                 if ($startPos !== false) {
                     $startPos += strlen($startToken);
@@ -480,25 +390,56 @@ class HomeController extends Controller
                         $content = trim(substr($html, $startPos, $endPos - $startPos));
                     }
                 }
+                
+                if (!$content) {
+                    $startToken = '<div class="news-page">';
+                    $startPos = strpos($html, $startToken);
+                    if ($startPos !== false) {
+                        $content = trim(substr($html, $startPos));
+                    }
+                }
+
+                if (!$content) {
+                    $startToken = '<body>';
+                    $endToken = '</body>';
+                    $startPos = strpos($html, $startToken);
+                    if ($startPos !== false) {
+                        $startPos += strlen($startToken);
+                        $endPos = strpos($html, $endToken, $startPos);
+                        if ($endPos !== false) {
+                            $content = trim(substr($html, $startPos, $endPos - $startPos));
+                        }
+                    }
+                }
+                
+                return Inertia::render('NewsDetail', [
+                    'news' => [
+                        'title' => ucwords(str_replace('-', ' ', $slug)),
+                        'slug' => $slug,
+                        'category' => 'News · Market',
+                        'published_at' => now()->format('d M Y'),
+                        'content' => $this->cleanHtmlForDarkMode($content ?? '<div class="art-body"><p>Detail berita ini sedang dimigrasikan ke platform baru.</p></div>'),
+                    ]
+                ]);
             }
+            abort(404);
         }
 
-        if (!$content) {
-            $content = '<div class="art-body"><p>Detail berita ini sedang dimigrasikan ke platform baru.</p></div>';
-        }
-
-        $content = $this->cleanHtmlForDarkMode($content);
+        $content = $this->cleanHtmlForDarkMode($article->content);
 
         return Inertia::render('NewsDetail', [
             'news' => [
-                'title' => $meta['title'],
-                'slug' => $slug,
-                'category' => $meta['category'],
-                'published_at' => $meta['published_at'],
+                'title' => $article->title,
+                'slug' => $article->slug,
+                'category' => $article->category,
+                'published_at' => $article->published_at ? $article->published_at->format('d M Y') : null,
                 'content' => $content,
+                'cover_image' => $article->cover_image,
             ]
         ]);
     }
+
+
 
     /**
      * Render tentang page.

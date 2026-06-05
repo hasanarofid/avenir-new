@@ -79,6 +79,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/research-generator', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'store'])->name('research-generator.store');
     Route::get('/research-generator/{project}', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'show'])->name('research-generator.show');
     Route::post('/research-generator/{project}/generate', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'generate'])->name('research-generator.generate');
+    Route::post('/research-generator/{project}/publish', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'publishToKatalog'])->name('research-generator.publish');
+
+    // News Generator
+    Route::get('/news-generator', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'index'])->name('news-generator.index');
+    Route::post('/news-generator/generate', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'generate'])->name('news-generator.generate');
+    Route::post('/news-generator/publish', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'publish'])->name('news-generator.publish');
 });
 
 require __DIR__.'/auth.php';

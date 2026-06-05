@@ -32,6 +32,9 @@ defineProps({
             :id="'news-card-' + item.slug"
           >
             <!-- Card Content -->
+            <div v-if="item.cover_image" class="w-full h-48 sm:h-56 overflow-hidden border-b border-white/5">
+              <img :src="item.cover_image" :alt="item.title" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+            </div>
             <div class="news-card-body">
               <div v-if="item.category" class="news-card-cat">{{ item.category }}</div>
               <h2 class="news-card-title">{{ item.title }}</h2>

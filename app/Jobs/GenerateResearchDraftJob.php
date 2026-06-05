@@ -37,7 +37,7 @@ class GenerateResearchDraftJob implements ShouldQueue
             }
 
             // 2. Prepare Prompts
-            $systemPrompt = "Anda adalah analis ekuitas senior dengan 15 tahun pengalaman di pasar modal Indonesia. Tugas Anda adalah menulis riset ekuitas profesional berdasarkan data keuangan yang diberikan. Output HARUS berupa JSON valid tanpa markdown block ```json. Struktur JSON harus memiliki key: ticker, rating (BUY/HOLD/SELL), target_price, dan sections (berisi object dengan key: executive_summary, financial_highlights, key_risks, conclusion).";
+            $systemPrompt = "Anda adalah analis ekuitas senior dengan 15 tahun pengalaman di pasar modal Indonesia. Tugas Anda adalah menulis riset ekuitas profesional berdasarkan data keuangan yang diberikan. Output HARUS berupa JSON valid tanpa markdown block ```json. Struktur JSON harus memiliki key: ticker, rating (BUY/HOLD/SELL), target_price, subtitle (1-2 kalimat), revenue (format ringkas misal 'Rp5,47T'), patmi, sales, tags (dipisah spasi), dan sections (berisi object dengan key: executive_summary, financial_highlights, key_risks, conclusion).";
             
             $userPrompt = "Berikut adalah data untuk saham {$this->project->ticker} - {$this->project->title}.\n\n";
             if ($this->project->prompt) {

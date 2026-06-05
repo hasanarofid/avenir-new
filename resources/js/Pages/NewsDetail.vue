@@ -34,6 +34,11 @@ defineProps({
           </div>
         </div>
 
+        <!-- Cover Image -->
+        <div v-if="news.cover_image" class="w-full mb-10 rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
+          <img :src="news.cover_image" :alt="news.title" class="w-full h-auto max-h-[500px] object-cover" />
+        </div>
+
         <!-- News Content -->
         <div 
           class="news-content" 

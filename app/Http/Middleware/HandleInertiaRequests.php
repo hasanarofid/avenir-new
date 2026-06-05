@@ -47,6 +47,11 @@ class HandleInertiaRequests extends Middleware
                     'is_new'       => $n->is_new ?? true,
                     'published_at' => $n->published_at ?? $n->created_at,
                 ]),
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+                'generated_news' => $request->session()->get('generated_news'),
+            ],
         ];
     }
 }
