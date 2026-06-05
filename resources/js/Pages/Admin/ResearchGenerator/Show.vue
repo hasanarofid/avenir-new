@@ -120,13 +120,26 @@ const stopPolling = () => {
     }
 };
 
-watch(() => props.project.status, (newStatus) => {
-    if (newStatus === 'generating') {
+const needsPolling = () => {
+    // Poll if generating AI
+    if (props.project.status === 'generating') return true;
+    
+    // Poll if any document is still extracting
+    if (props.project.documents) {
+        const isExtracting = props.project.documents.some(doc => !doc.extracted_text);
+        if (isExtracting) return true;
+    }
+    
+    return false;
+};
+
+watch(() => props.project, () => {
+    if (needsPolling()) {
         startPolling();
     } else {
         stopPolling();
     }
-}, { immediate: true });
+}, { immediate: true, deep: true });
 
 onUnmounted(() => {
     stopPolling();
