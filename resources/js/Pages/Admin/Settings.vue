@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Save, Image as ImageIcon, Link as LinkIcon, Phone, FileText, Globe, CreditCard } from '@lucide/vue';
+import { Save, Image as ImageIcon, Link as LinkIcon, Phone, FileText, Globe, CreditCard, UserCheck, BookOpen, BarChart2 } from '@lucide/vue';
 
 const props = defineProps({
   settings: {
@@ -19,6 +19,8 @@ const form = useForm({
   whatsapp_number: props.settings.whatsapp_number || '',
   playstore_link: props.settings.playstore_link || '',
   bank_account_info: props.settings.bank_account_info || '',
+  trial_artikel_limit: parseInt(props.settings.trial_artikel_limit ?? 3),
+  trial_riset_limit:   parseInt(props.settings.trial_riset_limit   ?? 3),
   site_logo: null
 });
 
@@ -120,6 +122,20 @@ const submit = () => {
           <span class="flex items-center gap-2">
             <CreditCard class="w-4 h-4" />
             Informasi Rekening
+          </span>
+        </button>
+        <button 
+          @click="currentTab = 'trial'"
+          :class="[
+            currentTab === 'trial' 
+              ? 'border-emerald-500 text-emerald-450 bg-[#090b0a]/10' 
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-emerald-800',
+            'px-6 py-3 border-b-2 font-semibold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer'
+          ]"
+        >
+          <span class="flex items-center gap-2">
+            <UserCheck class="w-4 h-4" />
+            Akses Trial
           </span>
         </button>
       </div>
@@ -290,6 +306,86 @@ const submit = () => {
                   {{ form.errors.bank_account_info }}
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Tab 5: Akses Trial -->
+          <div v-if="currentTab === 'trial'" class="space-y-6 animate-fadeIn">
+            <!-- Info Banner -->
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/8 border border-emerald-500/20">
+              <UserCheck class="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p class="text-sm font-semibold text-emerald-300">Akses User Trial</p>
+                <p class="text-xs text-slate-400 mt-1">
+                  Pengguna yang sudah login tetapi <strong class="text-slate-300">belum berlangganan</strong> dianggap sebagai user trial.
+                  Mereka hanya dapat membaca <strong class="text-slate-300">N artikel terbaru</strong> dan mengakses <strong class="text-slate-300">N riset terbaru</strong> sesuai batas yang Anda tentukan.
+                </p>
+              </div>
+            </div>
+
+            <!-- Artikel Limit -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <BookOpen class="w-4 h-4 text-indigo-400" />
+                  Batas Artikel Trial
+                </label>
+                <p class="text-xs text-slate-500 mt-1">Jumlah artikel terbaru yang dapat diakses penuh oleh user trial.</p>
+              </div>
+              <div class="md:col-span-2">
+                <div class="flex items-center gap-4">
+                  <input
+                    type="number"
+                    v-model.number="form.trial_artikel_limit"
+                    min="0" max="100"
+                    class="w-32 bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 text-center font-bold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
+                  />
+                  <span class="text-sm text-slate-400">artikel terbaru</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">
+                  Set ke <span class="text-emerald-400 font-bold">0</span> untuk memblokir semua artikel bagi trial user.
+                </p>
+                <div v-if="form.errors.trial_artikel_limit" class="text-xs text-rose-500 font-semibold mt-1">
+                  {{ form.errors.trial_artikel_limit }}
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-emerald-950/30"></div>
+
+            <!-- Riset Limit -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <BarChart2 class="w-4 h-4 text-emerald-400" />
+                  Batas Riset Trial
+                </label>
+                <p class="text-xs text-slate-500 mt-1">Jumlah riset terbaru yang dapat diakses penuh oleh user trial.</p>
+              </div>
+              <div class="md:col-span-2">
+                <div class="flex items-center gap-4">
+                  <input
+                    type="number"
+                    v-model.number="form.trial_riset_limit"
+                    min="0" max="100"
+                    class="w-32 bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 text-center font-bold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
+                  />
+                  <span class="text-sm text-slate-400">riset terbaru</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">
+                  Set ke <span class="text-emerald-400 font-bold">0</span> untuk memblokir semua riset bagi trial user.
+                </p>
+                <div v-if="form.errors.trial_riset_limit" class="text-xs text-rose-500 font-semibold mt-1">
+                  {{ form.errors.trial_riset_limit }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Preview Info -->
+            <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/30 text-xs text-slate-400 space-y-1">
+              <p class="font-semibold text-slate-300 mb-2">Pratinjau konfigurasi saat ini:</p>
+              <p>📄 Trial user dapat membaca <span class="text-white font-bold">{{ form.trial_artikel_limit }} artikel</span> terbaru secara penuh. Sisanya akan dipotong (paywall).</p>
+              <p>📊 Trial user dapat mengakses <span class="text-white font-bold">{{ form.trial_riset_limit }} riset</span> terbaru secara penuh. Sisanya terkunci.</p>
             </div>
           </div>
 

@@ -74,6 +74,13 @@ class HomeController extends Controller
                     ->where('ticker', $research->ticker)
                     ->exists();
             }
+
+            // Trial limit: non-subscriber only gets access to N newest research
+            if (!$isSubscriber && !$isUnlocked) {
+                $trialLimit  = (int) \App\Models\Setting::getValue('trial_riset_limit', 3);
+                $allowedIds  = Research::orderByDesc('date')->take($trialLimit)->pluck('id');
+                $isUnlocked  = $allowedIds->contains($research->id);
+            }
         }
 
         // Cek DB dulu sesuai permintaan user
@@ -211,8 +218,31 @@ class HomeController extends Controller
 
         $content = $this->getArticleContent($article->slug) ?? $article->content;
 
-        $isPaid = (bool) $article->is_paid;
-        $isGuest = !auth()->check();
+        $isPaid   = (bool) $article->is_paid;
+        $isGuest  = !auth()->check();
+        $isTrial  = false;
+
+        // Trial check: logged-in non-subscribers are treated as trial users
+        if (!$isGuest) {
+            $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
+                ->where('user_id', auth()->id())
+                ->first();
+            $isTrial = !($profile && $profile->is_subscriber);
+        }
+
+        // Trial paywall: limit access to N newest articles
+        if ($isTrial) {
+            $trialLimit = (int) \App\Models\Setting::getValue('trial_artikel_limit', 3);
+            $allowedIds = \App\Models\Article::where('status', 'published')
+                ->orderByDesc('published_at')
+                ->take($trialLimit)
+                ->pluck('id');
+            if (!$allowedIds->contains($article->id)) {
+                // Outside trial limit — truncate same as guest paywall
+                $content = $this->truncateForGuest($content);
+                $isPaid  = true; // signal frontend to show upgrade prompt
+            }
+        }
 
         // Secure paywall check: truncate content sent to guests for paid articles
         if ($isPaid && $isGuest) {
