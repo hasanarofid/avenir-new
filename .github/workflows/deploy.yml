@@ -38,6 +38,9 @@ jobs:
             php artisan view:clear
             php artisan queue:restart
             
-            # 6. Rapikan kembali hak akses agar tidak Forbidden
+            # 6. Pastikan symlink storage terbuat
+            php artisan storage:link || true
+            
+            # 7. Rapikan kembali hak akses agar tidak Forbidden
             chown -R avenir:avenir /home/avenir/public_html
             chmod -R 775 /home/avenir/public_html/storage /home/avenir/public_html/bootstrap/cache
