@@ -39,7 +39,7 @@ const submit = () => {
     <Head title="Buat Project AI Research" />
 
     <AdminLayout>
-        <div class="max-w-4xl mx-auto space-y-6">
+        <div class="space-y-6">
             <!-- Header -->
             <div class="flex items-center gap-4">
                 <Link 

@@ -62,7 +62,7 @@ const submit = () => {
   <Head title="Web Settings" />
 
   <AdminLayout>
-    <div class="space-y-8 max-w-4xl">
+    <div class="space-y-8">
       <!-- Title -->
       <div>
         <h2 class="text-3xl font-extrabold tracking-tight text-white">Web Settings</h2>

@@ -18,7 +18,7 @@ function formatDate(dateString) {
   <Head title="Kelola User Subscriber" />
 
   <AdminLayout>
-    <div class="space-y-6 max-w-7xl mx-auto pb-12">
+    <div class="space-y-6 pb-12">
       <!-- Header -->
       <div class="flex items-center justify-between border-b border-emerald-950/30 pb-4">
         <div>

@@ -70,7 +70,7 @@ const removeTestimonialItem = (index) => {
   <Head :title="`Edit Halaman: ${page.title}`" />
 
   <AdminLayout>
-    <div class="space-y-8 max-w-6xl">
+    <div class="space-y-8">
       <!-- Header -->
       <div class="flex items-center gap-4">
         <Link :href="route('admin.pages.index')" class="p-2 bg-[#121614] border border-emerald-950/25 hover:bg-[#090b0a] rounded-xl text-slate-400 hover:text-slate-200 transition-colors">
