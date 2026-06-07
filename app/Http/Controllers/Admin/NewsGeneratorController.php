@@ -13,7 +13,10 @@ class NewsGeneratorController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Admin/NewsGenerator/Index');
+        $tickers = \App\Models\Ticker::orderBy('symbol')->get(['id', 'symbol', 'company_name']);
+        return Inertia::render('Admin/NewsGenerator/Index', [
+            'tickers' => $tickers
+        ]);
     }
 
     public function generate(Request $request)
@@ -122,6 +125,8 @@ Teks Sumber: ' . substr($textToRewrite, 0, 10000);
             'excerpt' => 'required|string',
             'cover_image_file' => 'nullable|image|max:5120', // Max 5MB
             'content_html' => 'required|string',
+            'ticker_ids' => 'nullable|array',
+            'ticker_ids.*' => 'exists:tickers,id'
         ]);
 
         $slug = Str::slug($request->title) . '-' . uniqid();
@@ -144,7 +149,7 @@ Teks Sumber: ' . substr($textToRewrite, 0, 10000);
             $coverImageUrl = $financeImages[array_rand($financeImages)];
         }
 
-        Article::create([
+        $article = Article::create([
             'title' => $request->title,
             'slug' => $slug,
             'category' => 'News · Market',
@@ -157,6 +162,10 @@ Teks Sumber: ' . substr($textToRewrite, 0, 10000);
             'is_paid' => false,
             'status' => 'published',
         ]);
+
+        if ($request->has('ticker_ids') && is_array($request->ticker_ids)) {
+            $article->tickers()->sync($request->ticker_ids);
+        }
 
         return redirect()->route('admin.news-generator.index')->with('success', 'Berita berhasil diterbitkan ke halaman News!');
     }

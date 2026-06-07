@@ -24,6 +24,30 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    public function hasActivePremium()
+    {
+        // For MVP, if they have an approved subscription, they are premium.
+        // We can check if verified_at + durasi_hari is greater than now().
+        $activeSub = $this->subscriptions()->where('status', 'approved')->first();
+        if (!$activeSub) return false;
+
+        if ($activeSub->verified_at && $activeSub->durasi_hari) {
+            $expiresAt = \Carbon\Carbon::parse($activeSub->verified_at)->addDays($activeSub->durasi_hari);
+            return now()->lessThan($expiresAt);
+        }
+
+        return true;
+    }
+    public function subscriptions()
+    {
+        return $this->hasMany(PaymentSubmission::class, 'user_id')->where('status', 'approved');
+    }
+
+    public function watchlists()
+    {
+        return $this->hasMany(Watchlist::class);
+    }
+
     protected function casts(): array
     {
         return [

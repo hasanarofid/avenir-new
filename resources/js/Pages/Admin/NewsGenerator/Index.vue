@@ -7,6 +7,10 @@ import Swal from 'sweetalert2';
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
+const props = defineProps({
+    tickers: Array,
+});
+
 const page = usePage();
 
 const generateForm = useForm({
@@ -21,6 +25,7 @@ const publishForm = useForm({
     excerpt: '',
     cover_image_file: null,
     content_html: '',
+    ticker_ids: [],
 });
 
 const isGenerating = ref(false);
@@ -213,6 +218,19 @@ const publishNews = () => {
                                         >
                                     </div>
                                     <div class="space-y-2">
+                                        <label class="text-xs font-bold text-slate-400 uppercase">Tautkan ke Emiten (Opsional)</label>
+                                        <select 
+                                            v-model="publishForm.ticker_ids"
+                                            multiple
+                                            class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors h-[42px]"
+                                        >
+                                            <option v-for="ticker in tickers" :key="ticker.id" :value="ticker.id">
+                                                {{ ticker.symbol }} - {{ ticker.company_name }}
+                                            </option>
+                                        </select>
+                                        <p class="text-[10px] text-slate-500">Tahan CTRL/CMD untuk memilih lebih dari satu.</p>
+                                    </div>
+                                    <div class="space-y-2 col-span-2 md:col-span-1">
                                         <label class="text-xs font-bold text-slate-400 uppercase">Gambar Cover (Upload)</label>
                                         <div class="relative">
                                             <input 

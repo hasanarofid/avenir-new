@@ -20,6 +20,16 @@ Route::get('/artikel', [HomeController::class, 'artikel'])->name('artikel');
 Route::get('/artikel/{slug}', [HomeController::class, 'artikelDetail'])->name('artikel.detail');
 Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/news/{slug}', [HomeController::class, 'newsDetail'])->name('news.detail');
+
+// Emiten Hub (V1)
+Route::get('/emiten', [\App\Http\Controllers\EmitenHubController::class, 'index'])->name('emiten.index');
+Route::get('/emiten/{symbol}', [\App\Http\Controllers\EmitenHubController::class, 'show'])->name('emiten.show');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/watchlist', [\App\Http\Controllers\WatchlistController::class, 'index'])->name('watchlist.index');
+    Route::post('/watchlist/toggle/{tickerId}', [\App\Http\Controllers\WatchlistController::class, 'toggle'])->name('watchlist.toggle');
+});
+
 Route::get('/tentang', [HomeController::class, 'tentang'])->name('tentang');
 Route::get('/mitra', [HomeController::class, 'mitra'])->name('mitra');
 Route::get('/langganan', [HomeController::class, 'langganan'])->name('langganan');

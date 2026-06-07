@@ -12,4 +12,9 @@ class Article extends Model
         'published_at' => 'date:d M Y',
         'is_paid' => 'boolean',
     ];
+
+    public function tickers()
+    {
+        return $this->belongsToMany(Ticker::class);
+    }
 }

@@ -216,6 +216,16 @@ class HomeController extends Controller
             abort(404);
         }
 
+        if ($article->is_paid) {
+            if (!auth()->check()) {
+                return redirect()->route('login')->with('error', 'Silakan login untuk membaca artikel premium ini.');
+            }
+
+            if (!auth()->user()->hasActivePremium() && !auth()->user()->hasRole('admin')) {
+                return redirect()->route('langganan')->with('error', 'Akses Premium dibutuhkan untuk konten ini. Silakan berlangganan.');
+            }
+        }
+
         $content = $this->getArticleContent($article->slug) ?? $article->content;
 
         $isPaid   = (bool) $article->is_paid;
@@ -423,6 +433,16 @@ class HomeController extends Controller
                 ]);
             }
             abort(404);
+        }
+
+        if ($article->is_paid) {
+            if (!auth()->check()) {
+                return redirect()->route('login')->with('error', 'Silakan login untuk membaca berita premium ini.');
+            }
+
+            if (!auth()->user()->hasActivePremium() && !auth()->user()->hasRole('admin')) {
+                return redirect()->route('langganan')->with('error', 'Akses Premium dibutuhkan untuk konten ini. Silakan berlangganan.');
+            }
         }
 
         $content = $this->cleanHtmlForDarkMode($article->content);
