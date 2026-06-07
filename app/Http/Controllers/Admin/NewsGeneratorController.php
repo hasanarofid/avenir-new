@@ -96,6 +96,15 @@ Teks Sumber: ' . substr($textToRewrite, 0, 10000);
                     return back()->withErrors(['error' => 'Output AI bukan JSON yang valid. Response mentah: ' . substr($resultJson, 0, 200)]);
                 }
 
+                \App\Models\AILog::create([
+                    'feature' => 'NewsGenerator',
+                    'input_hash' => hash('sha256', $prompt),
+                    'output' => $resultJson,
+                    'model' => $model,
+                    'sources' => ['source_type' => $request->source_type, 'url' => $request->url],
+                    'reviewer_id' => auth()->id(),
+                ]);
+
                 return back()->with('generated_news', $result);
             }
 

@@ -19,7 +19,8 @@ import {
   UserCheck,
   Bell,
   BrainCircuit,
-  Globe
+  Globe,
+  Activity
 } from '@lucide/vue';
 
 const page = usePage();
@@ -29,17 +30,38 @@ const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
 const isUserMenuOpen = ref(false);
 
-const navigation = [
-  { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, current: route().current('admin.dashboard') },
-  { name: 'Research AI', href: route('admin.research-generator.index'), icon: BrainCircuit, current: route().current('admin.research-generator.*') },
-  { name: 'News AI Generator', href: route('admin.news-generator.index'), icon: Globe, current: route().current('admin.news-generator.*') },
-  { name: 'Pembayaran', href: route('admin.payments.index'), icon: CreditCard, current: route().current('admin.payments.*') },
-  { name: 'Mitra Analis', href: route('admin.mitra.index'), icon: UserCheck, current: route().current('admin.mitra.*') },
-  { name: 'Subscriber', href: route('admin.users.index'), icon: Users, current: route().current('admin.users.*') },
-  { name: 'Notifikasi & Blast', href: route('admin.notifications.index'), icon: Bell, current: route().current('admin.notifications.*') },
-  { name: 'Pages & Sections', href: route('admin.pages.index'), icon: Layers, current: route().current('admin.pages.*') },
-  { name: 'Posts & Categories', href: route('admin.posts.index'), icon: FileText, current: route().current('admin.posts.*') },
-  { name: 'Web Settings', href: route('admin.settings.index'), icon: SettingsIcon, current: route().current('admin.settings.index') },
+const navigationGroups = [
+  {
+    title: 'MAIN MENU',
+    items: [
+      { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, current: route().current('admin.dashboard') },
+    ]
+  },
+  {
+    title: 'AVENIR AI ENGINES',
+    items: [
+      { name: 'Research AI', href: route('admin.research-generator.index'), icon: BrainCircuit, current: route().current('admin.research-generator.*') },
+      { name: 'News AI Generator', href: route('admin.news-generator.index'), icon: Globe, current: route().current('admin.news-generator.*') },
+      { name: 'AI Logs (Audit)', href: route('admin.ai-logs.index'), icon: Activity, current: route().current('admin.ai-logs.*') },
+    ]
+  },
+  {
+    title: 'COMMUNITY & FINANCE',
+    items: [
+      { name: 'Pembayaran', href: route('admin.payments.index'), icon: CreditCard, current: route().current('admin.payments.*') },
+      { name: 'Mitra Analis', href: route('admin.mitra.index'), icon: UserCheck, current: route().current('admin.mitra.*') },
+      { name: 'Subscriber', href: route('admin.users.index'), icon: Users, current: route().current('admin.users.*') },
+      { name: 'Notifikasi & Blast', href: route('admin.notifications.index'), icon: Bell, current: route().current('admin.notifications.*') },
+    ]
+  },
+  {
+    title: 'SYSTEM & CMS',
+    items: [
+      { name: 'Pages & Sections', href: route('admin.pages.index'), icon: Layers, current: route().current('admin.pages.*') },
+      { name: 'Posts & Categories', href: route('admin.posts.index'), icon: FileText, current: route().current('admin.posts.*') },
+      { name: 'Web Settings', href: route('admin.settings.index'), icon: SettingsIcon, current: route().current('admin.settings.index') },
+    ]
+  }
 ];
 
 const logout = () => {
@@ -82,30 +104,37 @@ const logout = () => {
         </div>
 
         <!-- Navigation Links -->
-        <nav class="px-3 py-6 space-y-1.5 overflow-y-auto">
-          <Link 
-            v-for="item in navigation" 
-            :key="item.name" 
-            :href="item.href"
-            :class="[
-              item.current 
-                ? 'bg-gradient-to-r from-emerald-600/15 to-emerald-600/5 text-emerald-400 border-l-4 border-emerald-500' 
-                : 'text-slate-450 hover:bg-emerald-900/55 hover:text-slate-200 border-l-4 border-transparent',
-              isSidebarCollapsed ? 'lg:justify-center lg:px-0' : 'px-4',
-              'group flex items-center py-3.5 text-sm font-semibold rounded-r-xl transition-all duration-300'
-            ]"
-            :title="isSidebarCollapsed ? item.name : ''"
-          >
-            <component 
-              :is="item.icon" 
-              :class="[
-                item.current ? 'text-emerald-400' : 'text-slate-500 group-hover:text-slate-350',
-                isSidebarCollapsed ? 'lg:mr-0' : 'mr-3',
-                'h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:scale-105'
-              ]" 
-            />
-            <span :class="[isSidebarCollapsed ? 'lg:hidden' : 'block', 'whitespace-nowrap']">{{ item.name }}</span>
-          </Link>
+        <nav class="px-3 py-6 space-y-6 overflow-y-auto">
+          <div v-for="group in navigationGroups" :key="group.title">
+            <h3 v-if="!isSidebarCollapsed" class="px-4 text-[10px] font-black tracking-widest text-emerald-600/70 uppercase mb-2">
+              {{ group.title }}
+            </h3>
+            <div class="space-y-1.5">
+              <Link 
+                v-for="item in group.items" 
+                :key="item.name" 
+                :href="item.href"
+                :class="[
+                  item.current 
+                    ? 'bg-gradient-to-r from-emerald-600/15 to-emerald-600/5 text-emerald-400 border-l-4 border-emerald-500' 
+                    : 'text-slate-450 hover:bg-emerald-900/55 hover:text-slate-200 border-l-4 border-transparent',
+                  isSidebarCollapsed ? 'lg:justify-center lg:px-0' : 'px-4',
+                  'group flex items-center py-3.5 text-sm font-semibold rounded-r-xl transition-all duration-300'
+                ]"
+                :title="isSidebarCollapsed ? item.name : ''"
+              >
+                <component 
+                  :is="item.icon" 
+                  :class="[
+                    item.current ? 'text-emerald-400' : 'text-slate-500 group-hover:text-slate-350',
+                    isSidebarCollapsed ? 'lg:mr-0' : 'mr-3',
+                    'h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:scale-105'
+                  ]" 
+                />
+                <span :class="[isSidebarCollapsed ? 'lg:hidden' : 'block', 'whitespace-nowrap']">{{ item.name }}</span>
+              </Link>
+            </div>
+          </div>
         </nav>
       </div>
 

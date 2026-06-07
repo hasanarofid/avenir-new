@@ -53,6 +53,17 @@ class GenerateResearchDraftJob implements ShouldQueue
             $result = $openRouter->generateStructuredJson($systemPrompt, $userPrompt, ['model' => $model]);
 
             if ($result) {
+                // Log AI Usage
+                \App\Models\AILog::create([
+                    'feature' => 'ResearchGenerator',
+                    'input_hash' => hash('sha256', $systemPrompt . $userPrompt),
+                    'output' => is_string($result) ? $result : json_encode($result),
+                    'model' => $model,
+                    'sources' => $documents->pluck('file_path')->toArray(),
+                    // Cannot easily get auth()->id() inside a Job reliably unless passed, we'll leave reviewer_id null or get from project
+                    'reviewer_id' => $this->project->created_by,
+                ]);
+
                 // 4. Save Draft
                 ResearchDraft::create([
                     'project_id' => $this->project->id,
