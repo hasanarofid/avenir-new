@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 const props = defineProps({
     ticker: Object,
     articles: Array,
+    disclosures: Array,
     realtimePrice: [Number, String],
     isWatchlisted: Boolean
 });
@@ -163,6 +164,47 @@ const toggleWatchlist = () => {
 
                         <div v-else class="bg-[#121614] border border-emerald-950/20 rounded-2xl p-10 text-center">
                             <p class="text-slate-500">Belum ada berita atau riset terkait emiten ini.</p>
+                        </div>
+                        
+                        <!-- KI Brief Feed -->
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2 mb-6 mt-10">
+                            <Newspaper class="w-6 h-6 text-emerald-500" />
+                            Keterbukaan Informasi
+                        </h3>
+
+                        <div v-if="disclosures && disclosures.length > 0" class="space-y-4">
+                            <div 
+                                v-for="disclosure in disclosures" 
+                                :key="disclosure.id" 
+                                class="block bg-[#121614] border border-emerald-950/20 rounded-2xl p-5 transition-all group"
+                            >
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-xs font-bold text-emerald-500">{{ disclosure.category || 'KI' }}</span>
+                                            <span class="text-xs text-slate-600">•</span>
+                                            <span class="text-xs text-slate-500">{{ disclosure.date }}</span>
+                                        </div>
+                                        <h4 class="text-lg font-bold text-slate-200 mb-2">
+                                            {{ disclosure.title }}
+                                        </h4>
+                                        <div v-if="disclosure.ki_brief" class="bg-emerald-900/20 p-4 rounded-lg mt-3">
+                                            <p class="text-sm text-slate-300 font-semibold mb-1">KI Brief (AI Summary):</p>
+                                            <p class="text-sm text-slate-400 mb-2">{{ disclosure.ki_brief.summary }}</p>
+                                            <div v-if="disclosure.ki_brief.impact" class="text-xs text-emerald-400 mt-2">
+                                                <strong>Impact:</strong> {{ disclosure.ki_brief.impact }}
+                                            </div>
+                                        </div>
+                                        <a v-if="disclosure.source_url" :href="disclosure.source_url" target="_blank" class="text-xs text-emerald-500 hover:text-emerald-400 mt-3 inline-block">
+                                            Baca sumber asli &rarr;
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="bg-[#121614] border border-emerald-950/20 rounded-2xl p-10 text-center">
+                            <p class="text-slate-500">Belum ada Keterbukaan Informasi untuk emiten ini.</p>
                         </div>
                     </div>
 

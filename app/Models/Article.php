@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\ArticlePublished;
 use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
@@ -13,8 +14,19 @@ class Article extends Model
         'is_paid' => 'boolean',
     ];
 
+    protected $dispatchesEvents = [
+        // We can use model events or explicit dispatch when status changes to 'published'
+    ];
+
     public function tickers()
     {
         return $this->belongsToMany(Ticker::class);
+    }
+
+    // Helper method to publish and dispatch event
+    public function publish()
+    {
+        $this->update(['status' => 'published']);
+        ArticlePublished::dispatch($this);
     }
 }

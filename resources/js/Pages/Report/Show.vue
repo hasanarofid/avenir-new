@@ -10,6 +10,10 @@ defineProps({
     ticker: {
         type: Object,
         default: null
+    },
+    isLocked: {
+        type: Boolean,
+        default: false
     }
 });
 </script>
@@ -18,7 +22,7 @@ defineProps({
   <Head :title="article.title" />
 
   <MainLayout>
-    <article class="bg-white border border-[#DDE7E2] rounded-2xl overflow-hidden shadow-sm">
+    <article class="bg-white border border-[#DDE7E2] rounded-2xl overflow-hidden shadow-sm mb-12">
       <!-- Article Header -->
       <div class="px-8 pt-10 pb-6 border-b border-[#DDE7E2]">
         <div class="flex items-center gap-2 mb-4">
@@ -66,7 +70,25 @@ defineProps({
       </div>
 
       <!-- Article Content -->
-      <div class="px-8 py-10 prose prose-slate max-w-none text-[#18211D]" v-html="article.content"></div>
+      <div class="px-8 py-10 relative">
+        <div class="prose prose-slate max-w-none text-[#18211D]" :class="{ 'blur-sm select-none opacity-60': isLocked }" v-html="article.content"></div>
+        
+        <!-- Paywall Banner overlaying bottom of content -->
+        <div v-if="isLocked" class="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-white via-white/90 to-transparent flex flex-col justify-end items-center pb-12 pt-24 px-8 text-center rounded-b-2xl">
+          <div class="bg-white border border-[#DDE7E2] shadow-lg rounded-xl p-8 max-w-2xl w-full mx-auto ring-1 ring-black/5">
+            <h3 class="text-2xl font-serif font-bold text-[#18211D] mb-3">Lanjutkan Membaca</h3>
+            <p class="text-[#4A6355] mb-6">Artikel ini dikurasi secara eksklusif untuk member Premium. Berlangganan sekarang untuk mendapatkan akses penuh ke seluruh perpustakaan riset Avenir.</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link :href="route('premium.index')" class="bg-[#1B6B3A] hover:bg-[#124d29] text-white font-bold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto shadow-md">
+                Upgrade ke Premium
+              </Link>
+              <Link :href="route('login')" class="text-[#1B6B3A] hover:text-[#124d29] font-semibold py-3 px-8 w-full sm:w-auto">
+                Sudah punya akun? Log in
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
     </article>
   </MainLayout>
 </template>

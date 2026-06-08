@@ -12,4 +12,9 @@ class Ticker extends Model
     {
         return $this->belongsToMany(Article::class);
     }
+
+    public function disclosures()
+    {
+        return $this->hasMany(Disclosure::class);
+    }
 }

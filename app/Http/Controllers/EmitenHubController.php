@@ -32,6 +32,9 @@ class EmitenHubController extends Controller
         // Load related articles or research for this ticker
         $articles = $ticker->articles()->where('status', 'published')->latest()->take(5)->get();
 
+        // Load KI Briefs / Disclosures for this ticker
+        $disclosures = $ticker->disclosures()->with('kiBrief')->latest('date')->take(5)->get();
+
         // Nanti diganti dengan API Pihak Ketiga (seperti GoAPI/Yahoo Finance)
         // Untuk MVP, pakai data dummy atau data yang ada di tabel.
         $realtimePrice = $ticker->current_price ?? rand(1000, 10000); // Dummy for MVP
@@ -46,6 +49,7 @@ class EmitenHubController extends Controller
         return Inertia::render('EmitenHub/Show', [
             'ticker' => $ticker,
             'articles' => $articles,
+            'disclosures' => $disclosures,
             'realtimePrice' => $realtimePrice,
             'isWatchlisted' => $isWatchlisted,
         ]);

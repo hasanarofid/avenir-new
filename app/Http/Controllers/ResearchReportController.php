@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Article;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class ResearchReportController extends Controller
 {
@@ -13,10 +14,7 @@ class ResearchReportController extends Controller
      */
     public function index()
     {
-        // Fetch articles from the database. 
-        // Using DB facade to allow connecting directly to Supabase if configured in .env
-        $articles = DB::table('articles')
-            ->where('status', 'published')
+        $articles = Article::where('status', 'published')
             ->orderBy('published_at', 'desc')
             ->get();
 
@@ -30,27 +28,29 @@ class ResearchReportController extends Controller
      */
     public function show($slug)
     {
-        $article = DB::table('articles')
-            ->where('slug', $slug)
-            ->first();
+        $article = Article::where('slug', $slug)->firstOrFail();
 
-        if (!$article) {
-            abort(404);
-        }
+        // Load related ticker using the belongsToMany relationship
+        $ticker = $article->tickers()->first();
 
-        // We might also want to fetch related ticker data if applicable
-        // For example, if the article is about BBRI, fetch BBRI ticker
-        $ticker = null;
-        if (isset($article->category) && $article->category === 'emiten') {
-            // Assuming the title or a specific field holds the symbol (e.g. BBRI)
-            // Just an example logic:
-            $symbol = explode(' ', $article->title)[0]; 
-            $ticker = DB::table('tickers')->where('symbol', $symbol)->first();
+        $isLocked = false;
+
+        // Paywall Logic
+        if ($article->is_paid) {
+            $user = auth()->user();
+            if (!$user || !$user->hasActivePremium()) {
+                $isLocked = true;
+                
+                // Truncate the content for non-premium users
+                // E.g., keeping only the first 500 characters or roughly one paragraph.
+                $article->content = Str::limit(strip_tags($article->content, '<p><br><b><strong><i><em>'), 500) . '</p>';
+            }
         }
 
         return Inertia::render('Report/Show', [
             'article' => $article,
             'ticker' => $ticker,
+            'isLocked' => $isLocked,
         ]);
     }
 }
