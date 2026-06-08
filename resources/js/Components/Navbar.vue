@@ -11,7 +11,15 @@ const hasNotifications = computed(() => notifications.value.length > 0);
 const dropdownOpen = ref(false);
 const notifOpen = ref(false);
 const mobileMenuOpen = ref(false);
-const isHomePage = computed(() => ['Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 'About', 'Partners', 'Subscription', 'KatalogDetail', 'EmitenHub/Index', 'EmitenHub/Show', 'Watchlist/Index'].includes(page.component));
+const marketDropdownOpen = ref(false);
+const researchDropdownOpen = ref(false);
+const companyDropdownOpen = ref(false);
+
+const isHomePage = computed(() => [
+  'Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 
+  'About', 'Partners', 'Subscription', 'KatalogDetail', 'EmitenHub/Index', 
+  'EmitenHub/Show', 'Watchlist/Index', 'KIBrief/Index', 'Disclosure/Index'
+].includes(page.component));
 
 const handleLogout = () => {
     dropdownOpen.value = false;
@@ -96,15 +104,78 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
           <img src="/images/logo.png" class="nav-logo" alt="Avenir" />
         </Link>
         <div class="nav-links">
-          <Link href="/" class="nav-link" :class="{ active: $page.component === 'Home' }">Beranda</Link>
-          <Link href="/katalog" class="nav-link" :class="{ active: $page.component === 'Dashboard' || $page.component === 'KatalogDetail' }">Research Desk</Link>
-          <Link href="/emiten" class="nav-link" :class="{ active: $page.component === 'EmitenHub/Index' || $page.component === 'EmitenHub/Show' }">Emiten Hub</Link>
-          <Link href="/ki-brief" class="nav-link" :class="{ active: $page.component === 'KIBrief/Index' }">KI Brief</Link>
+          <Link href="/" class="nav-link" :class="{ active: $page.component === 'Home' }">Terminal</Link>
+          
+          <!-- Market Dropdown -->
+          <div class="nav-dropdown-wrap" @mouseenter="marketDropdownOpen = true" @mouseleave="marketDropdownOpen = false">
+            <button class="nav-link dropdown-toggle" :class="{ active: ['Disclosure/Index', 'KIBrief/Index', 'EmitenHub/Index', 'EmitenHub/Show'].includes($page.component) }">
+              Market
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <transition name="nav-drop">
+              <div v-if="marketDropdownOpen" class="nav-dropdown">
+                <Link href="/disclosure-radar" class="nav-dd-item">
+                  <strong>Disclosure Radar</strong>
+                  <span class="nav-dd-desc">Live corporate action monitoring</span>
+                </Link>
+                <Link href="/ki-brief" class="nav-dd-item">
+                  <strong>KI Brief</strong>
+                  <span class="nav-dd-desc">AI-powered disclosure summary</span>
+                </Link>
+                <Link href="/emiten" class="nav-dd-item">
+                  <strong>Emiten Hub</strong>
+                  <span class="nav-dd-desc">800+ Ticker IHSG directory</span>
+                </Link>
+              </div>
+            </transition>
+          </div>
+
+          <!-- Research Dropdown -->
+          <div class="nav-dropdown-wrap" @mouseenter="researchDropdownOpen = true" @mouseleave="researchDropdownOpen = false">
+            <button class="nav-link dropdown-toggle" :class="{ active: ['Dashboard', 'KatalogDetail', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail'].includes($page.component) }">
+              Research
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <transition name="nav-drop">
+              <div v-if="researchDropdownOpen" class="nav-dropdown">
+                <Link href="/katalog" class="nav-dd-item">
+                  <strong>Research Desk</strong>
+                  <span class="nav-dd-desc">Deep-dive equity research</span>
+                </Link>
+                <Link href="/artikel" class="nav-dd-item">
+                  <strong>Artikel</strong>
+                  <span class="nav-dd-desc">Market analysis & notes</span>
+                </Link>
+                <Link href="/news" class="nav-dd-item">
+                  <strong>Market News</strong>
+                  <span class="nav-dd-desc">Daily market updates</span>
+                </Link>
+              </div>
+            </transition>
+          </div>
+
           <Link v-if="user" href="/watchlist" class="nav-link" :class="{ active: $page.component === 'Watchlist/Index' }">Watchlist</Link>
-          <Link href="/artikel" class="nav-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }">Artikel</Link>
-          <Link href="/news" class="nav-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }">News</Link>
-          <Link href="/tentang" class="nav-link" :class="{ active: $page.component === 'About' }">Tentang</Link>
-          <Link href="/mitra" class="nav-link" :class="{ active: $page.component === 'Partners' }">Mitra</Link>
+
+          <!-- Company Dropdown -->
+          <div class="nav-dropdown-wrap" @mouseenter="companyDropdownOpen = true" @mouseleave="companyDropdownOpen = false">
+            <button class="nav-link dropdown-toggle" :class="{ active: ['About', 'Partners'].includes($page.component) }">
+              About
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <transition name="nav-drop">
+              <div v-if="companyDropdownOpen" class="nav-dropdown">
+                <Link href="/tentang" class="nav-dd-item">
+                  <strong>Tentang Avenir</strong>
+                  <span class="nav-dd-desc">Visi, misi, dan tim kami</span>
+                </Link>
+                <Link href="/mitra" class="nav-dd-item">
+                  <strong>Mitra Analis</strong>
+                  <span class="nav-dd-desc">Analyst contributor network</span>
+                </Link>
+              </div>
+            </transition>
+          </div>
+
           <Link href="/langganan" class="nav-link" :class="{ active: $page.component === 'Subscription' }">Langganan</Link>
         </div>
       </div>
@@ -212,14 +283,30 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
     <transition name="slide-down">
       <div v-if="mobileMenuOpen" class="nav-mobile-drawer">
         <div class="nav-mobile-links">
-          <Link href="/" class="nav-mobile-link" :class="{ active: $page.component === 'Home' }" @click="mobileMenuOpen = false">Beranda</Link>
-          <Link href="/katalog" class="nav-mobile-link" :class="{ active: $page.component === 'Dashboard' || $page.component === 'KatalogDetail' }" @click="mobileMenuOpen = false">Katalog</Link>
-          <Link href="/emiten" class="nav-mobile-link" :class="{ active: $page.component === 'EmitenHub/Index' || $page.component === 'EmitenHub/Show' }" @click="mobileMenuOpen = false">Emiten</Link>
+          <Link href="/" class="nav-mobile-link" :class="{ active: $page.component === 'Home' }" @click="mobileMenuOpen = false">Terminal</Link>
+          
+          <div class="nav-mobile-group">
+            <span class="nav-mobile-group-label">Market</span>
+            <Link href="/disclosure-radar" class="nav-mobile-link" :class="{ active: $page.component === 'Disclosure/Index' }" @click="mobileMenuOpen = false">Disclosure Radar</Link>
+            <Link href="/ki-brief" class="nav-mobile-link" :class="{ active: $page.component === 'KIBrief/Index' }" @click="mobileMenuOpen = false">KI Brief</Link>
+            <Link href="/emiten" class="nav-mobile-link" :class="{ active: $page.component === 'EmitenHub/Index' || $page.component === 'EmitenHub/Show' }" @click="mobileMenuOpen = false">Emiten Hub</Link>
+          </div>
+
+          <div class="nav-mobile-group">
+            <span class="nav-mobile-group-label">Research</span>
+            <Link href="/katalog" class="nav-mobile-link" :class="{ active: $page.component === 'Dashboard' || $page.component === 'KatalogDetail' }" @click="mobileMenuOpen = false">Research Desk</Link>
+            <Link href="/artikel" class="nav-mobile-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }" @click="mobileMenuOpen = false">Artikel</Link>
+            <Link href="/news" class="nav-mobile-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }" @click="mobileMenuOpen = false">Market News</Link>
+          </div>
+
           <Link v-if="user" href="/watchlist" class="nav-mobile-link" :class="{ active: $page.component === 'Watchlist/Index' }" @click="mobileMenuOpen = false">Watchlist</Link>
-          <Link href="/artikel" class="nav-mobile-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }" @click="mobileMenuOpen = false">Artikel</Link>
-          <Link href="/news" class="nav-mobile-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }" @click="mobileMenuOpen = false">News</Link>
-          <Link href="/tentang" class="nav-mobile-link" :class="{ active: $page.component === 'About' }" @click="mobileMenuOpen = false">Tentang</Link>
-          <Link href="/mitra" class="nav-mobile-link" :class="{ active: $page.component === 'Partners' }" @click="mobileMenuOpen = false">Mitra</Link>
+
+          <div class="nav-mobile-group">
+            <span class="nav-mobile-group-label">Company</span>
+            <Link href="/tentang" class="nav-mobile-link" :class="{ active: $page.component === 'About' }" @click="mobileMenuOpen = false">Tentang Avenir</Link>
+            <Link href="/mitra" class="nav-mobile-link" :class="{ active: $page.component === 'Partners' }" @click="mobileMenuOpen = false">Mitra Analis</Link>
+          </div>
+
           <Link href="/langganan" class="nav-mobile-link" :class="{ active: $page.component === 'Subscription' }" @click="mobileMenuOpen = false">Langganan</Link>
         </div>
 
@@ -337,6 +424,80 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
   color: #166534;
   font-weight: 600;
 }
+/* Dropdown Wrap & Menu */
+.nav-dropdown-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  min-width: 240px;
+  padding: 8px;
+  z-index: 500;
+}
+.nav-dd-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.nav-dd-item:hover {
+  background: #f3f4f6;
+}
+.nav-dd-item strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 2px;
+}
+.nav-dd-desc {
+  display: block;
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.3;
+}
+
+/* Dark mode overrides for dropdown */
+.nav.nav-dark .nav-dropdown {
+  background: #121614;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+.nav.nav-dark .nav-dd-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.nav.nav-dark .nav-dd-item strong {
+  color: #ffffff;
+}
+.nav.nav-dark .nav-dd-desc {
+  color: #94a3b8;
+}
+
+/* Transition */
+.nav-drop-enter-active, .nav-drop-leave-active {
+  transition: all 0.2s ease-out;
+}
+.nav-drop-enter-from, .nav-drop-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px) scale(0.95);
+}
+
 .nav-auth {
   display: flex;
   align-items: center;

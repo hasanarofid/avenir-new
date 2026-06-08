@@ -2,6 +2,7 @@
 import { useForm, usePage } from '@inertiajs/vue3';
 import { authStore } from '@/Stores/authStore';
 import { ref, computed } from 'vue';
+import { Eye, EyeOff } from 'lucide-vue-next';
 
 const page = usePage();
 
@@ -15,11 +16,15 @@ const registerForm = useForm({
     lname: '',
     email: '',
     password: '',
+    password_confirmation: '',
     profile: 'Investor Individu',
 });
 
 const loginError = ref('');
 const registerError = ref('');
+const showPassword = ref(false);
+const showRegisterPassword = ref(false);
+const showRegisterPasswordConfirm = ref(false);
 
 const submitLogin = () => {
     loginError.value = '';
@@ -94,12 +99,18 @@ const submitRegister = () => {
           </div>
           <div class="auth-fg">
             <label>PASSWORD</label>
-            <input 
-              v-model="loginForm.password" 
-              type="password" 
-              placeholder="••••••••" 
-              required
-            />
+            <div class="password-input-wrapper">
+              <input 
+                v-model="loginForm.password" 
+                :type="showPassword ? 'text' : 'password'" 
+                placeholder="••••••••" 
+                required
+              />
+              <button type="button" class="password-toggle" @click="showPassword = !showPassword">
+                <Eye v-if="!showPassword" class="w-4 h-4" />
+                <EyeOff v-else class="w-4 h-4" />
+              </button>
+            </div>
           </div>
           
           <button 
@@ -167,12 +178,33 @@ const submitRegister = () => {
           </div>
           <div class="auth-fg">
             <label>PASSWORD</label>
-            <input 
-              v-model="registerForm.password" 
-              type="password" 
-              placeholder="Min. 8 karakter" 
-              required
-            />
+            <div class="password-input-wrapper">
+              <input 
+                v-model="registerForm.password" 
+                :type="showRegisterPassword ? 'text' : 'password'" 
+                placeholder="Min. 8 karakter" 
+                required
+              />
+              <button type="button" class="password-toggle" @click="showRegisterPassword = !showRegisterPassword">
+                <Eye v-if="!showRegisterPassword" class="w-4 h-4" />
+                <EyeOff v-else class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          <div class="auth-fg">
+            <label>KONFIRMASI PASSWORD</label>
+            <div class="password-input-wrapper">
+              <input 
+                v-model="registerForm.password_confirmation" 
+                :type="showRegisterPasswordConfirm ? 'text' : 'password'" 
+                placeholder="Ulangi password" 
+                required
+              />
+              <button type="button" class="password-toggle" @click="showRegisterPasswordConfirm = !showRegisterPasswordConfirm">
+                <Eye v-if="!showRegisterPasswordConfirm" class="w-4 h-4" />
+                <EyeOff v-else class="w-4 h-4" />
+              </button>
+            </div>
           </div>
           <div class="auth-fg">
             <label>PROFIL INVESTOR</label>
@@ -301,6 +333,30 @@ const submitRegister = () => {
   border-color: #059669;
   background: #111413;
   box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.password-toggle:hover {
+  color: #10b981;
 }
 
 .auth-fg input::placeholder {

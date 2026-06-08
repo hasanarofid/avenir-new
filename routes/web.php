@@ -28,6 +28,9 @@ Route::get('/emiten/{symbol}', [\App\Http\Controllers\EmitenHubController::class
 // KI Brief (V1.5 moved to V1)
 Route::get('/ki-brief', [\App\Http\Controllers\KIBriefController::class, 'index'])->name('ki-brief.index');
 
+// Disclosure Radar (V1.5)
+Route::get('/disclosure-radar', [\App\Http\Controllers\DisclosureController::class, 'index'])->name('disclosure.index');
+
 Route::middleware('auth')->group(function () {
     Route::get('/watchlist', [\App\Http\Controllers\WatchlistController::class, 'index'])->name('watchlist.index');
     Route::post('/watchlist/toggle/{tickerId}', [\App\Http\Controllers\WatchlistController::class, 'toggle'])->name('watchlist.toggle');

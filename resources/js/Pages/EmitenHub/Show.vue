@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { ArrowLeft, TrendingUp, Building2, Newspaper, BookmarkPlus, BookmarkMinus } from 'lucide-vue-next';
+import { ArrowLeft, TrendingUp, Building2, Newspaper, BookmarkPlus, BookmarkMinus, Zap, AlertTriangle } from 'lucide-vue-next';
 import { usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 
@@ -95,6 +95,36 @@ const toggleWatchlist = () => {
                             <BookmarkPlus v-else class="w-5 h-5" />
                             {{ isWatchlisted ? 'Hapus dari Watchlist' : 'Tambah ke Watchlist' }}
                         </button>
+                    </div>
+                </div>
+
+                <!-- Ticker Brief (V1.5) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-emerald-900/20 to-transparent border border-emerald-500/20 rounded-3xl p-6 relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                            <Zap class="w-32 h-32 text-emerald-400" />
+                        </div>
+                        <h3 class="text-lg font-black text-white flex items-center gap-2 mb-4">
+                            <Zap class="w-5 h-5 text-emerald-400" />
+                            Ticker Brief
+                        </h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-4 relative z-10">
+                            {{ ticker.symbol }} menunjukkan fundamental yang solid dengan dominasi pasar di kawasan industri. Ekspansi lahan di Kota Deltamas menjadi katalis utama pertumbuhan jangka panjang.
+                        </p>
+                        <div class="flex gap-2 relative z-10">
+                            <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded">GROWTH</span>
+                            <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded">INDUSTRIAL</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-[#121614] border border-red-500/10 rounded-3xl p-6 relative overflow-hidden group">
+                        <h3 class="text-lg font-black text-white flex items-center gap-2 mb-4">
+                            <AlertTriangle class="w-5 h-5 text-red-500" />
+                            Risiko Utama
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed relative z-10">
+                            Ketergantungan pada sektor otomotif dan logistik, serta fluktuasi suku bunga yang dapat mempengaruhi daya beli lahan industri.
+                        </p>
                     </div>
                 </div>
 
