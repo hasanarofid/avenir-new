@@ -1,6 +1,7 @@
 <script setup>
 import { Head, usePage, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import Paywall from '@/Components/Paywall.vue';
 import { authStore } from '@/Stores/authStore';
 import { computed } from 'vue';
 
@@ -107,28 +108,7 @@ const formattedPrice = computed(() => {
             />
 
             <!-- Lock Overlay Gate -->
-            <div v-if="isLocked" class="guest-lock-overlay">
-              <div class="gl-icon">🔒</div>
-              <h2 class="gl-title">Daftar Gratis untuk Mulai Akses</h2>
-              <p class="gl-sub">
-                Daftar sekarang dan dapatkan akses ke seluruh katalog riset ekuitas, scenario analysis, dan investment thesis Avenir Research.
-              </p>
-              <div class="gl-price">
-                Mulai dari <strong>Rp 149.000 / bulan</strong>
-              </div>
-              <div class="gl-actions">
-                <button class="gl-btn-primary" @click="authStore.open('register')">
-                  Mulai Trial 7 Hari
-                </button>
-                <button class="gl-btn-secondary" @click="authStore.open('login')">
-                  Sudah Punya Akun
-                </button>
-              </div>
-              <div class="gl-link">
-                <a href="/langganan">Lihat detail paket</a>
-              </div>
-            </div>
-
+            <Paywall v-if="isLocked" />
           </div>
         </div>
       </div>
@@ -139,6 +119,29 @@ const formattedPrice = computed(() => {
 
 <style>
 
+
+/* Guest lock positioning and styles */
+.guest-lock-wrap {
+  position: relative;
+  min-height: 600px;
+}
+
+.guest-lock-content {
+  filter: none;
+  pointer-events: auto;
+  user-select: auto;
+}
+
+/* When article is locked */
+.guest-lock-wrap.is-guest .guest-lock-content {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  max-height: 650px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+}
 
 /* ── Page wrapper ── */
 .kdp-page {

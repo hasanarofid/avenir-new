@@ -97,8 +97,9 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
         </Link>
         <div class="nav-links">
           <Link href="/" class="nav-link" :class="{ active: $page.component === 'Home' }">Beranda</Link>
-          <Link href="/katalog" class="nav-link" :class="{ active: $page.component === 'Dashboard' || $page.component === 'KatalogDetail' }">Katalog</Link>
-          <Link href="/emiten" class="nav-link" :class="{ active: $page.component === 'EmitenHub/Index' || $page.component === 'EmitenHub/Show' }">Emiten</Link>
+          <Link href="/katalog" class="nav-link" :class="{ active: $page.component === 'Dashboard' || $page.component === 'KatalogDetail' }">Research Desk</Link>
+          <Link href="/emiten" class="nav-link" :class="{ active: $page.component === 'EmitenHub/Index' || $page.component === 'EmitenHub/Show' }">Emiten Hub</Link>
+          <Link href="/ki-brief" class="nav-link" :class="{ active: $page.component === 'KIBrief/Index' }">KI Brief</Link>
           <Link v-if="user" href="/watchlist" class="nav-link" :class="{ active: $page.component === 'Watchlist/Index' }">Watchlist</Link>
           <Link href="/artikel" class="nav-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }">Artikel</Link>
           <Link href="/news" class="nav-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }">News</Link>

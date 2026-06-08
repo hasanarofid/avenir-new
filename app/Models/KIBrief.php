@@ -10,6 +10,10 @@ class KIBrief extends Model
     protected $table = 'ki_briefs';
     protected $guarded = [];
 
+    protected $casts = [
+        'key_numbers' => 'array',
+    ];
+
     public function disclosure()
     {
         return $this->belongsTo(Disclosure::class);

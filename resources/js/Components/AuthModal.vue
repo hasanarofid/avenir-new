@@ -202,100 +202,109 @@ const submitRegister = () => {
 </template>
 
 <style scoped>
-
-
 .auth-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100000;
   padding: 16px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
   font-family: 'Roboto', sans-serif;
 }
 
 .auth-box {
-  background: #fff;
-  border-radius: 16px;
+  background: #121614;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
   max-width: 440px;
   width: 100%;
   max-height: 92vh;
   overflow-y: auto;
-  padding: 30px 26px;
+  padding: 40px 32px;
   position: relative;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
 }
 
 .auth-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
   background: transparent;
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: #9ca3af;
+  color: #64748b;
   width: 32px;
   height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s;
 }
 
 .auth-close:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
 }
 
 .auth-view h3 {
   font-family: 'Roboto', sans-serif;
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0 0 6px;
-  color: #111827;
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: #ffffff;
+  letter-spacing: -0.02em;
 }
 
 .auth-sub {
-  font-size: 13px;
-  color: #6b7280;
-  margin-bottom: 18px;
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 24px;
   line-height: 1.6;
 }
 
 .auth-fg {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .auth-fg label {
   display: block;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: .1em;
-  color: #6b7280;
+  letter-spacing: .08em;
+  color: #64748b;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .auth-fg input,
 .auth-fg select {
   width: 100%;
-  padding: 11px 13px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 13.5px;
+  padding: 12px 16px;
+  background: #090b0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  font-size: 14px;
+  color: #fff;
   font-family: inherit;
   box-sizing: border-box;
+  transition: all 0.2s;
 }
 
 .auth-fg input:focus,
 .auth-fg select:focus {
   outline: none;
-  border-color: #1B6B3A;
-  box-shadow: 0 0 0 3px rgba(27, 107, 58, 0.08);
+  border-color: #059669;
+  background: #111413;
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+}
+
+.auth-fg input::placeholder {
+  color: #475569;
 }
 
 .auth-2col {
@@ -306,34 +315,34 @@ const submitRegister = () => {
 
 .auth-submit {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 50px;
-  font-size: 13px;
+  border-radius: 12px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: .05em;
-  text-transform: uppercase;
   cursor: pointer;
   font-family: inherit;
-  transition: all .15s;
-  margin-top: 4px;
+  transition: all .2s;
+  margin-top: 8px;
 }
 
 .auth-submit.grn {
-  background: #1B6B3A;
+  background: #059669;
   color: #fff;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
 }
 
 .auth-submit.grn:hover {
-  background: #155028;
+  background: #10b981;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
 }
 
 .auth-sep {
   text-align: center;
-  font-size: 11px;
-  color: #9ca3af;
-  margin: 18px 0 12px;
-  letter-spacing: .04em;
+  font-size: 12px;
+  color: #475569;
+  margin: 24px 0 16px;
   position: relative;
 }
 
@@ -341,82 +350,86 @@ const submitRegister = () => {
 .auth-sep::after {
   content: '';
   display: inline-block;
-  width: 30%;
+  width: 25%;
   height: 1px;
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.05);
   vertical-align: middle;
-  margin: 0 8px;
+  margin: 0 12px;
 }
 
 .auth-submit-btn {
   background: transparent;
-  border: 1px solid #e5e7eb;
-  color: #4b5563;
-  font-weight: 600;
-  padding: 11px;
-  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  font-weight: 700;
+  padding: 12px;
+  border-radius: 12px;
   width: 100%;
   cursor: pointer;
   font-family: inherit;
-  font-size: 13px;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  transition: all 0.15s;
+  font-size: 14px;
+  transition: all 0.2s;
 }
 
 .auth-submit-btn:hover {
-  border-color: #1B6B3A;
-  color: #1B6B3A;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 .auth-toggle {
   text-align: center;
-  font-size: 12.5px;
-  color: #6b7280;
-  margin-top: 14px;
+  font-size: 14px;
+  color: #94a3b8;
+  margin-top: 20px;
 }
 
 .auth-toggle a {
-  color: #1B6B3A;
-  font-weight: 600;
+  color: #10b981;
+  font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.auth-toggle a:hover {
   text-decoration: underline;
 }
 
 .auth-err {
-  padding: 10px 12px;
-  background: #fef2f2;
-  color: #b91c1c;
-  border-radius: 8px;
-  font-size: 12.5px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-radius: 12px;
+  font-size: 13px;
   line-height: 1.5;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 }
 
 .auth-trial-banner {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
-  background: rgba(27, 107, 58, 0.07);
-  border: 1px solid rgba(27, 107, 58, 0.2);
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin: 10px 0 18px;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
 }
 
 .auth-trial-icon {
-  font-size: 22px;
-  line-height: 1;
+  font-size: 24px;
 }
 
 .auth-trial-text {
-  font-size: 13px;
-  line-height: 1.45;
-  color: #1f2937;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #e2e8f0;
 }
 
 .auth-trial-text strong {
-  color: #155028;
-  font-size: 13.5px;
+  color: #10b981;
+  font-weight: 700;
 }
 </style>

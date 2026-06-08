@@ -1,12 +1,21 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import Paywall from '@/Components/Paywall.vue';
+import { computed } from 'vue';
 
-defineProps({
+const props = defineProps({
     news: {
         type: Object,
         required: true,
     }
+});
+
+const page = usePage();
+const isLoggedIn = computed(() => !!page.props.auth?.user);
+
+const isLocked = computed(() => {
+    return props.news.is_paid && !props.news.is_unlocked;
 });
 </script>
 
@@ -25,32 +34,64 @@ defineProps({
           <span class="arrow">←</span> Kembali ke Market News
         </a>
 
-        <!-- News Header -->
-        <div class="news-header">
-          <div class="news-cat" v-if="news.category">{{ news.category }}</div>
-          <h1 class="news-title">{{ news.title }}</h1>
-          <div class="news-meta">
-            <span class="date">{{ news.published_at }}</span>
+        <div class="guest-lock-wrap" :class="{ 'is-guest': isLocked }">
+          <!-- News Header -->
+          <div class="news-header">
+            <div class="news-cat" v-if="news.category">{{ news.category }}</div>
+            <h1 class="news-title">{{ news.title }}</h1>
+            <div class="news-meta">
+              <span class="date">{{ news.published_at }}</span>
+            </div>
           </div>
-        </div>
 
-        <!-- Cover Image -->
-        <div v-if="news.cover_image" class="w-full mb-10 rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
-          <img :src="news.cover_image" :alt="news.title" class="w-full h-auto max-h-[500px] object-cover" />
-        </div>
+          <!-- Cover Image -->
+          <div v-if="news.cover_image" class="w-full mb-10 rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
+            <img :src="news.cover_image" :alt="news.title" class="w-full h-auto max-h-[500px] object-cover" />
+          </div>
 
-        <!-- News Content -->
-        <div 
-          class="news-content" 
-          v-html="news.content"
-        />
+          <!-- News Content -->
+          <div 
+            class="news-content" 
+            v-html="news.content"
+          />
+
+          <!-- Lock Overlay Gate -->
+          <Paywall 
+            v-if="isLocked"
+            :title="'Daftar Gratis untuk Baca Berita Premium'"
+            :price="'Mulai dari <strong>Rp 149.000 / bulan</strong>'"
+          />
+        </div>
       </div>
     </div>
   </AppLayout>
 </template>
 
 <style scoped>
+/* Guest lock positioning and styles */
+.guest-lock-wrap {
+  position: relative;
+  min-height: 600px;
+}
 
+.news-content {
+  filter: none;
+  pointer-events: auto;
+  user-select: auto;
+}
+
+/* When news is locked */
+.guest-lock-wrap.is-guest .news-content,
+.guest-lock-wrap.is-guest .news-header,
+.guest-lock-wrap.is-guest img {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  max-height: 650px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+}
 
 .news-detail-page {
   background-color: #090b0a;

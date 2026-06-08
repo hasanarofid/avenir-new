@@ -216,24 +216,22 @@ class HomeController extends Controller
             abort(404);
         }
 
-        if ($article->is_paid) {
-            if (!auth()->check()) {
-                return redirect()->route('login')->with('error', 'Silakan login untuk membaca artikel premium ini.');
-            }
+        $isLoggedIn = auth()->check();
+        $isSubscriber = false;
+        $isUnlocked = false;
 
-            if (!auth()->user()->hasActivePremium() && !auth()->user()->hasRole('admin')) {
-                return redirect()->route('langganan')->with('error', 'Akses Premium dibutuhkan untuk konten ini. Silakan berlangganan.');
-            }
+        if ($isLoggedIn) {
+            $isSubscriber = auth()->user()->hasActivePremium() || auth()->user()->hasRole('admin');
+            $isUnlocked = $isSubscriber;
         }
 
         $content = $this->getArticleContent($article->slug) ?? $article->content;
 
         $isPaid   = (bool) $article->is_paid;
-        $isGuest  = !auth()->check();
         $isTrial  = false;
 
         // Trial check: logged-in non-subscribers are treated as trial users
-        if (!$isGuest) {
+        if ($isLoggedIn && !$isSubscriber) {
             $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
                 ->where('user_id', auth()->id())
                 ->first();
@@ -250,13 +248,16 @@ class HomeController extends Controller
             if (!$allowedIds->contains($article->id)) {
                 // Outside trial limit — truncate same as guest paywall
                 $content = $this->truncateForGuest($content);
-                $isPaid  = true; // signal frontend to show upgrade prompt
+                $isUnlocked = false;
+            } else {
+                $isUnlocked = true;
             }
         }
 
         // Secure paywall check: truncate content sent to guests for paid articles
-        if ($isPaid && $isGuest) {
+        if ($isPaid && !$isLoggedIn) {
             $content = $this->truncateForGuest($content);
+            $isUnlocked = false;
         }
 
         $content = $this->cleanHtmlForDarkMode($content);
@@ -275,6 +276,7 @@ class HomeController extends Controller
                     ? $article->published_at->format('d M Y') 
                     : null,
                 'is_paid'      => $isPaid,
+                'is_unlocked'  => $isUnlocked,
                 'content'      => $content,
             ]
         ]);
@@ -379,7 +381,6 @@ class HomeController extends Controller
     public function newsDetail($slug)
     {
         $article = Article::where('slug', $slug)
-            ->where('category', 'like', '%News%')
             ->where('status', 'published')
             ->first();
 
@@ -428,6 +429,8 @@ class HomeController extends Controller
                         'slug' => $slug,
                         'category' => 'News · Market',
                         'published_at' => now()->format('d M Y'),
+                        'is_paid' => false,
+                        'is_unlocked' => true,
                         'content' => $this->cleanHtmlForDarkMode($content ?? '<div class="art-body"><p>Detail berita ini sedang dimigrasikan ke platform baru.</p></div>'),
                     ]
                 ]);
@@ -435,17 +438,24 @@ class HomeController extends Controller
             abort(404);
         }
 
-        if ($article->is_paid) {
-            if (!auth()->check()) {
-                return redirect()->route('login')->with('error', 'Silakan login untuk membaca berita premium ini.');
-            }
+        $isLoggedIn = auth()->check();
+        $isSubscriber = false;
+        $isUnlocked = false;
 
-            if (!auth()->user()->hasActivePremium() && !auth()->user()->hasRole('admin')) {
-                return redirect()->route('langganan')->with('error', 'Akses Premium dibutuhkan untuk konten ini. Silakan berlangganan.');
-            }
+        if ($isLoggedIn) {
+            $isSubscriber = auth()->user()->hasActivePremium() || auth()->user()->hasRole('admin');
+            $isUnlocked = $isSubscriber;
         }
 
-        $content = $this->cleanHtmlForDarkMode($article->content);
+        $isPaid = (bool) $article->is_paid;
+        $content = $article->content;
+
+        if ($isPaid && !$isLoggedIn) {
+            $content = $this->truncateForGuest($content);
+            $isUnlocked = false;
+        }
+
+        $content = $this->cleanHtmlForDarkMode($content);
 
         return Inertia::render('NewsDetail', [
             'news' => [
@@ -453,6 +463,8 @@ class HomeController extends Controller
                 'slug' => $article->slug,
                 'category' => $article->category,
                 'published_at' => $article->published_at ? $article->published_at->format('d M Y') : null,
+                'is_paid' => $isPaid,
+                'is_unlocked' => $isUnlocked,
                 'content' => $content,
                 'cover_image' => $article->cover_image,
             ]

@@ -1,6 +1,7 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import Paywall from '@/Components/Paywall.vue';
 import { authStore } from '@/Stores/authStore';
 import { computed } from 'vue';
 
@@ -15,7 +16,7 @@ const page = usePage();
 const isLoggedIn = computed(() => !!page.props.auth?.user);
 
 const isLocked = computed(() => {
-    return props.article.is_paid && !isLoggedIn.value;
+    return props.article.is_paid && !props.article.is_unlocked;
 });
 
 const hasCustomHtml = computed(() => {
@@ -61,33 +62,10 @@ const hasCustomHtml = computed(() => {
         />
 
         <!-- Lock Overlay Gate -->
-        <div v-if="isLocked" class="guest-lock-overlay">
-          <div class="gl-icon">🔒</div>
-          <h2 class="gl-title">Daftar Gratis untuk Mulai Akses</h2>
-          <p class="gl-sub">
-            Daftar sekarang dan dapatkan 7 hari uji coba gratis ke seluruh katalog riset ekuitas, scenario analysis, dan investment thesis Avenir Research.
-          </p>
-          <div class="gl-price">
-            Setelah trial: mulai <strong>Rp 149.000 / bulan</strong>
-          </div>
-          <div class="gl-actions">
-            <button 
-              class="gl-btn-primary" 
-              @click="authStore.open('register')"
-            >
-              Mulai Trial 7 Hari
-            </button>
-            <button 
-              class="gl-btn-secondary" 
-              @click="authStore.open('login')"
-            >
-              Sudah Punya Akun
-            </button>
-          </div>
-          <div class="gl-link">
-            <a href="/langganan">Lihat detail paket di homepage</a>
-          </div>
-        </div>
+        <Paywall 
+          v-if="isLocked"
+          :price="'Setelah trial: mulai <strong>Rp 149.000 / bulan</strong>'"
+        />
       </div>
     </div>
   </AppLayout>

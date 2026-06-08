@@ -75,7 +75,11 @@ class DmasSeeder extends Seeder
                 'raw_text' => 'PT Puradelta Lestari Tbk (DMAS) hari ini mengumumkan pencapaian pre-sales triwulan pertama tahun 2026 sebesar Rp 1,2 triliun, mengalami peningkatan 25% dibandingkan periode yang sama tahun sebelumnya.',
                 'ki_brief' => [
                     'summary' => 'DMAS berhasil mencatatkan pre-sales Q1-2026 sebesar Rp 1,2 triliun (+25% YoY), didorong oleh kuatnya permintaan lahan industri di Kota Deltamas, terutama dari sektor manufaktur dan logistik.',
-                    'key_numbers' => 'Pre-sales: Rp 1.2T (+25% YoY), Penjualan lahan: 50 hektar, Average selling price: Rp 24 juta/hektar',
+                    'key_numbers' => [
+                        'Pre-sales: Rp 1.2T (+25% YoY)',
+                        'Penjualan lahan: 50 hektar',
+                        'Average selling price: Rp 24 juta/hektar'
+                    ],
                     'impact' => 'Pencapaian ini mengkonfirmasi guidance manajemen tahun 2026 dan memperkuat posisi DMAS sebagai pemain utama kawasan industri di Jabodetabek.',
                     'risks' => 'Risiko utama adalah keterlambatan pengembangan infrastruktur dan penurunan permintaan akibat kondisi makro ekonomi.',
                 ],
@@ -88,7 +92,11 @@ class DmasSeeder extends Seeder
                 'raw_text' => 'PT Puradelta Lestari Tbk dengan bangga mengumumkan penandatanganan kontrak jual beli lahan dengan sebuah perusahaan logistik multinasional untuk lahan seluas 15 hektar di kawasan Kota Deltamas.',
                 'ki_brief' => [
                     'summary' => 'DMAS menandatangani kontrak penjualan lahan 15 hektar dengan tenant logistik global, menambah pipeline pre-sales untuk tahun 2026.',
-                    'key_numbers' => 'Luas lahan: 15 hektar, Nilai kontrak: Rp 360 miliar, Jangka waktu pembayaran: 12 bulan',
+                    'key_numbers' => [
+                        'Luas lahan: 15 hektar',
+                        'Nilai kontrak: Rp 360 miliar',
+                        'Jangka waktu pembayaran: 12 bulan'
+                    ],
                     'impact' => 'Kontrak ini memberikan visibilitas pendapatan yang jelas untuk tahun 2026 dan 2027.',
                     'risks' => 'Risiko keterlambatan pembayaran dan keterlambatan serah terima lahan.',
                 ],
