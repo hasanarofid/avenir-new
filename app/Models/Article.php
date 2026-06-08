@@ -18,6 +18,11 @@ class Article extends Model
         // We can use model events or explicit dispatch when status changes to 'published'
     ];
 
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function tickers()
     {
         return $this->belongsToMany(Ticker::class);
@@ -26,7 +31,7 @@ class Article extends Model
     // Helper method to publish and dispatch event
     public function publish()
     {
-        $this->update(['status' => 'published']);
+        $this->update(['status' => 'published', 'published_at' => now()]);
         ArticlePublished::dispatch($this);
     }
 }

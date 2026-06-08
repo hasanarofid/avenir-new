@@ -23,6 +23,9 @@ class RoleAndPermissionSeeder extends Seeder
             'manage pages',
             'manage posts',
             'manage users',
+            'create articles',
+            'edit articles',
+            'publish articles',
         ];
 
         foreach ($permissions as $permission) {
@@ -34,8 +37,9 @@ class RoleAndPermissionSeeder extends Seeder
         $adminRole->givePermissionTo(Permission::all());
 
         $editorRole = Role::findOrCreate('editor');
-        $editorRole->givePermissionTo(['manage pages', 'manage posts']);
+        $editorRole->givePermissionTo(['manage pages', 'manage posts', 'publish articles']);
 
         $clientRole = Role::findOrCreate('client');
+        $clientRole->givePermissionTo(['create articles', 'edit articles']);
     }
 }
