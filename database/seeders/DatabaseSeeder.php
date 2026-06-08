@@ -53,6 +53,9 @@ class DatabaseSeeder extends Seeder
 
             // === Data Dummy untuk Development ===
             DummyDataSeeder::class,
+            
+            // === Seeder Emiten Demo ===
+            DmasSeeder::class,
         ]);
     }
 }
