@@ -6,7 +6,6 @@ import { computed } from 'vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
-const auth = authStore();
 
 const props = defineProps({
     partners: Array
@@ -18,7 +17,7 @@ function handleDaftarClick() {
     window.location.href = route('mitra.register');
   } else {
     // User belum login, buka auth modal
-    auth.open('register');
+    authStore.open('register');
   }
 }
 
