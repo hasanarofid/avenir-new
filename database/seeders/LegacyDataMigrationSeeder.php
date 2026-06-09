@@ -64,8 +64,18 @@ class LegacyDataMigrationSeeder extends Seeder
             ];
         }
 
-        foreach (array_chunk($usersData, 100) as $chunk) {
-            DB::table('users')->insert($chunk);
+        foreach ($usersData as $userData) {
+            \App\Models\User::updateOrCreate(
+                ['id' => $userData['id']],
+                [
+                    'name'        => $userData['name'],
+                    'email'       => $userData['email'],
+                    'password'    => $userData['password'],
+                    'is_migrated' => $userData['is_migrated'],
+                    'created_at'  => $userData['created_at'],
+                    'updated_at'  => $userData['updated_at'],
+                ]
+            );
         }
 
         $this->command->info(count($usersData) . ' Data profil legacy sukses tertanam ke tabel Users.');
