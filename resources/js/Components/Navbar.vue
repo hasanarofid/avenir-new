@@ -913,16 +913,16 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
 
 /* Mobile Drawer Container */
 .nav-mobile-drawer {
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 52px;
   left: 0;
   width: 100%;
-  max-height: calc(100vh - 52px);
+  height: calc(100vh - 52px);
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  padding: 16px 24px 24px;
+  padding: 16px 24px 60px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;

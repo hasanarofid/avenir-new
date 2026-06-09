@@ -1,16 +1,59 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head } from '@inertiajs/vue3';
-import { UserCheck } from '@lucide/vue';
+import { Head, router } from '@inertiajs/vue3';
+import { UserCheck, Edit, Trash, Check } from '@lucide/vue';
+import { ref } from 'vue';
 
 const props = defineProps({
   mitra: Array
+});
+
+const editingId = ref(null);
+const editForm = ref({
+  certification: '',
+  specializations: '',
+  portfolio_link: '',
+  bank_name: '',
+  bank_account_number: '',
+  bank_account_name: '',
 });
 
 function formatDate(dateString) {
   if (!dateString) return '-';
   const d = new Date(dateString);
   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function startEdit(m) {
+  editingId.value = m.id;
+  editForm.value = {
+    certification: m.certification || '',
+    specializations: Array.isArray(m.specializations) ? m.specializations.join(', ') : (m.specializations || ''),
+    portfolio_link: m.portfolio_link || '',
+    bank_name: m.bank_name || '',
+    bank_account_number: m.bank_account_number || '',
+    bank_account_name: m.bank_account_name || '',
+  };
+}
+
+function cancelEdit() {
+  editingId.value = null;
+}
+
+function saveEdit(id) {
+  router.put(route('admin.mitra.update', id), editForm.value);
+}
+
+function approveMitra(id) {
+  if (confirm('Yakin ingin verifikasi mitra ini?')) {
+    router.post(route('admin.mitra.approve', id));
+  }
+}
+
+function deleteMitra(id) {
+  if (confirm('Yakin ingin menghapus mitra ini?')) {
+    router.delete(route('admin.mitra.destroy', id));
+  }
 }
 </script>
 
@@ -41,8 +84,8 @@ function formatDate(dateString) {
       </div>
 
       <div v-else class="space-y-4">
-        <div v-for="m in mitra" :key="m.id" class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-5 shadow-xl hover:border-emerald-700/50 transition-colors">
-          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div v-for="m in mitra" :key="m.id" class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl hover:border-emerald-700/50 transition-colors">
+          <div v-if="editingId !== m.id" class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
               <div class="flex items-center gap-3 mb-1">
                 <h3 class="text-lg font-bold text-white">{{ m.name || m.user_id }}</h3>
@@ -53,16 +96,65 @@ function formatDate(dateString) {
             </div>
             
             <div class="flex gap-2">
-              <button v-if="!m.is_verified" class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white text-xs font-semibold rounded-lg transition-all">
+              <button v-if="!m.is_verified" @click="approveMitra(m.id)" class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white text-xs font-semibold rounded-lg transition-all">
+                <Check class="w-3 h-3" />
                 Approve
               </button>
-              <button class="px-3 py-1.5 bg-[#090b0a] border border-emerald-950/50 text-slate-300 hover:text-emerald-400 hover:border-emerald-700 text-xs font-semibold rounded-lg transition-all">
+              <button @click="startEdit(m)" class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#090b0a] border border-emerald-950/50 text-slate-300 hover:text-emerald-400 hover:border-emerald-700 text-xs font-semibold rounded-lg transition-all">
+                <Edit class="w-3 h-3" />
                 Edit
+              </button>
+              <button @click="deleteMitra(m.id)" class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#090b0a] border border-rose-500/30 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-semibold rounded-lg transition-all">
+                <Trash class="w-3 h-3" />
+                Hapus
               </button>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-4 border-t border-emerald-950/30">
+          <div v-else class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-bold text-white">Edit Mitra: {{ m.name }}</h3>
+              <button @click="cancelEdit" class="text-slate-400 hover:text-white text-sm">Batal</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs text-slate-400 font-bold uppercase tracking-widest">Sertifikasi</label>
+                <input v-model="editForm.certification" type="text" class="w-full bg-[#090b0a] border border-emerald-950/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50">
+              </div>
+              <div>
+                <label class="text-xs text-slate-400 font-bold uppercase tracking-widest">Spesialisasi (pisah koma)</label>
+                <input v-model="editForm.specializations" type="text" class="w-full bg-[#090b0a] border border-emerald-950/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50">
+              </div>
+              <div>
+                <label class="text-xs text-slate-400 font-bold uppercase tracking-widest">Link Portfolio</label>
+                <input v-model="editForm.portfolio_link" type="url" class="w-full bg-[#090b0a] border border-emerald-950/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50">
+              </div>
+              <div>
+                <label class="text-xs text-slate-400 font-bold uppercase tracking-widest">Nama Bank</label>
+                <input v-model="editForm.bank_name" type="text" class="w-full bg-[#090b0a] border border-emerald-950/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50">
+              </div>
+              <div>
+                <label class="text-xs text-slate-400 font-bold uppercase tracking-widest">No Rekening</label>
+                <input v-model="editForm.bank_account_number" type="text" class="w-full bg-[#090b0a] border border-emerald-950/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50">
+              </div>
+              <div>
+                <label class="text-xs text-slate-400 font-bold uppercase tracking-widest">Nama Pemilik Rekening</label>
+                <input v-model="editForm.bank_account_name" type="text" class="w-full bg-[#090b0a] border border-emerald-950/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50">
+              </div>
+            </div>
+            
+            <div class="flex justify-end gap-2">
+              <button @click="cancelEdit" class="px-4 py-2 bg-[#090b0a] border border-slate-700 text-slate-300 rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all">
+                Batal
+              </button>
+              <button @click="saveEdit(m.id)" class="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-lg text-sm font-semibold hover:bg-emerald-500 hover:text-white transition-all">
+                Simpan Perubahan
+              </button>
+            </div>
+          </div>
+
+          <div v-if="editingId !== m.id" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-4 border-t border-emerald-950/30">
             <div>
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Sertifikasi</div>
               <div class="text-sm font-semibold text-slate-300">{{ m.certification || '-' }}</div>

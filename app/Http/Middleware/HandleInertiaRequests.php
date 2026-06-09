@@ -30,10 +30,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        if ($user) {
+            $user->load('partner');
+        }
+        
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
             'notifications' => DB::table('notifications')
                 ->orderBy('created_at', 'desc')

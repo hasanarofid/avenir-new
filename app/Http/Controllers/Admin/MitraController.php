@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Partner;
 use Illuminate\Support\Facades\DB;
 
 class MitraController extends Controller
@@ -27,5 +28,46 @@ class MitraController extends Controller
         return Inertia::render('Admin/Mitra/Index', [
             'mitra' => $mitra
         ]);
+    }
+
+    public function approve($id)
+    {
+        $partner = Partner::findOrFail($id);
+        $partner->update(['is_verified' => true]);
+
+        return redirect()->back()->with('success', 'Mitra berhasil diverifikasi!');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $partner = Partner::findOrFail($id);
+        
+        $validated = $request->validate([
+            'certification' => 'required|string|max:255',
+            'specializations' => 'required|string|max:255',
+            'portfolio_link' => 'nullable|url|max:255',
+            'bank_name' => 'required|string|max:255',
+            'bank_account_number' => 'required|string|max:255',
+            'bank_account_name' => 'required|string|max:255',
+        ]);
+
+        $partner->update([
+            'certification' => $validated['certification'],
+            'specializations' => explode(',', $validated['specializations']),
+            'portfolio_link' => $validated['portfolio_link'],
+            'bank_name' => $validated['bank_name'],
+            'bank_account_number' => $validated['bank_account_number'],
+            'bank_account_name' => $validated['bank_account_name'],
+        ]);
+
+        return redirect()->back()->with('success', 'Data mitra berhasil diperbarui!');
+    }
+
+    public function destroy($id)
+    {
+        $partner = Partner::findOrFail($id);
+        $partner->delete();
+
+        return redirect()->back()->with('success', 'Mitra berhasil dihapus!');
     }
 }

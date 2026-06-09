@@ -60,6 +60,8 @@ Route::middleware('auth')->group(function () {
 
 // Mitra Routes
 Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {
+    Route::get('/register', [\App\Http\Controllers\MitraController::class, 'create'])->name('register');
+    Route::post('/register', [\App\Http\Controllers\MitraController::class, 'store'])->name('register.store');
     Route::get('/dashboard', [\App\Http\Controllers\MitraController::class, 'dashboard'])->name('dashboard');
     Route::get('/researches', [\App\Http\Controllers\MitraController::class, 'researches'])->name('researches');
     Route::get('/profile', [\App\Http\Controllers\MitraController::class, 'profile'])->name('profile');
@@ -77,6 +79,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Mitra Analis
     Route::get('/mitra', [\App\Http\Controllers\Admin\MitraController::class, 'index'])->name('mitra.index');
+    Route::post('/mitra/{id}/approve', [\App\Http\Controllers\Admin\MitraController::class, 'approve'])->name('mitra.approve');
+    Route::put('/mitra/{id}', [\App\Http\Controllers\Admin\MitraController::class, 'update'])->name('mitra.update');
+    Route::delete('/mitra/{id}', [\App\Http\Controllers\Admin\MitraController::class, 'destroy'])->name('mitra.destroy');
 
     // Users
     Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');

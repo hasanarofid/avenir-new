@@ -1,12 +1,18 @@
 <script setup>
 import MitraLayout from '@/Layouts/MitraLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { FileText, TrendingUp } from '@lucide/vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { FileText, TrendingUp, UserPlus } from '@lucide/vue';
+import { computed } from 'vue';
+
+const page = usePage();
 
 const props = defineProps({
   researches: Array,
   articles: Array,
 });
+
+const user = computed(() => page.props.auth.user);
+const partner = computed(() => user.value?.partner);
 </script>
 
 <template>
@@ -21,6 +27,22 @@ const props = defineProps({
             Dashboard Mitra
           </h2>
           <p class="text-sm text-slate-400 mt-1">Selamat datang di panel Mitra Analis Avenir</p>
+        </div>
+      </div>
+
+      <!-- Not Registered Prompt -->
+      <div v-if="!partner" class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6">
+        <div class="flex items-center gap-3">
+          <UserPlus class="w-6 h-6 text-amber-400" />
+          <div>
+            <h3 class="text-lg font-bold text-white">Anda belum terdaftar sebagai Mitra Analis</h3>
+            <p class="text-sm text-slate-400 mt-1">Daftarkan diri Anda untuk mulai berkontribusi dan mendapatkan bagian dari pool pendapatan!</p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <Link :href="route('mitra.register')" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-lg text-sm font-semibold hover:bg-amber-500/30 transition-colors">
+            Daftar Sekarang
+          </Link>
         </div>
       </div>
 

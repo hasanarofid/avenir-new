@@ -218,7 +218,7 @@ const TIER_BAGIAN = [
         <div class="join-cta-box">
           <h2>Siap Bergabung sebagai Mitra?</h2>
           <p>Daftarkan diri Anda hari ini. Tim editorial akan review aplikasi dan menghubungi Anda dalam 5-7 hari kerja.</p>
-          <a href="mailto:mitra@avenirfortuna.com" class="join-btn">Daftar Sekarang via Email</a>
+          <Link :href="route('mitra.register')" class="join-btn">Daftar Sekarang</Link>
         </div>
       </div>
     </div>
