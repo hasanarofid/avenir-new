@@ -15,8 +15,18 @@ class MitraController extends Controller
     public function dashboard()
     {
         $user = Auth::user()->load('partner');
-        $researches = Research::where('author_id', $user->id)->orderBy('created_at', 'desc')->get();
-        $articles = Article::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        
+        try {
+            $researches = Research::where('author_id', $user->id)->orderBy('created_at', 'desc')->get();
+        } catch (\Exception $e) {
+            $researches = [];
+        }
+        
+        try {
+            $articles = Article::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        } catch (\Exception $e) {
+            $articles = [];
+        }
         
         return Inertia::render('Mitra/Dashboard', [
             'researches' => $researches,
@@ -26,7 +36,12 @@ class MitraController extends Controller
 
     public function researches()
     {
-        $researches = Research::where('author_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        try {
+            $researches = Research::where('author_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        } catch (\Exception $e) {
+            $researches = [];
+        }
+        
         return Inertia::render('Mitra/Researches', [
             'researches' => $researches,
         ]);
