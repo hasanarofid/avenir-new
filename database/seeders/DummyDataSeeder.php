@@ -6,6 +6,8 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\User;
+use App\Models\UserProfile;
 
 class DummyDataSeeder extends Seeder
 {
@@ -15,25 +17,23 @@ class DummyDataSeeder extends Seeder
     public function run(): void
     {
         // 0. Seed Users & Profiles
-        $adminId = Str::uuid()->toString();
-        DB::table('users')->insert([
-            'id' => $adminId,
-            'name' => 'Admin Avenir',
-            'email' => 'admin@avenir.test',
-            'password' => Hash::make('password'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@avenir.test'],
+            [
+                'name' => 'Admin Avenir',
+                'password' => Hash::make('password'),
+            ]
+        );
 
-        DB::table('user_profiles')->insert([
-            'user_id' => $adminId,
-            'first_name' => 'Admin',
-            'last_name' => 'Avenir',
-            'phone_number' => '08123456789',
-            'is_subscriber' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        UserProfile::updateOrCreate(
+            ['user_id' => $admin->id],
+            [
+                'first_name' => 'Admin',
+                'last_name' => 'Avenir',
+                'phone_number' => '08123456789',
+                'is_subscriber' => true,
+            ]
+        );
 
         // 1. Seed Tickers
         DB::table('tickers')->insert([
@@ -61,7 +61,7 @@ class DummyDataSeeder extends Seeder
             ]
         ]);
 
-        // 2. Seed Articles (based on old files like artikel-private-credit-bubble-risk.html)
+        // 2. Seed Articles
         DB::table('articles')->insert([
             [
                 'title' => 'BBRI: Bedah Orderbook Transaksi Institusi',
