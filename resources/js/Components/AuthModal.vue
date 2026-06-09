@@ -1,5 +1,5 @@
 <script setup>
-import { useForm, usePage } from '@inertiajs/vue3';
+import { useForm, usePage, router } from '@inertiajs/vue3';
 import { authStore } from '@/Stores/authStore';
 import { ref, computed } from 'vue';
 import { Eye, EyeOff } from 'lucide-vue-next';
@@ -33,10 +33,14 @@ const submitLogin = () => {
         preserveScroll: true,
         onSuccess: () => {
             loginForm.reset('password');
+            const redirectUrl = authStore.redirectUrl;
             authStore.close();
+            if (redirectUrl) {
+                router.visit(redirectUrl);
+            }
         },
         onError: (errors) => {
-            console.error('Registration Errors:', errors);
+            console.error('Login Errors:', errors);
             if (errors.email) {
                 loginError.value = errors.email;
             } else if (errors.message) {
@@ -55,7 +59,11 @@ const submitRegister = () => {
         preserveScroll: true,
         onSuccess: () => {
             registerForm.reset('password');
+            const redirectUrl = authStore.redirectUrl;
             authStore.close();
+            if (redirectUrl) {
+                router.visit(redirectUrl);
+            }
         },
         onError: (errors) => {
             console.error('Registration Errors:', errors);

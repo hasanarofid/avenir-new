@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { authStore } from '@/Stores/authStore';
 import { computed } from 'vue';
@@ -14,10 +14,10 @@ const props = defineProps({
 function handleDaftarClick() {
   if (user.value) {
     // User sudah login, langsung ke register mitra
-    window.location.href = route('mitra.register');
+    router.visit(route('mitra.register'));
   } else {
-    // User belum login, buka auth modal
-    authStore.open('register');
+    // User belum login, buka auth modal dengan redirect ke mitra register
+    authStore.open('register', route('mitra.register'));
   }
 }
 
