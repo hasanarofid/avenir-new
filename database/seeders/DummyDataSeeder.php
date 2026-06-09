@@ -37,7 +37,7 @@ class DummyDataSeeder extends Seeder
         );
 
         // 1. Seed Tickers
-        DB::table('tickers')->insert([
+        $tickers = [
             [
                 'symbol' => 'BBRI',
                 'company_name' => 'Bank Rakyat Indonesia',
@@ -46,7 +46,6 @@ class DummyDataSeeder extends Seeder
                 'current_price' => 4500.00,
                 'target_price' => 6000.00,
                 'recommendation' => 'bullish',
-                'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
@@ -57,13 +56,19 @@ class DummyDataSeeder extends Seeder
                 'current_price' => 160.00,
                 'target_price' => 200.00,
                 'recommendation' => 'bullish',
-                'created_at' => now(),
                 'updated_at' => now(),
             ]
-        ]);
+        ];
+
+        foreach ($tickers as $ticker) {
+            DB::table('tickers')->updateOrInsert(
+                ['symbol' => $ticker['symbol']],
+                array_merge($ticker, ['created_at' => now()])
+            );
+        }
 
         // 2. Seed Articles
-        DB::table('articles')->insert([
+        $articles = [
             [
                 'title' => 'BBRI: Bedah Orderbook Transaksi Institusi',
                 'slug' => Str::slug('BBRI Bedah Orderbook Transaksi Institusi'),
@@ -76,7 +81,6 @@ class DummyDataSeeder extends Seeder
                 'published_at' => now(),
                 'is_paid' => true,
                 'status' => 'published',
-                'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
@@ -91,9 +95,15 @@ class DummyDataSeeder extends Seeder
                 'published_at' => now()->subDays(2),
                 'is_paid' => false,
                 'status' => 'published',
-                'created_at' => now(),
                 'updated_at' => now(),
             ]
-        ]);
+        ];
+
+        foreach ($articles as $article) {
+            DB::table('articles')->updateOrInsert(
+                ['slug' => $article['slug']],
+                array_merge($article, ['created_at' => now()])
+            );
+        }
     }
 }
