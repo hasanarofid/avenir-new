@@ -33,13 +33,20 @@ class RoleAndPermissionSeeder extends Seeder
         }
 
         // Create roles and assign existing permissions
-        $adminRole = Role::findOrCreate('admin');
+        $adminRole = Role::findOrCreate('admin', 'web');
         $adminRole->givePermissionTo(Permission::all());
 
-        $editorRole = Role::findOrCreate('editor');
+        $editorRole = Role::findOrCreate('editor', 'web');
         $editorRole->givePermissionTo(['manage pages', 'manage posts', 'publish articles']);
 
-        $clientRole = Role::findOrCreate('client');
+        $clientRole = Role::findOrCreate('client', 'web');
         $clientRole->givePermissionTo(['create articles', 'edit articles']);
+        
+        // Role untuk Mitra Analis
+        $mitraRole = Role::findOrCreate('mitra', 'web');
+        $mitraRole->givePermissionTo(['create articles', 'edit articles']);
+        
+        // Role untuk User Biasa
+        Role::findOrCreate('user', 'web');
     }
 }

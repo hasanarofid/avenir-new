@@ -34,6 +34,9 @@ class MitraController extends Controller
     {
         $partner = Partner::findOrFail($id);
         $partner->update(['is_verified' => true]);
+        
+        // Assign role 'mitra' ke user
+        $partner->user->assignRole('mitra');
 
         return redirect()->back()->with('success', 'Mitra berhasil diverifikasi!');
     }

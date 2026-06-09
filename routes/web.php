@@ -61,13 +61,17 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {
     Route::get('/register', [\App\Http\Controllers\MitraController::class, 'create'])->name('register');
     Route::post('/register', [\App\Http\Controllers\MitraController::class, 'store'])->name('register.store');
-    Route::get('/dashboard', [\App\Http\Controllers\MitraController::class, 'dashboard'])->name('dashboard');
-    Route::get('/researches', [\App\Http\Controllers\MitraController::class, 'researches'])->name('researches');
-    Route::get('/profile', [\App\Http\Controllers\MitraController::class, 'profile'])->name('profile');
+    
+    // Route mitra yang butuh role 'mitra'
+    Route::middleware(['role:mitra'])->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\MitraController::class, 'dashboard'])->name('dashboard');
+        Route::get('/researches', [\App\Http\Controllers\MitraController::class, 'researches'])->name('researches');
+        Route::get('/profile', [\App\Http\Controllers\MitraController::class, 'profile'])->name('profile');
+    });
 });
 
 // Admin CMS Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // AI Logs (Audit)

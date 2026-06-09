@@ -14,6 +14,7 @@ class MitraController extends Controller
 {
     public function dashboard()
     {
+          /** @var \App\Models\User $user */
         $user = Auth::user()->load('partner');
         
         try {
@@ -49,6 +50,7 @@ class MitraController extends Controller
 
     public function profile()
     {
+            /** @var \App\Models\User $user */
         $user = Auth::user()->load('partner');
         return Inertia::render('Mitra/Profile', [
             'user' => $user,
