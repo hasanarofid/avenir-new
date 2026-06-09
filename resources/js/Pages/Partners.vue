@@ -1,11 +1,26 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { authStore } from '@/Stores/authStore';
 import { computed } from 'vue';
+
+const page = usePage();
+const user = computed(() => page.props.auth?.user);
+const auth = authStore();
 
 const props = defineProps({
     partners: Array
 });
+
+function handleDaftarClick() {
+  if (user.value) {
+    // User sudah login, langsung ke register mitra
+    window.location.href = route('mitra.register');
+  } else {
+    // User belum login, buka auth modal
+    auth.open('register');
+  }
+}
 
 // Fallback mock data if database has no verified partners yet
 const mockPartners = [
@@ -218,7 +233,7 @@ const TIER_BAGIAN = [
         <div class="join-cta-box">
           <h2>Siap Bergabung sebagai Mitra?</h2>
           <p>Daftarkan diri Anda hari ini. Tim editorial akan review aplikasi dan menghubungi Anda dalam 5-7 hari kerja.</p>
-          <Link :href="route('mitra.register')" class="join-btn">Daftar Sekarang</Link>
+          <button @click="handleDaftarClick" class="join-btn">Daftar Sekarang</button>
         </div>
       </div>
     </div>
