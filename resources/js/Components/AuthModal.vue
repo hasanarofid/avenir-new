@@ -36,6 +36,7 @@ const submitLogin = () => {
             authStore.close();
         },
         onError: (errors) => {
+            console.error('Registration Errors:', errors);
             if (errors.email) {
                 loginError.value = errors.email;
             } else if (errors.message) {
@@ -57,12 +58,17 @@ const submitRegister = () => {
             authStore.close();
         },
         onError: (errors) => {
+            console.error('Registration Errors:', errors);
             if (errors.email) {
                 registerError.value = errors.email;
-            } else if (errors.fname || errors.lname) {
-                registerError.value = 'Nama depan dan belakang harus diisi.';
+            } else if (errors.fname || errors.lname || errors.name) {
+                registerError.value = errors.name || 'Nama depan dan belakang harus diisi.';
             } else if (errors.password) {
                 registerError.value = errors.password;
+            } else if (errors.error) {
+                registerError.value = errors.error;
+            } else if (errors.message) {
+                registerError.value = errors.message;
             } else {
                 registerError.value = 'Terjadi kesalahan saat pendaftaran.';
             }

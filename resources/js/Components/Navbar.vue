@@ -935,24 +935,46 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
 }
 
 .nav-mobile-link {
-  font-size: 15px;
-  font-weight: 550;
-  color: #4b5563;
-  padding: 8px 12px;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.nav-mobile-link:hover {
-  background: #f3f4f6;
-  color: #111827;
-}
-
-.nav-mobile-link.active {
-  background: #ecfdf5;
-  color: #166534;
+  display: block;
+  padding: 12px 16px;
+  font-size: 16px;
   font-weight: 600;
+  color: #1f2937;
+  text-decoration: none;
+  border-radius: 8px;
+}
+.nav-mobile-group {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+.nav-mobile-group-label {
+  display: block;
+  padding: 0 16px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.nav-mobile-link.active {
+  background: #f3f4f6;
+  color: #1B6B3A;
+}
+
+/* Mobile drawer dark mode */
+.nav.nav-dark .nav-mobile-drawer {
+  background: #090b0a;
+}
+.nav.nav-dark .nav-mobile-link {
+  color: #94a3b8;
+}
+.nav.nav-dark .nav-mobile-group {
+  border-top-color: rgba(255, 255, 255, 0.05);
+}
+.nav.nav-dark .nav-mobile-link.active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
 }
 
 /* Dark theme overrides for links */

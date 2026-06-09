@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class AuthController extends Controller
@@ -17,22 +18,38 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-            'fname' => 'required|string|max:255',
-            'lname' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        try {
+            $request->validate([
+                'fname' => 'required|string|max:255',
+                'lname' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
 
-        $user = User::create([
-            'name' => trim($request->fname . ' ' . $request->lname),
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+            $user = new User();
+            $user->name = trim($request->fname . ' ' . $request->lname);
+            $user->email = $request->email;
+            $user->password = Hash::make($request->password);
+            $user->save();
 
-        Auth::login($user);
+            // Create user profile
+            \Illuminate\Support\Facades\DB::table('user_profiles')->insert([
+                'user_id' => $user->id,
+                'first_name' => $request->fname,
+                'last_name' => $request->lname,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        return redirect()->back();
+            Auth::login($user);
+
+            return redirect()->back();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Registration Error: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
+        }
     }
 
     public function login(Request $request)
