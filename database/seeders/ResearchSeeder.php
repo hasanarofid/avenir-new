@@ -31,20 +31,22 @@ class ResearchSeeder extends Seeder
                 $slug = preg_replace('/-+/', '-', trim($slug, '-'));
             }
 
-            \App\Models\Research::create([
-                'title'    => $item['title'],
-                'slug'     => $slug,
-                'subtitle' => $item['subtitle'],
-                'ticker'   => $ticker,
-                'sector'   => $item['sector'],
-                'revenue'  => $item['revenue'],
-                'patmi'    => $item['patmi'],
-                'sales'    => $item['sales'],
-                'price'    => $item['price'],
-                'tags'     => $item['tags'],
-                'date'     => $item['date'],
-                'image'    => $item['image'] ?? null,
-            ]);
+            \App\Models\Research::updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'title'    => $item['title'],
+                    'subtitle' => $item['subtitle'],
+                    'ticker'   => $ticker,
+                    'sector'   => $item['sector'],
+                    'revenue'  => $item['revenue'],
+                    'patmi'    => $item['patmi'],
+                    'sales'    => $item['sales'],
+                    'price'    => $item['price'],
+                    'tags'     => $item['tags'],
+                    'date'     => $item['date'],
+                    'image'    => $item['image'] ?? null,
+                ]
+            );
         }
     }
 }
