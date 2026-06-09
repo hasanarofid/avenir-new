@@ -104,7 +104,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
           <img src="/images/logo.png" class="nav-logo" alt="Avenir" />
         </Link>
         <div class="nav-links">
-          <Link href="/" class="nav-link" :class="{ active: $page.component === 'Home' }">Terminal</Link>
+          <Link href="/" class="nav-link" :class="{ active: $page.component === 'Home' }">Beranda</Link>
           
           <!-- Market Dropdown -->
           <div class="nav-dropdown-wrap" @mouseenter="marketDropdownOpen = true" @mouseleave="marketDropdownOpen = false">
