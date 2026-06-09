@@ -53,6 +53,11 @@ class User extends Authenticatable
         return $this->hasMany(Article::class);
     }
 
+    public function partner()
+    {
+        return $this->hasOne(Partner::class);
+    }
+
     protected function casts(): array
     {
         return [

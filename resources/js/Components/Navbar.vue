@@ -252,6 +252,13 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
               class="user-dropdown"
               @click="dropdownOpen = false"
             >
+              <Link href="/mitra/dashboard" class="user-dd-item">
+                <span class="user-dd-icon">📊</span>
+                <span>
+                  <strong>Dashboard Mitra</strong>
+                  <span class="user-dd-hint">Panel kontributor analis</span>
+                </span>
+              </Link>
               <div class="user-dd-item">
                 <span class="user-dd-icon">👤</span>
                 <span>
@@ -326,6 +333,13 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
           </div>
           
           <div class="nav-mobile-user-links">
+            <Link href="/mitra/dashboard" class="user-dd-item-mobile" @click="mobileMenuOpen = false">
+              <span class="user-dd-icon">📊</span>
+              <span>
+                <strong>Dashboard Mitra</strong>
+                <span class="user-dd-hint">Panel kontributor analis</span>
+              </span>
+            </Link>
             <div class="user-dd-item-mobile">
               <span class="user-dd-icon">👤</span>
               <span>

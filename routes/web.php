@@ -58,6 +58,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Mitra Routes
+Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\MitraController::class, 'dashboard'])->name('dashboard');
+    Route::get('/researches', [\App\Http\Controllers\MitraController::class, 'researches'])->name('researches');
+    Route::get('/profile', [\App\Http\Controllers\MitraController::class, 'profile'])->name('profile');
+});
+
 // Admin CMS Routes
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
