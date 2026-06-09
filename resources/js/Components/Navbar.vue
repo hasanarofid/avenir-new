@@ -903,6 +903,9 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
   top: 100%;
   left: 0;
   width: 100%;
+  max-height: calc(100vh - 52px);
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   padding: 16px 24px 24px;

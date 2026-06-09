@@ -260,7 +260,8 @@ const submitRegister = () => {
   max-width: 440px;
   width: 100%;
   max-height: 92vh;
-  overflow-y: auto;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
   padding: 40px 32px;
   position: relative;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);

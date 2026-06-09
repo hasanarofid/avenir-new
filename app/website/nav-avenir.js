@@ -76,7 +76,7 @@ body.auth-state-guest [data-auth="guest"] { display: block !important; }
 .auth-overlay.open { opacity: 1; }
 .auth-box {
   background: #fff; border-radius: 16px; max-width: 440px; width: 100%;
-  max-height: 92vh; overflow-y: auto; padding: 30px 26px; position: relative;
+  max-height: 92vh; overflow-y: scroll; -webkit-overflow-scrolling:touch; padding: 30px 26px; position: relative;
   box-shadow: 0 30px 60px rgba(0,0,0,0.25);
 }
 .auth-close {
@@ -243,7 +243,8 @@ body.auth-state-guest [data-auth="guest"] { display: block !important; }
 }
 .nav-bell-mark:hover { text-decoration: underline; }
 .nav-bell-list {
-  overflow-y: auto;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling:touch;
   flex: 1;
   max-height: 380px;
 }
@@ -362,7 +363,7 @@ body.auth-state-guest [data-auth="guest"] { display: block !important; }
   .user-dd-logout { display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:11px 14px; background:transparent; border:none; border-top:1px solid #f3f4f6; color:#dc2626; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; }
   .user-dd-logout:hover { background:#fef2f2; }
   .nav-hamburger { display:none; background:transparent; border:1px solid #e5e7eb; border-radius:7px; width:34px; height:34px; align-items:center; justify-content:center; cursor:pointer; color:#374151; }
-  .mobile-drawer { display:none; position:absolute; top:54px; left:0; right:0; background:#fff; border-bottom:1px solid #e5e7eb; box-shadow:0 8px 20px rgba(0,0,0,.06); padding:8px 0 14px; max-height:calc(100vh - 54px); overflow-y:auto; z-index:499; }
+  .mobile-drawer { display:none; position:absolute; top:54px; left:0; right:0; background:#fff; border-bottom:1px solid #e5e7eb; box-shadow:0 8px 20px rgba(0,0,0,.06); padding:8px 0 14px; max-height:calc(100vh - 54px); overflow-y:scroll; -webkit-overflow-scrolling:touch; z-index:499; }
   .mobile-drawer.open { display:block; }
   .mob-link { display:block; padding:11px 18px; text-decoration:none; color:#374151; font-size:14px; font-weight:600; background:transparent; border:none; width:100%; text-align:left; cursor:pointer; font-family:inherit; }
   .mob-status-hint { display:block; font-size:11.5px; font-weight:500; color:#9ca3af; margin-top:2px; }
