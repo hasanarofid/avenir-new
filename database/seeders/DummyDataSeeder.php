@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\User;
-use App\Models\UserProfile;
 
 class DummyDataSeeder extends Seeder
 {
@@ -25,13 +24,15 @@ class DummyDataSeeder extends Seeder
             ]
         );
 
-        UserProfile::updateOrCreate(
+        DB::table('user_profiles')->updateOrInsert(
             ['user_id' => $admin->id],
             [
                 'first_name' => 'Admin',
                 'last_name' => 'Avenir',
                 'phone_number' => '08123456789',
                 'is_subscriber' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]
         );
 
