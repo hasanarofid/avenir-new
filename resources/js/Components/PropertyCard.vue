@@ -302,22 +302,92 @@ h2 {
 }
 
 .ft-authors {
-  display: none;
+  display: flex;
+  gap: 8px;
+}
+
+.ft-author-badge, .ft-new-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+
+.ft-author-badge {
+  background: rgba(26, 122, 60, 0.05);
+  color: #1A7A3C;
+  border: 1px solid rgba(26, 122, 60, 0.1);
+}
+
+.ft-new-badge {
+  background: rgba(26, 122, 60, 0.08);
+  color: #1A7A3C;
+  border: 1px solid rgba(26, 122, 60, 0.2);
 }
 
 .ft-date {
-  display: none;
+  font-size: 11px;
+  color: #8EA899;
 }
 
 .ft-icons {
-  display: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+  color: #4A6355;
+  font-size: 12px;
 }
 
 .ft-comment-box {
-  display: none;
+  display: flex;
+  gap: 10px;
+  background: #F7F5F0;
+  border: 1px dashed #DDE7E2;
+  border-radius: 8px;
+  padding: 12px;
+  align-items: center;
+}
+
+.comment-icon {
+  font-size: 16px;
+  opacity: 0.5;
+}
+
+.comment-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.comment-text strong {
+  font-size: 11px;
+  color: #18211D;
+}
+
+.comment-text span {
+  font-size: 10px;
+  color: #4A6355;
 }
 
 .cta {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #1B6B3A;
+  border: none;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  letter-spacing: 0.05em;
+}
+
+.card:hover .cta {
+  background: #114523;
+  box-shadow: 0 4px 15px rgba(27, 107, 58, 0.35);
 }
 </style>
