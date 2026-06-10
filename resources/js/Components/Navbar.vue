@@ -8,6 +8,13 @@ const user = computed(() => page.props.auth?.user);
 const notifications = computed(() => page.props.notifications ?? []);
 const hasNotifications = computed(() => notifications.value.length > 0);
 
+const hasRole = (roleName) => {
+    return user.value?.roles?.some(r => r.name === roleName) || false;
+};
+
+const isAdmin = computed(() => hasRole('admin'));
+const isMitra = computed(() => hasRole('mitra'));
+
 const dropdownOpen = ref(false);
 const notifOpen = ref(false);
 const mobileMenuOpen = ref(false);
@@ -19,7 +26,7 @@ const isHomePage = computed(() => [
   'Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 
   'About', 'Partners', 'Subscription', 'KatalogDetail', 'EmitenHub/Index', 
   'EmitenHub/Show', 'Watchlist/Index', 'KIBrief/Index', 'Disclosure/Index',
-  'Mitra/Register'
+  'Mitra/Register', 'Profile', 'Profile/Edit'
 ].includes(page.component));
 
 const handleLogout = () => {
@@ -253,27 +260,51 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
               class="user-dropdown"
               @click="dropdownOpen = false"
             >
-              <Link href="/mitra/dashboard" class="user-dd-item">
+              <!-- Dashboard Admin (only for admin) -->
+              <Link v-if="isAdmin" href="/admin/dashboard" class="user-dd-item">
+                <span class="user-dd-icon">📊</span>
+                <span>
+                  <strong>Dashboard Admin</strong>
+                  <span class="user-dd-hint">CMS Control Panel</span>
+                </span>
+              </Link>
+              
+              <!-- Dashboard Mitra (only for mitra) -->
+              <Link v-if="isMitra" href="/mitra/dashboard" class="user-dd-item">
                 <span class="user-dd-icon">📊</span>
                 <span>
                   <strong>Dashboard Mitra</strong>
                   <span class="user-dd-hint">Panel kontributor analis</span>
                 </span>
               </Link>
-              <div class="user-dd-item">
+
+              <!-- Akun Saya (accessible by all) -->
+              <Link href="/profile" class="user-dd-item">
                 <span class="user-dd-icon">👤</span>
                 <span>
                   <strong>Akun Saya</strong>
                   <span class="user-dd-hint">Profil &amp; pengaturan</span>
                 </span>
-              </div>
-              <div class="user-dd-item">
+              </Link>
+
+              <!-- Status Langganan (for non-admin and non-mitra) -->
+              <Link v-if="!isAdmin && !isMitra" href="/langganan" class="user-dd-item">
                 <span class="user-dd-icon">🎟️</span>
                 <span>
                   <strong>Status Langganan</strong>
                   <span class="user-dd-hint">Cek masa aktif</span>
                 </span>
-              </div>
+              </Link>
+
+              <!-- Daftar Mitra (for non-admin and non-mitra who haven't registered yet) -->
+              <Link v-if="!isAdmin && !isMitra && !user?.partner" href="/mitra/register" class="user-dd-item">
+                <span class="user-dd-icon">✍️</span>
+                <span>
+                  <strong>Daftar Mitra</strong>
+                  <span class="user-dd-hint">Bergabung kontributor</span>
+                </span>
+              </Link>
+
               <button class="user-dd-logout" @click="handleLogout">
                 Keluar →
               </button>
@@ -334,27 +365,50 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
           </div>
           
           <div class="nav-mobile-user-links">
-            <Link href="/mitra/dashboard" class="user-dd-item-mobile" @click="mobileMenuOpen = false">
+            <!-- Dashboard Admin (only for admin) -->
+            <Link v-if="isAdmin" href="/admin/dashboard" class="user-dd-item-mobile" @click="mobileMenuOpen = false">
+              <span class="user-dd-icon">📊</span>
+              <span>
+                <strong>Dashboard Admin</strong>
+                <span class="user-dd-hint">CMS Control Panel</span>
+              </span>
+            </Link>
+
+            <!-- Dashboard Mitra (only for mitra) -->
+            <Link v-if="isMitra" href="/mitra/dashboard" class="user-dd-item-mobile" @click="mobileMenuOpen = false">
               <span class="user-dd-icon">📊</span>
               <span>
                 <strong>Dashboard Mitra</strong>
                 <span class="user-dd-hint">Panel kontributor analis</span>
               </span>
             </Link>
-            <div class="user-dd-item-mobile">
+
+            <!-- Akun Saya -->
+            <Link href="/profile" class="user-dd-item-mobile" @click="mobileMenuOpen = false">
               <span class="user-dd-icon">👤</span>
               <span>
                 <strong>Akun Saya</strong>
                 <span class="user-dd-hint">Profil &amp; pengaturan</span>
               </span>
-            </div>
-            <div class="user-dd-item-mobile">
+            </Link>
+
+            <!-- Status Langganan -->
+            <Link v-if="!isAdmin && !isMitra" href="/langganan" class="user-dd-item-mobile" @click="mobileMenuOpen = false">
               <span class="user-dd-icon">🎟️</span>
               <span>
                 <strong>Status Langganan</strong>
                 <span class="user-dd-hint">Cek masa aktif</span>
               </span>
-            </div>
+            </Link>
+
+            <!-- Daftar Mitra -->
+            <Link v-if="!isAdmin && !isMitra && !user?.partner" href="/mitra/register" class="user-dd-item-mobile" @click="mobileMenuOpen = false">
+              <span class="user-dd-icon">✍️</span>
+              <span>
+                <strong>Daftar Mitra</strong>
+                <span class="user-dd-hint">Bergabung kontributor</span>
+              </span>
+            </Link>
           </div>
 
           <button class="user-dd-logout-mobile" @click="handleLogout(); mobileMenuOpen = false">

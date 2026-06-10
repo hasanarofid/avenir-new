@@ -57,13 +57,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Mitra Routes
-Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {
-    // 1. Route registrasi mitra (Wajib login tapi belum tentu role mitra)
-    Route::get('/register', [\App\Http\Controllers\MitraController::class, 'create'])->name('register');
-    Route::post('/register', [\App\Http\Controllers\MitraController::class, 'store'])->name('register.store');
+// Public/Guest Mitra Register Routes
+Route::get('/mitra/register', [\App\Http\Controllers\MitraController::class, 'create'])->name('mitra.register');
+Route::post('/mitra/register', [\App\Http\Controllers\MitraController::class, 'store'])->name('mitra.register.store');
 
-    // 2. Route mitra lainnya yang butuh role 'mitra'
+// Authenticated Mitra Routes
+Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {
+    // Route mitra lainnya yang butuh role 'mitra'
     Route::middleware(['role:mitra'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\MitraController::class, 'dashboard'])->name('dashboard');
         Route::get('/researches', [\App\Http\Controllers\MitraController::class, 'researches'])->name('researches');

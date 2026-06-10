@@ -32,6 +32,9 @@ class AuthController extends Controller
             $user->password = Hash::make($request->password);
             $user->save();
 
+            // Assign default role 'user'
+            $user->assignRole('user');
+
             // Create user profile
             \Illuminate\Support\Facades\DB::table('user_profiles')->insert([
                 'user_id' => $user->id,

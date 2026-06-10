@@ -51,6 +51,10 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        if ($user->hasRole('admin')) {
+            return Redirect::back()->with('error', 'Akun administrator tidak dapat dihapus.');
+        }
+
         Auth::logout();
 
         $user->delete();

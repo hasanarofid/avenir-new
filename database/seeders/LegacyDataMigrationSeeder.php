@@ -65,7 +65,7 @@ class LegacyDataMigrationSeeder extends Seeder
         }
 
         foreach ($usersData as $userData) {
-            \App\Models\User::updateOrCreate(
+            $user = \App\Models\User::updateOrCreate(
                 ['id' => $userData['id']],
                 [
                     'name'        => $userData['name'],
@@ -76,6 +76,7 @@ class LegacyDataMigrationSeeder extends Seeder
                     'updated_at'  => $userData['updated_at'],
                 ]
             );
+            $user->assignRole('user');
         }
 
         $this->command->info(count($usersData) . ' Data profil legacy sukses tertanam ke tabel Users.');

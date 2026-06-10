@@ -23,6 +23,7 @@ class DummyDataSeeder extends Seeder
                 'password' => Hash::make('password'),
             ]
         );
+        $admin->assignRole('admin');
 
         DB::table('user_profiles')->updateOrInsert(
             ['user_id' => $admin->id],

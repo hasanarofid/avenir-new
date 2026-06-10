@@ -1,8 +1,20 @@
 <script setup>
-import { Head, useForm, Link } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import { Head, useForm, Link, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
+const page = usePage();
+const user = computed(() => page.props.auth?.user);
+
+const showPassword = ref(false);
+const showPasswordConfirmation = ref(false);
+
 const form = useForm({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
     certification: '',
     specializations: '',
     portfolio_link: '',
@@ -38,36 +50,158 @@ const submit = () => {
 
         <!-- Form Section -->
         <div class="register-form-box">
-          <div class="form-header">Data Pribadi & Kredensial</div>
+          <div v-if="form.errors.error" class="error-banner">
+            {{ form.errors.error }}
+          </div>
+
           <form @submit.prevent="submit" class="register-form">
-            <!-- Certification -->
-            <div class="form-group">
-              <label for="certification">Sertifikasi / Kualifikasi <span class="required">*</span></label>
-              <p class="hint">Misal: CFA, WPPE, WPEE, atau kualifikasi profesional lainnya.</p>
-              <input 
-                id="certification" 
-                v-model="form.certification" 
-                type="text" 
-                placeholder="Masukkan sertifikasi Anda" 
-                class="form-input" 
-                required 
-              />
-              <div v-if="form.errors.certification" class="error-msg">{{ form.errors.certification }}</div>
+            <!-- Guest Registration Section -->
+            <div v-if="!user" class="guest-register-fields">
+              <div class="form-header">Informasi Akun</div>
+              
+              <div class="form-row-2col">
+                <div class="form-group">
+                  <label for="first_name">Nama Depan <span class="required">*</span></label>
+                  <input 
+                    id="first_name" 
+                    v-model="form.first_name" 
+                    type="text" 
+                    placeholder="Nama Depan" 
+                    class="form-input" 
+                    :required="!user" 
+                  />
+                  <div v-if="form.errors.first_name" class="error-msg">{{ form.errors.first_name }}</div>
+                </div>
+
+                <div class="form-group">
+                  <label for="last_name">Nama Belakang <span class="required">*</span></label>
+                  <input 
+                    id="last_name" 
+                    v-model="form.last_name" 
+                    type="text" 
+                    placeholder="Nama Belakang" 
+                    class="form-input" 
+                    :required="!user" 
+                  />
+                  <div v-if="form.errors.last_name" class="error-msg">{{ form.errors.last_name }}</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input 
+                  id="email" 
+                  v-model="form.email" 
+                  type="email" 
+                  placeholder="email@anda.com" 
+                  class="form-input" 
+                  :required="!user" 
+                />
+                <div v-if="form.errors.email" class="error-msg">{{ form.errors.email }}</div>
+              </div>
+
+              <div class="form-row-2col">
+                <div class="form-group">
+                  <label for="password">Password <span class="required">*</span></label>
+                  <div class="password-input-wrapper">
+                    <input 
+                      id="password" 
+                      v-model="form.password" 
+                      :type="showPassword ? 'text' : 'password'" 
+                      placeholder="Min. 8 karakter" 
+                      class="form-input" 
+                      :required="!user" 
+                    />
+                    <button 
+                      type="button" 
+                      class="toggle-password-btn" 
+                      @click="showPassword = !showPassword"
+                      tabindex="-1"
+                      aria-label="Toggle password visibility"
+                    >
+                      <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                      <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                        <path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                        <line x1="2" y1="2" x2="22" y2="22"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div v-if="form.errors.password" class="error-msg">{{ form.errors.password }}</div>
+                </div>
+
+                <div class="form-group">
+                  <label for="password_confirmation">Konfirmasi Password <span class="required">*</span></label>
+                  <div class="password-input-wrapper">
+                    <input 
+                      id="password_confirmation" 
+                      v-model="form.password_confirmation" 
+                      :type="showPasswordConfirmation ? 'text' : 'password'" 
+                      placeholder="Ulangi password" 
+                      class="form-input" 
+                      :required="!user" 
+                    />
+                    <button 
+                      type="button" 
+                      class="toggle-password-btn" 
+                      @click="showPasswordConfirmation = !showPasswordConfirmation"
+                      tabindex="-1"
+                      aria-label="Toggle password confirmation visibility"
+                    >
+                      <svg v-if="showPasswordConfirmation" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                      <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                        <path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                        <line x1="2" y1="2" x2="22" y2="22"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div v-if="form.errors.password_confirmation" class="error-msg">{{ form.errors.password_confirmation }}</div>
+                </div>
+              </div>
+
+              <div class="divider-line"></div>
             </div>
 
-            <!-- Specializations -->
-            <div class="form-group">
-              <label for="specializations">Spesialisasi (pisahkan dengan koma) <span class="required">*</span></label>
-              <p class="hint">Misal: Mining, Commodities, Corporate Action</p>
-              <input 
-                id="specializations" 
-                v-model="form.specializations" 
-                type="text" 
-                placeholder="Contoh: Banking, Consumer Goods, Valuation" 
-                class="form-input" 
-                required 
-              />
-              <div v-if="form.errors.specializations" class="error-msg">{{ form.errors.specializations }}</div>
+            <div class="form-header">Data Pribadi & Kredensial</div>
+
+            <!-- Certification & Specializations -->
+            <div class="form-row-2col">
+              <div class="form-group">
+                <label for="certification">Sertifikasi / Kualifikasi <span class="required">*</span></label>
+                <p class="hint">Misal: CFA, WPPE, WPEE, atau kualifikasi profesional lainnya.</p>
+                <input 
+                  id="certification" 
+                  v-model="form.certification" 
+                  type="text" 
+                  placeholder="Masukkan sertifikasi Anda" 
+                  class="form-input" 
+                  required 
+                />
+                <div v-if="form.errors.certification" class="error-msg">{{ form.errors.certification }}</div>
+              </div>
+
+              <div class="form-group">
+                <label for="specializations">Spesialisasi (pisahkan dengan koma) <span class="required">*</span></label>
+                <p class="hint">Misal: Mining, Commodities, Corporate Action</p>
+                <input 
+                  id="specializations" 
+                  v-model="form.specializations" 
+                  type="text" 
+                  placeholder="Contoh: Banking, Consumer Goods, Valuation" 
+                  class="form-input" 
+                  required 
+                />
+                <div v-if="form.errors.specializations" class="error-msg">{{ form.errors.specializations }}</div>
+              </div>
             </div>
 
             <!-- Portfolio Link -->
@@ -86,32 +220,33 @@ const submit = () => {
             <div class="divider-line"></div>
             <div class="form-header">Data Bank untuk Pembayaran</div>
 
-            <!-- Bank Name -->
-            <div class="form-group">
-              <label for="bank_name">Nama Bank <span class="required">*</span></label>
-              <input 
-                id="bank_name" 
-                v-model="form.bank_name" 
-                type="text" 
-                placeholder="Misal: BCA, Mandiri, BNI" 
-                class="form-input" 
-                required 
-              />
-              <div v-if="form.errors.bank_name" class="error-msg">{{ form.errors.bank_name }}</div>
-            </div>
+            <!-- Bank Row -->
+            <div class="form-row-2col">
+              <div class="form-group">
+                <label for="bank_name">Nama Bank <span class="required">*</span></label>
+                <input 
+                  id="bank_name" 
+                  v-model="form.bank_name" 
+                  type="text" 
+                  placeholder="Misal: BCA, Mandiri, BNI" 
+                  class="form-input" 
+                  required 
+                />
+                <div v-if="form.errors.bank_name" class="error-msg">{{ form.errors.bank_name }}</div>
+              </div>
 
-            <!-- Bank Account Number -->
-            <div class="form-group">
-              <label for="bank_account_number">Nomor Rekening <span class="required">*</span></label>
-              <input 
-                id="bank_account_number" 
-                v-model="form.bank_account_number" 
-                type="text" 
-                placeholder="Masukkan nomor rekening Anda" 
-                class="form-input" 
-                required 
-              />
-              <div v-if="form.errors.bank_account_number" class="error-msg">{{ form.errors.bank_account_number }}</div>
+              <div class="form-group">
+                <label for="bank_account_number">Nomor Rekening <span class="required">*</span></label>
+                <input 
+                  id="bank_account_number" 
+                  v-model="form.bank_account_number" 
+                  type="text" 
+                  placeholder="Masukkan nomor rekening Anda" 
+                  class="form-input" 
+                  required 
+                />
+                <div v-if="form.errors.bank_account_number" class="error-msg">{{ form.errors.bank_account_number }}</div>
+              </div>
             </div>
 
             <!-- Bank Account Name -->
@@ -179,7 +314,7 @@ const submit = () => {
 }
 
 .register-page {
-  max-width: 700px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 40px 24px 100px;
   position: relative;
@@ -321,5 +456,65 @@ const submit = () => {
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.guest-register-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 640px) {
+  .form-row-2col {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.error-banner {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-wrapper .form-input {
+  width: 100%;
+  padding-right: 48px;
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.toggle-password-btn:hover {
+  color: #10b981;
 }
 </style>
