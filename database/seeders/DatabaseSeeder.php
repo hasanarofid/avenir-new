@@ -56,6 +56,9 @@ class DatabaseSeeder extends Seeder
             
             // === Seeder Emiten Demo ===
             DmasSeeder::class,
+
+            // === Sinkronisasi Data Vercel HTML ===
+            VercelHtmlSeeder::class,
         ]);
     }
 }
