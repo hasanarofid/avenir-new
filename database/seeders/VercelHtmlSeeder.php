@@ -13,6 +13,9 @@ class VercelHtmlSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->command->info('Syncing HTML files to storage...');
+        Artisan::call('avenir:sync-html');
+
         $this->command->info('Parsing katalog.html to update Research data...');
         $this->parseAndSeedKatalog();
     }
