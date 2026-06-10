@@ -59,8 +59,8 @@ class VercelHtmlSeeder extends Seeder
             $tickerNode = $xpath->query('.//span[contains(@class, "ticker")]', $card)->item(0);
             $ticker = $tickerNode ? trim(str_replace('IDX:', '', $tickerNode->nodeValue)) : null;
 
-            // Extract image
-            $imgNode = $xpath->query('.//img[contains(@class, "cimg")]', $card)->item(0);
+            // Extract image (first img tag in the card)
+            $imgNode = $xpath->query('.//img', $card)->item(0);
             $image = $imgNode ? $imgNode->getAttribute('src') : null;
 
             $sectorNode = $xpath->query('.//span[contains(@class, "sector")]', $card)->item(0);
