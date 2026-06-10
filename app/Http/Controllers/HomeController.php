@@ -41,6 +41,18 @@ class HomeController extends Controller
      */
     public function katalogDetail($slug)
     {
+        // Redirect legacy slugs to modern normalized slugs for consistency and SEO
+        $slugMap = [
+            'salesforce-inc' => 'crm',
+            'avia-avian' => 'avia',
+            'petrosea' => 'ptro',
+            'cisarua-mountain-dairy' => 'cmry',
+            'crbs' => 'cbrs',
+        ];
+        if (isset($slugMap[$slug])) {
+            return redirect()->route('katalog.detail', ['slug' => $slugMap[$slug]], 301);
+        }
+
         // Cari research berdasarkan slug
         $research = Research::where('slug', $slug)->first();
 

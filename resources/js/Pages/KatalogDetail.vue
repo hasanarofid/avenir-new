@@ -25,7 +25,8 @@ const hasCustomHtml = computed(() => {
 
 // Deteksi apakah konten bawaan (migrasi) memiliki .hero sendiri
 const hasCustomHero = computed(() => {
-    return props.research.content && (props.research.content.includes('class="hero"') || props.research.content.includes("class='hero'"));
+    if (!props.research.content) return false;
+    return /class=['"][a-zA-Z0-9_-]*hero['"]/i.test(props.research.content);
 });
 
 const formattedPrice = computed(() => {
@@ -44,7 +45,7 @@ const formattedPrice = computed(() => {
       <div class="kdp-glow kdp-glow-bl"></div>
 
       <!-- ─── HERO BANNER ─────────────────────────────────── -->
-      <div v-if="!hasCustomHero" class="kdp-hero-banner">
+      <div v-if="!hasCustomHero" class="kdp-hero-banner hero">
         <div class="kdp-container">
 
           <!-- Breadcrumb -->
@@ -57,18 +58,18 @@ const formattedPrice = computed(() => {
 
           <!-- Badges -->
           <div class="kdp-badges">
-            <span v-if="research.ticker" class="kdp-badge-ticker">{{ research.ticker }}</span>
-            <span v-if="research.sector" class="kdp-badge-sector" v-html="research.sector"></span>
+            <span v-if="research.ticker" class="kdp-badge-ticker hbadge">{{ research.ticker }}</span>
+            <span v-if="research.sector" class="kdp-badge-sector hbadge" v-html="research.sector"></span>
           </div>
 
           <!-- Title -->
           <h1 class="kdp-h1">{{ research.title }}</h1>
 
           <!-- Subtitle / tagline -->
-          <p v-if="research.subtitle" class="kdp-subtitle" v-html="research.subtitle"></p>
+          <p v-if="research.subtitle" class="kdp-subtitle hsub" v-html="research.subtitle"></p>
 
           <!-- Meta row -->
-          <div class="kdp-meta-row">
+          <div class="kdp-meta-row hmeta">
             <span class="kdp-meta-author">Tim Avenir Research</span>
             <span class="kdp-meta-sep">·</span>
             <span class="kdp-meta-date">{{ research.date }}</span>
@@ -150,8 +151,8 @@ const formattedPrice = computed(() => {
 
 /* ── Page wrapper ── */
 .kdp-page {
-  background-color: #090b0a;
-  color: #cbd5e1;
+  background-color: var(--bg, #090b0a);
+  color: var(--t, #cbd5e1);
   min-height: calc(100vh - 52px);
   position: relative;
   overflow: hidden;

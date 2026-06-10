@@ -41,7 +41,7 @@
   {
     "title": "Salesforce, Inc.",
     "subtitle": "#1 AI CRM global — Agentforce, Data 360, MuleSoft, Slack, Tableau. <span style=\"color:#00A1E0;font-weight:600\">Closing 4/5/26: $183,82</span>",
-    "ticker": null,
+    "ticker": "CRM",
     "sector": null,
     "revenue": "$41,5B",
     "patmi": "+10%",
@@ -53,8 +53,8 @@
   },
   {
     "title": "PT Petrosea Tbk",
-    "subtitle": "Deep research multi-segmen: Contract Mining, EPC, Offshore EPCI & Oil Gas. Backlog rekor US$4,44 miliar dan ekspansi agresif ke segmen baru.",
-    "ticker": null,
+    "subtitle": "Deep research multi-segmen: Contract Mining, EPC, Offshore EPCI & Oil Gas. Backlog rekor US$4,44 militar dan ekspansi agresif ke segmen baru.",
+    "ticker": "PTRO",
     "sector": "&#9935; Mining & EPC Services",
     "revenue": "US$284M",
     "patmi": "+84%",
@@ -67,7 +67,7 @@
   {
     "title": "PT Cisarua Mountain Dairy Tbk",
     "subtitle": "Market leader susu premium dan makanan olahan Indonesia. Ekspansi Miss Cimory 10.099 agen, ROE 29,8%, dan revenue CAGR 18,8% selama 3 tahun.",
-    "ticker": null,
+    "ticker": "CMRY",
     "sector": "&#129371; Premium Consumer",
     "revenue": "Rp3,12T",
     "patmi": "+16%",
@@ -80,7 +80,7 @@
   {
     "title": "PT Avia Avian Tbk",
     "subtitle": "Market leader cat nasional 26% pangsa pasar. 129 DC milik sendiri, 99 kota, pabrik baru Cirebon 225.000 ton/tahun. Neraca ultra-bersih DER 0,16x.",
-    "ticker": null,
+    "ticker": "AVIA",
     "sector": "&#127912; Cat Dekoratif",
     "revenue": "Rp2,36T",
     "patmi": "+17%",
