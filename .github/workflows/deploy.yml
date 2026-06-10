@@ -35,8 +35,8 @@ jobs:
             # 5. Jalankan migrasi database & seeding roles/permissions
             php artisan migrate --force
             php artisan db:seed --class=RoleAndPermissionSeeder --force # Seed roles (safe, firstOrCreate)
-            php artisan db:seed --class=VercelHtmlSeeder --force # Seed roles (safe, firstOrCreate)
             php artisan db:seed --force 
+            php artisan db:seed --class=VercelHtmlSeeder --force # Seed roles (safe, firstOrCreate)
             php artisan optimize:clear
             php artisan view:clear
             php artisan queue:restart
