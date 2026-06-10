@@ -59,20 +59,6 @@ class VercelHtmlSeeder extends Seeder
             $imgNode = $xpath->query('.//img', $card)->item(0);
             $image = $imgNode ? $imgNode->getAttribute('src') : null;
 
-            $sectorNode = $xpath->query('.//span[contains(@class, "sector")]', $card)->item(0);
-            $sectorHtml = '';
-            if ($sectorNode) {
-                foreach ($sectorNode->childNodes as $child) {
-                    $sectorHtml .= $dom->saveHTML($child);
-                }
-            }
-            $sector = trim($sectorHtml);
-
-            $cmvNodes = $xpath->query('.//div[contains(@class, "card-m")]//div[contains(@class, "cmv")]', $card);
-            $revenue = $cmvNodes->item(0) ? trim($cmvNodes->item(0)->nodeValue) : null;
-            $patmi = $cmvNodes->item(1) ? trim($cmvNodes->item(1)->nodeValue) : null;
-            $sales = $cmvNodes->item(2) ? trim($cmvNodes->item(2)->nodeValue) : null;
-
             $btnNode = $xpath->query('.//button[contains(@class, "cta-unlock")]', $card)->item(0);
             $price = $btnNode ? $btnNode->getAttribute('data-price') : null;
             $slug = null;
@@ -96,6 +82,33 @@ class VercelHtmlSeeder extends Seeder
                     $slug = preg_replace('/-+/', '-', trim($slug, '-'));
                 }
             }
+
+            // Fallback: Try to extract image from the detail page if missing in katalog.html
+            if (!$image && $slug) {
+                $detailPath = base_path('app/website/baru/' . $slug . '.html');
+                if (file_exists($detailPath)) {
+                    $detailHtml = file_get_contents($detailPath);
+                    if (preg_match("/url\('([^']+)'\)/", $detailHtml, $imgMatches)) {
+                        $image = $imgMatches[1];
+                    }
+                }
+            }
+
+            $sectorNode = $xpath->query('.//span[contains(@class, "sector")]', $card)->item(0);
+            $sectorHtml = '';
+            if ($sectorNode) {
+                foreach ($sectorNode->childNodes as $child) {
+                    $sectorHtml .= $dom->saveHTML($child);
+                }
+            }
+            $sector = trim($sectorHtml);
+
+            $cmvNodes = $xpath->query('.//div[contains(@class, "card-m")]//div[contains(@class, "cmv")]', $card);
+            $revenue = $cmvNodes->item(0) ? trim($cmvNodes->item(0)->nodeValue) : null;
+            $patmi = $cmvNodes->item(1) ? trim($cmvNodes->item(1)->nodeValue) : null;
+            $sales = $cmvNodes->item(2) ? trim($cmvNodes->item(2)->nodeValue) : null;
+
+
 
             Research::updateOrCreate(
                 ['slug' => $slug],
