@@ -86,6 +86,7 @@ class HomeController extends Controller
         // Cek DB dulu sesuai permintaan user
         $content = $research->content;
 
+        $html = '';
         if (empty($content)) {
             // Baca konten dari file HTML di app/website/{slug}.html
             $filePath = storage_path("app/website/{$slug}.html");
@@ -156,6 +157,15 @@ class HomeController extends Controller
             $content = '<div class="art-body"><p>Detail laporan riset <strong>' 
                 . htmlspecialchars($research->title) . ' (' . htmlspecialchars($research->ticker ?? '') . ')'
                 . '</strong> sedang dalam proses migrasi ke platform baru.</p></div>';
+        } else if (!empty($html)) {
+            // Extract styles from head to preserve custom styling (like hero banners)
+            if (preg_match('/<head[\s>](.*?)<\/head>/is', $html, $headMatch)) {
+                preg_match_all('/<style[^>]*>.*?<\/style>/is', $headMatch[1], $styleMatches);
+                if (!empty($styleMatches[0])) {
+                    $headStyles = implode("\n", $styleMatches[0]);
+                    $content = $headStyles . "\n" . $content;
+                }
+            }
         }
 
         $content = $this->cleanHtmlForDarkMode($content);

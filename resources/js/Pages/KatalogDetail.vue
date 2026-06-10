@@ -101,8 +101,8 @@ const formattedPrice = computed(() => {
       </div>
 
       <!-- ─── CONTENT AREA ──────────────────────────────── -->
-      <div class="kdp-content-area">
-        <div class="kdp-container">
+      <div class="kdp-content-area" :class="{ 'is-custom': hasCustomHtml || hasCustomHero }">
+        <div :class="{ 'kdp-container': !hasCustomHtml && !hasCustomHero }">
           <div class="guest-lock-wrap" :class="{ 'is-guest': isLocked }">
 
             <!-- Article HTML Content -->
@@ -315,6 +315,9 @@ const formattedPrice = computed(() => {
   padding: 48px 0 80px;
   position: relative;
   z-index: 2;
+}
+.kdp-content-area.is-custom {
+  padding-top: 0;
 }
 
 /* Guest lock */
