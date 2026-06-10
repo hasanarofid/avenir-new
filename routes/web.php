@@ -58,15 +58,12 @@ Route::middleware('auth')->group(function () {
 });
 
 // Mitra Routes
-// 1. Route registrasi mitra dipisah dan TIDAK menggunakan middleware auth
-Route::prefix('mitra')->name('mitra.')->group(function () {
+Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {
+    // 1. Route registrasi mitra (Wajib login tapi belum tentu role mitra)
     Route::get('/register', [\App\Http\Controllers\MitraController::class, 'create'])->name('register');
     Route::post('/register', [\App\Http\Controllers\MitraController::class, 'store'])->name('register.store');
-});
 
-// 2. Route mitra lainnya yang WAJIB login tetap di dalam middleware auth
-Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {
-    // Route mitra yang butuh role 'mitra'
+    // 2. Route mitra lainnya yang butuh role 'mitra'
     Route::middleware(['role:mitra'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\MitraController::class, 'dashboard'])->name('dashboard');
         Route::get('/researches', [\App\Http\Controllers\MitraController::class, 'researches'])->name('researches');
@@ -84,6 +81,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     
     // Payments
     Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
+    Route::post('/payments/{id}/verify', [\App\Http\Controllers\Admin\PaymentController::class, 'verify'])->name('payments.verify');
+    Route::post('/payments/{id}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
 
     // Mitra Analis
     Route::get('/mitra', [\App\Http\Controllers\Admin\MitraController::class, 'index'])->name('mitra.index');

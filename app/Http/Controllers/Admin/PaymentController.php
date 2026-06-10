@@ -25,4 +25,41 @@ class PaymentController extends Controller
             'payments' => $payments
         ]);
     }
+
+    public function verify(Request $request, $id)
+    {
+        $payment = \App\Models\PaymentSubmission::findOrFail($id);
+        
+        $payment->update([
+            'status' => 'verified',
+            'verified_at' => now(),
+            'verified_by' => auth()->id()
+        ]);
+
+        // Assign role 'subscriber' to user
+        $user = \App\Models\User::find($payment->user_id);
+        if ($user) {
+            $user->assignRole('subscriber');
+            
+            // Juga update user_profiles if needed, tp role yg utama.
+            \Illuminate\Support\Facades\DB::table('user_profiles')
+                ->where('user_id', $user->id)
+                ->update(['is_subscriber' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi.');
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $payment = \App\Models\PaymentSubmission::findOrFail($id);
+        
+        $payment->update([
+            'status' => 'rejected',
+            'verified_at' => now(),
+            'verified_by' => auth()->id()
+        ]);
+
+        return redirect()->back()->with('success', 'Pembayaran ditolak.');
+    }
 }

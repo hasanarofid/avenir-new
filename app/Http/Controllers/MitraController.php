@@ -91,6 +91,6 @@ class MitraController extends Controller
             ]
         );
 
-        return redirect()->route('mitra.dashboard')->with('success', 'Pendaftaran berhasil dikirim! Silakan tunggu verifikasi dari tim kami.');
+        return redirect('/')->with('success', 'Pendaftaran berhasil dikirim! Silakan tunggu verifikasi dari tim kami. Anda akan dihubungi jika disetujui.');
     }
 }

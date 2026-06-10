@@ -46,6 +46,9 @@ class RoleAndPermissionSeeder extends Seeder
         $mitraRole = Role::findOrCreate('mitra', 'web');
         $mitraRole->givePermissionTo(['create articles', 'edit articles']);
         
+        // Role untuk Subscriber (Pengguna Berbayar)
+        Role::findOrCreate('subscriber', 'web');
+        
         // Role untuk User Biasa
         Role::findOrCreate('user', 'web');
     }

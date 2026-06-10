@@ -13,17 +13,13 @@ class VercelHtmlSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('Syncing Vercel HTML data...');
-        Artisan::call('avenir:sync-html');
-        $this->command->info(Artisan::output());
-
         $this->command->info('Parsing katalog.html to update Research data...');
         $this->parseAndSeedKatalog();
     }
 
     private function parseAndSeedKatalog()
     {
-        $katalogPath = storage_path('app/website/katalog.html');
+        $katalogPath = base_path('app/website/baru/katalog.html');
         if (!file_exists($katalogPath)) {
             $this->command->error("File katalog.html tidak ditemukan di {$katalogPath}");
             return;

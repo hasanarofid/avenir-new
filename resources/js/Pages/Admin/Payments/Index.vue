@@ -1,6 +1,6 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { FileText } from '@lucide/vue';
 
 const props = defineProps({
@@ -58,12 +58,12 @@ function formatRupiah(number) {
             </div>
             
             <div class="flex gap-2">
-              <button v-if="p.status === 'pending'" class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white text-xs font-semibold rounded-lg transition-all">
+              <Link v-if="p.status === 'pending'" :href="route('admin.payments.verify', p.id)" method="post" as="button" class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white text-xs font-semibold rounded-lg transition-all">
                 Verifikasi
-              </button>
-              <button v-if="p.status === 'pending'" class="px-3 py-1.5 bg-[#090b0a] border border-rose-500/30 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-semibold rounded-lg transition-all">
+              </Link>
+              <Link v-if="p.status === 'pending'" :href="route('admin.payments.reject', p.id)" method="post" as="button" class="px-3 py-1.5 bg-[#090b0a] border border-rose-500/30 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-semibold rounded-lg transition-all">
                 Tolak
-              </button>
+              </Link>
             </div>
           </div>
 
