@@ -38,7 +38,7 @@ const formattedPrice = computed(() => {
   <Head :title="`${research.ticker ? research.ticker + ' — ' : ''}${research.title} | Avenir Research`" />
 
   <AppLayout>
-    <div :id="'page-' + research.slug" class="kdp-page">
+    <div :id="'page-' + research.slug" class="kdp-page" :class="{ 'has-custom-content': hasCustomHtml || hasCustomHero }">
       <!-- Background glows -->
       <div class="kdp-glow kdp-glow-tr"></div>
       <div class="kdp-glow kdp-glow-bl"></div>
@@ -318,6 +318,7 @@ const formattedPrice = computed(() => {
 }
 .kdp-content-area.is-custom {
   padding-top: 0;
+  background-color: #f8fafc; /* Slate 50 - Putih abu2 muda agar teks terbaca */
 }
 
 /* Guest lock */
@@ -400,23 +401,23 @@ const formattedPrice = computed(() => {
 .gl-link a:hover { text-decoration: underline; }
 
 /* ── Fallback content (non-art-page) ── */
-.kdp-page .guest-lock-content,
-.kdp-page .db-content {
+.kdp-page:not(.has-custom-content) .guest-lock-content,
+.kdp-page:not(.has-custom-content) .db-content {
   font-size: 16px !important; line-height: 1.85 !important;
   color: #cbd5e1 !important;
 }
-.kdp-page .guest-lock-content p,
-.kdp-page .db-content p {
+.kdp-page:not(.has-custom-content) .guest-lock-content p,
+.kdp-page:not(.has-custom-content) .db-content p {
   margin: 0 0 24px !important;
 }
-.kdp-page .guest-lock-content h2 {
+.kdp-page:not(.has-custom-content) .guest-lock-content h2 {
   font-family: 'Roboto', sans-serif !important;
   font-size: 26px !important; font-weight: 600 !important;
   color: #fff; margin: 44px 0 18px !important;
   padding-top: 24px !important;
   border-top: 1px solid rgba(255,255,255,0.05) !important;
 }
-.kdp-page .guest-lock-content strong { color: #fff; }
+.kdp-page:not(.has-custom-content) .guest-lock-content strong { color: #fff; }
 
 /* ── HTML art-page content overrides ── */
 .kdp-page .art-page {
