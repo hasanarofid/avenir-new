@@ -318,7 +318,7 @@ const formattedPrice = computed(() => {
 }
 .kdp-content-area.is-custom {
   padding-top: 0;
-  background-color: #f8fafc; /* Slate 50 - Putih abu2 muda agar teks terbaca */
+  background-color: var(--bg, #f8fafc); /* Menggunakan --bg kustom dari HTML/CSS jika ada, fallback ke Slate 50 */
 }
 
 /* Guest lock */
