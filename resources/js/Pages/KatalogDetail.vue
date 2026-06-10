@@ -23,6 +23,11 @@ const hasCustomHtml = computed(() => {
     return props.research.content && props.research.content.includes('art-page');
 });
 
+// Deteksi apakah konten bawaan (migrasi) memiliki .hero sendiri
+const hasCustomHero = computed(() => {
+    return props.research.content && (props.research.content.includes('class="hero"') || props.research.content.includes("class='hero'"));
+});
+
 const formattedPrice = computed(() => {
     if (!props.research.price) return null;
     return Number(props.research.price).toLocaleString('id-ID');
@@ -33,13 +38,13 @@ const formattedPrice = computed(() => {
   <Head :title="`${research.ticker ? research.ticker + ' — ' : ''}${research.title} | Avenir Research`" />
 
   <AppLayout>
-    <div class="kdp-page">
+    <div :id="'page-' + research.slug" class="kdp-page">
       <!-- Background glows -->
       <div class="kdp-glow kdp-glow-tr"></div>
       <div class="kdp-glow kdp-glow-bl"></div>
 
       <!-- ─── HERO BANNER ─────────────────────────────────── -->
-      <div class="kdp-hero-banner">
+      <div v-if="!hasCustomHero" class="kdp-hero-banner">
         <div class="kdp-container">
 
           <!-- Breadcrumb -->
