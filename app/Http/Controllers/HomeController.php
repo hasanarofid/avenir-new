@@ -88,7 +88,7 @@ class HomeController extends Controller
 
         if (empty($content)) {
             // Baca konten dari file HTML di app/website/{slug}.html
-            $filePath = base_path("app/website/{$slug}.html");
+            $filePath = storage_path("app/website/{$slug}.html");
 
             if (file_exists($filePath)) {
                 $html = file_get_contents($filePath);
@@ -287,7 +287,7 @@ class HomeController extends Controller
      */
     private function getArticleContent($slug)
     {
-        $filePath = base_path("app/website/artikel-{$slug}.html");
+        $filePath = storage_path("app/website/artikel-{$slug}.html");
         if (!file_exists($filePath)) {
             return null;
         }
@@ -386,7 +386,7 @@ class HomeController extends Controller
 
         // Legacy check / fallback
         if (!$article) {
-            $filePath = base_path("app/website/{$slug}.html");
+            $filePath = storage_path("app/website/{$slug}.html");
             if (file_exists($filePath)) {
                 $html = file_get_contents($filePath);
                 $content = null;
