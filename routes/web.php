@@ -58,10 +58,14 @@ Route::middleware('auth')->group(function () {
 });
 
 // Mitra Routes
-Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {
+// 1. Route registrasi mitra dipisah dan TIDAK menggunakan middleware auth
+Route::prefix('mitra')->name('mitra.')->group(function () {
     Route::get('/register', [\App\Http\Controllers\MitraController::class, 'create'])->name('register');
     Route::post('/register', [\App\Http\Controllers\MitraController::class, 'store'])->name('register.store');
-    
+});
+
+// 2. Route mitra lainnya yang WAJIB login tetap di dalam middleware auth
+Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {
     // Route mitra yang butuh role 'mitra'
     Route::middleware(['role:mitra'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\MitraController::class, 'dashboard'])->name('dashboard');
@@ -69,6 +73,7 @@ Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () 
         Route::get('/profile', [\App\Http\Controllers\MitraController::class, 'profile'])->name('profile');
     });
 });
+
 
 // Admin CMS Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {

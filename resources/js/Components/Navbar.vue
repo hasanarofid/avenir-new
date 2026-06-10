@@ -18,7 +18,8 @@ const companyDropdownOpen = ref(false);
 const isHomePage = computed(() => [
   'Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 
   'About', 'Partners', 'Subscription', 'KatalogDetail', 'EmitenHub/Index', 
-  'EmitenHub/Show', 'Watchlist/Index', 'KIBrief/Index', 'Disclosure/Index'
+  'EmitenHub/Show', 'Watchlist/Index', 'KIBrief/Index', 'Disclosure/Index',
+  'Mitra/Register'
 ].includes(page.component));
 
 const handleLogout = () => {
@@ -158,7 +159,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
 
           <!-- Company Dropdown -->
           <div class="nav-dropdown-wrap" @mouseenter="companyDropdownOpen = true" @mouseleave="companyDropdownOpen = false">
-            <button class="nav-link dropdown-toggle" :class="{ active: ['About', 'Partners'].includes($page.component) }">
+            <button class="nav-link dropdown-toggle" :class="{ active: ['About', 'Partners', 'Mitra/Register'].includes($page.component) }">
               About
               <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
             </button>

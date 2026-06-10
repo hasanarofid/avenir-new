@@ -7,7 +7,7 @@ const form = useForm({
     specializations: '',
     portfolio_link: '',
     bank_name: '',
-    bank_account_number: '',
+    bank_account_number: '',  
     bank_account_name: '',
 });
 

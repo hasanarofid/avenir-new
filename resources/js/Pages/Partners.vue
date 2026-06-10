@@ -12,13 +12,13 @@ const props = defineProps({
 });
 
 function handleDaftarClick() {
-  if (user.value) {
+ // if (user.value) {
     // User sudah login, langsung ke register mitra
     router.visit(route('mitra.register'));
-  } else {
+  //} else {
     // User belum login, buka auth modal dengan redirect ke mitra register
-    authStore.open('register', route('mitra.register'));
-  }
+    //authStore.open('register', route('mitra.register'));
+  //}
 }
 
 // Fallback mock data if database has no verified partners yet
