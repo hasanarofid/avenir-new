@@ -56,6 +56,7 @@ class DatabaseSeeder extends Seeder
             
             // === Seeder Emiten Demo ===
             DmasSeeder::class,
+            BBRITickerSeeder::class,
 
             // === Sinkronisasi Data Vercel HTML ===
             VercelHtmlSeeder::class,
