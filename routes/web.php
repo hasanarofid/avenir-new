@@ -57,9 +57,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Public/Guest Mitra Register Routes
-Route::get('/mitra/register', [\App\Http\Controllers\MitraController::class, 'create'])->name('mitra.register');
-Route::post('/mitra/register', [\App\Http\Controllers\MitraController::class, 'store'])->name('mitra.register.store');
+// Authenticated Mitra Register Routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/mitra/register', [\App\Http\Controllers\MitraController::class, 'create'])->name('mitra.register');
+    Route::post('/mitra/register', [\App\Http\Controllers\MitraController::class, 'store'])->name('mitra.register.store');
+});
 
 // Authenticated Mitra Routes
 Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () {

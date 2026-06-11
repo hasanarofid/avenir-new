@@ -10,14 +10,10 @@ const showPassword = ref(false);
 const showPasswordConfirmation = ref(false);
 
 const form = useForm({
-    first_name: '',
-    last_name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
     certification: '',
     specializations: '',
     portfolio_link: '',
+    portfolio_pdf: null,
     bank_name: '',
     bank_account_number: '',  
     bank_account_name: '',
@@ -55,121 +51,7 @@ const submit = () => {
           </div>
 
           <form @submit.prevent="submit" class="register-form">
-            <!-- Guest Registration Section -->
-            <div v-if="!user" class="guest-register-fields">
-              <div class="form-header">Informasi Akun</div>
-              
-              <div class="form-row-2col">
-                <div class="form-group">
-                  <label for="first_name">Nama Depan <span class="required">*</span></label>
-                  <input 
-                    id="first_name" 
-                    v-model="form.first_name" 
-                    type="text" 
-                    placeholder="Nama Depan" 
-                    class="form-input" 
-                    :required="!user" 
-                  />
-                  <div v-if="form.errors.first_name" class="error-msg">{{ form.errors.first_name }}</div>
-                </div>
-
-                <div class="form-group">
-                  <label for="last_name">Nama Belakang <span class="required">*</span></label>
-                  <input 
-                    id="last_name" 
-                    v-model="form.last_name" 
-                    type="text" 
-                    placeholder="Nama Belakang" 
-                    class="form-input" 
-                    :required="!user" 
-                  />
-                  <div v-if="form.errors.last_name" class="error-msg">{{ form.errors.last_name }}</div>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="email">Email <span class="required">*</span></label>
-                <input 
-                  id="email" 
-                  v-model="form.email" 
-                  type="email" 
-                  placeholder="email@anda.com" 
-                  class="form-input" 
-                  :required="!user" 
-                />
-                <div v-if="form.errors.email" class="error-msg">{{ form.errors.email }}</div>
-              </div>
-
-              <div class="form-row-2col">
-                <div class="form-group">
-                  <label for="password">Password <span class="required">*</span></label>
-                  <div class="password-input-wrapper">
-                    <input 
-                      id="password" 
-                      v-model="form.password" 
-                      :type="showPassword ? 'text' : 'password'" 
-                      placeholder="Min. 8 karakter" 
-                      class="form-input" 
-                      :required="!user" 
-                    />
-                    <button 
-                      type="button" 
-                      class="toggle-password-btn" 
-                      @click="showPassword = !showPassword"
-                      tabindex="-1"
-                      aria-label="Toggle password visibility"
-                    >
-                      <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                      <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                        <path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
-                        <line x1="2" y1="2" x2="22" y2="22"/>
-                      </svg>
-                    </button>
-                  </div>
-                  <div v-if="form.errors.password" class="error-msg">{{ form.errors.password }}</div>
-                </div>
-
-                <div class="form-group">
-                  <label for="password_confirmation">Konfirmasi Password <span class="required">*</span></label>
-                  <div class="password-input-wrapper">
-                    <input 
-                      id="password_confirmation" 
-                      v-model="form.password_confirmation" 
-                      :type="showPasswordConfirmation ? 'text' : 'password'" 
-                      placeholder="Ulangi password" 
-                      class="form-input" 
-                      :required="!user" 
-                    />
-                    <button 
-                      type="button" 
-                      class="toggle-password-btn" 
-                      @click="showPasswordConfirmation = !showPasswordConfirmation"
-                      tabindex="-1"
-                      aria-label="Toggle password confirmation visibility"
-                    >
-                      <svg v-if="showPasswordConfirmation" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                      <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                        <path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
-                        <line x1="2" y1="2" x2="22" y2="22"/>
-                      </svg>
-                    </button>
-                  </div>
-                  <div v-if="form.errors.password_confirmation" class="error-msg">{{ form.errors.password_confirmation }}</div>
-                </div>
-              </div>
-
-              <div class="divider-line"></div>
-            </div>
+            <!-- User must be authenticated to see this form -->
 
             <div class="form-header">Data Pribadi & Kredensial</div>
 
@@ -204,17 +86,35 @@ const submit = () => {
               </div>
             </div>
 
-            <!-- Portfolio Link -->
-            <div class="form-group">
-              <label for="portfolio_link">Link Portfolio (Opsional)</label>
-              <input 
-                id="portfolio_link" 
-                v-model="form.portfolio_link" 
-                type="url" 
-                placeholder="https://linkedin.com/in/yourprofile" 
-                class="form-input" 
-              />
-              <div v-if="form.errors.portfolio_link" class="error-msg">{{ form.errors.portfolio_link }}</div>
+            <!-- Portfolio Link or PDF -->
+            <div class="form-header" style="margin-top: 32px;">Portofolio <span class="required">*</span></div>
+            <p class="hint" style="margin-top: -20px; margin-bottom: 24px; color: #64748b; font-size: 11.5px;">Pilih salah satu: lampirkan link profil/trid atau upload PDF paper riset.</p>
+            
+            <div class="form-row-2col">
+              <div class="form-group">
+                <label for="portfolio_link">Link Portofolio</label>
+                <input 
+                  id="portfolio_link" 
+                  v-model="form.portfolio_link" 
+                  type="url" 
+                  placeholder="https://linkedin.com/in/yourprofile" 
+                  class="form-input" 
+                />
+                <div v-if="form.errors.portfolio_link" class="error-msg">{{ form.errors.portfolio_link }}</div>
+              </div>
+
+              <div class="form-group">
+                <label for="portfolio_pdf">Atau Upload PDF Paper Riset</label>
+                <input 
+                  id="portfolio_pdf" 
+                  type="file"
+                  accept=".pdf"
+                  @input="form.portfolio_pdf = $event.target.files[0]"
+                  class="form-input" 
+                  style="padding: 11px 16px;"
+                />
+                <div v-if="form.errors.portfolio_pdf" class="error-msg">{{ form.errors.portfolio_pdf }}</div>
+              </div>
             </div>
 
             <div class="divider-line"></div>

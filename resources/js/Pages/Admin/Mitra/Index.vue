@@ -170,8 +170,10 @@ function deleteMitra(id) {
             <div>
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Portfolio</div>
               <div class="text-sm font-semibold text-slate-300">
-                <a v-if="m.portfolio_link" :href="m.portfolio_link" target="_blank" class="text-emerald-400 hover:underline">Lihat</a>
-                <span v-else>-</span>
+                <a v-if="m.portfolio_link" :href="m.portfolio_link" target="_blank" class="text-emerald-400 hover:underline">Lihat Link</a>
+                <span v-if="m.portfolio_link && m.portfolio_pdf"> | </span>
+                <a v-if="m.portfolio_pdf" :href="'/storage/' + m.portfolio_pdf" target="_blank" class="text-amber-400 hover:underline">Unduh PDF</a>
+                <span v-if="!m.portfolio_link && !m.portfolio_pdf">-</span>
               </div>
             </div>
             <div class="col-span-2 md:col-span-4">

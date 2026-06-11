@@ -60,41 +60,32 @@ class MitraController extends Controller
 
     public function create()
     {
-        if (Auth::check()) {
-            /** @var \App\Models\User $user */
-            $user = Auth::user();
-            if ($user->partner) {
-                if ($user->partner->is_verified) {
-                    return redirect()->route('mitra.dashboard');
-                }
-                return redirect('/profile')->with('info', 'Anda sudah melakukan pengajuan pendaftaran mitra.');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if ($user->partner) {
+            if ($user->partner->is_verified) {
+                return redirect()->route('mitra.dashboard');
             }
+            return redirect('/profile')->with('info', 'Anda sudah melakukan pengajuan pendaftaran mitra.');
         }
         return Inertia::render('Mitra/Register');
     }
 
     public function store(Request $request)
     {
-        if (Auth::check() && Auth::user()->partner) {
+        if (Auth::user()->partner) {
             return redirect('/profile')->with('info', 'Anda sudah melakukan pengajuan pendaftaran mitra.');
         }
 
         $rules = [
             'certification' => 'required|string|max:255',
             'specializations' => 'required|string|max:255',
-            'portfolio_link' => 'nullable|url|max:255',
+            'portfolio_link' => 'required_without:portfolio_pdf|nullable|url|max:255',
+            'portfolio_pdf' => 'required_without:portfolio_link|nullable|file|mimes:pdf|max:10240',
             'bank_name' => 'required|string|max:255',
             'bank_account_number' => 'required|string|max:255',
             'bank_account_name' => 'required|string|max:255',
         ];
-
-        // If user is not authenticated, validate basic registration fields
-        if (!Auth::check()) {
-            $rules['first_name'] = 'required|string|max:255';
-            $rules['last_name'] = 'required|string|max:255';
-            $rules['email'] = 'required|string|email|max:255|unique:users';
-            $rules['password'] = 'required|string|min:8|confirmed';
-        }
 
         $validator = Validator::make($request->all(), $rules);
 
@@ -106,30 +97,10 @@ class MitraController extends Controller
             \Illuminate\Support\Facades\DB::beginTransaction();
 
             $userId = Auth::id();
-
-            if (!$userId) {
-                // Register new user first
-                $user = new \App\Models\User();
-                $user->name = trim($request->first_name . ' ' . $request->last_name);
-                $user->email = $request->email;
-                $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
-                $user->save();
-
-                // Assign default role
-                $user->assignRole('user');
-
-                // Create profile record
-                \Illuminate\Support\Facades\DB::table('user_profiles')->insert([
-                    'user_id' => $user->id,
-                    'first_name' => $request->first_name,
-                    'last_name' => $request->last_name,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                // Automatically log in the user
-                Auth::login($user);
-                $userId = $user->id;
+            
+            $portfolioPdfPath = null;
+            if ($request->hasFile('portfolio_pdf')) {
+                $portfolioPdfPath = $request->file('portfolio_pdf')->store('portfolios', 'public');
             }
 
             // Create/update partner request
@@ -139,6 +110,7 @@ class MitraController extends Controller
                     'certification' => $request->certification,
                     'specializations' => array_map('trim', explode(',', $request->specializations)),
                     'portfolio_link' => $request->portfolio_link,
+                    'portfolio_pdf' => $portfolioPdfPath,
                     'bank_name' => $request->bank_name,
                     'bank_account_number' => $request->bank_account_number,
                     'bank_account_name' => $request->bank_account_name,

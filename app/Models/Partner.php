@@ -12,6 +12,7 @@ class Partner extends Model
         'certification',
         'specializations',
         'portfolio_link',
+        'portfolio_pdf',
         'bank_name',
         'bank_account_number',
         'bank_account_name',
