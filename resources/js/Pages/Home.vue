@@ -1,7 +1,116 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { authStore } from '@/Stores/authStore';
+import { ref, computed } from 'vue';
+
+const props = defineProps({
+  risetUnggulan: {
+    type: Array,
+    default: () => []
+  },
+  insightTerbaru: {
+    type: Array,
+    default: () => []
+  },
+  headlinesPasar: {
+    type: Array,
+    default: () => []
+  }
+});
+
+// Mock/Default fallback data for the 3 dashboard columns on the landing page
+const defaultRiset = [
+  {
+    ticker: 'BBCA IJ',
+    name: 'Bank Central Asia Tbk',
+    sector: 'Perbankan',
+    targetPrice: 'Rp 11,600',
+    upside: '+18.7%',
+    rating: 'BUY',
+    date: '14 Mei 2025'
+  },
+  {
+    ticker: 'TLKM IJ',
+    name: 'Telkom Indonesia Tbk',
+    sector: 'Telekomunikasi',
+    targetPrice: 'Rp 4,250',
+    upside: '+16.2%',
+    rating: 'BUY',
+    date: '12 Mei 2025'
+  },
+  {
+    ticker: 'ASII IJ',
+    name: 'Astra International Tbk',
+    sector: 'Otomotif',
+    targetPrice: 'Rp 5,850',
+    upside: '+8.3%',
+    rating: 'HOLD',
+    date: '9 Mei 2025'
+  }
+];
+
+const defaultInsight = [
+  {
+    title: 'Outlook IHSG: Menguji Resistance 7,400, Apa Sinyalnya?',
+    date: '15 Mei 2025',
+    gradient: 'from-blue-950/60 to-emerald-950/60',
+    image: '/images/articles/outlook_ihsg.png'
+  },
+  {
+    title: 'BI Tahan Suku Bunga, Stabilitas Rupiah Jadi Kunci',
+    date: '14 Mei 2025',
+    gradient: 'from-cyan-950/60 to-blue-950/60',
+    image: '/images/articles/rupiah_chart.png'
+  },
+  {
+    title: 'Banking Sector: Kredit Tumbuh, NIM Masih Terjaga',
+    date: '13 Mei 2025',
+    gradient: 'from-teal-950/60 to-emerald-950/60',
+    image: '/images/articles/banking_sector.png'
+  }
+];
+
+const defaultHeadlines = [
+  { ticker: 'BBRI', text: 'BBRI Catat Laba Q1 2025 Naik 12% YoY', time: '09:12' },
+  { ticker: 'BMRI', text: 'BMRI Salurkan Kredit Rp 620 T di Q1 2025', time: '08:48' },
+  { ticker: 'TLKM', text: 'TLKM Siapkan Spin-off Bisnis Data Center', time: '08:31' },
+  { ticker: 'MDKA', text: 'MDKA Akuisisi Tambang Emas Baru', time: '08:05' },
+  { ticker: 'IHSG', text: 'IHSG Menguat 1.35% ke Level 7,275', time: '07:45' }
+];
+
+const risetUnggulan = computed(() => {
+  if (!props.risetUnggulan || props.risetUnggulan.length === 0) {
+    return defaultRiset;
+  }
+  const merged = [...props.risetUnggulan];
+  while (merged.length < 3) {
+    merged.push(defaultRiset[merged.length % defaultRiset.length]);
+  }
+  return merged.slice(0, 3);
+});
+
+const insightTerbaru = computed(() => {
+  if (!props.insightTerbaru || props.insightTerbaru.length === 0) {
+    return defaultInsight;
+  }
+  const merged = [...props.insightTerbaru];
+  while (merged.length < 3) {
+    merged.push(defaultInsight[merged.length % defaultInsight.length]);
+  }
+  return merged.slice(0, 3);
+});
+
+const headlinesPasar = computed(() => {
+  if (!props.headlinesPasar || props.headlinesPasar.length === 0) {
+    return defaultHeadlines;
+  }
+  const merged = [...props.headlinesPasar];
+  while (merged.length < 5) {
+    merged.push(defaultHeadlines[merged.length % defaultHeadlines.length]);
+  }
+  return merged.slice(0, 5);
+});
 </script>
 
 <template>
@@ -18,11 +127,6 @@ import { authStore } from '@/Stores/authStore';
         <div class="hero-container">
           <!-- Left Column: Copy & Actions -->
           <div class="hero-content">
-            <div class="hero-tag">
-              <span class="hero-tag-dot"></span>
-              RISET EKUITAS · LANGGANAN PROFESIONAL
-            </div>
-            
             <h1 class="hero-title">
               Riset Saham Kelas <br />
               <span class="text-green-glow">Institusi</span> untuk <br />
@@ -30,41 +134,30 @@ import { authStore } from '@/Stores/authStore';
             </h1>
             
             <p class="hero-lead">
-              Berlangganan untuk akses penuh ke katalog riset ekuitas mendalam dan artikel pasar yang ditulis analis bersertifikasi — semuanya berbasis Annual Report audited.
+              Akses riset ekuitas mendalam dengan data audited, analisis bersertifikasi, dan insight pasar yang relevan untuk keputusan investasi yang lebih cerdas.
             </p>
             
             <div class="hero-cta-group">
               <button class="btn-primary-green" @click="authStore.open('register')">
-                Berlangganan sekarang
+                Berlangganan Sekarang
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="inline-block ml-1">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
               </button>
-              <Link href="/katalog" class="btn-secondary-outline">
-                Coba demo gratis
-              </Link>
-            </div>
-
-            <!-- Mini Stats Grid -->
-            <div class="hero-stats">
-              <div class="stat-item">
-                <span class="stat-num">13<span class="stat-unit"> Riset</span></span>
-                <span class="stat-label">Di Katalog</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-num">4<span class="stat-unit"> Tahun</span></span>
-                <span class="stat-label">Data Audited</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-num">DCF<span class="stat-unit">/FCFE</span></span>
-                <span class="stat-label">Model Valuasi</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-num">100<span class="stat-unit">%</span></span>
-                <span class="stat-label">Annual Report</span>
-              </div>
+              <button class="btn-secondary-outline" @click="router.visit('/katalog')">
+                <span class="play-icon-circle">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor" class="play-icon-svg">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                </span>
+                Coba Demo Gratis
+              </button>
             </div>
           </div>
 
           <!-- Right Column: Premium Mockup Graphic -->
           <div class="hero-graphics">
+            <div class="laptop-glow"></div>
             <div class="mockup-container">
               <img src="/images/hero_laptop.png" alt="Avenir Terminal Mockup" class="laptop-img" />
               <!-- Background stock chart animation decorative element -->
@@ -85,176 +178,78 @@ import { authStore } from '@/Stores/authStore';
         </div>
       </section>
 
-      <!-- RINGKASAN UTAMA (CATEGORY CARDS GRID) -->
-      <section class="summary-section">
+      <!-- STATS ROW BANNER -->
+      <section class="stats-row-section">
         <div class="section-container">
-          <div class="summary-header">
-            <h2 class="section-title">Ringkasan Utama</h2>
-            <p class="section-subtitle">Akses laporan analisis mendalam berdasarkan kategori riset pilihan</p>
-          </div>
-          
-          <div class="category-grid">
-            <!-- Card 1: Makroekonomi -->
-            <div class="category-card" @click="window.location.href='/katalog?cat=macro'">
-              <div class="card-header">
-                <div class="icon-wrapper">
-                  <svg viewBox="0 0 100 100" class="art-svg-icon">
-                    <path d="M20,80 L35,65 L50,70 L70,45 L85,30" stroke="#22c55e" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="85" cy="30" r="4" fill="#22c55e"/>
-                    <path d="M20,80 L35,65 L50,70 L70,45 L85,30 L85,80 L20,80 Z" fill="url(#macro-grad)" opacity="0.1"/>
-                    <defs>
-                      <linearGradient id="macro-grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#22c55e" stop-opacity="0.8"/>
-                        <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
-                      </linearGradient>
-                    </defs>
+          <div class="stats-banner-card">
+            <div class="stats-grid-row">
+              <!-- Stat 1 -->
+              <div class="stat-row-item">
+                <div class="stat-icon-box">
+                  <!-- Chart Icon -->
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
                   </svg>
                 </div>
-                <span class="card-num">01</span>
-              </div>
-              <div class="card-body">
-                <h3 class="card-name">Makroekonomi</h3>
-                <p class="card-desc">Analisis indikator ekonomi makro, inflasi, suku bunga, dan kebijakan moneter.</p>
-              </div>
-              <div class="card-arrow">
-                <span>Lihat Riset</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-
-            <!-- Card 2: Sektor & Industri -->
-            <div class="category-card" @click="window.location.href='/katalog?cat=sector'">
-              <div class="card-header">
-                <div class="icon-wrapper">
-                  <svg viewBox="0 0 100 100" class="art-svg-icon">
-                    <rect x="25" y="55" width="12" height="25" rx="2" fill="none" stroke="#22c55e" stroke-width="2.5"/>
-                    <rect x="44" y="40" width="12" height="40" rx="2" fill="none" stroke="#22c55e" stroke-width="2.5"/>
-                    <rect x="63" y="25" width="12" height="55" rx="2" fill="none" stroke="#22c55e" stroke-width="2.5"/>
-                    <path d="M15,80 L85,80" stroke="rgba(34, 197, 94, 0.2)" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                </div>
-                <span class="card-num">02</span>
-              </div>
-              <div class="card-body">
-                <h3 class="card-name">Sektor & Industri</h3>
-                <p class="card-desc">Tinjauan mendalam performa sektor industri, logistik, manufaktur, dan finansial.</p>
-              </div>
-              <div class="card-arrow">
-                <span>Lihat Riset</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-
-            <!-- Card 3: Komoditas -->
-            <div class="category-card" @click="window.location.href='/katalog?cat=commodity'">
-              <div class="card-header">
-                <div class="icon-wrapper">
-                  <svg viewBox="0 0 100 100" class="art-svg-icon">
-                    <polygon points="50,20 80,35 80,65 50,80 20,65 20,35" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/>
-                    <line x1="50" y1="20" x2="50" y2="80" stroke="rgba(34, 197, 94, 0.4)" stroke-width="1.5"/>
-                    <line x1="20" y1="35" x2="80" y2="65" stroke="rgba(34, 197, 94, 0.4)" stroke-width="1.5"/>
-                    <line x1="20" y1="65" x2="80" y2="35" stroke="rgba(34, 197, 94, 0.4)" stroke-width="1.5"/>
-                  </svg>
-                </div>
-                <span class="card-num">03</span>
-              </div>
-              <div class="card-body">
-                <h3 class="card-name">Komoditas</h3>
-                <p class="card-desc">Riset pergerakan harga komoditas global, energi, logam, dan agrikultur.</p>
-              </div>
-              <div class="card-arrow">
-                <span>Lihat Riset</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-
-            <!-- Card 4: Teknologi & Inovasi -->
-            <div class="category-card" @click="window.location.href='/katalog?cat=tech'">
-              <div class="card-header">
-                <div class="icon-wrapper">
-                  <svg viewBox="0 0 100 100" class="art-svg-icon">
-                    <rect x="30" y="30" width="40" height="40" rx="6" fill="none" stroke="#22c55e" stroke-width="2.5"/>
-                    <circle cx="50" cy="50" r="6" fill="#22c55e"/>
-                    <line x1="50" y1="15" x2="50" y2="30" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="50" y1="70" x2="50" y2="85" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="15" y1="50" x2="30" y2="50" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="70" y1="50" x2="85" y2="50" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                </div>
-                <span class="card-num">04</span>
-              </div>
-              <div class="card-body">
-                <h3 class="card-name">Teknologi & Inovasi</h3>
-                <p class="card-desc">Evaluasi tren teknologi, startup, transformasi digital, dan disrupsi pasar.</p>
-              </div>
-              <div class="card-arrow">
-                <span>Lihat Riset</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- FEATURED RESEARCH (DARK GLASSMORPHIC LAYOUT) -->
-      <section class="featured-section">
-        <div class="section-container">
-          <div class="featured-eyebrow">◆ RISET PILIHAN MINGGU INI · GRATIS</div>
-          
-          <div class="featured-card-glass">
-            <div class="feat-left">
-              <div class="feat-badge">🎁 GRATIS — PROMOSI</div>
-              <h2 class="feat-title">PT Sinar Mas Agro Resources & Technology</h2>
-              <p class="feat-desc">
-                CPO terintegrasi terbesar Indonesia. Q1-2026 Net Income melonjak +517% YoY. P/E 6.8x — undervalued vs peer regional.
-              </p>
-              
-              <div class="feat-metrics">
-                <div class="metric-box">
-                  <span class="m-val">+517%</span>
-                  <span class="m-lbl">YoY NI Q1-26</span>
-                </div>
-                <div class="metric-box">
-                  <span class="m-val">6.8x</span>
-                  <span class="m-lbl">P/E Ratio</span>
-                </div>
-                <div class="metric-box">
-                  <span class="m-val">5.2x</span>
-                  <span class="m-lbl">EV/EBITDA</span>
+                <div class="stat-text-box">
+                  <div class="stat-num-val">13</div>
+                  <div class="stat-num-lbl">Riset di Katalog</div>
                 </div>
               </div>
               
-              <Link href="/katalog" class="btn-read-free">
-                Baca Riset Gratis →
-              </Link>
-            </div>
-            
-            <div class="feat-right">
-              <!-- Radial Dial representing Analyst Conviction -->
-              <div class="radial-dial">
-                <svg viewBox="0 0 200 200" class="dial-svg">
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="#1c201e" stroke-width="12"/>
-                  <circle cx="100" cy="100" r="80" fill="none" stroke="url(#dial-grad)" stroke-width="12"
-                          stroke-dasharray="502" stroke-dashoffset="75" stroke-linecap="round"
-                          transform="rotate(-90 100 100)"/>
-                  <defs>
-                    <linearGradient id="dial-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#4ade80"/>
-                      <stop offset="100%" stop-color="#22c55e"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div class="dial-labels">
-                  <span class="dial-number">85%</span>
-                  <span class="dial-text">Conviction</span>
+              <!-- Stat 2 -->
+              <div class="stat-row-item">
+                <div class="stat-icon-box">
+                  <!-- Shield Check Icon -->
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <path d="M9 11l2 2 4-4"></path>
+                  </svg>
+                </div>
+                <div class="stat-text-box">
+                  <div class="stat-num-val">4</div>
+                  <div class="stat-num-lbl">Tahun Data Audited</div>
+                </div>
+              </div>
+              
+              <!-- Stat 3 -->
+              <div class="stat-row-item">
+                <div class="stat-icon-box">
+                  <!-- Calculator Icon -->
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                    <line x1="9" y1="22" x2="9" y2="16"></line>
+                    <line x1="8" y1="6" x2="16" y2="6"></line>
+                    <line x1="16" y1="22" x2="16" y2="16"></line>
+                    <line x1="12" y1="22" x2="12" y2="16"></line>
+                    <circle cx="9" cy="11" r="1"></circle>
+                    <circle cx="15" cy="11" r="1"></circle>
+                    <circle cx="9" cy="15" r="1"></circle>
+                    <circle cx="15" cy="15" r="1"></circle>
+                    <circle cx="12" cy="11" r="1"></circle>
+                    <circle cx="12" cy="15" r="1"></circle>
+                  </svg>
+                </div>
+                <div class="stat-text-box">
+                  <div class="stat-num-val">DCF/FCFE</div>
+                  <div class="stat-num-lbl">Model Valuasi</div>
+                </div>
+              </div>
+              
+              <!-- Stat 4 -->
+              <div class="stat-row-item">
+                <div class="stat-icon-box">
+                  <!-- Award Icon -->
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="7"></circle>
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                  </svg>
+                </div>
+                <div class="stat-text-box">
+                  <div class="stat-num-val">100%</div>
+                  <div class="stat-num-lbl">Annual Report</div>
                 </div>
               </div>
             </div>
@@ -262,132 +257,263 @@ import { authStore } from '@/Stores/authStore';
         </div>
       </section>
 
-      <!-- WHY AVENIR (4 PILLARS IN DARK GRID) -->
-      <section class="why-section">
+      <!-- FEATURE GRID (6 CARDS) -->
+      <section class="features-grid-section">
         <div class="section-container">
-          <div class="why-eyebrow">◆ MENGAPA AVENIR</div>
-          <h2 class="why-title">Riset Ekuitas yang <span class="text-green-glow">Bekerja</span> untuk Investor</h2>
-          <p class="why-lead">
-            Lebih dari sekadar arsip riset. Avenir Research adalah platform langganan yang dibangun di atas tiga prinsip utama: data audited, metodologi multi-skenario, dan analis bersertifikasi.
-          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+            
+            <!-- Card 1: Riset Premium -->
+            <Link href="/katalog" class="feature-card-glass text-left">
+              <div class="feature-icon-wrapper">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald-500">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
+              <div class="feature-text-wrapper">
+                <h3 class="feature-title">Riset Premium</h3>
+                <p class="feature-desc">Laporan mendalam berbasis analisis fundamental.</p>
+              </div>
+            </Link>
+            
+            <!-- Card 2: Disclosure Radar -->
+            <Link href="/disclosure-radar" class="feature-card-glass text-left">
+              <div class="feature-icon-wrapper">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald-500">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  <path d="M2 12h20"></path>
+                </svg>
+              </div>
+              <div class="feature-text-wrapper">
+                <h3 class="feature-title">Disclosure Radar</h3>
+                <p class="feature-desc">Pemantauan keterbukaan informasi emiten.</p>
+              </div>
+            </Link>
+            
+            <!-- Card 3: KI Brief -->
+            <Link href="/ki-brief" class="feature-card-glass text-left">
+              <div class="feature-icon-wrapper">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald-500">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+              </div>
+              <div class="feature-text-wrapper">
+                <h3 class="feature-title">KI Brief</h3>
+                <p class="feature-desc">Ringkasan kebijakan &amp; isu ekonomi terkini.</p>
+              </div>
+            </Link>
+            
+            <!-- Card 4: Emiten Hub -->
+            <Link href="/emiten" class="feature-card-glass text-left">
+              <div class="feature-icon-wrapper">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald-500">
+                  <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                  <line x1="9" y1="22" x2="9" y2="16"></line>
+                  <line x1="8" y1="6" x2="16" y2="6"></line>
+                  <line x1="16" y1="22" x2="16" y2="16"></line>
+                  <line x1="12" y1="22" x2="12" y2="16"></line>
+                </svg>
+              </div>
+              <div class="feature-text-wrapper">
+                <h3 class="feature-title">Emiten Hub</h3>
+                <p class="feature-desc">Profil emiten, kinerja, dan key financials.</p>
+              </div>
+            </Link>
+            
+            <!-- Card 5: Market News -->
+            <Link href="/news" class="feature-card-glass text-left">
+              <div class="feature-icon-wrapper">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald-500">
+                  <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11"></path>
+                  <rect x="14" y="14" width="7" height="6" rx="1"></rect>
+                  <line x1="7" y1="8" x2="13" y2="8"></line>
+                  <line x1="7" y1="12" x2="11" y2="12"></line>
+                </svg>
+              </div>
+              <div class="feature-text-wrapper">
+                <h3 class="feature-title">Market News</h3>
+                <p class="feature-desc">Berita pasar &amp; update terpercaya setiap hari.</p>
+              </div>
+            </Link>
+            
+            <!-- Card 6: Katalog Riset -->
+            <Link href="/katalog" class="feature-card-glass text-left">
+              <div class="feature-icon-wrapper">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald-500">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5v-15z"></path>
+                </svg>
+              </div>
+              <div class="feature-text-wrapper">
+                <h3 class="feature-title">Katalog Riset</h3>
+                <p class="feature-desc">Akses lengkap seluruh laporan riset kami.</p>
+              </div>
+            </Link>
 
-          <div class="why-grid">
-            <div class="why-card">
-              <span class="why-num">01</span>
-              <h3>Data Audited, Bukan Kira-Kira</h3>
-              <p>Setiap angka — dari revenue hingga DER — bersumber langsung dari Annual Report yang sudah diaudit dan laporan keuangan resmi IDX. Tidak ada estimasi liar, tidak ada halusinasi AI.</p>
-              <div class="why-badge">Source-First Methodology</div>
-            </div>
-            
-            <div class="why-card">
-              <span class="why-num">02</span>
-              <h3>Multi-Skenario, Bukan Single Target</h3>
-              <p>Setiap riset menyajikan framework valuasi tiga skenario — Base Case, Bull Case, Bear Case. Anda mendapatkan range yang jujur, bukan angka tunggal yang menyesatkan.</p>
-              <div class="why-badge">FCFE DCF Framework</div>
-            </div>
-            
-            <div class="why-card">
-              <span class="why-num">03</span>
-              <h3>Ditulis Analis Bersertifikasi</h3>
-              <p>Setiap riset dikerjakan oleh analis dengan sertifikasi profesional CFA, WPPE, atau setara — bukan algoritma scraping, bukan tipster Telegram. Kualitas riset terjamin secara profesional.</p>
-              <div class="why-badge">Certified Analyst Network</div>
-            </div>
-            
-            <div class="why-card">
-              <span class="why-num">04</span>
-              <h3>Akses Demokratis, Harga Terjangkau</h3>
-              <p>Riset sell-side institusi biasa dijual ratusan juta per tahun ke klien besar saja. Avenir membuka akses penuh dengan langganan bersahabat agar ritel pun bisa berinvestasi layaknya institusi.</p>
-              <div class="why-badge">Grandfathered Pricing</div>
-            </div>
           </div>
         </div>
       </section>
 
-      <!-- PRICING TIERS SECTION (DARK GLASSMORPHISM) -->
-      <section class="pricing-section">
+      <!-- 3-COLUMN DASHBOARD SECTION -->
+      <section class="dashboard-columns-section">
         <div class="section-container">
-          <div class="pricing-header">
-            <h2 class="pricing-title">Rencana Berlangganan</h2>
-            <p class="pricing-lead">Pilih paket terbaik untuk kebutuhan riset investasi Anda. Semua paket diawali dengan trial 7 hari gratis.</p>
-          </div>
-
-          <div class="pricing-grid">
-            <!-- Tier 1: 1 Bulan -->
-            <div class="price-card">
-              <div class="tier-trial">FREE TRIAL · 7 HARI</div>
-              <h3 class="tier-name">1 Bulan</h3>
-              <div class="tier-cost">
-                <span class="t-currency">Rp</span>
-                <span class="t-amount">149.000</span>
-                <span class="t-period">/ bulan</span>
+          <div class="grid grid-cols-1 lg:grid-cols-7 gap-8">
+            
+            <!-- Column 1: Riset Unggulan -->
+            <div class="dashboard-col text-left lg:col-span-3">
+              <div class="col-header flex justify-between items-center mb-6">
+                <h2 class="col-title text-xl font-extrabold font-heading text-white">Riset Unggulan</h2>
+                <Link href="/katalog" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                  Lihat Semua
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                </Link>
               </div>
-              <button class="btn-tier" @click="authStore.open('register')">
-                Daftar &amp; Coba Gratis
-              </button>
-              <div class="tier-foot">Dapat dibatalkan kapan saja</div>
-            </div>
-
-            <!-- Tier 2: 6 Bulan (Featured) -->
-            <div class="price-card price-card-featured">
-              <div class="featured-badge">NILAI TERBAIK</div>
-              <div class="tier-trial">FREE TRIAL · 7 HARI</div>
-              <h3 class="tier-name">6 Bulan</h3>
-              <div class="tier-cost">
-                <span class="t-currency">Rp</span>
-                <span class="t-amount">729.000</span>
-                <span class="t-period">/ 6 bulan</span>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div v-for="(riset, idx) in risetUnggulan" :key="idx" class="dashboard-card-glass flex flex-col justify-between p-4 rounded-xl border border-slate-900 bg-slate-950/20 hover:border-emerald-500/30 transition-all duration-300">
+                  <div class="flex justify-between items-start mb-1.5">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-white tracking-wide font-mono">{{ riset.ticker }}</span>
+                        <span :class="riset.rating === 'BUY' ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-500/30' : 'bg-yellow-950/50 text-yellow-500 border border-yellow-500/30'" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                          {{ riset.rating }}
+                        </span>
+                      </div>
+                      <h4 class="text-[13px] font-extrabold text-slate-200 mt-1 leading-snug">{{ riset.name }}</h4>
+                      <p class="text-[11px] text-slate-400 mt-0.5 font-semibold">Sektor: {{ riset.sector }}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center gap-6 mt-3 pt-2.5 border-t border-slate-900/60">
+                    <div>
+                      <div class="text-[11px] text-slate-500 font-medium">Target Price</div>
+                      <div class="text-sm font-bold text-slate-200 mt-0.5 font-mono">{{ riset.targetPrice }}</div>
+                    </div>
+                    <div>
+                      <div class="text-[11px] text-slate-500 font-medium">Upside</div>
+                      <div class="text-sm font-bold text-emerald-400 mt-0.5 font-mono">{{ riset.upside }}</div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex justify-between items-center mt-3 pt-2">
+                    <span class="text-[11px] text-slate-500 font-mono">{{ riset.date }}</span>
+                    <Link href="/katalog" class="text-[11px] font-bold text-emerald-400 hover:underline flex items-center gap-1">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-block"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                      Premium Report
+                    </Link>
+                  </div>
+                </div>
               </div>
-              <div class="tier-monthly-eq">≈ Rp 121.500 / bulan</div>
-              <button class="btn-tier btn-tier-primary" @click="authStore.open('register')">
-                Daftar &amp; Coba Gratis
-              </button>
-              <div class="tier-foot">Hemat Rp 165.000 · Diskon 18%</div>
-            </div>
-
-            <!-- Tier 3: 1 Tahun -->
-            <div class="price-card">
-              <div class="tier-trial">FREE TRIAL · 7 HARI</div>
-              <h3 class="tier-name">1 Tahun</h3>
-              <div class="tier-cost">
-                <span class="t-currency">Rp</span>
-                <span class="t-amount">1.289.000</span>
-                <span class="t-period">/ tahun</span>
+              
+              <!-- Slider Indicator Dots -->
+              <div class="flex justify-center gap-1.5 mt-6">
+                <span class="w-5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
               </div>
-              <div class="tier-monthly-eq">≈ Rp 107.500 / bulan</div>
-              <button class="btn-tier" @click="authStore.open('register')">
-                Daftar &amp; Coba Gratis
-              </button>
-              <div class="tier-foot">Hemat Rp 499.000 · Diskon 28%</div>
             </div>
-          </div>
+            
+            <!-- Column 2: Insight Terbaru -->
+            <div class="dashboard-col text-left lg:col-span-2">
+              <div class="col-header mb-6">
+                <h2 class="col-title text-xl font-extrabold font-heading text-white">Insight Terbaru</h2>
+              </div>
+              
+              <div class="space-y-4">
+                <div v-for="(insight, idx) in insightTerbaru" :key="idx" class="dashboard-card-glass flex gap-3.5 p-3 rounded-xl border border-slate-900 bg-slate-950/20 hover:border-emerald-500/30 transition-all duration-300">
+                  <!-- Custom Thumbnail -->
+                  <div class="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0 border border-slate-850 bg-slate-900">
+                    <img v-if="insight.image" :src="insight.image" class="w-full h-full object-cover" :alt="insight.title" />
+                    <div v-else class="w-full h-full bg-gradient-to-br flex items-center justify-center" :class="insight.gradient || 'from-blue-950/60 to-emerald-950/60'">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-white/30">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="21" y1="12" x2="3" y2="12"></line>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex flex-col justify-between py-0.5">
+                    <h3 class="text-xs font-bold text-slate-200 hover:text-emerald-400 transition-colors leading-snug cursor-pointer line-clamp-2">
+                      <Link href="/artikel">{{ insight.title }}</Link>
+                    </h3>
+                    <span class="text-[11px] text-slate-500 font-mono">{{ insight.date }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Column 3: Headlines Pasar -->
+            <div class="dashboard-col text-left lg:col-span-2">
+              <div class="col-header mb-6">
+                <h2 class="col-title text-xl font-extrabold font-heading text-white">Headlines Pasar</h2>
+              </div>
+              
+              <div class="space-y-2.5">
+                <div v-for="(headline, idx) in headlinesPasar" :key="idx" class="flex items-center justify-between p-2.5 rounded-xl border border-slate-900 bg-slate-950/10 hover:bg-slate-950/30 transition-colors">
+                  <div class="flex items-center gap-3">
+                    <span class="bg-emerald-950/30 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/20 font-mono tracking-wider">
+                      {{ headline.ticker }}
+                    </span>
+                    <span class="text-xs font-semibold text-slate-300 line-clamp-1 hover:text-emerald-400 cursor-pointer">
+                      <Link href="/news">{{ headline.text }}</Link>
+                    </span>
+                  </div>
+                  <span class="text-[11px] font-mono text-slate-500 pl-2">{{ headline.time }}</span>
+                </div>
+              </div>
+            </div>
 
-          <!-- Common features list -->
-          <div class="pricing-foot">
-            <h4 class="foot-title">Semua paket sudah termasuk:</h4>
-            <div class="foot-grid">
-              <div class="foot-feature"><span>✓</span> Akses penuh ke seluruh katalog riset ekuitas</div>
-              <div class="foot-feature"><span>✓</span> Market news harian dari tim analis</div>
-              <div class="foot-feature"><span>✓</span> Artikel corporate history &amp; sector deep dives</div>
-              <div class="foot-feature"><span>✓</span> Update otomatis setiap rilis laporan keuangan kuartalan</div>
-              <div class="foot-feature"><span>✓</span> Notifikasi instan via dashboard &amp; email</div>
-              <div class="foot-feature"><span>✓</span> 7 hari uji coba gratis tanpa kewajiban bayar di muka</div>
-            </div>
           </div>
         </div>
       </section>
 
-      <!-- FINAL CALL TO ACTION -->
-      <section class="final-cta-section">
+      <!-- PREMIUM UPGRADE CALL TO ACTION BANNER -->
+      <section class="upgrade-banner-section pb-20">
         <div class="section-container">
-          <div class="cta-box-glass">
-            <h2>Siap Mengambil Keputusan Investasi Lebih Cerdas?</h2>
-            <p>Daftar sekarang secara gratis, nikmati 7 hari trial penuh ke seluruh dokumen analisis fundamental Avenir.</p>
-            <div class="cta-actions">
-              <button class="btn-primary-green" @click="authStore.open('register')">
-                Daftar Gratis
-              </button>
-              <Link href="/katalog" class="btn-secondary-outline">
-                Lihat Katalog Riset
+          <div class="upgrade-banner-card flex flex-col lg:flex-row justify-between items-center p-8 lg:p-10 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/10 via-slate-950/40 to-slate-950/30 backdrop-blur-md relative overflow-hidden">
+            <!-- Glow background overlay inside CTA -->
+            <div class="absolute inset-0 bg-radial-gradient from-emerald-500/5 to-transparent pointer-events-none"></div>
+            
+            <div class="flex items-start gap-4 lg:gap-6 relative z-10 text-left">
+              <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center flex-shrink-0 mt-1">
+                <!-- Golden Crown Icon -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"></path>
+                  <path d="M3 20h18v2H3z"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-xl lg:text-2xl font-extrabold font-heading text-white tracking-wide">Tingkatkan Keputusan Investasi Anda</h2>
+                <p class="text-xs text-slate-400 mt-1 max-w-xl">Bergabunglah dengan ribuan investor &amp; profesional yang mengandalkan riset AVENIR setiap hari.</p>
+                
+                <!-- Horizontal list with custom green ticks -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 mt-5">
+                  <div class="flex items-center gap-2 text-xs text-slate-300">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Akses penuh seluruh riset premium
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-slate-300">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Data audited &amp; metodologi terverifikasi
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-slate-300">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Update harian &amp; insight eksklusif
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-slate-300">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Dukungan analis profesional
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-6 lg:mt-0 relative z-10 flex-shrink-0">
+              <Link href="/langganan" class="bg-[#22c55e] text-[#090b0a] hover:bg-[#16a34a] flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 shadow-lg shadow-emerald-500/10">
+                Lihat Paket Langganan
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </Link>
             </div>
           </div>
@@ -403,7 +529,7 @@ import { authStore } from '@/Stores/authStore';
 .landing-dark-wrapper {
   background-color: #090b0a;
   color: #d1d5db;
-  font-family: 'Roboto', 'Roboto', sans-serif;
+  font-family: 'Roboto', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
@@ -411,7 +537,7 @@ import { authStore } from '@/Stores/authStore';
 
 /* Typography styles */
 h1, h2, h3, h4 {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Sora', 'Roboto', sans-serif;
   color: #ffffff;
 }
 
@@ -432,7 +558,7 @@ h1, h2, h3, h4 {
   background: radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, rgba(9, 11, 10, 0) 70%);
 }
 .glow-bottom-left {
-  bottom: 10%,;
+  bottom: 10%;
   left: -200px;
   width: 600px;
   height: 600px;
@@ -441,11 +567,11 @@ h1, h2, h3, h4 {
 
 .text-green-glow {
   color: #22c55e;
-  text-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+  text-shadow: 0 0 20px rgba(34, 197, 94, 0.25);
 }
 
 .section-container {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
   position: relative;
@@ -455,15 +581,14 @@ h1, h2, h3, h4 {
 /* HERO SECTION */
 .hero-section {
   position: relative;
-  padding: 80px 0 60px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 60px 0 30px 0;
 }
 .hero-container {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
   display: grid;
-  grid-template-cols: 1fr;
+  grid-template-columns: 1fr;
   gap: 60px;
   align-items: center;
   position: relative;
@@ -474,55 +599,62 @@ h1, h2, h3, h4 {
     grid-template-columns: 1.1fr 0.9fr;
   }
 }
-.hero-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 50px;
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(34, 197, 94, 0.2);
-  color: #4ade80;
-  font-family: 'Roboto', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  margin-bottom: 24px;
+
+.laptop-glow {
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.3) 0%, rgba(9, 11, 10, 0) 70%);
+  filter: blur(80px);
+  z-index: 1;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
-.hero-tag-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #22c55e;
-  box-shadow: 0 0 10px #22c55e;
-  animation: pulse 2s infinite;
-}
+
 .hero-title {
-  font-size: 42px;
+  font-size: 38px;
   line-height: 1.15;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.02em;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  text-align: left;
 }
 @media (min-width: 600px) {
   .hero-title {
-    font-size: 54px;
+    font-size: 50px;
+  }
+}
+@media (min-width: 1024px) {
+  .hero-title {
+    font-size: 64px;
+    line-height: 1.1;
   }
 }
 .hero-lead {
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 1.65;
   color: #9ca3af;
-  max-width: 540px;
-  margin-bottom: 32px;
+  max-width: 580px;
+  margin-bottom: 36px;
+  text-align: left;
+}
+@media (min-width: 1024px) {
+  .hero-lead {
+    font-size: 17px;
+  }
 }
 .hero-cta-group {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  margin-bottom: 48px;
+  margin-bottom: 20px;
 }
 .btn-primary-green {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px 28px;
   border-radius: 50px;
   background-color: #22c55e;
@@ -531,15 +663,19 @@ h1, h2, h3, h4 {
   font-size: 14px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
   transition: all 0.2s ease-in-out;
+  text-decoration: none;
 }
 .btn-primary-green:hover {
   background-color: #16a34a;
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(34, 197, 94, 0.45);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
 }
 .btn-secondary-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px 28px;
   border-radius: 50px;
   background-color: transparent;
@@ -556,42 +692,25 @@ h1, h2, h3, h4 {
   border-color: rgba(255, 255, 255, 0.4);
   background-color: rgba(255, 255, 255, 0.05);
 }
-
-.hero-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  max-width: 480px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 28px;
-}
-@media (min-width: 450px) {
-  .hero-stats {
-    grid-template-columns: repeat(4, 1fr);
+@media (min-width: 1024px) {
+  .btn-primary-green, .btn-secondary-outline {
+    padding: 14px 32px;
+    font-size: 15px;
   }
 }
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+
+.play-icon-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+  margin-right: 8px;
 }
-.stat-num {
-  font-family: 'Roboto', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: #ffffff;
-  display: block;
-}
-.stat-unit {
-  font-size: 12px;
-  color: #22c55e;
-  font-weight: 600;
-  margin-left: 2px;
-}
-.stat-label {
-  font-size: 11px;
-  color: #6b7280;
-  margin-top: 4px;
+.play-icon-svg {
+  transform: translateX(1px);
 }
 
 /* Laptop mockup styles */
@@ -603,7 +722,6 @@ h1, h2, h3, h4 {
 }
 .mockup-container {
   width: 100%;
-  max-width: 450px;
   position: relative;
   z-index: 10;
 }
@@ -627,613 +745,155 @@ h1, h2, h3, h4 {
   height: auto;
 }
 
-/* SUMMARY SECTION (4 CATEGORY CARDS) */
-.summary-section {
-  padding: 80px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+/* STATS ROW BANNER */
+.stats-row-section {
+  padding: 0 0 40px 0;
 }
-.summary-header {
-  margin-bottom: 40px;
-  text-align: left;
+.stats-banner-card {
+  background-color: rgba(17, 20, 19, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 24px 32px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
-.section-title {
-  font-size: 28px;
-  font-weight: 800;
-  margin: 0 0 8px 0;
-  letter-spacing: -0.02em;
-}
-.section-subtitle {
-  font-size: 14px;
-  color: #6b7280;
-  margin: 0;
-}
-.category-grid {
+.stats-grid-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 28px;
 }
-@media (min-width: 480px) {
-  .category-grid {
+@media (min-width: 640px) {
+  .stats-grid-row {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-@media (min-width: 900px) {
-  .category-grid {
+@media (min-width: 1024px) {
+  .stats-grid-row {
     grid-template-columns: repeat(4, 1fr);
   }
 }
-.category-card {
-  position: relative;
-  background-color: #111413;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 20px;
-  padding: 28px;
-  min-height: 250px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.category-card:hover {
-  border-color: rgba(34, 197, 94, 0.25);
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(34, 197, 94, 0.03);
-}
-.category-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.04) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-  z-index: 1;
-}
-.category-card:hover::after {
-  opacity: 1;
-}
-.card-header {
+.stat-row-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  position: relative;
-  z-index: 2;
-  margin-bottom: 24px;
+  gap: 16px;
 }
-.icon-wrapper {
-  width: 48px;
-  height: 48px;
+.stat-icon-box {
+  width: 42px;
+  height: 42px;
   border-radius: 12px;
   background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-}
-.category-card:hover .icon-wrapper {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.3);
-  transform: scale(1.05);
-}
-.art-svg-icon {
-  width: 24px;
-  height: 24px;
-  display: block;
-}
-.card-num {
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.2);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  transition: color 0.3s ease;
-}
-.category-card:hover .card-num {
   color: #22c55e;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.15);
 }
-.card-body {
-  position: relative;
-  z-index: 2;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  margin-bottom: 16px;
+.stat-text-box {
+  text-align: left;
 }
-.card-name {
-  font-size: 19px;
+.stat-num-val {
+  font-size: 20px;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 0 8px 0;
-  letter-spacing: -0.015em;
+  font-family: 'Sora', sans-serif;
+  letter-spacing: -0.01em;
 }
-.card-desc {
-  font-size: 13px;
-  line-height: 1.5;
-  color: #8e9592;
-  margin: 0;
-  font-weight: 400;
-}
-.card-arrow {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.stat-num-lbl {
   font-size: 12px;
-  font-weight: 600;
-  color: #22c55e;
-  opacity: 0;
-  transform: translateX(-8px);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.category-card:hover .card-arrow {
-  opacity: 1;
-  transform: translateX(0);
+  color: #9ca3af;
+  margin-top: 2px;
+  white-space: nowrap;
 }
 
-/* FEATURED SECTION (GLASSMORPHIC CARD) */
-.featured-section {
-  padding: 80px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+/* FEATURE GRID SECTION */
+.features-grid-section {
+  padding: 20px 0;
 }
-.featured-eyebrow {
-  font-family: 'Roboto', sans-serif;
-  font-size: 11px;
-  color: #6b7280;
-  letter-spacing: 0.08em;
-  margin-bottom: 24px;
-}
-.featured-card-glass {
-  background: linear-gradient(145deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  padding: 40px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 40px;
+.feature-card-glass {
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  backdrop-filter: blur(8px);
-}
-@media (min-width: 800px) {
-  .featured-card-glass {
-    grid-template-columns: 1.2fr 0.8fr;
-  }
-}
-.feat-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 4px;
-  background-color: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.2);
-  color: #4ade80;
-  font-family: 'Roboto', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-.feat-title {
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.25;
-  margin-bottom: 16px;
-  letter-spacing: -0.01em;
-}
-.feat-desc {
-  font-size: 15px;
-  line-height: 1.6;
-  color: #9ca3af;
-  margin-bottom: 28px;
-}
-.feat-metrics {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  margin-bottom: 36px;
-}
-.metric-box {
-  display: flex;
-  flex-direction: column;
-}
-.m-val {
-  font-family: 'Roboto', sans-serif;
-  font-size: 24px;
-  font-weight: 700;
-  color: #ffffff;
-}
-.m-lbl {
-  font-size: 11px;
-  color: #6b7280;
-  margin-top: 4px;
-}
-.btn-read-free {
-  display: inline-block;
-  padding: 10px 24px;
-  background-color: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 50px;
+  gap: 12px;
+  padding: 14px 16px;
+  background-color: rgba(17, 20, 19, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
   text-decoration: none;
-  transition: all 0.2s ease;
 }
-.btn-read-free:hover {
-  border-color: #22c55e;
-  background-color: rgba(34, 197, 94, 0.05);
-  color: #4ade80;
+.feature-card-glass:hover {
+  border-color: rgba(34, 197, 94, 0.25);
+  background-color: rgba(34, 197, 94, 0.03);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(34, 197, 94, 0.04);
 }
-
-/* Conviction Radial Dial */
-.feat-right {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.radial-dial {
-  position: relative;
-  width: 180px;
-  height: 180px;
-}
-.dial-svg {
-  width: 100%;
-  height: 100%;
-}
-.dial-labels {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.dial-number {
-  font-family: 'Roboto', sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  color: #22c55e;
-  line-height: 1.1;
-}
-.dial-text {
-  font-size: 11px;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-top: 4px;
-}
-
-/* WHY SECTION (4 PILLARS) */
-.why-section {
-  padding: 80px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-.why-eyebrow {
-  font-family: 'Roboto', sans-serif;
-  font-size: 11px;
-  color: #6b7280;
-  letter-spacing: 0.08em;
-  margin-bottom: 20px;
-}
-.why-title {
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  letter-spacing: -0.01em;
-}
-.why-lead {
-  font-size: 16px;
-  line-height: 1.6;
-  color: #9ca3af;
-  max-width: 680px;
-  margin-bottom: 48px;
-}
-.why-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-@media (min-width: 600px) {
-  .why-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (min-width: 1000px) {
-  .why-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-.why-card {
-  background-color: #111413;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 32px 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  transition: all 0.2s ease;
-}
-.why-card:hover {
-  border-color: rgba(255,255,255,0.1);
-  background-color: #141817;
-}
-.why-num {
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 16px;
-}
-.why-card h3 {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-.why-card p {
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: #9ca3af;
-  margin-bottom: 24px;
-  flex-grow: 1;
-}
-.why-badge {
-  align-self: flex-start;
-  font-family: 'Roboto', sans-serif;
-  font-size: 10px;
-  color: #4ade80;
+.feature-icon-wrapper {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   background: rgba(34, 197, 94, 0.06);
   border: 1px solid rgba(34, 197, 94, 0.15);
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-/* PRICING SECTION */
-.pricing-section {
-  padding: 80px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-}
-.pricing-header {
-  text-align: center;
-  margin-bottom: 60px;
-}
-.pricing-title {
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: 14px;
-}
-.pricing-lead {
-  font-size: 15px;
-  color: #9ca3af;
-  max-width: 500px;
-  margin: 0 auto;
-}
-.pricing-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
+  display: flex;
   align-items: center;
-  margin-bottom: 60px;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
 }
-@media (min-width: 700px) {
-  .pricing-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.feature-card-glass:hover .feature-icon-wrapper {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.35);
+  transform: scale(1.05);
 }
-@media (min-width: 1000px) {
-  .pricing-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-.price-card {
-  background-color: #111413;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 40px 32px;
+.feature-text-wrapper {
   display: flex;
   flex-direction: column;
-  position: relative;
-  transition: all 0.2s ease;
+  text-align: left;
 }
-.price-card:hover {
-  border-color: rgba(255,255,255,0.08);
-}
-.tier-trial {
-  font-family: 'Roboto', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  color: #6b7280;
-  letter-spacing: 0.04em;
-  margin-bottom: 16px;
-}
-.tier-name {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 24px;
-}
-.tier-cost {
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 8px;
-}
-.t-currency {
-  font-size: 16px;
-  font-weight: 600;
-  color: #6b7280;
-}
-.t-amount {
-  font-family: 'Roboto', sans-serif;
-  font-size: 40px;
+.feature-title {
+  font-size: 14.5px;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 4px;
-}
-.t-period {
-  font-size: 13px;
-  color: #6b7280;
-}
-.tier-monthly-eq {
-  font-size: 12px;
-  color: #22c55e;
-  font-weight: 500;
-  margin-bottom: 24px;
-}
-.btn-tier {
-  width: 100%;
-  padding: 12px;
-  border-radius: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background-color: transparent;
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  margin-bottom: 16px;
-  transition: all 0.2s ease;
-}
-.btn-tier:hover {
-  border-color: rgba(255,255,255,0.3);
-  background-color: rgba(255,255,255,0.05);
-}
-.tier-foot {
-  font-size: 11px;
-  color: #6b7280;
-  text-align: center;
-}
-
-/* Featured Price Card Override */
-.price-card-featured {
-  background-color: #121815;
-  border-color: rgba(34, 197, 94, 0.25);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-}
-@media (min-width: 1000px) {
-  .price-card-featured {
-    transform: scale(1.04);
-    z-index: 10;
-  }
-}
-.price-card-featured:hover {
-  border-color: rgba(34, 197, 94, 0.4);
-}
-.featured-badge {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #22c55e;
-  color: #ffffff;
-  font-size: 9px;
-  font-weight: 800;
-  padding: 4px 14px;
-  border-radius: 50px;
-  letter-spacing: 0.06em;
-  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
-}
-.price-card-featured .tier-trial {
-  color: #4ade80;
-}
-.btn-tier-primary {
-  background-color: #22c55e;
-  border: none;
-  color: #ffffff;
-  font-weight: 700;
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
-}
-.btn-tier-primary:hover {
-  background-color: #16a34a;
-  transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
-}
-
-/* Common Features List below cards */
-.pricing-foot {
-  max-width: 800px;
-  margin: 0 auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 48px;
-}
-.foot-title {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 24px;
-  text-align: center;
-  color: #9ca3af;
-}
-.foot-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-@media (min-width: 550px) {
-  .foot-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-.foot-feature {
-  font-size: 13.5px;
-  color: #9ca3af;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.foot-feature span {
-  color: #22c55e;
-  font-weight: 700;
-}
-
-/* FINAL CALL TO ACTION */
-.final-cta-section {
-  padding: 80px 0 100px 0;
-}
-.cta-box-glass {
-  background: linear-gradient(145deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 24px;
-  padding: 60px 40px;
-  text-align: center;
-  backdrop-filter: blur(8px);
-}
-.cta-box-glass h2 {
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: 16px;
+  margin-bottom: 3px;
   letter-spacing: -0.01em;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  line-height: 1.2;
 }
-.cta-box-glass p {
-  font-size: 15px;
-  line-height: 1.6;
+.feature-desc {
+  font-size: 11.5px;
+  line-height: 1.4;
   color: #9ca3af;
-  max-width: 500px;
-  margin: 0 auto 36px auto;
 }
-.cta-actions {
+/* 3-COLUMN DASHBOARD SECTION */
+.dashboard-columns-section {
+  padding: 40px 0 60px 0;
+}
+.dashboard-col {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 16px;
+  flex-direction: column;
+}
+.col-title {
+  letter-spacing: -0.015em;
+}
+.dashboard-card-glass {
+  background-color: rgba(17, 20, 19, 0.2);
+  border-color: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(4px);
+}
+.dashboard-card-glass:hover {
+  background-color: rgba(17, 20, 19, 0.4);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
-/* ANIMATIONS */
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-  }
+/* UPGRADE BANNER SECTION */
+.upgrade-banner-section {
+  position: relative;
+  z-index: 10;
+}
+.upgrade-banner-card {
+  background-color: rgba(17, 20, 19, 0.3);
+  backdrop-filter: blur(8px);
 }
 </style>

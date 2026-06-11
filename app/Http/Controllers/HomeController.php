@@ -14,7 +14,96 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Home');
+        // 1. Fetch Tickers as Riset Unggulan
+        $dbTickers = \App\Models\Ticker::latest()->take(3)->get();
+        $risetUnggulan = [];
+        foreach ($dbTickers as $t) {
+            $upsideVal = 0;
+            if ($t->current_price > 0 && $t->target_price > 0) {
+                $upsideVal = (($t->target_price - $t->current_price) / $t->current_price) * 100;
+            }
+            
+            $rating = 'BUY';
+            if ($t->recommendation === 'neutral') {
+                $rating = 'HOLD';
+            } elseif ($t->recommendation === 'bearish') {
+                $rating = 'SELL';
+            }
+
+            $risetUnggulan[] = [
+                'ticker' => $t->symbol . ' IJ',
+                'name' => $t->company_name,
+                'sector' => $t->sector ?? 'Financials',
+                'targetPrice' => 'Rp ' . number_format($t->target_price, 0, ',', '.'),
+                'upside' => ($upsideVal >= 0 ? '+' : '') . number_format($upsideVal, 1) . '%',
+                'rating' => $rating,
+                'date' => $t->updated_at ? $t->updated_at->format('d M Y') : now()->format('d M Y')
+            ];
+        }
+
+        // 2. Fetch Latest Articles as Insight Terbaru
+        $dbArticles = \App\Models\Article::where('category', '!=', 'news')
+            ->where('status', 'published')
+            ->latest()
+            ->take(3)
+            ->get();
+        $insightTerbaru = [];
+        $gradients = [
+            'from-blue-950/60 to-emerald-950/60',
+            'from-cyan-950/60 to-blue-950/60',
+            'from-teal-950/60 to-emerald-950/60'
+        ];
+        foreach ($dbArticles as $index => $art) {
+            $insightTerbaru[] = [
+                'title' => $art->title,
+                'date' => $art->published_at ? $art->published_at->format('d M Y') : $art->created_at->format('d M Y'),
+                'gradient' => $gradients[$index % count($gradients)],
+                'image' => $art->cover_image,
+            ];
+        }
+
+        // 3. Fetch Latest Headlines
+        $dbNews = \App\Models\Article::where('category', 'like', '%news%')
+            ->where('status', 'published')
+            ->latest()
+            ->take(5)
+            ->get();
+        
+        // If news is empty, fallback to recent posts of any category
+        if ($dbNews->isEmpty()) {
+            $dbNews = \App\Models\Article::where('status', 'published')
+                ->latest()
+                ->take(5)
+                ->get();
+        }
+
+        $headlinesPasar = [];
+        foreach ($dbNews as $news) {
+            $tickerTag = 'AVENIR';
+            if (preg_match('/^[A-Z]{4}/', $news->title, $match)) {
+                $tickerTag = $match[0];
+            } else {
+                $tickerRelation = \Illuminate\Support\Facades\DB::table('article_ticker')
+                    ->join('tickers', 'article_ticker.ticker_id', '=', 'tickers.id')
+                    ->where('article_ticker.article_id', $news->id)
+                    ->first();
+                if ($tickerRelation) {
+                    $tickerTag = $tickerRelation->symbol;
+                }
+            }
+
+            $headlinesPasar[] = [
+                'ticker' => $tickerTag,
+                'text' => $news->title,
+                'time' => $news->published_at ? $news->published_at->format('H:i') : $news->created_at->format('H:i')
+            ];
+        }
+
+        return Inertia::render('Home', [
+            'risetUnggulan' => $risetUnggulan,
+            'insightTerbaru' => $insightTerbaru,
+            'headlinesPasar' => $headlinesPasar
+        ]);
     }
 
     /**

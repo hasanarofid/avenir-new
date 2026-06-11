@@ -162,89 +162,36 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
             </transition>
           </div>
 
-          <Link v-if="user" href="/watchlist" class="nav-link" :class="{ active: $page.component === 'Watchlist/Index' }">Watchlist</Link>
-
-          <!-- Company Dropdown -->
-          <div class="nav-dropdown-wrap" @mouseenter="companyDropdownOpen = true" @mouseleave="companyDropdownOpen = false">
-            <button class="nav-link dropdown-toggle" :class="{ active: ['About', 'Partners', 'Mitra/Register'].includes($page.component) }">
-              About
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <transition name="nav-drop">
-              <div v-if="companyDropdownOpen" class="nav-dropdown">
-                <Link href="/tentang" class="nav-dd-item">
-                  <strong>Tentang Avenir</strong>
-                  <span class="nav-dd-desc">Visi, misi, dan tim kami</span>
-                </Link>
-                <Link href="/mitra" class="nav-dd-item">
-                  <strong>Mitra Analis</strong>
-                  <span class="nav-dd-desc">Analyst contributor network</span>
-                </Link>
-              </div>
-            </transition>
-          </div>
-
           <Link href="/langganan" class="nav-link" :class="{ active: $page.component === 'Subscription' }">Langganan</Link>
+          <Link href="/tentang" class="nav-link" :class="{ active: $page.component === 'About' }">Tentang</Link>
+          <Link href="/mitra" class="nav-link" :class="{ active: $page.component === 'Partners' }">Mitra</Link>
+          <Link v-if="user" href="/watchlist" class="nav-link" :class="{ active: $page.component === 'Watchlist/Index' }">Watchlist</Link>
         </div>
       </div>
 
       <div class="nav-col nav-right">
         <!-- Guest Menu -->
         <div v-if="!user" class="nav-auth">
+          <button class="nav-btn-search hidden-mobile" @click="router.visit('/katalog')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Search
+          </button>
           <button class="nav-btn-login hidden-mobile" @click="authStore.open('login')">Sign In</button>
           <button class="nav-btn-register hidden-mobile" @click="authStore.open('register')">Daftar</button>
-
-          <!-- Notification Bell -->
-          <div class="notif-wrapper" ref="notifRef">
-            <button class="nav-btn-notif" @click="toggleNotif" :class="{ active: notifOpen }">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-              </svg>
-              <span v-if="hasNotifications" class="notif-dot"></span>
-            </button>
-
-            <!-- Notification Dropdown -->
-            <transition name="notif-drop">
-              <div v-if="notifOpen" class="notif-dropdown">
-                <div class="notif-header">
-                  <span class="notif-header-title">Notifikasi</span>
-                  <span class="notif-count">{{ notifications.length }}</span>
-                </div>
-                <div class="notif-list">
-                  <div v-if="notifications.length === 0" class="notif-empty">
-                    Belum ada notifikasi.
-                  </div>
-                  <template v-else>
-                    <a
-                      v-for="notif in notifications"
-                      :key="notif.id"
-                      :href="notifUrl(notif.url, notif.category)"
-                      :target="notif.url ? '_self' : '_self'"
-                      class="notif-item"
-                      @click="closeNotif"
-                    >
-                      <span
-                        class="notif-cat-badge"
-                        :style="{ background: catStyle(notif.category).bg, color: catStyle(notif.category).color, borderColor: catStyle(notif.category).border }"
-                      >{{ notif.category }}</span>
-                      <span class="notif-item-title">{{ notif.title }}</span>
-                      <span class="notif-item-date">{{ formatDate(notif.published_at) }}</span>
-                    </a>
-                  </template>
-                </div>
-              </div>
-            </transition>
-          </div>
-
-          <button class="nav-btn-hamburger" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle menu">
-            <svg v-if="!mobileMenuOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
-            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
         </div>
 
         <!-- User Menu dropdown -->
         <div v-else class="nav-auth">
+          <button class="nav-btn-search hidden-mobile" @click="router.visit('/katalog')" style="margin-right:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Search
+          </button>
           <div class="hidden-mobile" style="position: relative;">
             <button 
               class="nav-btn-user" 
@@ -310,11 +257,55 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
               </button>
             </div>
           </div>
-          <button class="nav-btn-hamburger" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle menu">
-            <svg v-if="!mobileMenuOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
-            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
         </div>
+
+        <!-- Notification Bell (Always Visible) -->
+        <div class="notif-wrapper" ref="notifRef">
+          <button class="nav-btn-notif" @click="toggleNotif" :class="{ active: notifOpen }">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span v-if="hasNotifications" class="notif-dot"></span>
+          </button>
+
+          <!-- Notification Dropdown -->
+          <transition name="notif-drop">
+            <div v-if="notifOpen" class="notif-dropdown">
+              <div class="notif-header">
+                <span class="notif-header-title">Notifikasi</span>
+                <span class="notif-count">{{ notifications.length }}</span>
+              </div>
+              <div class="notif-list">
+                <div v-if="notifications.length === 0" class="notif-empty">
+                  Belum ada notifikasi.
+                </div>
+                <template v-else>
+                  <a
+                    v-for="notif in notifications"
+                    :key="notif.id"
+                    :href="notifUrl(notif.url, notif.category)"
+                    :target="notif.url ? '_self' : '_self'"
+                    class="notif-item"
+                    @click="closeNotif"
+                  >
+                    <span
+                      class="notif-cat-badge"
+                      :style="{ background: catStyle(notif.category).bg, color: catStyle(notif.category).color, borderColor: catStyle(notif.category).border }"
+                    >{{ notif.category }}</span>
+                    <span class="notif-item-title">{{ notif.title }}</span>
+                    <span class="notif-item-date">{{ formatDate(notif.published_at) }}</span>
+                  </a>
+                </template>
+              </div>
+            </div>
+          </transition>
+        </div>
+
+        <button class="nav-btn-hamburger" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle menu">
+          <svg v-if="!mobileMenuOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg>
+          <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
     </div>
 
@@ -433,7 +424,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
   border-bottom: 1px solid #e5e7eb;
 }
 .nav-in {
-  max-width: 1120px;
+  max-width: 1440px;
   margin: 0 auto;
   width: 100%;
   height: 52px;
@@ -623,7 +614,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
   right: 5px;
   width: 6px;
   height: 6px;
-  background-color: #ef4444;
+  background-color: #22c55e;
   border-radius: 50%;
   animation: notif-pulse 2s infinite;
 }
@@ -868,14 +859,41 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
 }
 .nav.nav-dark .nav-link {
   color: #9ca3af !important;
+  border-radius: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  padding: 16px 2px !important;
+  margin: 0 10px;
 }
 .nav.nav-dark .nav-link:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
+  background: transparent !important;
   color: #ffffff !important;
+  border-bottom-color: rgba(255, 255, 255, 0.2) !important;
 }
 .nav.nav-dark .nav-link.active {
-  background: rgba(34, 197, 94, 0.15) !important;
+  background: transparent !important;
   color: #22c55e !important;
+  border-bottom-color: #22c55e !important;
+}
+.nav.nav-dark .nav-btn-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 13.5px;
+  background: transparent;
+  cursor: pointer;
+  color: #9ca3af !important;
+  font-family: inherit;
+  transition: all 0.2s;
+  margin-right: 6px;
+}
+.nav.nav-dark .nav-btn-search:hover {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 .nav.nav-dark .nav-btn-login {
   border-color: rgba(255, 255, 255, 0.15) !important;

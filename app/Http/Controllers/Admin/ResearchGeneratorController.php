@@ -138,4 +138,17 @@ class ResearchGeneratorController extends Controller
 
         return back()->with('success', 'Riset berhasil diterbitkan ke Katalog!');
     }
+
+    public function updateDraft(Request $request, ResearchProject $project, ResearchDraft $draft)
+    {
+        $validated = $request->validate([
+            'structured_json' => 'required|array',
+        ]);
+
+        $draft->update([
+            'structured_json' => $validated['structured_json']
+        ]);
+
+        return back()->with('success', 'Draft riset berhasil diperbarui.');
+    }
 }
