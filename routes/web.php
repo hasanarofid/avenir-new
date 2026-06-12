@@ -126,6 +126,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/news-generator', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'index'])->name('news-generator.index');
     Route::post('/news-generator/generate', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'generate'])->name('news-generator.generate');
     Route::post('/news-generator/publish', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'publish'])->name('news-generator.publish');
+
+    // Emiten (Ticker)
+    Route::post('/emitens/generate-ai', [\App\Http\Controllers\Admin\TickerController::class, 'generateWithAI'])->name('emitens.generate-ai');
+    Route::resource('emitens', \App\Http\Controllers\Admin\TickerController::class);
 });
 
 require __DIR__.'/auth.php';

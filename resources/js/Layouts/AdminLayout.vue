@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
 import { 
   LayoutDashboard, 
   Settings as SettingsIcon, 
@@ -20,11 +21,42 @@ import {
   Bell,
   BrainCircuit,
   Globe,
-  Activity
+  Activity,
+  TrendingUp
 } from '@lucide/vue';
 
 const page = usePage();
 const user = page.props.auth.user;
+
+const showToast = (icon, title, text) => {
+    Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        background: '#121614',
+        color: '#f1f5f9',
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    }).fire({
+        icon: icon,
+        title: title || (icon === 'success' ? 'Berhasil' : 'Error'),
+        text: text
+    });
+};
+
+onMounted(() => {
+    if (page.props.flash?.success) showToast('success', null, page.props.flash.success);
+    if (page.props.flash?.error) showToast('error', null, page.props.flash.error);
+});
+
+watch(() => page.props.flash, (flash) => {
+    if (flash?.success) showToast('success', null, flash.success);
+    if (flash?.error) showToast('error', null, flash.error);
+}, { deep: true });
 
 const isSidebarOpen = ref(false);
 const isSidebarCollapsed = ref(false);
@@ -57,6 +89,7 @@ const navigationGroups = [
   {
     title: 'SYSTEM & CMS',
     items: [
+      { name: 'Emiten Hub', href: route('admin.emitens.index'), icon: TrendingUp, current: route().current('admin.emitens.*') },
       { name: 'Pages & Sections', href: route('admin.pages.index'), icon: Layers, current: route().current('admin.pages.*') },
       { name: 'Posts & Categories', href: route('admin.posts.index'), icon: FileText, current: route().current('admin.posts.*') },
       { name: 'Web Settings', href: route('admin.settings.index'), icon: SettingsIcon, current: route().current('admin.settings.index') },
@@ -104,7 +137,7 @@ const logout = () => {
         </div>
 
         <!-- Navigation Links -->
-        <nav class="px-3 py-6 space-y-6 overflow-y-auto">
+        <nav class="px-3 py-6 space-y-6 overflow-y-auto scrollbar-hide">
           <div v-for="group in navigationGroups" :key="group.title">
             <h3 v-if="!isSidebarCollapsed" class="px-4 text-[10px] font-black tracking-widest text-emerald-600/70 uppercase mb-2">
               {{ group.title }}
@@ -260,22 +293,18 @@ const logout = () => {
 
       <!-- Main Panel Page -->
       <main class="flex-1 p-6 md:p-8 bg-[#090b0a]/60">
-        <!-- Toast Notification Alert if session contains flash success/error -->
-        <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span class="text-sm font-medium">{{ $page.props.flash.success }}</span>
-          </div>
-        </div>
-        <div v-if="$page.props.flash?.error" class="mb-6 p-4 bg-rose-600/10 border border-rose-500/20 text-rose-400 rounded-xl flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-            <span class="text-sm font-medium">{{ $page.props.flash.error }}</span>
-          </div>
-        </div>
-
         <slot />
       </main>
     </div>
   </div>
 </template>
+
+<style>
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+</style>
