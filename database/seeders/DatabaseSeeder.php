@@ -54,6 +54,9 @@ class DatabaseSeeder extends Seeder
             // === Data Dummy untuk Development ===
             DummyDataSeeder::class,
             
+            // === Masterlist Saham ===
+            TickerSeeder::class,
+
             // === Seeder Emiten Demo ===
             DmasSeeder::class,
             BBRITickerSeeder::class,
