@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticker;
 use App\Models\Article;
 use App\Models\Disclosure;
-use App\Services\OpenRouterService;
+use App\Services\ChatGptService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -134,7 +134,7 @@ class TickerController extends Controller
         return redirect()->route('admin.emitens.index')->with('success', 'Emiten deleted successfully.');
     }
 
-    public function generateWithAI(Request $request, OpenRouterService $openRouter)
+    public function generateWithAI(Request $request, ChatGptService $aiService)
     {
         $request->validate([
             'symbol' => 'required|string',
@@ -182,7 +182,7 @@ class TickerController extends Controller
   ]
 }";
 
-        $result = $openRouter->generateStructuredJson($systemPrompt, $userPrompt);
+        $result = $aiService->generateStructuredJson($systemPrompt, $userPrompt);
 
         if (!$result || empty($result['structured_json'])) {
             // Karena ini lingkungan development (atau jika timeout), kita kembalikan mock data

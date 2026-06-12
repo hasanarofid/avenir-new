@@ -7,7 +7,7 @@ use Illuminate\Foundation\Queue\Queueable;
 
 use App\Models\ResearchProject;
 use App\Models\ResearchDraft;
-use App\Services\OpenRouterService;
+use App\Services\ChatGptService;
 use Illuminate\Support\Facades\Log;
 
 class GenerateResearchDraftJob implements ShouldQueue
@@ -23,7 +23,7 @@ class GenerateResearchDraftJob implements ShouldQueue
         $this->modelType = $modelType;
     }
 
-    public function handle(OpenRouterService $openRouter): void
+    public function handle(ChatGptService $aiService): void
     {
         try {
             $this->project->update(['status' => 'generating']);
@@ -37,8 +37,8 @@ class GenerateResearchDraftJob implements ShouldQueue
 
             // Pick Model
             $model = $this->modelType === 'default' 
-                ? config('services.openrouter.default_model', 'anthropic/claude-3.5-sonnet')
-                : config('services.openrouter.fallback_model', 'openai/gpt-4o');
+                ? config('services.chatgpt.default_model', 'gpt-5.5')
+                : 'gpt-5.5';
 
             // ==========================================
             // STEP 1: Fact Extraction (Prompt 1)
@@ -65,7 +65,7 @@ Struktur JSON wajib memiliki key:
             $userPrompt1 = "Berikut adalah teks dokumen untuk saham {$this->project->ticker} - {$this->project->title}.\n\n=== DATA DOKUMEN ===\n" . mb_substr($contextText, 0, 100000);
 
             Log::info("Running Step 1: Fact Extraction for Project {$this->project->id}");
-            $res1 = $openRouter->generateStructuredJson($systemPrompt1, $userPrompt1, ['model' => $model]);
+            $res1 = $aiService->generateStructuredJson($systemPrompt1, $userPrompt1, ['model' => $model]);
             
             if (!$res1 || empty($res1['structured_json'])) {
                 throw new \Exception("Step 1 (Fact Extraction) failed to return valid JSON.");
@@ -121,7 +121,7 @@ Struktur JSON wajib memiliki key:
             $userPrompt2 .= "Susunlah draft riset ekuitas lengkap berdasarkan fakta-fakta di atas.";
 
             Log::info("Running Step 2: Research Generation for Project {$this->project->id}");
-            $res2 = $openRouter->generateStructuredJson($systemPrompt2, $userPrompt2, ['model' => $model]);
+            $res2 = $aiService->generateStructuredJson($systemPrompt2, $userPrompt2, ['model' => $model]);
             
             if (!$res2 || empty($res2['structured_json'])) {
                 throw new \Exception("Step 2 (Research Generation) failed to return valid JSON.");
@@ -156,7 +156,7 @@ Output HARUS berupa JSON objek valid dengan key:
             $userPrompt3 .= "Lakukan evaluasi QC dan deteksi halusinasi pada draft riset tersebut.";
 
             Log::info("Running Step 3: Quality Control for Project {$this->project->id}");
-            $res3 = $openRouter->generateStructuredJson($systemPrompt3, $userPrompt3, ['model' => $model]);
+            $res3 = $aiService->generateStructuredJson($systemPrompt3, $userPrompt3, ['model' => $model]);
             
             if (!$res3 || empty($res3['structured_json'])) {
                 throw new \Exception("Step 3 (Quality Control) failed to return valid JSON.");

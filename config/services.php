@@ -41,4 +41,9 @@ return [
         'fallback_model' => env('OPENROUTER_FALLBACK_MODEL', 'openai/gpt-4o'),
     ],
 
+    'chatgpt' => [
+        'api_key' => env('ChatGPT_API_KEY'),
+        'default_model' => env('CHATGPT_DEFAULT_MODEL', 'gpt-5.5'),
+    ],
+
 ];
