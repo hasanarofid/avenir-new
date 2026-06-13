@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Search, Edit2, Trash2 } from '@lucide/vue';
+import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
   items: {
@@ -9,7 +10,7 @@ const props = defineProps({
   },
   headers: {
     type: Array,
-    required: true // e.g. [ { text: 'Title', value: 'title' }, { text: 'Status', value: 'status', type: 'badge' } ]
+    required: true
   },
   searchPlaceholder: {
     type: String,
@@ -22,15 +23,33 @@ const props = defineProps({
   showActions: {
     type: Boolean,
     default: true
+  },
+  pagination: {
+    type: Array,
+    default: null
+  },
+  serverSearch: {
+    type: Boolean,
+    default: false
+  },
+  initialSearch: {
+    type: String,
+    default: ''
   }
 });
 
-const emit = defineEmits(['edit', 'delete']);
+const emit = defineEmits(['edit', 'delete', 'search']);
 
-const search = ref('');
+const search = ref(props.initialSearch);
+
+watch(search, (newVal) => {
+  if (props.serverSearch) {
+    emit('search', newVal);
+  }
+});
 
 const filteredItems = computed(() => {
-  if (!search.value) return props.items;
+  if (props.serverSearch || !search.value) return props.items;
   const query = search.value.toLowerCase().trim();
   return props.items.filter(item => {
     const value = item[props.searchKey];
@@ -144,6 +163,28 @@ const filteredItems = computed(() => {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="pagination && pagination.length > 3" class="p-6 border-t border-emerald-950/30 flex items-center justify-end gap-1 flex-wrap">
+      <template v-for="(link, p) in pagination" :key="p">
+        <div 
+          v-if="link.url === null" 
+          class="px-3 py-1.5 text-sm text-slate-500 bg-[#090b0a]/40 border border-emerald-950/30 rounded-lg" 
+          v-html="link.label" 
+        />
+        <Link 
+          v-else 
+          :href="link.url" 
+          class="px-3 py-1.5 text-sm border rounded-lg transition-colors" 
+          :class="[
+            link.active 
+              ? 'bg-emerald-600/20 text-emerald-400 border-emerald-500/30' 
+              : 'bg-[#090b0a] text-slate-300 border-emerald-950/40 hover:bg-emerald-900/20 hover:text-emerald-400'
+          ]" 
+          v-html="link.label" 
+        />
+      </template>
     </div>
   </div>
 </template>

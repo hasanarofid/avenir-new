@@ -79,7 +79,22 @@ const toggleWatchlist = () => {
 </script>
 
 <template>
-    <Head :title="`${ticker.symbol} - ${ticker.company_name}`" />
+    <Head>
+        <title>{{ ticker.symbol }} - {{ ticker.company_name }} | AVENIR Emiten Hub</title>
+        <meta name="description" :content="`Analisis, profil perusahaan, laporan keuangan, dan riset saham ${ticker.symbol} - ${ticker.company_name}.`" />
+        <meta property="og:title" :content="`${ticker.symbol} - ${ticker.company_name} | AVENIR Emiten Hub`" />
+        <meta property="og:description" :content="`Data lengkap fundamental dan valuasi saham ${ticker.symbol}.`" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        
+        <!-- GEO Tags untuk SEO Indonesia -->
+        <meta name="geo.region" content="ID" />
+        <meta name="geo.placename" content="Indonesia" />
+        <meta name="geo.position" content="-0.789275;113.921327" />
+        <meta name="ICBM" content="-0.789275, 113.921327" />
+        <meta name="language" content="id-ID" />
+        <meta name="view-transition" content="same-origin" />
+    </Head>
     <AppLayout>
         <div class="min-h-screen bg-[#090b0a] pt-24 pb-12 font-['Inter',sans-serif]">
             <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -91,7 +106,7 @@ const toggleWatchlist = () => {
                 </Link>
 
                 <!-- Header / Profile -->
-                <div class="bg-[#121614] border border-emerald-950/30 rounded-3xl p-6 lg:p-8 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl">
+                <div class="bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-3xl p-6 lg:p-8 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl hover:border-emerald-500/20 transition-all duration-300">
                     <div class="flex items-center gap-6">
                         <div class="w-20 h-20 bg-gradient-to-br from-[#0d47a1] to-[#1565c0] rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-inner shrink-0">
                             {{ ticker.symbol }}
@@ -126,15 +141,15 @@ const toggleWatchlist = () => {
                                 :class="[
                                     'w-full md:w-auto flex justify-center items-center gap-2 px-5 py-2.5 font-semibold rounded-xl transition-all text-sm',
                                     isWatchlisted 
-                                        ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/50' 
-                                        : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/50'
+                                        ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/50 hover:-translate-y-0.5' 
+                                        : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/50 hover:-translate-y-0.5'
                                 ]"
                             >
                                 <BookmarkMinus v-if="isWatchlisted" class="w-4 h-4" />
                                 <BookmarkPlus v-else class="w-4 h-4" />
                                 {{ isWatchlisted ? 'Hapus Watchlist' : '+ Tambah ke Watchlist' }}
                             </button>
-                            <button class="p-2.5 bg-[#121614] hover:bg-[#1a1f1c] rounded-xl text-slate-300 border border-emerald-950/50 hover:border-emerald-500/30 transition-all">
+                            <button class="p-2.5 bg-[#121614]/50 hover:bg-[#1a1f1c] rounded-xl text-slate-300 border border-white/5 hover:border-emerald-500/30 transition-all hover:-translate-y-0.5">
                                 <Share2 class="w-4 h-4" />
                             </button>
                         </div>
@@ -154,7 +169,7 @@ const toggleWatchlist = () => {
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
                     <!-- ROW 1: Ticker Brief & Risiko -->
-                    <div class="lg:col-span-2 bg-[#121614] border border-emerald-950/30 rounded-3xl p-6 relative overflow-hidden group hover:border-emerald-900/50 transition-colors">
+                    <div class="lg:col-span-2 bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-3xl p-6 relative overflow-hidden group hover:border-emerald-500/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                         <div class="absolute -right-8 -top-8 opacity-[0.03] group-hover:opacity-5 group-hover:scale-110 transition-all duration-700">
                             <Zap class="w-48 h-48 text-emerald-400" />
                         </div>
@@ -166,14 +181,14 @@ const toggleWatchlist = () => {
                             {{ companyProfile.code }} merupakan bank BUMN terbesar di Indonesia dengan fokus utama pada segmen mikro dan UMKM. Kekuatan utama perseroan berasal dari jaringan luas, basis nasabah besar, dan profitabilitas yang stabil.
                         </p>
                         <div class="flex flex-wrap gap-2 relative z-10">
-                            <span class="px-3 py-1 bg-[#1a1f1c] border border-emerald-950/50 text-slate-300 text-[11px] font-bold tracking-wide rounded-md uppercase">SOE</span>
-                            <span class="px-3 py-1 bg-[#1a1f1c] border border-emerald-950/50 text-slate-300 text-[11px] font-bold tracking-wide rounded-md uppercase">Banking</span>
-                            <span class="px-3 py-1 bg-[#1a1f1c] border border-emerald-950/50 text-slate-300 text-[11px] font-bold tracking-wide rounded-md uppercase">UMKM</span>
-                            <span class="px-3 py-1 bg-[#1a1f1c] border border-emerald-950/50 text-slate-300 text-[11px] font-bold tracking-wide rounded-md uppercase">Bluechip</span>
+                            <span class="px-3 py-1 bg-[#1a1f1c]/50 backdrop-blur border border-white/5 text-slate-300 text-[11px] font-bold tracking-wide rounded-md uppercase">SOE</span>
+                            <span class="px-3 py-1 bg-[#1a1f1c]/50 backdrop-blur border border-white/5 text-slate-300 text-[11px] font-bold tracking-wide rounded-md uppercase">Banking</span>
+                            <span class="px-3 py-1 bg-[#1a1f1c]/50 backdrop-blur border border-white/5 text-slate-300 text-[11px] font-bold tracking-wide rounded-md uppercase">UMKM</span>
+                            <span class="px-3 py-1 bg-[#1a1f1c]/50 backdrop-blur border border-white/5 text-slate-300 text-[11px] font-bold tracking-wide rounded-md uppercase">Bluechip</span>
                         </div>
                     </div>
                     
-                    <div class="lg:col-span-1 bg-[#121614] border border-emerald-950/30 rounded-3xl p-6 hover:border-red-900/30 transition-colors">
+                    <div class="lg:col-span-1 bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-3xl p-6 hover:border-red-900/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                         <h3 class="text-[13px] font-bold text-red-500 uppercase tracking-wider flex items-center gap-2 mb-4">
                             <AlertTriangle class="w-4 h-4" />
                             Risiko Utama
@@ -187,7 +202,7 @@ const toggleWatchlist = () => {
                     </div>
 
                     <!-- ROW 2: Profil Perusahaan -->
-                    <div class="lg:col-span-3 bg-[#121614] border border-emerald-950/30 rounded-3xl p-6 lg:p-8">
+                    <div class="lg:col-span-3 bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-3xl p-6 lg:p-8 hover:shadow-lg transition-all duration-300">
                         <h3 class="text-[13px] font-bold text-emerald-500 uppercase tracking-wider flex items-center gap-2 mb-6">
                             <Building2 class="w-4 h-4" />
                             Profil Perusahaan
@@ -253,7 +268,7 @@ const toggleWatchlist = () => {
                     </div>
 
                     <!-- ROW 3: Financial Highlight & Rasio -->
-                    <div class="lg:col-span-2 bg-[#121614] border border-emerald-950/30 rounded-3xl p-6 lg:p-8">
+                    <div class="lg:col-span-2 bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-3xl p-6 lg:p-8 hover:shadow-lg transition-all duration-300">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-sm font-bold text-white">Financial Highlight <span class="text-xs text-slate-500 font-normal ml-2">(Kuartal Terakhir)</span></h3>
                             <a href="#" class="text-xs font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">Lihat Semua &rarr;</a>
@@ -274,7 +289,7 @@ const toggleWatchlist = () => {
                         </div>
                     </div>
 
-                    <div class="lg:col-span-1 bg-[#121614] border border-emerald-950/30 rounded-3xl p-6 lg:p-8">
+                    <div class="lg:col-span-1 bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-3xl p-6 lg:p-8 hover:shadow-lg transition-all duration-300">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-sm font-bold text-white">Rasio Keuangan</h3>
                             <a href="#" class="text-xs font-semibold text-emerald-500 hover:text-emerald-400 transition-colors">Lihat Semua &rarr;</a>
@@ -296,7 +311,7 @@ const toggleWatchlist = () => {
                     </div>
 
                     <!-- ROW 4: Tren Kinerja Chart -->
-                    <div class="lg:col-span-3 bg-[#121614] border border-emerald-950/30 rounded-3xl p-6 lg:p-8">
+                    <div class="lg:col-span-3 bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-3xl p-6 lg:p-8 hover:shadow-lg transition-all duration-300">
                         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
                             <h3 class="text-[13px] font-bold text-emerald-500 uppercase tracking-wider flex items-center gap-2">
                                 <Activity class="w-4 h-4" />

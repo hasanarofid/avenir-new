@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { 
@@ -8,16 +8,49 @@ import {
     ArrowRight, ArrowUpRight
 } from 'lucide-vue-next';
 
+const debounce = (fn, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn(...args), delay);
+    };
+};
+
 const props = defineProps({
     tickers: Object,
+    sectors: Array,
     filters: Object
 });
 
-const searchQuery = ref(props.filters.search || '');
+const filterForm = ref({
+    search: props.filters.search || '',
+    sector: props.filters.sector || '',
+    market_cap: props.filters.market_cap || '',
+    per: props.filters.per || '',
+    growth: props.filters.growth || '',
+    yield: props.filters.yield || '',
+    papan: props.filters.papan || '',
+    index_board: props.filters.index_board || 'semua'
+});
+
+watch(filterForm, debounce((newValues) => {
+    router.get(route('emiten.index'), newValues, { preserveState: true, replace: true });
+}, 300), { deep: true });
 
 const submitSearch = () => {
-    router.get(route('emiten.index'), { search: searchQuery.value }, { preserveState: true });
+    router.get(route('emiten.index'), filterForm.value, { preserveState: true, replace: true });
 };
+
+const resetFilters = () => {
+    filterForm.value = {
+        search: '', sector: '', market_cap: '', per: '', growth: '', yield: '', papan: '', index_board: 'semua'
+    };
+    router.get(route('emiten.index'));
+};
+
+const downloadData = () => alert('Fitur Download Data segera hadir!');
+const exportData = () => alert('Fitur Export Data segera hadir!');
+
 
 // Mock data for UI elements that are not dynamic yet
 const topSectors = [
@@ -35,6 +68,17 @@ const topGainers = [
     { ticker: 'BRMS', price: '202', d1: '+13.48%', vol: '865.3' },
     { ticker: 'GOTO', price: '82', d1: '+9.33%', vol: '1,023.7' },
 ];
+
+const topLosers = [
+    { ticker: 'WIKA', price: '120', d1: '-10.5%', vol: '234.5' },
+    { ticker: 'WSKT', price: '80', d1: '-8.2%', vol: '123.1' },
+    { ticker: 'PTPP', price: '290', d1: '-7.4%', vol: '312.6' },
+    { ticker: 'ADHI', price: '220', d1: '-6.5%', vol: '180.2' },
+    { ticker: 'SMRA', price: '450', d1: '-5.1%', vol: '450.8' },
+];
+
+const activeMoverTab = ref('gainers');
+const activeMoverData = computed(() => activeMoverTab.value === 'gainers' ? topGainers : topLosers);
 
 const watchlist = [
     { ticker: 'BBRI', price: '4,820', d1: '+1.48%', isUp: true },
@@ -69,7 +113,22 @@ const getDummyChange = (id) => {
 </script>
 
 <template>
-    <Head title="Emiten Hub" />
+    <Head>
+        <title>Emiten Hub | AVENIR</title>
+        <meta name="description" content="Jelajahi dan analisis kinerja seluruh emiten tercatat di Bursa Efek Indonesia secara komprehensif bersama AVENIR." />
+        <meta property="og:title" content="Emiten Hub | AVENIR" />
+        <meta property="og:description" content="Direktori lengkap perusahaan terbuka di BEI. Temukan saham terbaik untuk portofolio Anda." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        
+        <!-- GEO Tags -->
+        <meta name="geo.region" content="ID" />
+        <meta name="geo.placename" content="Indonesia" />
+        <meta name="geo.position" content="-0.789275;113.921327" />
+        <meta name="ICBM" content="-0.789275, 113.921327" />
+        <meta name="language" content="id-ID" />
+        <meta name="view-transition" content="same-origin" />
+    </Head>
     <AppLayout>
         <div class="min-h-screen bg-[#090b0a] pt-24 pb-12 font-sans text-slate-300">
             <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -80,17 +139,17 @@ const getDummyChange = (id) => {
                         <h1 class="text-3xl font-bold text-white mb-2">Emiten Hub</h1>
                         <p class="text-sm text-slate-400">Jelajahi dan analisis kinerja emiten tercatat di BEI secara komprehensif.</p>
                     </div>
-                    <button class="flex items-center gap-2 px-4 py-2 bg-[#121614] border border-slate-800 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+                    <button @click="downloadData" class="flex items-center gap-2 px-4 py-2 bg-[#121614] border border-slate-800 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
                         <Download class="w-4 h-4" /> Download Data
                     </button>
                 </div>
 
                 <!-- Filters Bar -->
-                <div class="flex flex-wrap gap-3 mb-8 items-center bg-[#121614] p-3 rounded-xl border border-slate-800/50">
+                <div class="flex flex-wrap gap-3 mb-8 items-center bg-[#121614]/70 backdrop-blur-md p-3 rounded-xl border border-white/5 shadow-lg">
                     <form @submit.prevent="submitSearch" class="relative flex-1 min-w-[250px]">
                         <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                         <input 
-                            v-model="searchQuery" 
+                            v-model="filterForm.search" 
                             type="text" 
                             placeholder="Cari emiten, sektor, atau kata kunci (contoh: BBRI, perbankan)" 
                             class="w-full bg-[#0a0c0b] border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-emerald-500/50 text-slate-200"
@@ -98,27 +157,44 @@ const getDummyChange = (id) => {
                     </form>
                     
                     <div class="flex gap-2 flex-wrap">
-                        <select class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 relative min-w-[120px]">
-                            <option>Sektor</option>
+                        <select v-model="filterForm.sector" class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 relative min-w-[120px]">
+                            <option value="">Sektor</option>
+                            <option v-for="s in sectors" :key="s" :value="s">{{ s }}</option>
                         </select>
-                        <select class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
-                            <option>Market Cap</option>
+                        <select v-model="filterForm.market_cap" class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
+                            <option value="">Market Cap</option>
+                            <option value="big">Big Cap (> 100T)</option>
+                            <option value="mid">Mid Cap (10T - 100T)</option>
+                            <option value="small">Small Cap (< 10T)</option>
                         </select>
-                        <select class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
-                            <option>Valuasi (PER)</option>
+                        <select v-model="filterForm.per" class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
+                            <option value="">Valuasi (PER)</option>
+                            <option value="undervalued">< 10x</option>
+                            <option value="fair">10x - 20x</option>
+                            <option value="overvalued">> 20x</option>
                         </select>
-                        <select class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
-                            <option>Growth (YoY)</option>
+                        <select v-model="filterForm.growth" class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
+                            <option value="">Growth (YoY)</option>
+                            <option value="high">> 20%</option>
+                            <option value="positive">0% - 20%</option>
+                            <option value="negative">Negatif</option>
                         </select>
-                        <select class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
-                            <option>Dividend Yield</option>
+                        <select v-model="filterForm.yield" class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
+                            <option value="">Dividend Yield</option>
+                            <option value="high">> 5%</option>
+                            <option value="medium">2% - 5%</option>
+                            <option value="none">Tanpa Dividen</option>
                         </select>
-                        <select class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
-                            <option>Papan</option>
+                        <select v-model="filterForm.papan" class="bg-[#0a0c0b] border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-300 appearance-none pr-8 min-w-[120px]">
+                            <option value="">Papan</option>
+                            <option value="utama">Utama</option>
+                            <option value="pengembangan">Pengembangan</option>
+                            <option value="akselerasi">Akselerasi</option>
+                            <option value="pemantauan">Pemantauan Khusus</option>
                         </select>
                     </div>
 
-                    <button class="flex items-center gap-2 px-3 py-2 text-sm text-slate-400 hover:text-white transition-colors ml-auto">
+                    <button @click="resetFilters" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-400 hover:text-white transition-colors ml-auto">
                         <RefreshCw class="w-4 h-4" /> Reset
                     </button>
                 </div>
@@ -130,7 +206,7 @@ const getDummyChange = (id) => {
                     <div class="lg:col-span-9 space-y-6">
                         
                         <!-- Featured Top Card -->
-                        <div class="bg-[#121614] border border-slate-800/50 rounded-xl p-6 flex flex-col md:flex-row gap-8">
+                        <div class="bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-xl p-6 flex flex-col md:flex-row gap-8 shadow-lg hover:border-emerald-500/20 transition-all duration-300">
                             <div class="flex-1">
                                 <div class="flex items-start gap-4 mb-4">
                                     <div class="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0">
@@ -148,7 +224,7 @@ const getDummyChange = (id) => {
                                 <p class="text-sm text-slate-400 leading-relaxed mb-4">
                                     BBRI merupakan bank komersial milik negara terbesar di Indonesia dengan fokus pada segmen UMKM. Memiliki jaringan terluas dengan lebih dari 10.000 unit kerja di seluruh Indonesia.
                                 </p>
-                                <Link href="#" class="text-emerald-500 text-sm font-medium hover:text-emerald-400 flex items-center gap-1">
+                                <Link :href="route('emiten.show', 'BBRI')" class="text-emerald-500 text-sm font-medium hover:text-emerald-400 flex items-center gap-1">
                                     Lihat Profil Lengkap <ArrowRight class="w-4 h-4" />
                                 </Link>
                             </div>
@@ -212,16 +288,16 @@ const getDummyChange = (id) => {
                         </div>
 
                         <!-- Main Table -->
-                        <div class="bg-[#121614] border border-slate-800/50 rounded-xl overflow-hidden">
+                        <div class="bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden shadow-lg transition-all duration-300">
                             <div class="flex flex-wrap items-center justify-between p-4 border-b border-slate-800/50 gap-4">
                                 <div class="flex space-x-1">
-                                    <button class="px-4 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg text-sm font-medium">Semua Emiten <span class="ml-1 opacity-70">{{ tickers.total }}</span></button>
-                                    <button class="px-4 py-1.5 text-slate-400 hover:text-white rounded-lg text-sm font-medium transition-colors">IDX30</button>
-                                    <button class="px-4 py-1.5 text-slate-400 hover:text-white rounded-lg text-sm font-medium transition-colors">LQ45</button>
-                                    <button class="px-4 py-1.5 text-slate-400 hover:text-white rounded-lg text-sm font-medium transition-colors">IDX80</button>
-                                    <button class="px-4 py-1.5 text-slate-400 hover:text-white rounded-lg text-sm font-medium transition-colors">Kompas100</button>
+                                    <button @click="filterForm.index_board = 'semua'" :class="filterForm.index_board === 'semua' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Semua Emiten <span class="ml-1 opacity-70">{{ tickers.total }}</span></button>
+                                    <button @click="filterForm.index_board = 'idx30'" :class="filterForm.index_board === 'idx30' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">IDX30</button>
+                                    <button @click="filterForm.index_board = 'lq45'" :class="filterForm.index_board === 'lq45' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">LQ45</button>
+                                    <button @click="filterForm.index_board = 'idx80'" :class="filterForm.index_board === 'idx80' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">IDX80</button>
+                                    <button @click="filterForm.index_board = 'kompas100'" :class="filterForm.index_board === 'kompas100' ? 'bg-emerald-500/10 text-emerald-500' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">Kompas100</button>
                                 </div>
-                                <button class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
+                                <button @click="exportData" class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
                                     <ArrowUpRight class="w-4 h-4" /> Export
                                 </button>
                             </div>
@@ -245,7 +321,7 @@ const getDummyChange = (id) => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(ticker, index) in tickers.data" :key="ticker.id" class="border-b border-slate-800/50 hover:bg-[#1a1f1c] transition-colors group">
+                                        <tr v-for="(ticker, index) in tickers.data" :key="ticker.id" class="border-b border-white/5 hover:bg-white/5 transition-all duration-300 group cursor-pointer hover:-translate-y-0.5">
                                             <td class="px-4 py-3 text-slate-500">{{ (tickers.current_page - 1) * tickers.per_page + index + 1 }}</td>
                                             <td class="px-4 py-3">
                                                 <Link :href="route('emiten.show', ticker.symbol)" class="font-bold text-emerald-500 hover:underline">{{ ticker.symbol }}</Link>
@@ -324,7 +400,7 @@ const getDummyChange = (id) => {
                     <div class="lg:col-span-3 space-y-6">
                         
                         <!-- Top Sectors -->
-                        <div class="bg-[#121614] border border-slate-800/50 rounded-xl p-5">
+                        <div class="bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-xl p-5 shadow-lg hover:border-emerald-500/20 transition-all duration-300">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="font-bold text-white text-lg">Top Sectors</h3>
                                 <Link href="#" class="text-xs text-emerald-500 hover:text-emerald-400">Lihat Semua</Link>
@@ -345,15 +421,15 @@ const getDummyChange = (id) => {
                         </div>
 
                         <!-- Top Movers -->
-                        <div class="bg-[#121614] border border-slate-800/50 rounded-xl p-5">
+                        <div class="bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-xl p-5 shadow-lg hover:border-emerald-500/20 transition-all duration-300">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="font-bold text-white text-lg">Top Movers</h3>
                                 <Link href="#" class="text-xs text-emerald-500 hover:text-emerald-400">Lihat Semua</Link>
                             </div>
                             
                             <div class="flex mb-4 bg-slate-800/30 rounded-lg p-1">
-                                <button class="flex-1 text-xs font-medium py-1.5 rounded-md bg-emerald-900/40 text-emerald-400 border border-emerald-800/50">Top Gainers</button>
-                                <button class="flex-1 text-xs font-medium py-1.5 text-slate-400 hover:text-slate-300">Top Losers</button>
+                                <button @click="activeMoverTab = 'gainers'" :class="activeMoverTab === 'gainers' ? 'bg-emerald-900/40 text-emerald-400 border border-emerald-800/50' : 'text-slate-400 hover:text-slate-300'" class="flex-1 text-xs font-medium py-1.5 rounded-md transition-all">Top Gainers</button>
+                                <button @click="activeMoverTab = 'losers'" :class="activeMoverTab === 'losers' ? 'bg-red-900/40 text-red-400 border border-red-800/50' : 'text-slate-400 hover:text-slate-300'" class="flex-1 text-xs font-medium py-1.5 rounded-md transition-all">Top Losers</button>
                             </div>
 
                             <div class="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 gap-y-3 text-sm">
@@ -362,17 +438,17 @@ const getDummyChange = (id) => {
                                 <div class="text-slate-500 text-xs text-right">1D %</div>
                                 <div class="text-slate-500 text-xs text-right">Vol (T)</div>
 
-                                <template v-for="gainer in topGainers" :key="gainer.ticker">
-                                    <div class="font-bold text-white">{{ gainer.ticker }}</div>
+                                <template v-for="gainer in activeMoverData" :key="gainer.ticker">
+                                    <div class="font-bold text-white"><Link :href="route('emiten.show', gainer.ticker)" class="hover:text-emerald-400">{{ gainer.ticker }}</Link></div>
                                     <div class="text-slate-300 text-right">{{ gainer.price }}</div>
-                                    <div class="text-emerald-500 text-right">{{ gainer.d1 }}</div>
+                                    <div :class="activeMoverTab === 'gainers' ? 'text-emerald-500' : 'text-red-500'" class="text-right">{{ gainer.d1 }}</div>
                                     <div class="text-slate-400 text-right">{{ gainer.vol }}</div>
                                 </template>
                             </div>
                         </div>
 
                         <!-- Watchlist Saya -->
-                        <div class="bg-[#121614] border border-slate-800/50 rounded-xl p-5">
+                        <div class="bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-xl p-5 shadow-lg hover:border-emerald-500/20 transition-all duration-300">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="font-bold text-white text-lg">Watchlist Saya</h3>
                                 <Link href="#" class="text-xs text-emerald-500 hover:text-emerald-400">Lihat Semua</Link>
@@ -415,7 +491,7 @@ const getDummyChange = (id) => {
                         <Link href="#" class="text-sm text-emerald-500 hover:text-emerald-400">Lihat Semua <ChevronRight class="w-4 h-4 inline" /></Link>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div v-for="card in featuredCards" :key="card.ticker" class="bg-[#121614] border border-slate-800/50 rounded-xl p-4 hover:border-emerald-500/30 transition-colors">
+                        <Link v-for="card in featuredCards" :key="card.ticker" :href="route('emiten.show', card.ticker)" class="bg-[#121614]/70 backdrop-blur-md border border-white/5 rounded-xl p-4 hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 cursor-pointer block">
                             <div class="flex justify-between items-start mb-2">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 bg-slate-800 rounded flex items-center justify-center font-bold text-white">
@@ -458,7 +534,7 @@ const getDummyChange = (id) => {
                                     <span :class="[card.recColor, 'font-bold px-2 py-0.5 border border-current rounded/20']">{{ card.rec }}</span>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </div>
 

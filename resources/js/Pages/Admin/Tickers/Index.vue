@@ -1,14 +1,19 @@
 <script setup>
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
-import { Plus } from '@lucide/vue';
+import { Plus, Upload, Loader2 } from '@lucide/vue';
 import Swal from 'sweetalert2';
+import { ref } from 'vue';
 
 const props = defineProps({
   emitens: {
-    type: Array,
+    type: Object,
     required: true
+  },
+  filters: {
+    type: Object,
+    default: () => ({})
   }
 });
 
@@ -41,6 +46,62 @@ const handleDelete = async (item) => {
     router.delete(route('admin.emitens.destroy', item.id));
   }
 };
+
+let searchTimeout = null;
+const handleSearch = (query) => {
+  if (searchTimeout) clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    router.get(route('admin.emitens.index'), { search: query }, { preserveState: true, replace: true });
+  }, 300);
+};
+
+const fileInput = ref(null);
+const isUploading = ref(false);
+const form = useForm({
+  file: null,
+});
+
+const triggerFileInput = () => {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
+};
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  form.file = file;
+  isUploading.value = true;
+  form.post(route('admin.emitens.import'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      Swal.fire({
+        title: 'Berhasil',
+        text: 'Data emiten berhasil diimpor.',
+        icon: 'success',
+        background: '#121614',
+        color: '#f1f5f9',
+        confirmButtonColor: '#10b981'
+      });
+      if (fileInput.value) fileInput.value.value = '';
+    },
+    onError: (errors) => {
+      Swal.fire({
+        title: 'Gagal',
+        text: errors.file || 'Gagal mengimpor data.',
+        icon: 'error',
+        background: '#121614',
+        color: '#f1f5f9',
+        confirmButtonColor: '#e11d48'
+      });
+      if (fileInput.value) fileInput.value.value = '';
+    },
+    onFinish: () => {
+      isUploading.value = false;
+    }
+  });
+};
 </script>
 
 <template>
@@ -55,6 +116,23 @@ const handleDelete = async (item) => {
           <p class="text-sm text-slate-400 mt-1">Kelola data profil, finansial, dan risiko untuk Emiten.</p>
         </div>
         <div class="flex items-center gap-3">
+          <input 
+            type="file" 
+            ref="fileInput" 
+            class="hidden" 
+            accept=".xlsx,.xls,.csv"
+            @change="handleFileUpload" 
+          />
+          <button 
+            @click="triggerFileInput"
+            :disabled="isUploading"
+            class="inline-flex items-center px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-sm font-semibold text-white rounded-xl shadow-lg shadow-slate-900/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border border-slate-700"
+          >
+            <Loader2 v-if="isUploading" class="w-4.5 h-4.5 mr-1.5 animate-spin" />
+            <Upload v-else class="w-4.5 h-4.5 mr-1.5" />
+            {{ isUploading ? 'Mengimpor...' : 'Import Excel' }}
+          </button>
+
           <Link 
             :href="route('admin.emitens.create')"
             class="inline-flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-sm font-semibold text-white rounded-xl shadow-lg shadow-emerald-600/20 transition-all cursor-pointer"
@@ -68,12 +146,16 @@ const handleDelete = async (item) => {
       <div class="grid grid-cols-1 gap-8 items-start">
         <div class="col-span-1">
           <DataTable 
-            :items="emitens" 
+            :items="emitens.data" 
             :headers="headers" 
+            :pagination="emitens.links"
+            :serverSearch="true"
+            :initialSearch="filters.search"
             search-placeholder="Cari emiten berdasarkan nama atau simbol..."
             search-key="company_name"
             @edit="handleEdit"
             @delete="handleDelete"
+            @search="handleSearch"
           />
         </div>
       </div>

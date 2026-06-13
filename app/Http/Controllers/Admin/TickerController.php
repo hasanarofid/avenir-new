@@ -13,11 +13,21 @@ use Illuminate\Support\Str;
 
 class TickerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $emitens = Ticker::latest()->get();
+        $query = Ticker::query();
+        
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('symbol', 'like', "%{$search}%");
+        }
+
+        $emitens = $query->latest()->paginate(15)->withQueryString();
+
         return Inertia::render('Admin/Tickers/Index', [
-            'emitens' => $emitens
+            'emitens' => $emitens,
+            'filters' => $request->only(['search'])
         ]);
     }
 
@@ -230,5 +240,19 @@ class TickerController extends Controller
                 [ "name" => "ROA", "value" => "2,8%", "period" => "TTM", "change" => "-0,1%" ]
             ]
         ];
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        try {
+            \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\TickersImport, $request->file('file'));
+            return redirect()->route('admin.emitens.index')->with('success', 'Data emiten berhasil diimpor.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.emitens.index')->with('error', 'Gagal mengimpor data: ' . $e->getMessage());
+        }
     }
 }

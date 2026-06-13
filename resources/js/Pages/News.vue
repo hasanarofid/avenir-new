@@ -1,6 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
     newsList: Array
@@ -8,6 +8,23 @@ defineProps({
 </script>
 
 <template>
+    <Head>
+        <title>News | AVENIR</title>
+        <meta name="description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <meta property="og:title" content="News | AVENIR" />
+        <meta property="og:description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        
+        <!-- GEO Tags -->
+        <meta name="geo.region" content="ID" />
+        <meta name="geo.placename" content="Indonesia" />
+        <meta name="geo.position" content="-0.789275;113.921327" />
+        <meta name="ICBM" content="-0.789275, 113.921327" />
+        <meta name="language" content="id-ID" />
+        <meta name="view-transition" content="same-origin" />
+    </Head>
+
   <AppLayout>
     <div class="news-dark-wrapper">
       <!-- Glow Backdrops -->

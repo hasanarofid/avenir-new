@@ -128,6 +128,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/news-generator/publish', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'publish'])->name('news-generator.publish');
 
     // Emiten (Ticker)
+    Route::post('/emitens/import', [\App\Http\Controllers\Admin\TickerController::class, 'import'])->name('emitens.import');
     Route::post('/emitens/generate-ai', [\App\Http\Controllers\Admin\TickerController::class, 'generateWithAI'])->name('emitens.generate-ai');
     Route::resource('emitens', \App\Http\Controllers\Admin\TickerController::class);
 });
