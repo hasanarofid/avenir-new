@@ -53,10 +53,24 @@ class TickerController extends Controller
             'current_price' => 'nullable|numeric',
             'target_price' => 'nullable|numeric',
             'recommendation' => 'nullable|string|max:50',
+            'sub_sektor' => 'nullable|string|max:255',
+            'industri' => 'nullable|string|max:255',
+            'papan_pencatatan' => 'nullable|string|max:50',
+            'tanggal_listing' => 'nullable|date',
+            'website' => 'nullable|url|max:255',
+            'logo_url' => 'nullable|url|max:255',
+            'business_summary' => 'nullable|string',
+            'ticker_brief' => 'nullable|string',
+            'risk_summary' => 'nullable|string',
+            'investment_angle' => 'nullable|string',
             'company_profile' => 'nullable|array',
             'financial_highlights' => 'nullable|array',
             'financial_ratios' => 'nullable|array',
             'main_risks' => 'nullable|array',
+            'business_segments' => 'nullable|array',
+            'competitive_advantage' => 'nullable|array',
+            'key_risks' => 'nullable|array',
+            'status' => 'nullable|string',
             'article_ids' => 'nullable|array',
             'disclosure_ids' => 'nullable|array',
         ]);
@@ -104,10 +118,24 @@ class TickerController extends Controller
             'current_price' => 'nullable|numeric',
             'target_price' => 'nullable|numeric',
             'recommendation' => 'nullable|string|max:50',
+            'sub_sektor' => 'nullable|string|max:255',
+            'industri' => 'nullable|string|max:255',
+            'papan_pencatatan' => 'nullable|string|max:50',
+            'tanggal_listing' => 'nullable|date',
+            'website' => 'nullable|url|max:255',
+            'logo_url' => 'nullable|url|max:255',
+            'business_summary' => 'nullable|string',
+            'ticker_brief' => 'nullable|string',
+            'risk_summary' => 'nullable|string',
+            'investment_angle' => 'nullable|string',
             'company_profile' => 'nullable|array',
             'financial_highlights' => 'nullable|array',
             'financial_ratios' => 'nullable|array',
             'main_risks' => 'nullable|array',
+            'business_segments' => 'nullable|array',
+            'competitive_advantage' => 'nullable|array',
+            'key_risks' => 'nullable|array',
+            'status' => 'nullable|string',
             'article_ids' => 'nullable|array',
             'disclosure_ids' => 'nullable|array',
         ]);
@@ -148,23 +176,61 @@ class TickerController extends Controller
     {
         $request->validate([
             'symbol' => 'required|string',
-            'company_name' => 'nullable|string'
+            'company_name' => 'nullable|string',
+            'pdf_file' => 'nullable|file|mimes:pdf|max:20480',
+            'pdf_base64' => 'nullable|string',
         ]);
 
         $symbol = $request->symbol;
         $companyName = $request->company_name ?? $symbol;
+        $pdfText = "";
+
+        if ($request->has('pdf_base64') && $request->input('pdf_base64')) {
+            try {
+                $base64 = $request->input('pdf_base64');
+                if (strpos($base64, ',') !== false) {
+                    $base64 = explode(',', $base64)[1];
+                }
+                $pdfContent = base64_decode($base64);
+                
+                $tempPath = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.pdf';
+                file_put_contents($tempPath, $pdfContent);
+
+                $parser = new \Smalot\PdfParser\Parser();
+                $pdf = $parser->parseFile($tempPath);
+                $pdfText = $pdf->getText();
+                // Truncate to avoid massive payload
+                $pdfText = substr($pdfText, 0, 80000);
+                
+                unlink($tempPath);
+            } catch (\Exception $e) {
+                \Log::error("PDF Base64 Parse error: " . $e->getMessage());
+            }
+        } elseif ($request->hasFile('pdf_file')) {
+            try {
+                $parser = new \Smalot\PdfParser\Parser();
+                $pdf = $parser->parseFile($request->file('pdf_file')->path());
+                $pdfText = $pdf->getText();
+                // Truncate to avoid massive payload (approx 80,000 chars ~ 20k tokens)
+                $pdfText = substr($pdfText, 0, 80000); 
+            } catch (\Exception $e) {
+                \Log::error("PDF Parse error: " . $e->getMessage());
+            }
+        }
 
         $systemPrompt = "You are a professional Equity Research Analyst focused on the Indonesian stock market (IDX). " .
             "Provide comprehensive profile and financial estimates for the given company in JSON format exactly matching the schema provided. " .
-            "If exact current data is unknown, provide realistic recent estimates or generic placeholders so the user can edit them later. " .
-            "Format the monetary values in Indonesian Rupiah (e.g. 'Rp 100,5 T', 'Rp 15,2 T') and percentages with commas (e.g. '12,5%').";
+            "Format the monetary values in Indonesian Rupiah (e.g. 'Rp 100,5 T', 'Rp 15,2 T') and percentages with commas (e.g. '12,5%'). " .
+            "CRITICAL: If source document text is provided, extract the data STRICTLY from the text. Do not hallucinate or guess numbers. If a specific metric is not found in the text, return null or an empty string.";
 
         $userPrompt = "Generate data for Ticker: {$symbol} (Company: {$companyName}). Return a JSON object with this exact structure:
 {
+  \"company_name\": \"Full legal name of the company\",
   \"description\": \"A professional summary of the company's main business, market position, and strengths. (1-2 paragraphs)\",
   \"sector\": \"The company's primary sector (e.g., Financials, Energy, Consumer Goods)\",
+  \"sub_sector\": \"The company's sub-sector\",
+  \"industry\": \"Industry name\",
   \"company_profile\": {
-    \"industry\": \"Industry name\",
     \"board\": \"Utama or Pengembangan\",
     \"listingDate\": \"e.g., 10 November 2003\",
     \"website\": \"Company website URL\",
@@ -182,34 +248,46 @@ class TickerController extends Controller
   \"financial_highlights\": [
     { \"title\": \"Net Profit\", \"value\": \"Rp X T\", \"change\": \"+Y%\", \"type\": \"up\", \"icon\": \"TrendingUp\" },
     { \"title\": \"Total Assets\", \"value\": \"Rp Z T\", \"change\": \"+W%\", \"type\": \"up\", \"icon\": \"Building2\" }
-    // Generate 4-6 realistic highlight metrics relevant to their sector (e.g., Net Interest Income for banks, Revenue for others)
+    // Generate 4-6 realistic highlight metrics relevant to their sector
   ],
   \"financial_ratios\": [
     { \"name\": \"PER\", \"value\": \"XX,Xx\", \"period\": \"TTM\", \"change\": \"+Y%\" },
     { \"name\": \"PBV\", \"value\": \"X,Xx\", \"period\": \"TTM\", \"change\": \"-Z%\" },
     { \"name\": \"ROE\", \"value\": \"XX,X%\", \"period\": \"TTM\", \"change\": \"+W%\" }
-    // Add 4-6 relevant financial ratios
   ]
 }";
+
+        if (!empty($pdfText)) {
+            $userPrompt .= "\n\n=== SOURCE DOCUMENT TEXT ===\n" . $pdfText;
+        }
 
         $result = $aiService->generateStructuredJson($systemPrompt, $userPrompt);
 
         if (!$result || empty($result['structured_json'])) {
-            // Karena ini lingkungan development (atau jika timeout), kita kembalikan mock data
-            // agar fitur Autofill AI tetap bisa didemonstrasikan.
-            return response()->json($this->getMockAiData($symbol, $companyName));
+            // Fallback to OpenRouter if ChatGPT fails (e.g. quota limit)
+            $openRouter = app(\App\Services\OpenRouterService::class);
+            $result = $openRouter->generateStructuredJson($systemPrompt, $userPrompt);
+            
+            if (!$result || empty($result['structured_json'])) {
+                $mockData = $this->getMockAiData($symbol, $companyName);
+                \Illuminate\Support\Facades\Log::info("AI generation failed, returning Mock Data: ", $mockData);
+                return response()->json($mockData);
+            }
         }
 
+        \Illuminate\Support\Facades\Log::info("AI generation successful, returning Data: ", $result['structured_json']);
         return response()->json($result['structured_json']);
     }
 
     private function getMockAiData($symbol, $companyName)
     {
         return [
+            "company_name" => $companyName !== $symbol ? $companyName : "PT " . strtoupper($symbol) . " Tbk",
             "description" => "{$companyName} ({$symbol}) adalah perusahaan terkemuka yang beroperasi di sektornya. Perusahaan ini telah mencatatkan pertumbuhan yang solid dalam beberapa tahun terakhir dan terus melakukan ekspansi bisnis untuk memperkuat posisinya di pasar modal Indonesia. Fundamental perusahaan menunjukkan kinerja yang stabil dengan manajemen operasi yang terukur.",
             "sector" => "Financials",
+            "sub_sector" => "Bank",
+            "industry" => "Perbankan / Finansial",
             "company_profile" => [
-                "industry" => "Perbankan / Finansial",
                 "board" => "Utama",
                 "listingDate" => "10 November 2003",
                 "website" => "www." . strtolower($symbol) . ".co.id",

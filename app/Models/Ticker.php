@@ -13,6 +13,10 @@ class Ticker extends Model
         'financial_highlights' => 'array',
         'financial_ratios' => 'array',
         'main_risks' => 'array',
+        'business_segments' => 'array',
+        'competitive_advantage' => 'array',
+        'key_risks' => 'array',
+        'tanggal_listing' => 'date',
     ];
 
     public function articles()
@@ -23,5 +27,30 @@ class Ticker extends Model
     public function disclosures()
     {
         return $this->hasMany(Disclosure::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(EmitenDocument::class, 'kode', 'symbol');
+    }
+
+    public function aiDrafts()
+    {
+        return $this->hasMany(EmitenAIDraft::class, 'kode', 'symbol');
+    }
+
+    public function financials()
+    {
+        return $this->hasMany(EmitenFinancial::class, 'kode', 'symbol');
+    }
+
+    public function bankMetrics()
+    {
+        return $this->hasMany(EmitenBankMetric::class, 'kode', 'symbol');
+    }
+
+    public function stockPrices()
+    {
+        return $this->hasMany(StockPrice::class, 'kode', 'symbol');
     }
 }

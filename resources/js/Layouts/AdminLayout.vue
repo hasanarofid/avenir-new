@@ -119,9 +119,9 @@ const logout = () => {
         'fixed top-0 bottom-0 left-0 z-50 w-72 bg-[#121614] border-r border-emerald-950/20 transition-all duration-300 ease-in-out lg:fixed flex flex-col justify-between'
       ]"
     >
-      <div>
+      <div class="flex flex-col flex-1 overflow-hidden">
         <!-- Sidebar Header / Logo -->
-        <div :class="[isSidebarCollapsed ? 'lg:px-2 lg:justify-center' : 'px-6 justify-between', 'flex items-center h-20 border-b border-emerald-950/20']">
+        <div :class="[isSidebarCollapsed ? 'lg:px-2 lg:justify-center' : 'px-6 justify-between', 'flex items-center h-20 border-b border-emerald-950/20 shrink-0']">
           <Link :href="route('admin.dashboard')" class="flex items-center gap-3">
             <img src="/images/logo.png" :class="[isSidebarCollapsed ? 'h-5' : 'h-7', 'w-auto object-contain transition-all']" alt="Avenir" />
             <div v-if="!isSidebarCollapsed" class="transition-opacity duration-300">
@@ -137,7 +137,7 @@ const logout = () => {
         </div>
 
         <!-- Navigation Links -->
-        <nav class="px-3 py-6 space-y-6 overflow-y-auto scrollbar-hide">
+        <nav class="flex-1 px-3 py-6 space-y-6 overflow-y-auto custom-scrollbar">
           <div v-for="group in navigationGroups" :key="group.title">
             <h3 v-if="!isSidebarCollapsed" class="px-4 text-[10px] font-black tracking-widest text-emerald-600/70 uppercase mb-2">
               {{ group.title }}
@@ -300,6 +300,24 @@ const logout = () => {
 </template>
 
 <style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }

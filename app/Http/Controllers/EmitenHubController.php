@@ -42,7 +42,11 @@ class EmitenHubController extends Controller
 
     public function show($symbol)
     {
-        $ticker = Ticker::where('symbol', strtoupper($symbol))->firstOrFail();
+        $ticker = Ticker::with([
+            'documents' => function($q) { $q->latest()->take(10); },
+            'financials' => function($q) { $q->latest('year')->latest('quarter')->take(10); },
+            'bankMetrics' => function($q) { $q->latest('year')->latest('quarter')->take(10); },
+        ])->where('symbol', strtoupper($symbol))->firstOrFail();
 
         $articles = $ticker->articles()->where('status', 'published')->latest()->take(5)->get();
         $disclosures = $ticker->disclosures()->with('kiBrief')->latest('date')->take(5)->get();

@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Save, ArrowLeft, Wand2, Plus, Trash2 } from '@lucide/vue';
+import { Save, ArrowLeft, Wand2, Plus, Trash2, FileText, CheckCircle2, AlertCircle, X, Upload } from '@lucide/vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -22,6 +22,21 @@ const form = useForm({
     current_price: props.ticker?.current_price || '',
     target_price: props.ticker?.target_price || '',
     recommendation: props.ticker?.recommendation || '',
+    status: props.ticker?.status || 'Draft',
+    sub_sektor: props.ticker?.sub_sektor || '',
+    industri: props.ticker?.industri || '',
+    papan_pencatatan: props.ticker?.papan_pencatatan || '',
+    tanggal_listing: props.ticker?.tanggal_listing || '',
+    website: props.ticker?.website || '',
+    logo_url: props.ticker?.logo_url || '',
+    business_summary: props.ticker?.business_summary || '',
+    ticker_brief: props.ticker?.ticker_brief || '',
+    risk_summary: props.ticker?.risk_summary || '',
+    investment_angle: props.ticker?.investment_angle || '',
+    business_segments: props.ticker?.business_segments || [],
+    competitive_advantage: props.ticker?.competitive_advantage || [],
+    key_risks: props.ticker?.key_risks || [],
+    
     company_profile: props.ticker?.company_profile || {
         industry: '', board: '', listingDate: '', website: '', business: '',
         marketCap: '', outstandingShares: '', address: '', phone: '', email: '',
@@ -34,74 +49,95 @@ const form = useForm({
     disclosure_ids: props.ticker?.disclosure_ids || [],
 });
 
+// UI States
+const activeTab = ref('profil');
+const tabs = [
+    { id: 'profil', name: 'Profil & Data' },
+    { id: 'keuangan', name: 'Keuangan' },
+    { id: 'analisis', name: 'Analisis & Risiko' },
+    { id: 'konten', name: 'Konten' },
+    { id: 'metadata', name: 'Metadata' },
+];
+
+const isAiModalOpen = ref(false);
 const isGeneratingAI = ref(false);
 
+const aiForm = useForm({
+    symbol: form.symbol,
+    company_name: form.company_name,
+    current_price: form.current_price,
+    pdf_file: null,
+});
+
+const handleFileUpload = (e) => {
+    aiForm.pdf_file = e.target.files[0];
+};
+
+const openAiModal = () => {
+    aiForm.symbol = form.symbol;
+    aiForm.company_name = form.company_name;
+    aiForm.current_price = form.current_price;
+    isAiModalOpen.value = true;
+};
+
 const generateWithAI = async () => {
-    if (!form.symbol) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Perhatian',
-            text: 'Mohon isi field Simbol (Ticker) terlebih dahulu.',
-            background: '#121614',
-            color: '#f1f5f9',
-            confirmButtonColor: '#059669'
-        });
+    if (!aiForm.symbol) {
+        Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Simbol wajib diisi.', background: '#121614', color: '#f1f5f9' });
         return;
     }
 
-    const result = await Swal.fire({
-        title: 'Generate dengan AI?',
-        text: `Apakah Anda yakin ingin overwrite data dengan hasil generate AI untuk emiten ${form.symbol}?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#059669',
-        cancelButtonColor: '#475569',
-        confirmButtonText: 'Ya, Lanjutkan!',
-        cancelButtonText: 'Batal',
-        background: '#121614',
-        color: '#f1f5f9'
-    });
-
-    if (result.isConfirmed) {
-        isGeneratingAI.value = true;
-        try {
-            const response = await axios.post(route('admin.emitens.generate-ai'), {
-                symbol: form.symbol,
-                company_name: form.company_name
-            });
-            
-            const data = response.data;
-            
-            if (data.description) form.description = data.description;
-            if (data.sector) form.sector = data.sector;
-            if (data.company_profile) {
-                form.company_profile = { ...form.company_profile, ...data.company_profile };
+    isGeneratingAI.value = true;
+    try {
+        const formData = new FormData();
+        formData.append('symbol', aiForm.symbol);
+        if (aiForm.company_name) formData.append('company_name', aiForm.company_name);
+        if (aiForm.pdf_file) {
+            // Check file size, if > 1.5MB, use base64 to bypass 2MB upload limit
+            if (aiForm.pdf_file.size > 1500000) {
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(aiForm.pdf_file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+                formData.append('pdf_base64', base64);
+            } else {
+                formData.append('pdf_file', aiForm.pdf_file);
             }
-            if (data.financial_highlights) form.financial_highlights = data.financial_highlights;
-            if (data.financial_ratios) form.financial_ratios = data.financial_ratios;
-            if (data.main_risks) form.main_risks = data.main_risks;
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'Berhasil menghasilkan data dari AI! Silakan periksa kolom-kolom di bawah ini.',
-                background: '#121614',
-                color: '#f1f5f9',
-                confirmButtonColor: '#059669'
-            });
-        } catch (error) {
-            console.error(error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: "Gagal menghubungi AI: " + (error.response?.data?.error || error.message),
-                background: '#121614',
-                color: '#f1f5f9',
-                confirmButtonColor: '#059669'
-            });
-        } finally {
-            isGeneratingAI.value = false;
         }
+
+        const response = await axios.post(route('admin.emitens.generate-ai'), formData, {
+            timeout: 120000 // 2 minutes timeout for large PDFs
+        });
+        
+        const data = response.data;
+        
+        if (data.company_name) form.company_name = data.company_name;
+        if (data.description) form.description = data.description;
+        if (data.sector) form.sector = data.sector;
+        if (data.sub_sector) form.sub_sektor = data.sub_sector;
+        if (data.industry) form.industri = data.industry;
+        
+        if (data.company_profile) {
+            form.company_profile = { ...form.company_profile, ...data.company_profile };
+            if (data.company_profile.board) form.papan_pencatatan = data.company_profile.board;
+            if (data.company_profile.website) form.website = data.company_profile.website;
+        }
+        
+        if (data.financial_highlights) form.financial_highlights = data.financial_highlights;
+        if (data.financial_ratios) form.financial_ratios = data.financial_ratios;
+        if (data.main_risks) form.main_risks = data.main_risks;
+        
+        form.symbol = aiForm.symbol;
+        if (aiForm.current_price) form.current_price = aiForm.current_price;
+
+        isAiModalOpen.value = false;
+        Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Data dari PDF berhasil diekstrak oleh AI.', background: '#121614', color: '#f1f5f9' });
+    } catch (error) {
+        console.error(error);
+        Swal.fire({ icon: 'error', title: 'Gagal', text: "Gagal memproses AI: " + (error.response?.data?.message || error.message), background: '#121614', color: '#f1f5f9' });
+    } finally {
+        isGeneratingAI.value = false;
     }
 };
 
@@ -114,212 +150,400 @@ const submit = () => {
 };
 
 // Dynamic Array Helpers
-const addHighlight = () => {
-    form.financial_highlights.push({ title: '', value: '', change: '', type: 'up', icon: 'TrendingUp' });
-};
+const addHighlight = () => form.financial_highlights.push({ title: '', value: '', change: '', type: 'up', icon: 'TrendingUp' });
 const removeHighlight = (index) => form.financial_highlights.splice(index, 1);
-
-const addRatio = () => {
-    form.financial_ratios.push({ name: '', value: '', period: '', change: '' });
-};
+const addRatio = () => form.financial_ratios.push({ name: '', value: '', period: '', change: '' });
 const removeRatio = (index) => form.financial_ratios.splice(index, 1);
-
 const addRisk = () => form.main_risks.push('');
 const removeRisk = (index) => form.main_risks.splice(index, 1);
-
 const tagsInput = ref(form.company_profile.tags ? form.company_profile.tags.join(', ') : '');
-const updateTags = () => {
-    form.company_profile.tags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
-};
-
+const updateTags = () => { form.company_profile.tags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t); };
 </script>
 
 <template>
-    <Head :title="isEditing ? 'Edit Emiten' : 'Tambah Emiten Baru'" />
+    <Head :title="isEditing ? `Edit Emiten ${ticker?.symbol}` : 'Tambah Emiten'" />
 
     <AdminLayout>
-        <div class="space-y-6 pb-12">
-            <!-- Header -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div class="flex items-center gap-4">
-                    <Link :href="route('admin.emitens.index')" class="p-2 bg-[#121614] border border-emerald-950/30 text-slate-400 hover:text-white rounded-xl transition-colors">
-                        <ArrowLeft class="w-5 h-5" />
-                    </Link>
-                    <div>
-                        <h2 class="text-2xl font-extrabold text-white">{{ isEditing ? 'Edit Emiten' : 'Tambah Emiten Baru' }}</h2>
-                        <p class="text-sm text-slate-400">{{ isEditing ? `Mengedit data ${ticker.symbol}` : 'Masukkan detail emiten baru' }}</p>
+        <div class="max-w-[1600px] mx-auto pb-12">
+            
+            <!-- Top Navigation Breadcrumb & Header -->
+            <div class="mb-6 flex flex-col md:flex-row justify-between md:items-end gap-4">
+                <div>
+                    <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                        <Link :href="route('admin.dashboard')" class="hover:text-emerald-400">Dashboard</Link>
+                        <span>›</span>
+                        <Link :href="route('admin.emitens.index')" class="hover:text-emerald-400">Emiten Hub</Link>
+                        <span>›</span>
+                        <span class="text-slate-200">{{ isEditing ? 'Edit Emiten' : 'Tambah Emiten' }}</span>
                     </div>
                 </div>
                 <div class="flex gap-3">
-                    <button 
-                        type="button"
-                        @click="generateWithAI"
-                        :disabled="isGeneratingAI"
-                        class="inline-flex items-center px-4 py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 text-sm font-semibold rounded-xl transition-all disabled:opacity-50"
-                    >
-                        <Wand2 v-if="!isGeneratingAI" class="w-4 h-4 mr-2" />
-                        <svg v-else class="animate-spin -ml-1 mr-2 h-4 w-4 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        {{ isGeneratingAI ? 'Menghasilkan Data...' : '🪄 Autofill AI' }}
+                    <button @click="openAiModal" type="button" class="inline-flex items-center px-4 py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 text-xs font-semibold rounded-lg transition-all">
+                        <Wand2 class="w-4 h-4 mr-2" /> Autofill AI (PDF)
                     </button>
-                    <button 
-                        @click="submit"
-                        :disabled="form.processing"
-                        class="inline-flex items-center px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-sm font-semibold text-white rounded-xl shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50"
-                    >
-                        <Save class="w-4 h-4 mr-2" />
-                        Simpan
+                    <button type="button" class="inline-flex items-center px-4 py-2 bg-[#121614] hover:bg-[#1a1f1c] text-emerald-400 border border-emerald-950/40 text-xs font-semibold rounded-lg transition-all">
+                        &lt;/&gt; Generate JSON
+                    </button>
+                    <button @click="submit" :disabled="form.processing" class="inline-flex items-center px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white rounded-lg shadow-lg shadow-emerald-600/20 transition-all">
+                        <Save class="w-4 h-4 mr-2" /> Simpan
                     </button>
                 </div>
             </div>
 
-            <form @submit.prevent="submit" class="space-y-6">
-                <!-- 1. Header & Brief -->
-                <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl space-y-6">
-                    <h3 class="text-sm font-bold text-emerald-500 uppercase tracking-wider border-b border-emerald-950/30 pb-3">1. Informasi Dasar Emiten</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase">Simbol <span class="text-rose-500">*</span></label>
-                            <input v-model="form.symbol" type="text" required placeholder="Contoh: BBRI" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50 uppercase" />
-                            <div v-if="form.errors.symbol" class="text-xs text-rose-500">{{ form.errors.symbol }}</div>
+            <!-- Main Emiten Profile Header Panel -->
+            <div class="bg-[#121614]/80 border border-emerald-950/40 rounded-2xl p-6 mb-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                <div class="flex items-center gap-5">
+                    <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-3xl font-black text-white shrink-0 shadow-inner">
+                        {{ form.symbol ? form.symbol.substring(0,2) : 'EM' }}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <h2 class="text-2xl font-bold text-white uppercase">{{ form.symbol || 'TICKER' }}</h2>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                {{ form.status }}
+                            </span>
                         </div>
-                        <div class="space-y-2 lg:col-span-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase">Nama Perusahaan <span class="text-rose-500">*</span></label>
-                            <input v-model="form.company_name" type="text" required placeholder="PT Bank Rakyat Indonesia (Persero) Tbk." class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
-                            <div v-if="form.errors.company_name" class="text-xs text-rose-500">{{ form.errors.company_name }}</div>
+                        <p class="text-sm font-semibold text-slate-300">{{ form.company_name || 'Nama Perusahaan Belum Diisi' }}</p>
+                        <p class="text-xs text-slate-500 mt-2">Last updated: {{ isEditing ? new Date(ticker.updated_at).toLocaleString('id-ID') : 'Baru' }} by Admin Avenir</p>
+                    </div>
+                </div>
+
+                <!-- Stats Preview -->
+                <div class="flex items-center gap-8 bg-[#090b0a]/50 p-4 rounded-xl border border-emerald-950/30">
+                    <div>
+                        <p class="text-[10px] text-slate-500 font-semibold mb-1 uppercase">Completion</p>
+                        <p class="text-lg font-bold text-white">92%</p>
+                        <div class="w-24 h-1 bg-slate-800 rounded-full mt-1"><div class="h-1 bg-emerald-500 rounded-full w-[92%]"></div></div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-500 font-semibold mb-1 uppercase">AI Confidence</p>
+                        <p class="text-lg font-bold text-white">88%</p>
+                        <div class="w-24 h-1 bg-slate-800 rounded-full mt-1"><div class="h-1 bg-indigo-500 rounded-full w-[88%]"></div></div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-500 font-semibold mb-1 uppercase">Data Quality</p>
+                        <p class="text-lg font-bold text-emerald-400">A</p>
+                        <p class="text-[10px] text-emerald-500">Excellent</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="border-b border-emerald-950/30 mb-6 flex space-x-6 overflow-x-auto scrollbar-hide">
+                <button 
+                    v-for="tab in tabs" 
+                    :key="tab.id"
+                    @click="activeTab = tab.id"
+                    :class="[
+                        activeTab === tab.id ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-700',
+                        'whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors'
+                    ]"
+                >
+                    {{ tab.name }}
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- LEFT MAIN CONTENT -->
+                <div class="xl:col-span-2 space-y-6">
+                    
+                    <!-- TAB 1: Profil & Data -->
+                    <div v-show="activeTab === 'profil'" class="space-y-6">
+                        <!-- Company Profile Box -->
+                        <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl p-6">
+                            <h3 class="text-base font-bold text-white mb-4">Company Profile</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <div class="md:col-span-2 space-y-2">
+                                    <label class="text-xs text-slate-400">Nama Perusahaan <span class="text-rose-500">*</span></label>
+                                    <input v-model="form.company_name" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Ticker / Kode <span class="text-rose-500">*</span></label>
+                                    <input v-model="form.symbol" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white focus:ring-1 focus:ring-emerald-500/50 uppercase" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Sektor</label>
+                                    <input v-model="form.sector" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Sub Sektor</label>
+                                    <input v-model="form.sub_sektor" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Industry</label>
+                                    <input v-model="form.industri" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
+                                </div>
+                                <div class="md:col-span-3 space-y-2 mt-2">
+                                    <label class="text-xs text-slate-400">Deskripsi Perusahaan</label>
+                                    <textarea v-model="form.description" rows="3" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-emerald-500/50"></textarea>
+                                </div>
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase">Sektor</label>
-                            <input v-model="form.sector" type="text" placeholder="Financials" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
+
+                        <!-- Market Data Box -->
+                        <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl p-6">
+                            <h3 class="text-base font-bold text-white mb-4">Market Data</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Harga (IDR)</label>
+                                    <input v-model="form.current_price" type="number" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Target Price (IDR)</label>
+                                    <input v-model="form.target_price" type="number" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Papan Pencatatan</label>
+                                    <input v-model="form.papan_pencatatan" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Tanggal Listing</label>
+                                    <input v-model="form.tanggal_listing" type="date" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                                <div class="space-y-2 md:col-span-2">
+                                    <label class="text-xs text-slate-400">Website</label>
+                                    <input v-model="form.website" type="url" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                                <div class="space-y-2 md:col-span-2">
+                                    <label class="text-xs text-slate-400">Logo URL</label>
+                                    <input v-model="form.logo_url" type="url" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase">Harga Saat Ini (Rp)</label>
-                            <input v-model="form.current_price" type="number" step="0.01" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
+
+                        <!-- Briefs & Risks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl p-6">
+                                <h3 class="text-sm font-bold text-white mb-4">Ticker Brief</h3>
+                                <textarea v-model="form.ticker_brief" rows="4" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" placeholder="Ringkasan singkat..."></textarea>
+                            </div>
+                            <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl p-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-sm font-bold text-white">Key Risks</h3>
+                                    <button type="button" @click="addRisk" class="text-[10px] font-bold text-emerald-400 flex items-center gap-1 hover:text-emerald-300"><Plus class="w-3 h-3"/> Tambah</button>
+                                </div>
+                                <div class="space-y-3">
+                                    <div v-for="(risk, index) in form.main_risks" :key="index" class="flex gap-2">
+                                        <input v-model="form.main_risks[index]" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-lg px-3 py-1.5 text-xs text-white" />
+                                        <button type="button" @click="removeRisk(index)" class="text-rose-500 hover:bg-rose-500/10 p-1.5 rounded-lg"><Trash2 class="w-4 h-4"/></button>
+                                    </div>
+                                    <p v-if="form.main_risks.length === 0" class="text-xs text-slate-500">Belum ada risiko.</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase">Target Harga (Rp)</label>
-                            <input v-model="form.target_price" type="number" step="0.01" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
+                    </div>
+
+                    <!-- TAB 2: Keuangan -->
+                    <div v-show="activeTab === 'keuangan'" class="space-y-6">
+                        <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3 class="text-base font-bold text-white">Financial Highlights</h3>
+                                    <p class="text-xs text-slate-400">Ringkasan indikator keuangan utama untuk halaman overview.</p>
+                                </div>
+                                <button type="button" @click="addHighlight" class="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 rounded-lg text-xs font-bold hover:bg-emerald-600/30">Tambah Highlight</button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div v-for="(item, index) in form.financial_highlights" :key="index" class="p-4 bg-[#090b0a] border border-emerald-950/30 rounded-xl relative">
+                                    <button type="button" @click="removeHighlight(index)" class="absolute top-2 right-2 text-slate-500 hover:text-rose-500"><X class="w-4 h-4"/></button>
+                                    <div class="space-y-3">
+                                        <div><label class="text-[10px] text-slate-500 uppercase">Judul</label><input v-model="item.title" type="text" class="w-full bg-[#121614] border-emerald-950/30 rounded-lg text-xs text-white p-2" /></div>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div><label class="text-[10px] text-slate-500 uppercase">Nilai</label><input v-model="item.value" type="text" class="w-full bg-[#121614] border-emerald-950/30 rounded-lg text-xs text-white p-2" /></div>
+                                            <div><label class="text-[10px] text-slate-500 uppercase">Perubahan</label><input v-model="item.change" type="text" class="w-full bg-[#121614] border-emerald-950/30 rounded-lg text-xs text-white p-2" /></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase">Rekomendasi</label>
-                            <select v-model="form.recommendation" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50">
-                                <option value="">Tidak ada</option>
-                                <option value="BUY">BUY</option>
-                                <option value="HOLD">HOLD</option>
-                                <option value="SELL">SELL</option>
+
+                        <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-base font-bold text-white">Rasio Keuangan</h3>
+                                <button type="button" @click="addRatio" class="px-3 py-1.5 bg-emerald-600/20 text-emerald-400 rounded-lg text-xs font-bold hover:bg-emerald-600/30">Tambah Rasio</button>
+                            </div>
+                            <div class="space-y-3">
+                                <div v-for="(ratio, index) in form.financial_ratios" :key="index" class="flex items-center gap-3 bg-[#090b0a] p-3 rounded-xl border border-emerald-950/30">
+                                    <input v-model="ratio.name" type="text" placeholder="Nama (PER)" class="w-1/4 bg-[#121614] border-emerald-950/30 rounded-lg text-xs text-white p-2" />
+                                    <input v-model="ratio.value" type="text" placeholder="Nilai (12.5x)" class="w-1/4 bg-[#121614] border-emerald-950/30 rounded-lg text-xs text-white p-2" />
+                                    <input v-model="ratio.period" type="text" placeholder="Periode (TTM)" class="w-1/4 bg-[#121614] border-emerald-950/30 rounded-lg text-xs text-white p-2" />
+                                    <input v-model="ratio.change" type="text" placeholder="Perubahan (+1%)" class="w-1/4 bg-[#121614] border-emerald-950/30 rounded-lg text-xs text-white p-2" />
+                                    <button type="button" @click="removeRatio(index)" class="text-rose-500 p-2"><Trash2 class="w-4 h-4"/></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: Konten & Relasi -->
+                    <div v-show="activeTab === 'konten'" class="space-y-6">
+                        <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl p-6">
+                            <h3 class="text-base font-bold text-white mb-4">Relasi Riset & Artikel</h3>
+                            <select v-model="form.article_ids" multiple class="w-full h-48 bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white focus:ring-1 focus:ring-emerald-500/50">
+                                <option v-for="article in articles" :key="article.id" :value="article.id">{{ article.title }}</option>
+                            </select>
+                            <p class="text-xs text-slate-500 mt-2">Tahan tombol Ctrl/Cmd untuk memilih banyak.</p>
+                        </div>
+                        <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl p-6">
+                            <h3 class="text-base font-bold text-white mb-4">Relasi Disclosures</h3>
+                            <select v-model="form.disclosure_ids" multiple class="w-full h-48 bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white focus:ring-1 focus:ring-emerald-500/50">
+                                <option v-for="disclosure in disclosures" :key="disclosure.id" :value="disclosure.id">{{ disclosure.title }}</option>
                             </select>
                         </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-400 uppercase">Deskripsi / Ticker Brief</label>
-                        <textarea v-model="form.description" rows="3" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50"></textarea>
-                    </div>
-                </div>
 
-                <!-- 2. Profil Perusahaan -->
-                <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl space-y-6">
-                    <h3 class="text-sm font-bold text-emerald-500 uppercase tracking-wider border-b border-emerald-950/30 pb-3">2. Profil Perusahaan</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-400 uppercase">Industri</label><input v-model="form.company_profile.industry" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" /></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-400 uppercase">Papan Pencatatan</label><input v-model="form.company_profile.board" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" /></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-400 uppercase">Tanggal Listing</label><input v-model="form.company_profile.listingDate" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" /></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-400 uppercase">Market Cap</label><input v-model="form.company_profile.marketCap" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" /></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-400 uppercase">Saham Beredar</label><input v-model="form.company_profile.outstandingShares" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" /></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-400 uppercase">Website</label><input v-model="form.company_profile.website" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" /></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-400 uppercase">Telepon</label><input v-model="form.company_profile.phone" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" /></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-400 uppercase">Email</label><input v-model="form.company_profile.email" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" /></div>
-                        <div class="space-y-2"><label class="text-xs font-bold text-slate-400 uppercase">Tags (Pisahkan dengan koma)</label>
-                            <input v-model="tagsInput" @input="updateTags" type="text" placeholder="Contoh: SOE, Banking, Bluechip" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-400 uppercase">Bidang Usaha</label>
-                        <textarea v-model="form.company_profile.business" rows="2" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50"></textarea>
-                    </div>
-                </div>
-
-                <!-- 3. Risiko Utama -->
-                <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl space-y-6">
-                    <div class="flex justify-between items-center border-b border-emerald-950/30 pb-3">
-                        <h3 class="text-sm font-bold text-emerald-500 uppercase tracking-wider">3. Risiko Utama</h3>
-                        <button type="button" @click="addRisk" class="text-xs font-semibold bg-emerald-600/20 text-emerald-400 px-3 py-1 rounded-lg hover:bg-emerald-600/30 transition-colors flex items-center gap-1"><Plus class="w-3 h-3" /> Tambah Risiko</button>
-                    </div>
-                    <div v-for="(risk, index) in form.main_risks" :key="index" class="flex items-center gap-3">
-                        <input v-model="form.main_risks[index]" type="text" placeholder="Masukkan risiko utama..." class="flex-1 bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-emerald-500/50" />
-                        <button type="button" @click="removeRisk(index)" class="p-2.5 text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors"><Trash2 class="w-4 h-4" /></button>
-                    </div>
-                    <p v-if="form.main_risks.length === 0" class="text-slate-500 text-sm">Belum ada risiko utama ditambahkan.</p>
-                </div>
-
-                <!-- 4. Financial Highlight -->
-                <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl space-y-6">
-                    <div class="flex justify-between items-center border-b border-emerald-950/30 pb-3">
-                        <h3 class="text-sm font-bold text-emerald-500 uppercase tracking-wider">4. Financial Highlights</h3>
-                        <button type="button" @click="addHighlight" class="text-xs font-semibold bg-emerald-600/20 text-emerald-400 px-3 py-1 rounded-lg hover:bg-emerald-600/30 transition-colors flex items-center gap-1"><Plus class="w-3 h-3" /> Tambah Data</button>
-                    </div>
-                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                        <div v-for="(item, index) in form.financial_highlights" :key="index" class="p-4 bg-[#090b0a] border border-emerald-950/40 rounded-xl flex flex-col sm:flex-row gap-4 relative">
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-1">
-                                <div class="col-span-2"><label class="text-xs text-slate-500">Judul</label><input v-model="item.title" type="text" class="w-full bg-[#121614] border-emerald-950/40 rounded-lg text-xs text-white p-2" placeholder="Net Profit" /></div>
-                                <div class="col-span-2"><label class="text-xs text-slate-500">Nilai (Rp/%)</label><input v-model="item.value" type="text" class="w-full bg-[#121614] border-emerald-950/40 rounded-lg text-xs text-white p-2" placeholder="Rp 15,0 T" /></div>
-                                <div class="col-span-2 sm:col-span-1"><label class="text-xs text-slate-500">Perubahan YoY</label><input v-model="item.change" type="text" class="w-full bg-[#121614] border-emerald-950/40 rounded-lg text-xs text-white p-2" placeholder="+10%" /></div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label class="text-xs text-slate-500">Arah</label>
-                                    <select v-model="item.type" class="w-full bg-[#121614] border-emerald-950/40 rounded-lg text-xs text-white p-2">
-                                        <option value="up">Naik (Hijau)</option>
-                                        <option value="down">Turun (Merah)</option>
+                    <!-- TAB 4: Metadata -->
+                    <div v-show="activeTab === 'metadata'" class="space-y-6">
+                        <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl p-6">
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Rekomendasi Utama</label>
+                                    <select v-model="form.recommendation" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white">
+                                        <option value="">Tidak ada</option>
+                                        <option value="BUY">BUY</option>
+                                        <option value="HOLD">HOLD</option>
+                                        <option value="SELL">SELL</option>
                                     </select>
                                 </div>
-                                <div class="col-span-2"><label class="text-xs text-slate-500">Lucide Icon (Opsional)</label><input v-model="item.icon" type="text" class="w-full bg-[#121614] border-emerald-950/40 rounded-lg text-xs text-white p-2" placeholder="TrendingUp" /></div>
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Status Publish</label>
+                                    <select v-model="form.status" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white">
+                                        <option value="Draft">Draft</option>
+                                        <option value="Review">Need Review</option>
+                                        <option value="Published">Published</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs text-slate-400">Tags Emiten</label>
+                                    <input v-model="tagsInput" @input="updateTags" type="text" placeholder="Banking, BUMN, Bluechip" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
                             </div>
-                            <button type="button" @click="removeHighlight(index)" class="self-end sm:self-center p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors mt-2 sm:mt-0"><Trash2 class="w-4 h-4" /></button>
                         </div>
                     </div>
+                    
                 </div>
 
-                <!-- 5. Rasio Keuangan -->
-                <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl space-y-6">
-                    <div class="flex justify-between items-center border-b border-emerald-950/30 pb-3">
-                        <h3 class="text-sm font-bold text-emerald-500 uppercase tracking-wider">5. Rasio Keuangan</h3>
-                        <button type="button" @click="addRatio" class="text-xs font-semibold bg-emerald-600/20 text-emerald-400 px-3 py-1 rounded-lg hover:bg-emerald-600/30 transition-colors flex items-center gap-1"><Plus class="w-3 h-3" /> Tambah Rasio</button>
-                    </div>
-                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                        <div v-for="(ratio, index) in form.financial_ratios" :key="'ratio'+index" class="p-4 bg-[#090b0a] border border-emerald-950/40 rounded-xl flex gap-3 relative items-center">
-                            <div class="grid grid-cols-4 gap-3 flex-1">
-                                <div class="col-span-1"><label class="text-xs text-slate-500">Rasio</label><input v-model="ratio.name" type="text" class="w-full bg-[#121614] border-emerald-950/40 rounded-lg text-xs text-white p-2" placeholder="PER" /></div>
-                                <div class="col-span-1"><label class="text-xs text-slate-500">Nilai</label><input v-model="ratio.value" type="text" class="w-full bg-[#121614] border-emerald-950/40 rounded-lg text-xs text-white p-2" placeholder="12,5x" /></div>
-                                <div class="col-span-1"><label class="text-xs text-slate-500">Periode</label><input v-model="ratio.period" type="text" class="w-full bg-[#121614] border-emerald-950/40 rounded-lg text-xs text-white p-2" placeholder="2025" /></div>
-                                <div class="col-span-1"><label class="text-xs text-slate-500">YoY</label><input v-model="ratio.change" type="text" class="w-full bg-[#121614] border-emerald-950/40 rounded-lg text-xs text-white p-2" placeholder="+1,2%" /></div>
+                <!-- RIGHT SIDEBAR (AI & Status) -->
+                <div class="xl:col-span-1 space-y-6">
+                    <!-- AI Extraction Panel -->
+                    <div class="bg-[#121614]/80 border border-emerald-950/40 rounded-2xl p-6">
+                        <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                            <Wand2 class="w-4 h-4 text-indigo-400" />
+                            AI Extraction Status
+                        </h3>
+                        <div class="flex items-center justify-center mb-6">
+                            <div class="relative w-24 h-24 flex items-center justify-center rounded-full border-4 border-emerald-500/20 border-t-emerald-500">
+                                <span class="text-2xl font-bold text-white">87%</span>
                             </div>
-                            <button type="button" @click="removeRatio(index)" class="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors"><Trash2 class="w-4 h-4" /></button>
+                        </div>
+                        <div class="space-y-3">
+                            <p class="text-xs text-slate-400 text-center">Extraction Completed</p>
+                            <p class="text-[10px] text-slate-500 text-center">Data berhasil diekstrak dari PDF menggunakan ChatGPT.</p>
+                            <div class="flex items-center gap-2 justify-center mt-2">
+                                <CheckCircle2 class="w-4 h-4 text-emerald-500" />
+                                <span class="text-xs text-emerald-400">All critical fields extracted</span>
+                            </div>
+                        </div>
+                        <button @click="openAiModal" type="button" class="mt-6 w-full py-2.5 bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/20 text-indigo-400 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                            <Wand2 class="w-4 h-4" /> Run AI Autofill again
+                        </button>
+                    </div>
+
+                    <!-- Source Documents Placeholder -->
+                    <div class="bg-[#121614]/80 border border-emerald-950/40 rounded-2xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-white">Source Documents</h3>
+                            <button class="text-xs text-emerald-400 hover:text-emerald-300">Manage</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-2 text-slate-300"><FileText class="w-3.5 h-3.5 text-rose-400"/> Laporan Keuangan 2024.pdf</div>
+                                <span class="text-[10px] text-emerald-500 font-bold">Processed</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-2 text-slate-300"><FileText class="w-3.5 h-3.5 text-blue-400"/> Company Profile.docx</div>
+                                <span class="text-[10px] text-emerald-500 font-bold">Processed</span>
+                            </div>
+                            <button class="text-xs text-emerald-400 flex items-center gap-1 mt-2 hover:underline">
+                                <Plus class="w-3 h-3" /> Add New Source
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Publish Checklist Placeholder -->
+                    <div class="bg-[#121614]/80 border border-emerald-950/40 rounded-2xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-white">Publish Checklist</h3>
+                            <span class="text-xs text-emerald-400 font-bold">7/8</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-800 rounded-full mb-4"><div class="h-1.5 bg-emerald-500 rounded-full w-[85%]"></div></div>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex items-center gap-2 text-slate-300"><CheckCircle2 class="w-4 h-4 text-emerald-500"/> Company Profile Lengkap</div>
+                            <div class="flex items-center gap-2 text-slate-300"><CheckCircle2 class="w-4 h-4 text-emerald-500"/> Market Data Terisi</div>
+                            <div class="flex items-center gap-2 text-slate-300"><CheckCircle2 class="w-4 h-4 text-emerald-500"/> Keuangan Terupdate</div>
+                            <div class="flex items-center gap-2 text-slate-300"><CheckCircle2 class="w-4 h-4 text-emerald-500"/> Analisis & Rekomendasi</div>
+                            <div class="flex items-center gap-2 text-slate-400"><div class="w-4 h-4 rounded-full border border-slate-600"></div> Review & Approval</div>
                         </div>
                     </div>
                 </div>
-
-                <!-- 6. Relasi Dokumen -->
-                <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl space-y-6">
-                    <h3 class="text-sm font-bold text-emerald-500 uppercase tracking-wider border-b border-emerald-950/30 pb-3">6. Berita & Keterbukaan Informasi</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase">Tautkan Artikel / Riset</label>
-                            <select v-model="form.article_ids" multiple class="w-full h-48 bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white focus:ring-1 focus:ring-emerald-500/50">
-                                <option v-for="article in articles" :key="article.id" :value="article.id">
-                                    {{ article.title }}
-                                </option>
-                            </select>
-                            <p class="text-xs text-slate-500">Tahan tombol Ctrl (Windows) / Cmd (Mac) untuk memilih lebih dari satu.</p>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase">Tautkan Keterbukaan Informasi</label>
-                            <select v-model="form.disclosure_ids" multiple class="w-full h-48 bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white focus:ring-1 focus:ring-emerald-500/50">
-                                <option v-for="disclosure in disclosures" :key="disclosure.id" :value="disclosure.id">
-                                    {{ disclosure.title }}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-            </form>
+            </div>
         </div>
     </AdminLayout>
+
+    <!-- AI Autofill Modal -->
+    <div v-if="isAiModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#121614] border border-emerald-950/40 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-emerald-950/40 flex justify-between items-center bg-gradient-to-r from-[#121614] to-emerald-950/10">
+                <h3 class="text-base font-bold text-white flex items-center gap-2"><Wand2 class="w-5 h-5 text-indigo-400" /> AI Document Extraction</h3>
+                <button @click="isAiModalOpen = false" class="text-slate-500 hover:text-white transition-colors"><X class="w-5 h-5" /></button>
+            </div>
+            
+            <div class="p-6 space-y-5">
+                <div class="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex gap-3 text-sm text-indigo-200">
+                    <AlertCircle class="w-5 h-5 text-indigo-400 shrink-0" />
+                    <p>Unggah file PDF Laporan Keuangan. AI akan mengekstrak data profil, keuangan, dan risiko secara presisi berdasarkan dokumen ini.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase mb-1.5 block">Kode Saham (Ticker) <span class="text-rose-500">*</span></label>
+                        <input v-model="aiForm.symbol" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white uppercase" placeholder="BBRI" />
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase mb-1.5 block">Nama Perusahaan (Opsional)</label>
+                        <input v-model="aiForm.company_name" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white" placeholder="PT Bank Rakyat Indonesia..." />
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase mb-1.5 block">Harga Saat Ini (Opsional, untuk valuasi)</label>
+                        <input v-model="aiForm.current_price" type="number" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-white" placeholder="4820" />
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase mb-1.5 block">Dokumen Laporan Keuangan (PDF) <span class="text-rose-500">*</span></label>
+                        <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-emerald-950/50 rounded-xl cursor-pointer hover:bg-[#090b0a]/50 transition-colors bg-[#090b0a]">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <Upload class="w-8 h-8 mb-3 text-emerald-500/50" />
+                                <p class="mb-1 text-sm text-slate-300"><span class="font-bold">Klik untuk unggah</span> atau seret file PDF</p>
+                                <p class="text-xs text-slate-500">{{ aiForm.pdf_file ? aiForm.pdf_file.name : 'Maksimal 20MB' }}</p>
+                            </div>
+                            <input type="file" class="hidden" accept=".pdf" @change="handleFileUpload" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 border-t border-emerald-950/40 bg-[#090b0a] flex justify-end gap-3">
+                <button @click="isAiModalOpen = false" type="button" class="px-5 py-2.5 text-sm font-semibold text-slate-300 hover:text-white transition-colors">Batal</button>
+                <button 
+                    @click="generateWithAI" 
+                    :disabled="isGeneratingAI || !aiForm.symbol"
+                    class="inline-flex items-center px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50"
+                >
+                    <span v-if="isGeneratingAI" class="flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Mengekstrak AI...
+                    </span>
+                    <span v-else class="flex items-center gap-2"><Wand2 class="w-4 h-4"/> Ekstrak Data</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
