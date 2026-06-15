@@ -24,6 +24,16 @@ const form = useForm({
   openrouter_api_key: props.settings.openrouter_api_key || '',
   openrouter_default_model: props.settings.openrouter_default_model || 'anthropic/claude-3.5-sonnet',
   openrouter_fallback_model: props.settings.openrouter_fallback_model || 'openai/gpt-4o',
+  maint_home: props.settings.maint_home === '1' || props.settings.maint_home === true,
+  maint_katalog: props.settings.maint_katalog === '1' || props.settings.maint_katalog === true,
+  maint_artikel: props.settings.maint_artikel === '1' || props.settings.maint_artikel === true,
+  maint_news: props.settings.maint_news === '1' || props.settings.maint_news === true,
+  maint_emiten: props.settings.maint_emiten === '1' || props.settings.maint_emiten === true,
+  maint_ki_brief: props.settings.maint_ki_brief === '1' || props.settings.maint_ki_brief === true,
+  maint_disclosure: props.settings.maint_disclosure === '1' || props.settings.maint_disclosure === true,
+  maint_tentang: props.settings.maint_tentang === '1' || props.settings.maint_tentang === true,
+  maint_mitra: props.settings.maint_mitra === '1' || props.settings.maint_mitra === true,
+  maint_langganan: props.settings.maint_langganan === '1' || props.settings.maint_langganan === true,
   site_logo: null
 });
 
@@ -155,6 +165,20 @@ const submit = () => {
             AI Config
           </span>
         </button>
+        <button 
+          @click="currentTab = 'maintenance'"
+          :class="[
+            currentTab === 'maintenance' 
+              ? 'border-emerald-500 text-emerald-450 bg-[#090b0a]/10' 
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-emerald-800',
+            'px-6 py-3 border-b-2 font-semibold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer'
+          ]"
+        >
+          <span class="flex items-center gap-2">
+            <ShieldAlert class="w-4 h-4" />
+            Maintenance
+          </span>
+        </button>
       </div>
 
       <!-- Settings Card -->
@@ -202,6 +226,7 @@ const submit = () => {
                 </div>
               </div>
             </div>
+
           </div>
 
           <!-- Tab 2: Kontak & Tautan -->
@@ -459,6 +484,142 @@ const submit = () => {
                   class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250"
                 />
               </div>
+            </div>
+          </div>
+          <!-- Tab 7: Maintenance Config -->
+          <div v-if="currentTab === 'maintenance'" class="space-y-6 animate-fadeIn">
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-rose-500/8 border border-rose-500/20">
+              <ShieldAlert class="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p class="text-sm font-semibold text-rose-300">Mode Perawatan (Maintenance)</p>
+                <p class="text-xs text-slate-400 mt-1">
+                  Aktifkan toggle di bawah ini untuk menutup halaman secara spesifik (publik akan melihat layar Maintenance 503 saat mengaksesnya).
+                </p>
+              </div>
+            </div>
+
+            <!-- Generate list of granular toggles -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Beranda -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Beranda (Home)</h4>
+                  <p class="text-xxs text-slate-500">Halaman utama website</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_home" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+              
+              <!-- Katalog -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Katalog</h4>
+                  <p class="text-xxs text-slate-500">Halaman direktori riset</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_katalog" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+              
+              <!-- Artikel -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Artikel</h4>
+                  <p class="text-xxs text-slate-500">Blog dan postingan artikel</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_artikel" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+              
+              <!-- News -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Berita (News AI)</h4>
+                  <p class="text-xxs text-slate-500">Berita dari generator AI</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_news" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+
+              <!-- Emiten Hub -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Emiten Hub</h4>
+                  <p class="text-xxs text-slate-500">Data dan profil Emiten</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_emiten" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+              
+              <!-- KI Brief -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">KI Brief</h4>
+                  <p class="text-xxs text-slate-500">Ringkasan riset KI</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_ki_brief" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+              
+              <!-- Disclosure Radar -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Disclosure Radar</h4>
+                  <p class="text-xxs text-slate-500">Keterbukaan informasi Bursa</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_disclosure" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+              
+              <!-- Tentang Kami -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Tentang Kami</h4>
+                  <p class="text-xxs text-slate-500">Halaman company profile</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_tentang" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+              
+              <!-- Mitra Analis -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Mitra Analis</h4>
+                  <p class="text-xxs text-slate-500">Halaman registrasi/info mitra</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_mitra" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+              
+              <!-- Langganan -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Langganan</h4>
+                  <p class="text-xxs text-slate-500">Halaman paket langganan (Subs)</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_langganan" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+
             </div>
           </div>
 

@@ -47,6 +47,16 @@ class SettingController extends Controller
             'openrouter_api_key'        => 'nullable|string|max:255',
             'openrouter_default_model'  => 'nullable|string|max:100',
             'openrouter_fallback_model' => 'nullable|string|max:100',
+            'maint_home'          => 'nullable|boolean',
+            'maint_katalog'       => 'nullable|boolean',
+            'maint_artikel'       => 'nullable|boolean',
+            'maint_news'          => 'nullable|boolean',
+            'maint_emiten'        => 'nullable|boolean',
+            'maint_ki_brief'      => 'nullable|boolean',
+            'maint_disclosure'    => 'nullable|boolean',
+            'maint_tentang'       => 'nullable|boolean',
+            'maint_mitra'         => 'nullable|boolean',
+            'maint_langganan'     => 'nullable|boolean',
         ]);
 
         // Process site logo file upload
@@ -79,6 +89,12 @@ class SettingController extends Controller
         Setting::setValue('openrouter_api_key', $validatedData['openrouter_api_key'] ?? '', 'text');
         Setting::setValue('openrouter_default_model', $validatedData['openrouter_default_model'] ?? 'anthropic/claude-3.5-sonnet', 'text');
         Setting::setValue('openrouter_fallback_model', $validatedData['openrouter_fallback_model'] ?? 'openai/gpt-4o', 'text');
+
+        // Granular Maintenance Mode
+        $maintKeys = ['maint_home', 'maint_katalog', 'maint_artikel', 'maint_news', 'maint_emiten', 'maint_ki_brief', 'maint_disclosure', 'maint_tentang', 'maint_mitra', 'maint_langganan'];
+        foreach ($maintKeys as $mKey) {
+            Setting::setValue($mKey, (bool) ($validatedData[$mKey] ?? false) ? '1' : '0', 'boolean');
+        }
 
         return redirect()->back()->with('success', 'Konfigurasi website berhasil diperbarui.');
     }
