@@ -30,8 +30,9 @@ const hasCustomHero = computed(() => {
 });
 
 const formattedPrice = computed(() => {
-    if (!props.research.price) return null;
-    return Number(props.research.price).toLocaleString('id-ID');
+    if (!props.research.target_price) return null;
+    if (isNaN(props.research.target_price)) return props.research.target_price;
+    return Number(props.research.target_price).toLocaleString('id-ID');
 });
 </script>
 
@@ -67,10 +68,10 @@ const formattedPrice = computed(() => {
 
           <!-- Breadcrumb -->
           <div class="kdp-breadcrumb">
-            <Link href="/katalog" class="kdp-bc-link">
+            <a href="/katalog" class="kdp-bc-link">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
               Katalog Riset
-            </Link>
+            </a>
           </div>
 
           <!-- Badges -->
@@ -87,7 +88,7 @@ const formattedPrice = computed(() => {
 
           <!-- Meta row -->
           <div class="kdp-meta-row hmeta">
-            <span class="kdp-meta-author">Tim Avenir Research</span>
+            <span class="kdp-meta-author">{{ research.author ? research.author.name : 'Tim Avenir Research' }}</span>
             <span class="kdp-meta-sep">·</span>
             <span class="kdp-meta-date">{{ research.date }}</span>
             <span v-if="formattedPrice" class="kdp-meta-sep">·</span>
@@ -118,21 +119,118 @@ const formattedPrice = computed(() => {
         </div>
       </div>
 
-      <!-- ─── CONTENT AREA ──────────────────────────────── -->
+      <!-- ─── MAIN CONTENT AREA (2 COLUMNS) ──────────────────────────────── -->
       <div class="kdp-content-area" :class="{ 'is-custom': hasCustomHtml || hasCustomHero }">
         <div :class="{ 'kdp-container': !hasCustomHtml && !hasCustomHero }">
-          <div class="guest-lock-wrap" :class="{ 'is-guest': isLocked }">
+          
+          <!-- Legacy Custom HTML Content -->
+          <div v-if="hasCustomHtml || hasCustomHero" class="guest-lock-wrap" :class="{ 'is-guest': isLocked }">
+            
+            <!-- Custom Breadcrumb for Legacy Pages -->
+            <div class="kdp-custom-breadcrumb">
+              <a href="/katalog" class="kdp-bc-link-custom">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Katalog Riset
+              </a>
+            </div>
 
-            <!-- Article HTML Content -->
-            <div
-              class="guest-lock-content"
-              :class="{ 'db-content': !hasCustomHtml }"
-              v-html="research.content"
-            />
-
-            <!-- Lock Overlay Gate -->
+            <div class="guest-lock-content" v-html="research.content" />
             <Paywall v-if="isLocked" />
           </div>
+
+          <!-- New PDF-Centric Layout -->
+          <div v-else class="kdp-split-layout">
+            
+            <!-- Left Column: Summary -->
+            <div class="kdp-summary-col">
+              <div class="summary-card">
+                <h2 class="summary-title">Ringkasan Eksekutif</h2>
+                
+                <div class="guest-lock-wrap" :class="{ 'is-guest': isLocked }">
+                  <div class="guest-lock-content db-content">
+                    <!-- Image Display -->
+                    <img v-if="research.image" :src="research.image" :alt="research.title" class="w-full h-auto rounded-xl mb-6 object-cover border border-white/5 shadow-md">
+                    
+                    <div v-if="research.content" v-html="research.content"></div>
+                    <div v-else-if="research.subtitle" v-html="research.subtitle"></div>
+                    <div v-else class="empty-summary text-slate-400 italic">
+                      Ringkasan detail belum tersedia untuk laporan ini. Silakan unduh dokumen PDF untuk membaca analisis selengkapnya.
+                    </div>
+                  </div>
+                  <!-- Paywall blocks the summary if locked -->
+                  <Paywall v-if="isLocked" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Action Card -->
+            <div class="kdp-action-col">
+              <div class="action-card sticky top-24">
+                
+                <!-- Report Info Header -->
+                <div class="ac-header">
+                  <span v-if="research.is_premium" class="premium-badge-gold mb-3">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    PREMIUM REPORT
+                  </span>
+                  <span v-else class="free-badge mb-3">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    FREE REPORT
+                  </span>
+                  <h3 class="ac-title">Akses Laporan Lengkap</h3>
+                  <p class="ac-desc">Dapatkan analisis komprehensif, model valuasi, dan data pendukung dalam format PDF.</p>
+                </div>
+
+                <!-- Fast Facts -->
+                <div class="ac-facts">
+                  <div class="ac-fact-item">
+                    <span class="ac-fact-lbl">Rekomendasi</span>
+                    <span class="ac-fact-val font-bold" :class="research.recommendation === 'BUY' ? 'text-emerald-400' : (research.recommendation === 'SELL' ? 'text-red-400' : 'text-amber-400')">{{ research.recommendation || 'BUY' }}</span>
+                  </div>
+                  <div class="ac-fact-item" v-if="formattedPrice">
+                    <span class="ac-fact-lbl">Target Price</span>
+                    <span class="ac-fact-val text-white font-bold">Rp {{ formattedPrice }}</span>
+                  </div>
+                  <div class="ac-fact-item" v-if="research.upside">
+                    <span class="ac-fact-lbl">Upside Potensial</span>
+                    <span class="ac-fact-val font-bold" :class="research.upside.includes('-') ? 'text-red-400' : 'text-emerald-400'">{{ research.upside }}</span>
+                  </div>
+                  <div class="ac-fact-item">
+                    <span class="ac-fact-lbl">Format Laporan</span>
+                    <span class="ac-fact-val text-slate-300 flex items-center gap-1.5">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                      Dokumen PDF
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="ac-actions mt-6">
+                  <template v-if="isLocked">
+                    <!-- Locked Action handled by Paywall component generally, but we can put a teaser button here if we want -->
+                    <button class="ac-btn-locked" @click="authStore.open('login')">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      Login untuk Mengunduh
+                    </button>
+                    <p class="text-[10px] text-center text-slate-500 mt-3 px-2">Anda memerlukan akses Premium untuk mengunduh laporan ini.</p>
+                  </template>
+                  <template v-else>
+                    <a v-if="research.pdf_path" :href="research.pdf_path" target="_blank" download class="ac-btn-download shadow-lg shadow-emerald-500/20">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                      Unduh PDF
+                    </a>
+                    <button v-else disabled class="ac-btn-disabled">
+                      PDF Belum Tersedia
+                    </button>
+                    <p class="text-[10px] text-center text-slate-500 mt-3 px-2">Dokumen ini hanya untuk tujuan informasi dan penggunaan pribadi.</p>
+                  </template>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </div>
 
@@ -143,10 +241,191 @@ const formattedPrice = computed(() => {
 <style>
 
 
+/* New Layout CSS */
+.kdp-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 32px;
+}
+@media (max-width: 900px) {
+  .kdp-split-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kdp-summary-col {
+  min-width: 0;
+}
+
+/* Custom Breadcrumb for Legacy HTML */
+.kdp-custom-breadcrumb {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 28px 0;
+}
+.kdp-bc-link-custom {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #10b981; /* emerald-500 */
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.kdp-bc-link-custom:hover {
+  color: #059669; /* emerald-600 */
+  transform: translateX(-2px);
+}
+
+.summary-card {
+  background: #111413;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.summary-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Action Card */
+.action-card {
+  background: #111413;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.ac-header {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.premium-badge-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.free-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.ac-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.ac-desc {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.ac-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ac-fact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.ac-fact-lbl {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.ac-btn-download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #10B981;
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.ac-btn-download:hover {
+  background: #0ea5e9;
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.ac-btn-locked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #1e293b;
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.ac-btn-locked:hover {
+  background: #334155;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ac-btn-disabled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: #1e293b;
+  color: #64748b;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: not-allowed;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
 /* Guest lock positioning and styles */
 .guest-lock-wrap {
   position: relative;
-  min-height: 600px;
+  min-height: 200px;
 }
 
 .guest-lock-content {
@@ -189,7 +468,7 @@ const formattedPrice = computed(() => {
 
 /* ── Shared container ── */
 .kdp-container {
-  max-width: 880px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
   position: relative;

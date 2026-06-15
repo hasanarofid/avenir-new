@@ -23,7 +23,16 @@ return new class extends Migration
             $table->string('tags')->nullable();
             $table->string('date')->nullable();
             $table->string('price')->nullable();
-            $table->longText('content')->nullable();
+            
+            // New columns based on the redesign
+            $table->string('recommendation')->nullable();
+            $table->string('target_price')->nullable();
+            $table->string('upside')->nullable();
+            $table->string('report_type')->nullable();
+            $table->boolean('is_premium')->default(false);
+            $table->string('pdf_path')->nullable();
+            
+            $table->longText('content')->nullable(); // Used as summary
             $table->string('image')->nullable();
             $table->timestamps();
         });

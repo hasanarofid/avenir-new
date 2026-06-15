@@ -31,17 +31,27 @@ class ResearchSeeder extends Seeder
                 $slug = preg_replace('/-+/', '-', trim($slug, '-'));
             }
 
+            $user = \App\Models\User::first();
+
             $updateData = [
-                'title'    => $item['title'],
-                'subtitle' => $item['subtitle'],
-                'ticker'   => $ticker,
-                'sector'   => $item['sector'],
-                'revenue'  => $item['revenue'],
-                'patmi'    => $item['patmi'],
-                'sales'    => $item['sales'],
-                'price'    => $item['price'],
-                'tags'     => $item['tags'],
-                'date'     => $item['date'],
+                'title'          => $item['title'],
+                'subtitle'       => $item['subtitle'],
+                'ticker'         => $ticker,
+                'sector'         => $item['sector'],
+                'revenue'        => $item['revenue'],
+                'patmi'          => $item['patmi'],
+                'sales'          => $item['sales'],
+                'price'          => $item['price'],
+                'tags'           => $item['tags'],
+                'date'           => $item['date'],
+                'recommendation' => 'BUY', // Dummy
+                'target_price'   => $item['price'] ?? 'Rp 10.000',
+                'upside'         => '+10%',
+                'report_type'    => 'Equity Research',
+                'is_premium'     => (bool)rand(0, 1),
+                'pdf_path'       => '/dummy.pdf', // dummy pdf
+                'content'        => 'Ini adalah ringkasan tesis investasi (summary) untuk laporan riset ' . $item['title'] . '. Fundamental perusahaan solid dengan prospek pertumbuhan di masa depan.',
+                'author_id'      => $user ? $user->id : null,
             ];
 
             if (!empty($item['image'])) {

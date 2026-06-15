@@ -53,17 +53,24 @@ defineProps({
               <img :src="item.cover_image" :alt="item.title" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
             </div>
             <div class="news-card-body">
-              <div v-if="item.category" class="news-card-cat">{{ item.category }}</div>
+              <div class="flex items-center justify-between mb-3">
+                <div v-if="item.category" class="news-card-cat !mb-0">{{ item.category }}</div>
+                <div v-if="item.sentiment" :class="[
+                  'px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase',
+                  item.sentiment.toLowerCase() === 'positif' ? 'bg-emerald-500/10 text-emerald-400' : 
+                  (item.sentiment.toLowerCase() === 'negatif' ? 'bg-red-500/10 text-red-400' : 'bg-slate-500/10 text-slate-400')
+                ]">{{ item.sentiment }}</div>
+              </div>
+              
               <h2 class="news-card-title">{{ item.title }}</h2>
               <p class="news-card-excerpt">{{ item.excerpt }}</p>
 
               <!-- Meta -->
               <div class="news-card-meta">
                 <div class="meta-left">
+                  <span v-if="item.source" class="text-xs text-slate-400">Sumber: <span class="text-emerald-400/90 font-medium">{{ item.source }}</span></span>
+                  <span v-if="item.source && item.published_at" class="text-slate-700">•</span>
                   <span v-if="item.published_at" class="meta-date">{{ item.published_at }}</span>
-                </div>
-                <div class="meta-right">
-                  <span class="badge-free">Akses Gratis</span>
                 </div>
               </div>
             </div>

@@ -61,8 +61,9 @@ defineProps({
         
         <div class="card-ft">
           <div class="ft-authors">
-            <span class="ft-author-badge">● Tim Avenir</span>
-            <span class="ft-new-badge">📊 Riset Baru</span>
+            <span class="ft-author-badge">● {{ data.author ? data.author.name : 'Tim Avenir' }}</span>
+            <span v-if="data.is_premium" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">✨ Premium</span>
+            <span v-else class="ft-new-badge">Gratis</span>
           </div>
           <div class="ft-date">📅 {{ data.date || 'Terbaru' }}</div>
           

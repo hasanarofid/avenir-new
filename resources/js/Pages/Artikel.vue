@@ -34,9 +34,9 @@ defineProps({
       <div class="artikel-page">
         <!-- Header -->
         <div class="artikel-page-header">
-          <div class="artikel-page-tag"><span class="dot"></span>ARTIKEL &amp; RISET</div>
-          <h1>Corporate Stories &amp; <span class="hl">Industry Deep Dives</span></h1>
-          <p>Studi kasus, sejarah korporasi, dan analisis industri jangka panjang dari tim Avenir Research. Bebas diakses untuk semua pembaca.</p>
+          <div class="artikel-page-tag"><span class="dot"></span>ARTIKEL &amp; EDUKASI</div>
+          <h1>Avenir Research <span class="hl">Insight</span></h1>
+          <p>Update pasar modal, strategi trading, edukasi teknikal/fundamental, dan analisis industri. Bebas diakses untuk semua pembaca.</p>
         </div>
 
         <!-- Grid Artikel -->
@@ -72,8 +72,8 @@ defineProps({
               <div class="artikel-card-meta">
                 <div class="meta-left">
                   <span v-if="article.published_at" class="meta-date">{{ article.published_at }}</span>
-                  <span v-if="article.published_at && article.author" class="meta-sep">&middot;</span>
-                  <span v-if="article.author" class="author">{{ article.author }}</span>
+                  <span v-if="article.published_at && article.read_time" class="meta-sep">&middot;</span>
+                  <span v-if="article.read_time" class="read-time">{{ article.read_time }} mnt baca</span>
                 </div>
                 <div class="meta-right">
                   <span v-if="article.is_paid" class="badge-paid">Berlangganan</span>

@@ -9,6 +9,10 @@ class Research extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'is_premium' => 'boolean',
+    ];
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');

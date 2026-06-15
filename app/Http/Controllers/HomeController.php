@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Research;
 use App\Models\Article;
+use App\Models\News;
 
 class HomeController extends Controller
 {
@@ -63,8 +64,7 @@ class HomeController extends Controller
         }
 
         // 3. Fetch Latest Headlines
-        $dbNews = \App\Models\Article::where('category', 'like', '%news%')
-            ->where('status', 'published')
+        $dbNews = \App\Models\News::where('status', 'published')
             ->latest()
             ->take(5)
             ->get();
@@ -111,7 +111,12 @@ class HomeController extends Controller
      */
     public function katalog()
     {
-        $researches = Research::latest()->get();
+        $researches = Research::with('author')->select([
+            'id', 'title', 'ticker', 'sector', 'slug', 'subtitle', 'revenue', 
+            'patmi', 'sales', 'tags', 'date', 'price', 'recommendation', 
+            'target_price', 'upside', 'report_type', 'is_premium', 'pdf_path', 
+            'image', 'author_id', 'created_at', 'updated_at'
+        ])->latest()->get();
         $unlockedTickers = auth()->check()
             ? \Illuminate\Support\Facades\DB::table('unlocked_research')
                 ->where('user_id', auth()->id())
@@ -143,11 +148,11 @@ class HomeController extends Controller
         }
 
         // Cari research berdasarkan slug
-        $research = Research::where('slug', $slug)->first();
+        $research = Research::with('author')->where('slug', $slug)->first();
 
         // Fallback: jika slug tidak ketemu, coba cari by ID (untuk URL lama)
         if (!$research && is_numeric($slug)) {
-            $research = Research::find((int) $slug);
+            $research = Research::with('author')->find((int) $slug);
             // Redirect ke URL slug jika ditemukan
             if ($research && $research->slug) {
                 return redirect()->route('katalog.detail', ['slug' => $research->slug], 301);
@@ -184,109 +189,29 @@ class HomeController extends Controller
             }
         }
 
-        // Cek DB dulu sesuai permintaan user
-        $content = $research->content;
-
-        $html = '';
-        if (empty($content)) {
-            // Baca konten dari file HTML di app/website/{slug}.html
-            $filePath = storage_path("app/website/{$slug}.html");
-
-            if (file_exists($filePath)) {
-                $html = file_get_contents($filePath);
-
-                // 1. Ambil konten di dalam guest-lock-content (untuk riset berbayar guest)
-                $startToken = '<div class="guest-lock-content">';
-                $endToken   = '<div class="guest-lock-overlay"';
-                $startPos   = strpos($html, $startToken);
-                if ($startPos !== false) {
-                    $startPos += strlen($startToken);
-                    $endPos = strpos($html, $endToken, $startPos);
-                    if ($endPos !== false) {
-                        $content = trim(substr($html, $startPos, $endPos - $startPos));
-                    }
-                }
-
-                // 2. Fallback: ambil konten di dalam .cnt (misal CRM.html)
-                if (!$content) {
-                    $startToken = '<div class="cnt">';
-                    $endToken   = '<footer';
-                    $startPos   = strpos($html, $startToken);
-                    if ($startPos !== false) {
-                        $endPos = strpos($html, $endToken, $startPos);
-                        if ($endPos !== false) {
-                            $content = trim(substr($html, $startPos, $endPos - $startPos));
-                        } else {
-                            $content = trim(substr($html, $startPos));
-                        }
-                    }
-                }
-
-                // 3. Fallback: ambil konten di dalam .art-body
-                if (!$content) {
-                    $startToken = '<div class="art-body">';
-                    $startPos   = strpos($html, $startToken);
-                    if ($startPos !== false) {
-                        $content = trim(substr($html, $startPos));
-                        // Hapus footer jika ikut terbawa
-                        if (($fPos = strpos($content, '<footer')) !== false) {
-                            $content = substr($content, 0, $fPos);
-                        }
-                    }
-                }
-
-                // 4. Fallback: ambil dari <body> tapi hilangkan nav, drawer, dan hero
-                if (!$content) {
-                    $startPos = strpos($html, '<body>');
-                    $endPos   = strpos($html, '</body>');
-                    if ($startPos !== false && $endPos !== false) {
-                        $rawBody = substr($html, $startPos + strlen('<body>'), $endPos - $startPos - strlen('<body>'));
-                        // Buang elemen header legacy yang merusak tampilan
-                        $rawBody = preg_replace('/<div class="nav">.*?<\/div>\s*<\/div>/s', '', $rawBody);
-                        $rawBody = preg_replace('/<div class="drawer.*?<\/div>/s', '', $rawBody);
-                        $rawBody = preg_replace('/<div class="overlay.*?<\/div>/s', '', $rawBody);
-                        $rawBody = preg_replace('/<div class="hero">.*?<\/div>\s*<\/div>\s*<\/div>/s', '', $rawBody);
-                        $rawBody = preg_replace('/<footer.*?<\/footer>/s', '', $rawBody);
-                        $content = trim($rawBody);
-                    }
-                }
-            }
-        }
-
-        // Default content jika file tidak ditemukan
-        if (!$content) {
-            $content = '<div class="art-body"><p>Detail laporan riset <strong>' 
-                . htmlspecialchars($research->title) . ' (' . htmlspecialchars($research->ticker ?? '') . ')'
-                . '</strong> sedang dalam proses migrasi ke platform baru.</p></div>';
-        } else if (!empty($html)) {
-            // Extract styles from head to preserve custom styling (like hero banners)
-            if (preg_match('/<head[\s>](.*?)<\/head>/is', $html, $headMatch)) {
-                preg_match_all('/<style[^>]*>.*?<\/style>/is', $headMatch[1], $styleMatches);
-                if (!empty($styleMatches[0])) {
-                    $headStyles = implode("\n", $styleMatches[0]);
-                    $content = $headStyles . "\n" . $content;
-                }
-            }
-        }
-
-        $content = $this->cleanHtmlForDarkMode($content);
-
         return Inertia::render('KatalogDetail', [
             'research' => [
-                'title'       => $research->title,
-                'ticker'      => $research->ticker,
-                'sector'      => $research->sector,
-                'slug'        => $research->slug,
-                'subtitle'    => $research->subtitle,
-                'revenue'     => $research->revenue,
-                'patmi'       => $research->patmi,
-                'sales'       => $research->sales,
-                'price'       => $research->price,
-                'date'        => $research->date,
-                'image'       => $research->image,
-                'content'     => $content,
-                'is_paid'     => true,
-                'is_unlocked' => $isUnlocked,
+                'title'          => $research->title,
+                'ticker'         => $research->ticker,
+                'sector'         => $research->sector,
+                'slug'           => $research->slug,
+                'subtitle'       => $research->subtitle,
+                'revenue'        => $research->revenue,
+                'patmi'          => $research->patmi,
+                'sales'          => $research->sales,
+                'price'          => $research->price,
+                'date'           => $research->date,
+                'image'          => $research->image,
+                'recommendation' => $research->recommendation,
+                'target_price'   => $research->target_price,
+                'upside'         => $research->upside,
+                'report_type'    => $research->report_type,
+                'is_premium'     => $research->is_premium,
+                'pdf_path'       => $isUnlocked ? $research->pdf_path : null, // Hide PDF if not unlocked
+                'content'        => $research->content,
+                'author'         => $research->author,
+                'is_paid'        => $research->is_premium,
+                'is_unlocked'    => $isUnlocked,
             ],
         ]);
     }
@@ -464,8 +389,7 @@ class HomeController extends Controller
      */
     public function news()
     {
-        $newsList = Article::where('category', 'like', '%News%')
-            ->where('status', 'published')
+        $newsList = News::where('status', 'published')
             ->orderByDesc('published_at')
             ->get()
             ->map(function ($news) {
@@ -473,11 +397,11 @@ class HomeController extends Controller
                     'title' => $news->title,
                     'slug' => $news->slug,
                     'category' => $news->category,
-                    'badge' => $news->badge,
+                    'sentiment' => $news->sentiment,
+                    'source' => $news->source,
                     'excerpt' => $news->excerpt,
                     'published_at' => $news->published_at ? $news->published_at->format('d M Y') : null,
                     'cover_image' => $news->cover_image,
-                    'is_paid' => $news->is_paid,
                 ];
             });
 
@@ -491,93 +415,22 @@ class HomeController extends Controller
      */
     public function newsDetail($slug)
     {
-        $article = Article::where('slug', $slug)
+        $news = News::where('slug', $slug)
             ->where('status', 'published')
-            ->first();
+            ->firstOrFail();
 
-        // Legacy check / fallback
-        if (!$article) {
-            $filePath = storage_path("app/website/{$slug}.html");
-            if (file_exists($filePath)) {
-                $html = file_get_contents($filePath);
-                $content = null;
-                // Look for guest-lock-content or general content
-                $startToken = '<div class="guest-lock-content">';
-                $endToken = '<div class="guest-lock-overlay"';
-                $startPos = strpos($html, $startToken);
-                if ($startPos !== false) {
-                    $startPos += strlen($startToken);
-                    $endPos = strpos($html, $endToken, $startPos);
-                    if ($endPos !== false) {
-                        $content = trim(substr($html, $startPos, $endPos - $startPos));
-                    }
-                }
-                
-                if (!$content) {
-                    $startToken = '<div class="news-page">';
-                    $startPos = strpos($html, $startToken);
-                    if ($startPos !== false) {
-                        $content = trim(substr($html, $startPos));
-                    }
-                }
-
-                if (!$content) {
-                    $startToken = '<body>';
-                    $endToken = '</body>';
-                    $startPos = strpos($html, $startToken);
-                    if ($startPos !== false) {
-                        $startPos += strlen($startToken);
-                        $endPos = strpos($html, $endToken, $startPos);
-                        if ($endPos !== false) {
-                            $content = trim(substr($html, $startPos, $endPos - $startPos));
-                        }
-                    }
-                }
-                
-                return Inertia::render('NewsDetail', [
-                    'news' => [
-                        'title' => ucwords(str_replace('-', ' ', $slug)),
-                        'slug' => $slug,
-                        'category' => 'News · Market',
-                        'published_at' => now()->format('d M Y'),
-                        'is_paid' => false,
-                        'is_unlocked' => true,
-                        'content' => $this->cleanHtmlForDarkMode($content ?? '<div class="art-body"><p>Detail berita ini sedang dimigrasikan ke platform baru.</p></div>'),
-                    ]
-                ]);
-            }
-            abort(404);
-        }
-
-        $isLoggedIn = auth()->check();
-        $isSubscriber = false;
-        $isUnlocked = false;
-
-        if ($isLoggedIn) {
-            $isSubscriber = auth()->user()->hasActivePremium() || auth()->user()->hasRole('admin');
-            $isUnlocked = $isSubscriber;
-        }
-
-        $isPaid = (bool) $article->is_paid;
-        $content = $article->content;
-
-        if ($isPaid && !$isLoggedIn) {
-            $content = $this->truncateForGuest($content);
-            $isUnlocked = false;
-        }
-
-        $content = $this->cleanHtmlForDarkMode($content);
+        $content = $this->cleanHtmlForDarkMode($news->content);
 
         return Inertia::render('NewsDetail', [
             'news' => [
-                'title' => $article->title,
-                'slug' => $article->slug,
-                'category' => $article->category,
-                'published_at' => $article->published_at ? $article->published_at->format('d M Y') : null,
-                'is_paid' => $isPaid,
-                'is_unlocked' => $isUnlocked,
+                'title' => $news->title,
+                'slug' => $news->slug,
+                'category' => $news->category,
+                'source' => $news->source,
+                'sentiment' => $news->sentiment,
+                'published_at' => $news->published_at ? $news->published_at->format('d M Y') : null,
                 'content' => $content,
-                'cover_image' => $article->cover_image,
+                'cover_image' => $news->cover_image,
             ]
         ]);
     }

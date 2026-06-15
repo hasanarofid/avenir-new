@@ -1,21 +1,12 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import Paywall from '@/Components/Paywall.vue';
-import { computed } from 'vue';
 
 const props = defineProps({
     news: {
         type: Object,
         required: true,
     }
-});
-
-const page = usePage();
-const isLoggedIn = computed(() => !!page.props.auth?.user);
-
-const isLocked = computed(() => {
-    return props.news.is_paid && !props.news.is_unlocked;
 });
 </script>
 
@@ -51,12 +42,21 @@ const isLocked = computed(() => {
           <span class="arrow">←</span> Kembali ke Market News
         </a>
 
-        <div class="guest-lock-wrap" :class="{ 'is-guest': isLocked }">
+        <div class="guest-lock-wrap">
           <!-- News Header -->
           <div class="news-header">
-            <div class="news-cat" v-if="news.category">{{ news.category }}</div>
+            <div class="flex items-center gap-3 mb-5">
+              <div class="news-cat !mb-0" v-if="news.category">{{ news.category }}</div>
+              <div v-if="news.sentiment" :class="[
+                'px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase',
+                news.sentiment.toLowerCase() === 'positif' ? 'bg-emerald-500/10 text-emerald-400' : 
+                (news.sentiment.toLowerCase() === 'negatif' ? 'bg-red-500/10 text-red-400' : 'bg-slate-500/10 text-slate-400')
+              ]">{{ news.sentiment }}</div>
+            </div>
             <h1 class="news-title">{{ news.title }}</h1>
-            <div class="news-meta">
+            <div class="news-meta flex items-center">
+              <span v-if="news.source" class="text-slate-400">Sumber: <span class="text-emerald-400/90 font-medium">{{ news.source }}</span></span>
+              <span v-if="news.source && news.published_at" class="mx-2 text-slate-600">•</span>
               <span class="date">{{ news.published_at }}</span>
             </div>
           </div>
@@ -71,13 +71,6 @@ const isLocked = computed(() => {
             class="news-content" 
             v-html="news.content"
           />
-
-          <!-- Lock Overlay Gate -->
-          <Paywall 
-            v-if="isLocked"
-            :title="'Daftar Gratis untuk Baca Berita Premium'"
-            :price="'Mulai dari <strong>Rp 149.000 / bulan</strong>'"
-          />
         </div>
       </div>
     </div>
@@ -85,29 +78,11 @@ const isLocked = computed(() => {
 </template>
 
 <style scoped>
-/* Guest lock positioning and styles */
-.guest-lock-wrap {
-  position: relative;
-  min-height: 600px;
-}
-
+/* Content styles */
 .news-content {
   filter: none;
   pointer-events: auto;
   user-select: auto;
-}
-
-/* When news is locked */
-.guest-lock-wrap.is-guest .news-content,
-.guest-lock-wrap.is-guest .news-header,
-.guest-lock-wrap.is-guest img {
-  filter: blur(8px);
-  pointer-events: none;
-  user-select: none;
-  max-height: 650px;
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
 }
 
 .news-detail-page {
@@ -184,7 +159,6 @@ const isLocked = computed(() => {
   text-transform: uppercase;
   padding: 6px 14px;
   border-radius: 100px;
-  margin-bottom: 20px;
 }
 
 .news-title {

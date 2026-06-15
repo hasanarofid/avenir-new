@@ -108,6 +108,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('pages', PageController::class);
     Route::put('pages/{page}/sections/{section}', [PageController::class, 'updateSection'])->name('pages.sections.update');
 
+    // Katalog Riset
+    Route::resource('katalog-riset', \App\Http\Controllers\Admin\ResearchController::class);
+
     // Posts & Categories
     Route::resource('posts', PostController::class);
     Route::post('categories', [PostController::class, 'storeCategory'])->name('categories.store');

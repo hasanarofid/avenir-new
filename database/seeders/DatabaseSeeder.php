@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             PropertySeeder::class,
             ResearchSeeder::class,
             ArticleSeeder::class,
+            NewsSeeder::class,
 
             // === Migrasi Data Legacy Supabase (researchavenir.com) ===
             // 1. Users harus pertama karena semua tabel legacy FK ke users

@@ -62,6 +62,8 @@ const hasCustomHtml = computed(() => {
             <span class="author">Oleh <strong>{{ article.author || 'Tim Avenir Research' }}</strong></span>
             <span class="meta-sep">·</span>
             <span class="date">{{ article.published_at }}</span>
+            <span v-if="article.read_time" class="meta-sep">·</span>
+            <span v-if="article.read_time" class="read-time">{{ article.read_time }} mnt baca</span>
           </div>
           <img 
             v-if="article.cover_image" 

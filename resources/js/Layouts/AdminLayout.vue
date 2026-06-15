@@ -70,6 +70,12 @@ const navigationGroups = [
     ]
   },
   {
+    title: 'CONTENT MANAGEMENT',
+    items: [
+      { name: 'Katalog Riset', href: route('admin.katalog-riset.index'), icon: FileText, current: route().current('admin.katalog-riset.*') },
+    ]
+  },
+  {
     title: 'AVENIR AI ENGINES',
     items: [
       { name: 'Research AI', href: route('admin.research-generator.index'), icon: BrainCircuit, current: route().current('admin.research-generator.*') },
@@ -90,8 +96,8 @@ const navigationGroups = [
     title: 'SYSTEM & CMS',
     items: [
       { name: 'Emiten Hub', href: route('admin.emitens.index'), icon: TrendingUp, current: route().current('admin.emitens.*') },
-      { name: 'Pages & Sections', href: route('admin.pages.index'), icon: Layers, current: route().current('admin.pages.*') },
-      { name: 'Posts & Categories', href: route('admin.posts.index'), icon: FileText, current: route().current('admin.posts.*') },
+      // { name: 'Pages & Sections', href: route('admin.pages.index'), icon: Layers, current: route().current('admin.pages.*') },
+      // { name: 'Posts & Categories', href: route('admin.posts.index'), icon: FileText, current: route().current('admin.posts.*') },
       { name: 'Web Settings', href: route('admin.settings.index'), icon: SettingsIcon, current: route().current('admin.settings.index') },
     ]
   }
