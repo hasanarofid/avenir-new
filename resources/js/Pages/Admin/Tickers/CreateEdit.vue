@@ -182,7 +182,7 @@ const manualAiPrompt = computed(() => {
     let companyText = form.company_name || '[NAMA PERUSAHAAN]';
     let priceText = form.current_price ? ` The current stock price is Rp ${form.current_price}. Use this for valuation metrics if relevant.` : '';
     
-    return `You are a professional Equity Research Analyst focused on the Indonesian stock market (IDX). Provide comprehensive profile and financial estimates for the given company in JSON format exactly matching the schema provided. Format the monetary values in Indonesian Rupiah (e.g. 'Rp 100,5 T', 'Rp 15,2 T') and percentages with commas (e.g. '12,5%'). CRITICAL: If source document text is provided, extract the data STRICTLY from the text. Do not hallucinate or guess numbers. If a specific metric is not found in the text, return null or an empty string. CRITICAL: ALL text values (description, business summary, risks, etc) MUST be written in Bahasa Indonesia. Translate them if the source document is in English.
+    return `You are a professional Equity Research Analyst focused on the Indonesian stock market (IDX). Provide comprehensive profile and financial estimates for the given company in JSON format exactly matching the schema provided. Format the monetary values in Indonesian Rupiah (e.g. 'Rp 100,5 T', 'Rp 15,2 T') and percentages with commas (e.g. '12,5%'). CRITICAL: If source document text is provided, extract the data STRICTLY from the text. Do not hallucinate or guess numbers. If a specific metric is not found in the text, return null or an empty string. CRITICAL: ALL text values (description, business summary, risks, etc) MUST be written in Bahasa Indonesia. Translate them if the source document is in English. CRITICAL: DO NOT translate or modify the JSON keys. The output MUST exactly match the JSON schema keys provided.
 
 ===
 
@@ -411,15 +411,35 @@ const copyPrompt = async () => {
                                 </div>
                                 <div class="space-y-2">
                                     <label class="text-xs text-slate-400">Tanggal Listing</label>
-                                    <input v-model="form.tanggal_listing" type="date" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                    <input v-model="form.tanggal_listing" type="text" placeholder="Contoh: 10 Nov 2003" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
                                 </div>
                                 <div class="space-y-2 md:col-span-2">
                                     <label class="text-xs text-slate-400">Website</label>
-                                    <input v-model="form.website" type="url" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                    <input v-model="form.website" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
                                 </div>
                                 <div class="space-y-2 md:col-span-2">
                                     <label class="text-xs text-slate-400">Logo URL</label>
-                                    <input v-model="form.logo_url" type="url" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                    <input v-model="form.logo_url" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                                <div class="space-y-2 md:col-span-2">
+                                    <label class="text-xs text-slate-400">Market Cap</label>
+                                    <input v-model="form.company_profile.marketCap" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                                <div class="space-y-2 md:col-span-2">
+                                    <label class="text-xs text-slate-400">Jumlah Saham Beredar</label>
+                                    <input v-model="form.company_profile.outstandingShares" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                                <div class="space-y-2 md:col-span-4">
+                                    <label class="text-xs text-slate-400">Alamat Perusahaan</label>
+                                    <textarea v-model="form.company_profile.address" rows="2" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-emerald-500/50"></textarea>
+                                </div>
+                                <div class="space-y-2 md:col-span-2">
+                                    <label class="text-xs text-slate-400">Telepon</label>
+                                    <input v-model="form.company_profile.phone" type="text" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
+                                </div>
+                                <div class="space-y-2 md:col-span-2">
+                                    <label class="text-xs text-slate-400">Email</label>
+                                    <input v-model="form.company_profile.email" type="email" class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-white" />
                                 </div>
                             </div>
                         </div>

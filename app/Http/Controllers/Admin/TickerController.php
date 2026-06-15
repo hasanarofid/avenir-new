@@ -121,9 +121,9 @@ class TickerController extends Controller
             'sub_sektor' => 'nullable|string|max:255',
             'industri' => 'nullable|string|max:255',
             'papan_pencatatan' => 'nullable|string|max:50',
-            'tanggal_listing' => 'nullable|date',
-            'website' => 'nullable|url|max:255',
-            'logo_url' => 'nullable|url|max:255',
+            'tanggal_listing' => 'nullable|string|max:255',
+            'website' => 'nullable|string|max:255',
+            'logo_url' => 'nullable|string|max:255',
             'business_summary' => 'nullable|string',
             'ticker_brief' => 'nullable|string',
             'risk_summary' => 'nullable|string',
@@ -236,7 +236,8 @@ class TickerController extends Controller
             "Provide comprehensive profile and financial estimates for the given company in JSON format exactly matching the schema provided. " .
             "Format the monetary values in Indonesian Rupiah (e.g. 'Rp 100,5 T', 'Rp 15,2 T') and percentages with commas (e.g. '12,5%'). " .
             "CRITICAL: If source document text is provided, extract the data STRICTLY from the text. Do not hallucinate or guess numbers. If a specific metric is not found in the text, return null or an empty string. " .
-            "CRITICAL: ALL text values (description, business summary, risks, etc) MUST be written in Bahasa Indonesia. Translate them if the source document is in English.";
+            "CRITICAL: ALL text values (description, business summary, risks, etc) MUST be written in Bahasa Indonesia. Translate them if the source document is in English. " .
+            "CRITICAL: DO NOT translate or modify the JSON keys. The output MUST exactly match the JSON schema keys provided.";
 
         $userPrompt = "Generate data for Ticker: {$symbol} (Company: {$companyName}).";
         if ($currentPrice) {
