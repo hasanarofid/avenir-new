@@ -120,7 +120,7 @@ const generateWithAI = async () => {
         }
 
         const response = await axios.post(route('admin.emitens.generate-ai'), formData, {
-            timeout: 120000 // 2 minutes timeout for large PDFs
+            timeout: 300000 // 5 minutes timeout for large PDFs
         });
         
         const data = response.data;
