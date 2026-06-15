@@ -174,15 +174,21 @@ class TickerController extends Controller
 
     public function generateWithAI(Request $request, ChatGptService $aiService)
     {
+        // Increase memory limit for parsing large PDFs
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time', '120');
+
         $request->validate([
             'symbol' => 'required|string',
             'company_name' => 'nullable|string',
+            'current_price' => 'nullable|numeric',
             'pdf_file' => 'nullable|file|mimes:pdf|max:20480',
             'pdf_base64' => 'nullable|string',
         ]);
 
         $symbol = $request->symbol;
         $companyName = $request->company_name ?? $symbol;
+        $currentPrice = $request->current_price;
         $pdfText = "";
 
         if ($request->has('pdf_base64') && $request->input('pdf_base64')) {
@@ -223,7 +229,11 @@ class TickerController extends Controller
             "Format the monetary values in Indonesian Rupiah (e.g. 'Rp 100,5 T', 'Rp 15,2 T') and percentages with commas (e.g. '12,5%'). " .
             "CRITICAL: If source document text is provided, extract the data STRICTLY from the text. Do not hallucinate or guess numbers. If a specific metric is not found in the text, return null or an empty string.";
 
-        $userPrompt = "Generate data for Ticker: {$symbol} (Company: {$companyName}). Return a JSON object with this exact structure:
+        $userPrompt = "Generate data for Ticker: {$symbol} (Company: {$companyName}).";
+        if ($currentPrice) {
+            $userPrompt .= " The current stock price is Rp " . number_format($currentPrice, 0, ',', '.') . ". Use this for valuation metrics if relevant.";
+        }
+        $userPrompt .= " Return a JSON object with this exact structure:
 {
   \"company_name\": \"Full legal name of the company\",
   \"description\": \"A professional summary of the company's main business, market position, and strengths. (1-2 paragraphs)\",
@@ -261,18 +271,14 @@ class TickerController extends Controller
             $userPrompt .= "\n\n=== SOURCE DOCUMENT TEXT ===\n" . $pdfText;
         }
 
-        $result = $aiService->generateStructuredJson($systemPrompt, $userPrompt);
+        // Temporarily use OpenRouter directly
+        $openRouter = app(\App\Services\OpenRouterService::class);
+        $result = $openRouter->generateStructuredJson($systemPrompt, $userPrompt);
 
         if (!$result || empty($result['structured_json'])) {
-            // Fallback to OpenRouter if ChatGPT fails (e.g. quota limit)
-            $openRouter = app(\App\Services\OpenRouterService::class);
-            $result = $openRouter->generateStructuredJson($systemPrompt, $userPrompt);
-            
-            if (!$result || empty($result['structured_json'])) {
-                $mockData = $this->getMockAiData($symbol, $companyName);
-                \Illuminate\Support\Facades\Log::info("AI generation failed, returning Mock Data: ", $mockData);
-                return response()->json($mockData);
-            }
+            $mockData = $this->getMockAiData($symbol, $companyName);
+            \Illuminate\Support\Facades\Log::info("AI generation failed, returning Mock Data: ", $mockData);
+            return response()->json($mockData);
         }
 
         \Illuminate\Support\Facades\Log::info("AI generation successful, returning Data: ", $result['structured_json']);

@@ -91,6 +91,7 @@ const generateWithAI = async () => {
         const formData = new FormData();
         formData.append('symbol', aiForm.symbol);
         if (aiForm.company_name) formData.append('company_name', aiForm.company_name);
+        if (aiForm.current_price) formData.append('current_price', aiForm.current_price);
         if (aiForm.pdf_file) {
             // Check file size, if > 1.5MB, use base64 to bypass 2MB upload limit
             if (aiForm.pdf_file.size > 1500000) {

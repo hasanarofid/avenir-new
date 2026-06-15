@@ -13,8 +13,8 @@ class ChatGptService
 
     public function __construct()
     {
-        $this->apiKey = Setting::getValue('chatgpt_api_key') ?: config('services.chatgpt.api_key', '');
-        $this->defaultModel = Setting::getValue('chatgpt_default_model') ?: config('services.chatgpt.default_model', 'gpt-5.5');
+        $this->apiKey = (string) (Setting::getValue('chatgpt_api_key') ?: config('services.chatgpt.api_key', ''));
+        $this->defaultModel = (string) (Setting::getValue('chatgpt_default_model') ?: config('services.chatgpt.default_model', 'gpt-5.5'));
     }
 
     /**
