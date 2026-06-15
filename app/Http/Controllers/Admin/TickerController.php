@@ -182,8 +182,10 @@ class TickerController extends Controller
             'symbol' => 'required|string',
             'company_name' => 'nullable|string',
             'current_price' => 'nullable|numeric',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:20480',
-            'pdf_base64' => 'nullable|string',
+            'pdf_files' => 'nullable|array|max:7',
+            'pdf_files.*' => 'nullable|file|mimes:pdf|max:20480',
+            'pdf_base64' => 'nullable|array|max:7',
+            'pdf_base64.*' => 'nullable|string',
         ]);
 
         $symbol = $request->symbol;
@@ -191,43 +193,50 @@ class TickerController extends Controller
         $currentPrice = $request->current_price;
         $pdfText = "";
 
-        if ($request->has('pdf_base64') && $request->input('pdf_base64')) {
-            try {
-                $base64 = $request->input('pdf_base64');
-                if (strpos($base64, ',') !== false) {
-                    $base64 = explode(',', $base64)[1];
-                }
-                $pdfContent = base64_decode($base64);
-                
-                $tempPath = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.pdf';
-                file_put_contents($tempPath, $pdfContent);
+        if ($request->has('pdf_base64') && is_array($request->pdf_base64)) {
+            foreach ($request->pdf_base64 as $base64) {
+                if (strlen($pdfText) > 100000) break;
+                try {
+                    if (strpos($base64, ',') !== false) {
+                        $base64 = explode(',', $base64)[1];
+                    }
+                    $pdfContent = base64_decode($base64);
+                    
+                    $tempPath = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.pdf';
+                    file_put_contents($tempPath, $pdfContent);
 
-                $parser = new \Smalot\PdfParser\Parser();
-                $pdf = $parser->parseFile($tempPath);
-                $pdfText = $pdf->getText();
-                // Truncate to avoid massive payload
-                $pdfText = substr($pdfText, 0, 80000);
-                
-                unlink($tempPath);
-            } catch (\Exception $e) {
-                \Log::error("PDF Base64 Parse error: " . $e->getMessage());
+                    $parser = new \Smalot\PdfParser\Parser();
+                    $pdf = $parser->parseFile($tempPath);
+                    $pdfText .= "\n--- Document ---\n" . $pdf->getText();
+                    
+                    unlink($tempPath);
+                } catch (\Exception $e) {
+                    \Log::error("PDF Base64 Parse error: " . $e->getMessage());
+                }
             }
-        } elseif ($request->hasFile('pdf_file')) {
-            try {
-                $parser = new \Smalot\PdfParser\Parser();
-                $pdf = $parser->parseFile($request->file('pdf_file')->path());
-                $pdfText = $pdf->getText();
-                // Truncate to avoid massive payload (approx 80,000 chars ~ 20k tokens)
-                $pdfText = substr($pdfText, 0, 80000); 
-            } catch (\Exception $e) {
-                \Log::error("PDF Parse error: " . $e->getMessage());
+        } 
+        
+        if ($request->hasFile('pdf_files') && is_array($request->file('pdf_files'))) {
+            foreach ($request->file('pdf_files') as $file) {
+                if (strlen($pdfText) > 100000) break;
+                try {
+                    $parser = new \Smalot\PdfParser\Parser();
+                    $pdf = $parser->parseFile($file->path());
+                    $pdfText .= "\n--- Document ---\n" . $pdf->getText();
+                } catch (\Exception $e) {
+                    \Log::error("PDF Parse error: " . $e->getMessage());
+                }
             }
         }
+
+        // Truncate to avoid massive payload overall
+        $pdfText = substr($pdfText, 0, 100000);
 
         $systemPrompt = "You are a professional Equity Research Analyst focused on the Indonesian stock market (IDX). " .
             "Provide comprehensive profile and financial estimates for the given company in JSON format exactly matching the schema provided. " .
             "Format the monetary values in Indonesian Rupiah (e.g. 'Rp 100,5 T', 'Rp 15,2 T') and percentages with commas (e.g. '12,5%'). " .
-            "CRITICAL: If source document text is provided, extract the data STRICTLY from the text. Do not hallucinate or guess numbers. If a specific metric is not found in the text, return null or an empty string.";
+            "CRITICAL: If source document text is provided, extract the data STRICTLY from the text. Do not hallucinate or guess numbers. If a specific metric is not found in the text, return null or an empty string. " .
+            "CRITICAL: ALL text values (description, business summary, risks, etc) MUST be written in Bahasa Indonesia. Translate them if the source document is in English.";
 
         $userPrompt = "Generate data for Ticker: {$symbol} (Company: {$companyName}).";
         if ($currentPrice) {
