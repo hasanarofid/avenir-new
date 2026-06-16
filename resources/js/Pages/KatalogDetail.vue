@@ -326,14 +326,14 @@ const formattedPrice = computed(() => {
 .kdp-hero-modern {
   position: relative;
   width: 100%;
-  min-height: 480px;
+  min-height: 340px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 @media (min-width: 900px) {
   .kdp-hero-modern {
-    min-height: 540px;
+    min-height: 480px;
     padding-bottom: 24px;
   }
 }
@@ -393,11 +393,11 @@ const formattedPrice = computed(() => {
 }
 
 .kdp-hero-info {
-  padding: 0 20px 24px;
+  padding: 80px 20px 20px;
 }
 @media (min-width: 900px) {
   .kdp-hero-info {
-    padding: 0 32px 0;
+    padding: 100px 32px 0;
   }
 }
 
