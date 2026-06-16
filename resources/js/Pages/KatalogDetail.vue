@@ -783,15 +783,61 @@ const formattedPrice = computed(() => {
   }
 }
 
-/* Fallback content */
+/* Fallback content - Typography Improvements */
 .kdp-page:not(.has-custom-content) .guest-lock-content,
 .kdp-page:not(.has-custom-content) .db-content {
-  font-size: 15px !important; line-height: 1.8 !important;
+  font-size: 15px !important;
+  line-height: 1.85 !important;
   color: #cbd5e1 !important;
 }
+
+/* Remove huge gaps caused by empty paragraphs */
+.kdp-page:not(.has-custom-content) .guest-lock-content p:empty,
+.kdp-page:not(.has-custom-content) .db-content p:empty {
+  display: none !important;
+}
+
 .kdp-page:not(.has-custom-content) .guest-lock-content p,
 .kdp-page:not(.has-custom-content) .db-content p {
-  margin: 0 0 20px !important;
+  margin: 0 0 1.25rem !important;
+  text-align: justify;
+}
+
+/* Editorial Lead Paragraph Style */
+.kdp-page:not(.has-custom-content) .db-content > p:first-of-type {
+  font-size: 1.05rem !important;
+  color: #f8fafc !important;
+  line-height: 1.9 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Drop Cap for the first letter */
+.kdp-page:not(.has-custom-content) .db-content > p:first-of-type::first-letter {
+  float: left;
+  font-size: 3.2rem;
+  line-height: 0.8;
+  margin-right: 0.15em;
+  margin-bottom: -0.05em;
+  font-weight: 700;
+  color: #10B981;
+}
+
+/* Styling for lists */
+.kdp-page:not(.has-custom-content) .db-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem !important;
+  color: #cbd5e1;
+}
+.kdp-page:not(.has-custom-content) .db-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Highlight strong text */
+.kdp-page:not(.has-custom-content) .db-content strong,
+.kdp-page:not(.has-custom-content) .db-content b {
+  color: #fff;
+  font-weight: 600;
 }
 
 </style>
