@@ -1,5 +1,5 @@
 <script setup>
-import { Head, usePage, Link } from '@inertiajs/vue3';
+import { Head, usePage, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Paywall from '@/Components/Paywall.vue';
 import { authStore } from '@/Stores/authStore';
@@ -34,6 +34,18 @@ const formattedPrice = computed(() => {
     if (isNaN(props.research.target_price)) return props.research.target_price;
     return Number(props.research.target_price).toLocaleString('id-ID');
 });
+
+const commentForm = useForm({
+    content: '',
+    guest_name: ''
+});
+
+const submitComment = () => {
+    commentForm.post(`/katalog/${props.research.id}/comments`, {
+        preserveScroll: true,
+        onSuccess: () => commentForm.reset('content'),
+    });
+};
 </script>
 
 <template>
@@ -232,6 +244,40 @@ const formattedPrice = computed(() => {
                   </div>
                 </div>
               </div>
+
+              <!-- Comments Section -->
+              <div class="comments-card mt-8">
+                <h3 class="comments-title">Komentar</h3>
+                
+                <form @submit.prevent="submitComment" class="comment-form mb-8">
+                  <div v-if="!isLoggedIn" class="mb-4">
+                    <input v-model="commentForm.guest_name" type="text" placeholder="Nama Anda (Guest)" class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500" />
+                  </div>
+                  <div class="mb-4">
+                    <textarea v-model="commentForm.content" rows="3" placeholder="Tulis komentar atau pertanyaan Anda di sini..." class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500" required></textarea>
+                    <div v-if="commentForm.errors.content" class="text-red-400 text-sm mt-1">{{ commentForm.errors.content }}</div>
+                  </div>
+                  <div class="flex justify-end">
+                    <button type="submit" :disabled="commentForm.processing" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg transition-colors disabled:opacity-50">
+                      Kirim Komentar
+                    </button>
+                  </div>
+                </form>
+
+                <div class="comments-list space-y-6">
+                  <div v-if="research.comments && research.comments.length === 0" class="text-slate-500 text-sm italic">
+                    Belum ada komentar. Jadilah yang pertama!
+                  </div>
+                  <div v-for="comment in research.comments" :key="comment.id" class="comment-item">
+                    <div class="flex justify-between items-start mb-2">
+                      <div class="font-bold text-emerald-400">{{ comment.author_name }}</div>
+                      <div class="text-xs text-slate-500">{{ comment.date }}</div>
+                    </div>
+                    <p class="text-slate-300 text-sm whitespace-pre-wrap">{{ comment.content }}</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             <!-- Right Column: Action Card (Desktop Sidebar) -->
@@ -796,6 +842,34 @@ const formattedPrice = computed(() => {
 .kdp-page:not(.has-custom-content) .guest-lock-content p:empty,
 .kdp-page:not(.has-custom-content) .db-content p:empty {
   display: none !important;
+}
+
+/* Comments Section */
+.comments-card {
+  background: #111413;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+@media (min-width: 900px) {
+  .comments-card {
+    padding: 32px;
+  }
+}
+.comments-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.comment-item {
+  padding: 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
 }
 
 .kdp-page:not(.has-custom-content) .guest-lock-content p,

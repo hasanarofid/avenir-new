@@ -189,8 +189,18 @@ class HomeController extends Controller
             }
         }
 
+        $comments = $research->comments()->with('user:id,name')->latest()->get()->map(function($comment) {
+            return [
+                'id' => $comment->id,
+                'author_name' => $comment->user ? $comment->user->name : ($comment->guest_name ?: 'Guest'),
+                'content' => $comment->content,
+                'date' => $comment->created_at->diffForHumans(),
+            ];
+        });
+
         return Inertia::render('KatalogDetail', [
             'research' => [
+                'id'             => $research->id,
                 'title'          => $research->title,
                 'ticker'         => $research->ticker,
                 'sector'         => $research->sector,
@@ -212,6 +222,7 @@ class HomeController extends Controller
                 'author'         => $research->author,
                 'is_paid'        => $research->is_premium,
                 'is_unlocked'    => $isUnlocked,
+                'comments'       => $comments,
             ],
         ]);
     }
