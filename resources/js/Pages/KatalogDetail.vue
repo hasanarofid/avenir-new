@@ -789,6 +789,7 @@ const formattedPrice = computed(() => {
   font-size: 15px !important;
   line-height: 1.85 !important;
   color: #cbd5e1 !important;
+  text-align: justify;
 }
 
 /* Remove huge gaps caused by empty paragraphs */
@@ -800,21 +801,22 @@ const formattedPrice = computed(() => {
 .kdp-page:not(.has-custom-content) .guest-lock-content p,
 .kdp-page:not(.has-custom-content) .db-content p {
   margin: 0 0 1.25rem !important;
-  text-align: justify;
 }
 
-/* Editorial Lead Paragraph Style */
-.kdp-page:not(.has-custom-content) .db-content > p:first-of-type {
-  font-size: 1.05rem !important;
-  color: #f8fafc !important;
-  line-height: 1.9 !important;
-  margin-bottom: 1.5rem !important;
+/* Fix huge spaces from consecutive <br> tags */
+.kdp-page:not(.has-custom-content) .db-content br {
+  display: block;
+  content: "";
+  margin-top: 1.25rem;
+}
+.kdp-page:not(.has-custom-content) .db-content br + br {
+  display: none;
 }
 
-/* Drop Cap for the first letter */
-.kdp-page:not(.has-custom-content) .db-content > p:first-of-type::first-letter {
+/* Drop Cap for the first letter of the container */
+.kdp-page:not(.has-custom-content) .db-content::first-letter {
   float: left;
-  font-size: 3.2rem;
+  font-size: 3.5rem;
   line-height: 0.8;
   margin-right: 0.15em;
   margin-bottom: -0.05em;
