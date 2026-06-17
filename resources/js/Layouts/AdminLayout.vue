@@ -6,11 +6,13 @@ import {
   LayoutDashboard, 
   Settings as SettingsIcon, 
   FileText, 
+  Newspaper,
   Users, 
   Menu, 
   X, 
   LogOut, 
   Layers,
+  LibraryBig,
   ChevronDown,
   Search,
   Server,
@@ -73,6 +75,8 @@ const navigationGroups = [
     title: 'CONTENT MANAGEMENT',
     items: [
       { name: 'Katalog Riset', href: route('admin.katalog-riset.index'), icon: FileText, current: route().current('admin.katalog-riset.*') },
+      { name: 'News (Berita Pasar)', href: route('admin.news.index'), icon: Newspaper, current: route().current('admin.news.*') },
+      { name: 'Artikel Edukasi', href: route('admin.articles.index'), icon: LibraryBig, current: route().current('admin.articles.*') },
     ]
   },
   {

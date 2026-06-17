@@ -114,6 +114,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Katalog Riset
     Route::delete('katalog-riset/bulk-delete', [\App\Http\Controllers\Admin\ResearchController::class, 'bulkDestroy'])->name('katalog-riset.bulk-destroy');
     Route::resource('katalog-riset', \App\Http\Controllers\Admin\ResearchController::class);
+    
+    // News (Berita Pasar)
+    Route::delete('news/bulk-delete', [\App\Http\Controllers\Admin\NewsController::class, 'bulkDestroy'])->name('news.bulk-destroy');
+    Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
+
+    // Artikel Edukasi
+    Route::delete('articles/bulk-delete', [\App\Http\Controllers\Admin\ArticleController::class, 'bulkDestroy'])->name('articles.bulk-destroy');
+    Route::resource('articles', \App\Http\Controllers\Admin\ArticleController::class);
 
     // Posts & Categories
     Route::resource('posts', PostController::class);
