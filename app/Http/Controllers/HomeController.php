@@ -265,6 +265,7 @@ class HomeController extends Controller
                 'pdf_path'       => $isUnlocked ? $research->pdf_path : null,
                 'content'        => $research->content,
                 'author'         => $research->author,
+                'created_at'     => $research->created_at,
                 'is_paid'        => $research->is_premium,
                 'is_unlocked'    => $isUnlocked,
                 'comments'       => $comments,
