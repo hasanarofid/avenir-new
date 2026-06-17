@@ -181,7 +181,7 @@ const handleShare = async () => {
             <!-- Ticker & Company Name -->
             <div class="kdp-company-row">
               <span class="kdp-ticker" v-if="research.ticker">{{ research.ticker }}</span>
-              <span class="kdp-company-name">{{ research.sector ? 'sector' : '' }}</span>
+              <span class="kdp-company-name">{{ research.sector || 'Perusahaan' }}</span>
             </div>
 
             <!-- Title -->
