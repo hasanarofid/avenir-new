@@ -35,7 +35,9 @@ Route::get('/disclosure-radar', [\App\Http\Controllers\DisclosureController::cla
 Route::middleware('auth')->group(function () {
     Route::get('/watchlist', [\App\Http\Controllers\WatchlistController::class, 'index'])->name('watchlist.index');
     Route::post('/watchlist/toggle/{tickerId}', [\App\Http\Controllers\WatchlistController::class, 'toggle'])->name('watchlist.toggle');
+    Route::post('/katalog/{id}/bookmark', [\App\Http\Controllers\BookmarkController::class, 'toggle'])->name('katalog.bookmark');
 });
+
 
 Route::get('/tentang', [HomeController::class, 'tentang'])->name('tentang');
 Route::get('/mitra', [HomeController::class, 'mitra'])->name('mitra');

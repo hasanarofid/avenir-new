@@ -3,7 +3,7 @@ import { Head, usePage, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Paywall from '@/Components/Paywall.vue';
 import { authStore } from '@/Stores/authStore';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
     research: {
@@ -35,6 +35,7 @@ const formattedPrice = computed(() => {
     return Number(props.research.target_price).toLocaleString('id-ID');
 });
 
+// ── Komentar ──────────────────────────────────────────────────────────────
 const commentForm = useForm({
     content: '',
     guest_name: ''
@@ -46,7 +47,71 @@ const submitComment = () => {
         onSuccess: () => commentForm.reset('content'),
     });
 };
+
+// ── Bookmark ──────────────────────────────────────────────────────────────
+const isBookmarked = ref(props.research.is_bookmarked ?? false);
+const isBookmarkLoading = ref(false);
+
+const handleBookmark = async () => {
+    if (!isLoggedIn.value) {
+        authStore.open('login');
+        return;
+    }
+    if (isBookmarkLoading.value) return;
+    isBookmarkLoading.value = true;
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+        const res = await fetch(`/katalog/${props.research.id}/bookmark`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+        });
+        const data = await res.json();
+        isBookmarked.value = data.is_bookmarked;
+    } catch (e) {
+        console.error('Bookmark error:', e);
+    } finally {
+        isBookmarkLoading.value = false;
+    }
+};
+
+// ── Share ─────────────────────────────────────────────────────────────────
+const toastVisible = ref(false);
+const toastMessage = ref('');
+let toastTimer = null;
+
+const showToast = (msg) => {
+    toastMessage.value = msg;
+    toastVisible.value = true;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastVisible.value = false; }, 2500);
+};
+
+const handleShare = async () => {
+    const url   = window.location.href;
+    const title = props.research.title ?? 'Avenir Research';
+    const text  = `${title} — Baca laporan riset saham di Avenir Research`;
+
+    if (navigator.share) {
+        try {
+            await navigator.share({ title, text, url });
+        } catch (e) {
+            // User cancelled — tidak perlu error handling
+        }
+    } else {
+        try {
+            await navigator.clipboard.writeText(url);
+            showToast('Link berhasil disalin!');
+        } catch (e) {
+            showToast('Gagal menyalin link.');
+        }
+    }
+};
 </script>
+
 
 <template>
     <Head>
@@ -84,18 +149,25 @@ const submitComment = () => {
 
         <!-- Top Nav Icons -->
         <div class="kdp-top-nav">
-          <Link href="/katalog" class="kdp-icon-btn">
+          <Link href="/katalog" class="kdp-icon-btn" aria-label="Kembali ke Katalog">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           </Link>
           <div class="flex gap-3">
-            <button class="kdp-icon-btn">
+            <button class="kdp-icon-btn" @click="handleShare" aria-label="Bagikan">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
             </button>
-            <button class="kdp-icon-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <button
+              class="kdp-icon-btn"
+              :class="{ 'kdp-icon-btn--active': isBookmarked }"
+              @click="handleBookmark"
+              :disabled="isBookmarkLoading"
+              aria-label="Bookmark"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" :fill="isBookmarked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
             </button>
           </div>
         </div>
+
 
         <div class="kdp-hero-content">
           <div class="kdp-hero-info">
@@ -109,7 +181,7 @@ const submitComment = () => {
             <!-- Ticker & Company Name -->
             <div class="kdp-company-row">
               <span class="kdp-ticker" v-if="research.ticker">{{ research.ticker }}</span>
-              <span class="kdp-company-name">{{ research.ticker ? 'Bank Central Asia Tbk' : '' }}</span>
+              <span class="kdp-company-name">{{ research.sector ? 'sector' : '' }}</span>
             </div>
 
             <!-- Title -->
@@ -155,21 +227,36 @@ const submitComment = () => {
           <div class="kdp-stats-bar">
             <div class="kdp-stat-item">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              <span><strong>61</strong> Comments</span>
+              <span><strong>{{ research.comments_count ?? 0 }}</strong> Komentar</span>
             </div>
             <div class="kdp-stat-sep"></div>
             <div class="kdp-stat-item">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <span><strong>128</strong> Views</span>
+              <span><strong>{{ research.views_count ?? 0 }}</strong> Tayangan</span>
             </div>
             <div class="kdp-stat-sep"></div>
-            <div class="kdp-stat-item">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-              <span>Bookmark</span>
-            </div>
+            <button
+              class="kdp-stat-item kdp-stat-bookmark"
+              :class="{ 'is-bookmarked': isBookmarked }"
+              @click="handleBookmark"
+              :disabled="isBookmarkLoading"
+              :aria-label="isBookmarked ? 'Hapus Bookmark' : 'Tambah Bookmark'"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" :fill="isBookmarked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              <span>{{ isBookmarked ? 'Disimpan' : 'Simpan' }}</span>
+            </button>
           </div>
         </div>
       </div>
+
+      <!-- Toast Notification -->
+      <Transition name="toast">
+        <div v-if="toastVisible" class="kdp-toast" role="status" aria-live="polite">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          {{ toastMessage }}
+        </div>
+      </Transition>
+
 
       <!-- ─── MAIN CONTENT AREA (2 COLUMNS) ──────────────────────────────── -->
       <div class="kdp-content-area" :class="{ 'is-custom': hasCustomHtml || hasCustomHero }">
@@ -915,5 +1002,75 @@ const submitComment = () => {
   color: #fff;
   font-weight: 600;
 }
+
+/* Bookmark active state — top nav button */
+.kdp-icon-btn--active {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #10B981 !important;
+}
+
+/* Bookmark button in stats bar */
+.kdp-stat-bookmark {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s, transform 0.15s;
+}
+.kdp-stat-bookmark:hover {
+  color: #10B981;
+  transform: scale(1.05);
+}
+.kdp-stat-bookmark.is-bookmarked {
+  color: #10B981;
+}
+.kdp-stat-bookmark.is-bookmarked svg {
+  color: #10B981;
+}
+.kdp-stat-bookmark:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Toast Notification */
+.kdp-toast {
+  position: fixed;
+  bottom: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(16, 185, 129, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10B981;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 200;
+  white-space: nowrap;
+  pointer-events: none;
+}
+@media (min-width: 900px) {
+  .kdp-toast {
+    bottom: 32px;
+  }
+}
+
+/* Toast Transition */
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
+}
+
+
 
 </style>

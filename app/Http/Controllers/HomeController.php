@@ -189,12 +189,43 @@ class HomeController extends Controller
             }
         }
 
+        // ── View Log: catat kunjungan, throttle 24 jam per user/IP ──────────
+        $ip = request()->ip();
+        $userId = auth()->id();
+
+        $alreadyViewed = \App\Models\ResearchViewLog::where('research_id', $research->id)
+            ->where(function ($q) use ($userId, $ip) {
+                if ($userId) {
+                    $q->where('user_id', $userId);
+                } else {
+                    $q->where('ip_address', $ip)->whereNull('user_id');
+                }
+            })
+            ->where('created_at', '>=', now()->subHours(24))
+            ->exists();
+
+        if (!$alreadyViewed) {
+            \App\Models\ResearchViewLog::create([
+                'research_id' => $research->id,
+                'user_id'     => $userId,
+                'ip_address'  => $userId ? null : $ip, // tidak simpan IP jika sudah ada user_id
+                'created_at'  => now(),
+            ]);
+        }
+
+        // ── Stats: hitung views, comments, bookmark ──────────────────────────
+        $viewsCount    = \App\Models\ResearchViewLog::where('research_id', $research->id)->count();
+        $commentsCount = \App\Models\Comment::where('research_id', $research->id)->count();
+        $isBookmarked  = $userId
+            ? \App\Models\ResearchBookmark::where('research_id', $research->id)->where('user_id', $userId)->exists()
+            : false;
+
         $comments = $research->comments()->with('user:id,name')->latest()->get()->map(function($comment) {
             return [
-                'id' => $comment->id,
+                'id'          => $comment->id,
                 'author_name' => $comment->user ? $comment->user->name : ($comment->guest_name ?: 'Guest'),
-                'content' => $comment->content,
-                'date' => $comment->created_at->diffForHumans(),
+                'content'     => $comment->content,
+                'date'        => $comment->created_at->diffForHumans(),
             ];
         });
 
@@ -217,12 +248,16 @@ class HomeController extends Controller
                 'upside'         => $research->upside,
                 'report_type'    => $research->report_type,
                 'is_premium'     => $research->is_premium,
-                'pdf_path'       => $isUnlocked ? $research->pdf_path : null, // Hide PDF if not unlocked
+                'pdf_path'       => $isUnlocked ? $research->pdf_path : null,
                 'content'        => $research->content,
                 'author'         => $research->author,
                 'is_paid'        => $research->is_premium,
                 'is_unlocked'    => $isUnlocked,
                 'comments'       => $comments,
+                // Stats realtime
+                'views_count'    => $viewsCount,
+                'comments_count' => $commentsCount,
+                'is_bookmarked'  => $isBookmarked,
             ],
         ]);
     }
