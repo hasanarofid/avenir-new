@@ -4,6 +4,8 @@ import { ref, computed } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ResearchCard from '@/Components/ResearchCard.vue';
 import { authStore } from '@/Stores/authStore';
+import Multiselect from '@vueform/multiselect';
+import '@vueform/multiselect/themes/default.css';
 
 const props = defineProps({
     researches: {
@@ -194,33 +196,48 @@ const topSectors = computed(() => {
             <div class="filters-row">
               <div class="filter-group">
                 <label>Sektor</label>
-                <select v-model="selectedSector">
-                  <option v-for="opt in uniqueSectors" :key="opt" :value="opt">{{ opt }}</option>
-                </select>
+                <Multiselect
+                  v-model="selectedSector"
+                  :options="uniqueSectors"
+                  :searchable="true"
+                  :can-clear="false"
+                />
               </div>
               <div class="filter-group">
                 <label>Rekomendasi</label>
-                <select v-model="selectedRec">
-                  <option v-for="opt in uniqueRecs" :key="opt" :value="opt">{{ opt }}</option>
-                </select>
+                <Multiselect
+                  v-model="selectedRec"
+                  :options="uniqueRecs"
+                  :searchable="true"
+                  :can-clear="false"
+                />
               </div>
               <div class="filter-group">
                 <label>Tipe Laporan</label>
-                <select v-model="selectedType">
-                  <option v-for="opt in uniqueTypes" :key="opt" :value="opt">{{ opt }}</option>
-                </select>
+                <Multiselect
+                  v-model="selectedType"
+                  :options="uniqueTypes"
+                  :searchable="true"
+                  :can-clear="false"
+                />
               </div>
               <div class="filter-group">
                 <label>Analis</label>
-                <select v-model="selectedAnalyst">
-                  <option v-for="opt in uniqueAnalysts" :key="opt" :value="opt">{{ opt }}</option>
-                </select>
+                <Multiselect
+                  v-model="selectedAnalyst"
+                  :options="uniqueAnalysts"
+                  :searchable="true"
+                  :can-clear="false"
+                />
               </div>
               <div class="filter-group">
                 <label>Tahun</label>
-                <select v-model="selectedYear">
-                  <option v-for="opt in uniqueYears" :key="opt" :value="opt">{{ opt }}</option>
-                </select>
+                <Multiselect
+                  v-model="selectedYear"
+                  :options="uniqueYears"
+                  :searchable="true"
+                  :can-clear="false"
+                />
               </div>
               <button class="reset-btn ml-auto" @click="resetFilters">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -520,25 +537,36 @@ const topSectors = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  --ms-bg: #090b0a;
+  --ms-border-color: rgba(255, 255, 255, 0.1);
+  --ms-dropdown-bg: #111413;
+  --ms-dropdown-border-color: rgba(255, 255, 255, 0.1);
+  --ms-option-color-pointed: #fff;
+  --ms-option-bg-pointed: rgba(16, 185, 129, 0.1);
+  --ms-option-color-selected: #fff;
+  --ms-option-bg-selected: #10B981;
+  --ms-option-color-selected-pointed: #fff;
+  --ms-option-bg-selected-pointed: #059669;
+  --ms-font-size: 12px;
+  --ms-line-height: 1.2;
+  --ms-radius: 6px;
+  --ms-ring-color: rgba(16, 185, 129, 0.5);
+  --ms-placeholder-color: #64748b;
+  --ms-caret-color: #94a3b8;
+  --ms-clear-color: #94a3b8;
 }
 .filter-group label {
   font-size: 10.5px;
   color: #64748b;
   font-weight: 600;
 }
-.filter-group select {
-  background: #090b0a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 12px;
+.filter-group .multiselect {
   min-width: 140px;
-  cursor: pointer;
+  min-height: 36px;
+  color: #cbd5e1;
 }
-.filter-group select:focus {
-  outline: none;
-  border-color: rgba(16, 185, 129, 0.5);
+.filter-group .multiselect-dropdown {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 }
 
 .reset-btn {
