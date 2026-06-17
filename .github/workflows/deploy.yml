@@ -34,11 +34,12 @@ jobs:
             npm install
             npm run build
 
-            # 5. Jalankan migrasi database & seeding
+            # 5. Jalankan migrasi database & command terkait
             php artisan migrate --force
             php artisan optimize:clear
             php artisan view:clear
             php artisan queue:restart
+            php artisan market:fetch || true
 
             # 6. Pastikan symlink storage terbuat
             php artisan storage:link || true

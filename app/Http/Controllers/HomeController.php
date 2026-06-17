@@ -485,8 +485,21 @@ class HomeController extends Controller
                 ];
             });
 
+        $marketData = \Illuminate\Support\Facades\Cache::get('market_summary', []);
+
+        $settings = \App\Models\Setting::pluck('value', 'key');
+        $topTickersStr = $settings['market_top_tickers'] ?? 'BBRI.JK, TLKM.JK, ASII.JK, AMMN.JK, MDKA.JK';
+        $watchlistStr = $settings['market_watchlist_tickers'] ?? 'BBRI.JK, TLKM.JK, ASII.JK, MDKA.JK';
+        $trendingStr = $settings['market_trending_tickers'] ?? 'BBRI.JK, TLKM.JK, ASII.JK, MDKA.JK, AMMN.JK, GOTO.JK';
+
         return Inertia::render('News', [
-            'newsList' => $newsList
+            'newsList' => $newsList,
+            'marketData' => $marketData,
+            'marketConfig' => [
+                'top' => array_filter(array_map('trim', explode(',', $topTickersStr))),
+                'watchlist' => array_filter(array_map('trim', explode(',', $watchlistStr))),
+                'trending' => array_filter(array_map('trim', explode(',', $trendingStr))),
+            ]
         ])->withViewData([
             'meta' => [
                 'title' => 'Berita Pasar | AVENIR Research',

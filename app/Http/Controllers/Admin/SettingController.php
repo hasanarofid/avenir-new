@@ -44,6 +44,9 @@ class SettingController extends Controller
             'site_logo'           => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
             'trial_artikel_limit' => 'nullable|integer|min:0|max:100',
             'trial_riset_limit'   => 'nullable|integer|min:0|max:100',
+            'market_top_tickers'       => 'nullable|string|max:500',
+            'market_watchlist_tickers' => 'nullable|string|max:500',
+            'market_trending_tickers'  => 'nullable|string|max:500',
             'openrouter_api_key'        => 'nullable|string|max:255',
             'openrouter_default_model'  => 'nullable|string|max:100',
             'openrouter_fallback_model' => 'nullable|string|max:100',
@@ -89,6 +92,11 @@ class SettingController extends Controller
         Setting::setValue('openrouter_api_key', $validatedData['openrouter_api_key'] ?? '', 'text');
         Setting::setValue('openrouter_default_model', $validatedData['openrouter_default_model'] ?? 'anthropic/claude-3.5-sonnet', 'text');
         Setting::setValue('openrouter_fallback_model', $validatedData['openrouter_fallback_model'] ?? 'openai/gpt-4o', 'text');
+
+        // Market Config
+        Setting::setValue('market_top_tickers', $validatedData['market_top_tickers'] ?? 'BBRI.JK, TLKM.JK, ASII.JK, AMMN.JK, MDKA.JK', 'text');
+        Setting::setValue('market_watchlist_tickers', $validatedData['market_watchlist_tickers'] ?? 'BBRI.JK, TLKM.JK, ASII.JK, MDKA.JK', 'text');
+        Setting::setValue('market_trending_tickers', $validatedData['market_trending_tickers'] ?? 'BBRI.JK, TLKM.JK, ASII.JK, MDKA.JK, AMMN.JK, GOTO.JK', 'text');
 
         // Granular Maintenance Mode
         $maintKeys = ['maint_home', 'maint_katalog', 'maint_artikel', 'maint_news', 'maint_emiten', 'maint_ki_brief', 'maint_disclosure', 'maint_tentang', 'maint_mitra', 'maint_langganan'];

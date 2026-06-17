@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Save, Image as ImageIcon, Link as LinkIcon, Phone, FileText, Globe, CreditCard, UserCheck, BookOpen, BarChart2, BrainCircuit } from '@lucide/vue';
+import { Save, Image as ImageIcon, Link as LinkIcon, Phone, FileText, Globe, CreditCard, UserCheck, BookOpen, BarChart2, BrainCircuit, ShieldAlert, TrendingUp } from '@lucide/vue';
 
 const props = defineProps({
   settings: {
@@ -34,6 +34,9 @@ const form = useForm({
   maint_tentang: props.settings.maint_tentang === '1' || props.settings.maint_tentang === true,
   maint_mitra: props.settings.maint_mitra === '1' || props.settings.maint_mitra === true,
   maint_langganan: props.settings.maint_langganan === '1' || props.settings.maint_langganan === true,
+  market_top_tickers: props.settings.market_top_tickers || 'BBRI.JK, TLKM.JK, ASII.JK, AMMN.JK, MDKA.JK',
+  market_watchlist_tickers: props.settings.market_watchlist_tickers || 'BBRI.JK, TLKM.JK, ASII.JK, MDKA.JK',
+  market_trending_tickers: props.settings.market_trending_tickers || 'BBRI.JK, TLKM.JK, ASII.JK, MDKA.JK, AMMN.JK, GOTO.JK',
   site_logo: null
 });
 
@@ -177,6 +180,20 @@ const submit = () => {
           <span class="flex items-center gap-2">
             <ShieldAlert class="w-4 h-4" />
             Maintenance
+          </span>
+        </button>
+        <button 
+          @click="currentTab = 'market'"
+          :class="[
+            currentTab === 'market' 
+              ? 'border-emerald-500 text-emerald-450 bg-[#090b0a]/10' 
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-emerald-800',
+            'px-6 py-3 border-b-2 font-semibold text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer'
+          ]"
+        >
+          <span class="flex items-center gap-2">
+            <TrendingUp class="w-4 h-4" />
+            Market Config
           </span>
         </button>
       </div>
@@ -620,6 +637,75 @@ const submit = () => {
                 </label>
               </div>
 
+            </div>
+          </div>
+
+          <!-- Tab 8: Market Config -->
+          <div v-if="currentTab === 'market'" class="space-y-6 animate-fadeIn">
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/8 border border-emerald-500/20">
+              <TrendingUp class="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p class="text-sm font-semibold text-emerald-300">Konfigurasi Market Dashboard (News)</p>
+                <p class="text-xs text-slate-400 mt-1">
+                  Atur emiten/saham apa saja yang akan ditampilkan pada widget News Dashboard. 
+                  Pisahkan dengan koma dan gunakan format Yahoo Finance (contoh: <strong class="text-white">BBRI.JK, TLKM.JK</strong>).
+                </p>
+              </div>
+            </div>
+
+            <!-- Top Movers Tickers -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Top Movers (Top Banner)</label>
+                <p class="text-xxs text-slate-550 mt-1">Muncul di banner atas halaman News.</p>
+              </div>
+              <div class="md:col-span-2">
+                <textarea 
+                  v-model="form.market_top_tickers"
+                  rows="2"
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250 resize-none"
+                  placeholder="BBRI.JK, TLKM.JK, ASII.JK..."
+                ></textarea>
+                <div v-if="form.errors.market_top_tickers" class="text-xs text-rose-500 font-semibold mt-1">
+                  {{ form.errors.market_top_tickers }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Watchlist Tickers -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Watchlist News</label>
+                <p class="text-xxs text-slate-550 mt-1">Widget sidebar untuk berita terkait saham pilihan.</p>
+              </div>
+              <div class="md:col-span-2">
+                <textarea 
+                  v-model="form.market_watchlist_tickers"
+                  rows="2"
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250 resize-none"
+                ></textarea>
+                <div v-if="form.errors.market_watchlist_tickers" class="text-xs text-rose-500 font-semibold mt-1">
+                  {{ form.errors.market_watchlist_tickers }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Trending Tickers -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Trending Tickers</label>
+                <p class="text-xxs text-slate-550 mt-1">Kumpulan tombol filter cepat di sidebar.</p>
+              </div>
+              <div class="md:col-span-2">
+                <textarea 
+                  v-model="form.market_trending_tickers"
+                  rows="2"
+                  class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-550 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250 resize-none"
+                ></textarea>
+                <div v-if="form.errors.market_trending_tickers" class="text-xs text-rose-500 font-semibold mt-1">
+                  {{ form.errors.market_trending_tickers }}
+                </div>
+              </div>
             </div>
           </div>
 
