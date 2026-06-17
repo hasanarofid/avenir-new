@@ -4,7 +4,36 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        @php
+            $defaultSiteName = \App\Models\Setting::getValue('site_name', config('app.name', 'Avenir Research'));
+            $defaultDescription = \App\Models\Setting::getValue('site_description', 'AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif.');
+            
+            $seoTitle = $meta['title'] ?? $defaultSiteName;
+            $seoDesc = $meta['description'] ?? $defaultDescription;
+            $seoImage = $meta['image'] ?? asset('favicon.png');
+            $seoType = $meta['type'] ?? 'website';
+            $seoTwitter = $meta['twitter_card'] ?? 'summary_large_image';
+        @endphp
+
+        <title inertia>{{ $seoTitle }}</title>
+        
+        <!-- Primary Meta Tags -->
+        <meta name="title" content="{{ $seoTitle }}">
+        <meta name="description" content="{{ $seoDesc }}">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="{{ $seoType }}">
+        <meta property="og:url" content="{{ request()->url() }}">
+        <meta property="og:title" content="{{ $seoTitle }}">
+        <meta property="og:description" content="{{ $seoDesc }}">
+        <meta property="og:image" content="{{ $seoImage }}">
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="{{ $seoTwitter }}">
+        <meta property="twitter:url" content="{{ request()->url() }}">
+        <meta property="twitter:title" content="{{ $seoTitle }}">
+        <meta property="twitter:description" content="{{ $seoDesc }}">
+        <meta property="twitter:image" content="{{ $seoImage }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

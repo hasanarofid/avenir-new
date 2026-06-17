@@ -103,6 +103,11 @@ class HomeController extends Controller
             'risetUnggulan' => $risetUnggulan,
             'insightTerbaru' => $insightTerbaru,
             'headlinesPasar' => $headlinesPasar
+        ])->withViewData([
+            'meta' => [
+                'title' => 'AVENIR Research | Platform Riset Ekuitas Indonesia',
+                'description' => 'Akses laporan riset mendalam untuk keputusan investasi yang lebih cerdas. Disusun oleh tim analis berpengalaman.',
+            ]
         ]);
     }
 
@@ -127,6 +132,11 @@ class HomeController extends Controller
         return Inertia::render('Dashboard', [
             'researches' => $researches,
             'unlockedTickers' => $unlockedTickers
+        ])->withViewData([
+            'meta' => [
+                'title' => 'Katalog Riset | AVENIR Research',
+                'description' => 'Jelajahi berbagai laporan riset saham, rekomendasi, dan target price dari AVENIR Research.',
+            ]
         ]);
     }
 
@@ -259,6 +269,13 @@ class HomeController extends Controller
                 'comments_count' => $commentsCount,
                 'is_bookmarked'  => $isBookmarked,
             ],
+        ])->withViewData([
+            'meta' => [
+                'title' => ($research->ticker ? $research->ticker . ' — ' : '') . $research->title . ' | AVENIR Research',
+                'description' => \Illuminate\Support\Str::limit(strip_tags($research->subtitle ?? $research->content), 150),
+                'image' => $research->image ? asset($research->image) : asset('favicon.png'),
+                'type' => 'article',
+            ]
         ]);
     }
 
@@ -273,6 +290,11 @@ class HomeController extends Controller
         
         return Inertia::render('Artikel', [
             'articles' => $articles
+        ])->withViewData([
+            'meta' => [
+                'title' => 'Artikel & Insight | AVENIR Research',
+                'description' => 'Baca artikel, insight, dan analisis terbaru mengenai pasar modal Indonesia.',
+            ]
         ]);
     }
 
@@ -360,6 +382,13 @@ class HomeController extends Controller
                 'is_paid'      => $isPaid,
                 'is_unlocked'  => $isUnlocked,
                 'content'      => $content,
+            ]
+        ])->withViewData([
+            'meta' => [
+                'title' => $article->title . ' | AVENIR Research',
+                'description' => $article->excerpt ? \Illuminate\Support\Str::limit(strip_tags($article->excerpt), 150) : \Illuminate\Support\Str::limit(strip_tags($content), 150),
+                'image' => $article->cover_image ? asset($article->cover_image) : asset('favicon.png'),
+                'type' => 'article',
             ]
         ]);
     }
@@ -453,6 +482,11 @@ class HomeController extends Controller
 
         return Inertia::render('News', [
             'newsList' => $newsList
+        ])->withViewData([
+            'meta' => [
+                'title' => 'Berita Pasar | AVENIR Research',
+                'description' => 'Ikuti perkembangan dan berita terbaru dari pasar modal Indonesia.',
+            ]
         ]);
     }
 
@@ -478,6 +512,13 @@ class HomeController extends Controller
                 'content' => $content,
                 'cover_image' => $news->cover_image,
             ]
+        ])->withViewData([
+            'meta' => [
+                'title' => $news->title . ' | AVENIR Research',
+                'description' => $news->excerpt ? \Illuminate\Support\Str::limit(strip_tags($news->excerpt), 150) : \Illuminate\Support\Str::limit(strip_tags($content), 150),
+                'image' => $news->cover_image ? asset($news->cover_image) : asset('favicon.png'),
+                'type' => 'article',
+            ]
         ]);
     }
 
@@ -488,7 +529,12 @@ class HomeController extends Controller
      */
     public function tentang()
     {
-        return Inertia::render('About');
+        return Inertia::render('About')->withViewData([
+            'meta' => [
+                'title' => 'Tentang Kami | AVENIR Research',
+                'description' => 'Pelajari lebih lanjut tentang visi, misi, dan tim profesional di balik AVENIR Research.',
+            ]
+        ]);
     }
 
     /**
@@ -519,6 +565,11 @@ class HomeController extends Controller
 
         return Inertia::render('Partners', [
             'partners' => $partners
+        ])->withViewData([
+            'meta' => [
+                'title' => 'Mitra Analis | AVENIR Research',
+                'description' => 'Temui para mitra analis independen kami yang menyediakan riset pasar modal berkualitas.',
+            ]
         ]);
     }
 
@@ -566,6 +617,11 @@ class HomeController extends Controller
                 'nominal' => $pendingSubmission->nominal,
                 'submitted_at' => $pendingSubmission->submitted_at,
             ] : null
+        ])->withViewData([
+            'meta' => [
+                'title' => 'Berlangganan | AVENIR Research',
+                'description' => 'Dapatkan akses penuh ke laporan riset premium, insight pasar, dan rekomendasi saham eksklusif.',
+            ]
         ]);
     }
 
