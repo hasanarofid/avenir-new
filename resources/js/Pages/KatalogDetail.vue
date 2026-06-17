@@ -189,7 +189,7 @@ const handleShare = async () => {
 
             <!-- Meta Row -->
             <div class="kdp-meta-modern">
-              <span>{{ research.date }}</span>
+              <span>Tanggal Terbit: {{ research.date }}</span>
               <span class="dot">•</span>
               <span class="flex items-center gap-1" v-if="research.is_premium">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -920,14 +920,16 @@ const handleShare = async () => {
 .kdp-page:not(.has-custom-content) .guest-lock-content,
 .kdp-page:not(.has-custom-content) .db-content {
   font-size: 15px !important;
-  line-height: 1.85 !important;
+  line-height: 1.65 !important;
   color: #cbd5e1 !important;
   text-align: justify;
 }
 
 /* Remove huge gaps caused by empty paragraphs */
 .kdp-page:not(.has-custom-content) .guest-lock-content p:empty,
-.kdp-page:not(.has-custom-content) .db-content p:empty {
+.kdp-page:not(.has-custom-content) .db-content p:empty,
+.kdp-page:not(.has-custom-content) .guest-lock-content p:has(br:only-child),
+.kdp-page:not(.has-custom-content) .db-content p:has(br:only-child) {
   display: none !important;
 }
 
@@ -961,17 +963,12 @@ const handleShare = async () => {
 
 .kdp-page:not(.has-custom-content) .guest-lock-content p,
 .kdp-page:not(.has-custom-content) .db-content p {
-  margin: 0 0 1.25rem !important;
+  margin: 0 0 1rem !important;
 }
 
 /* Fix huge spaces from consecutive <br> tags */
-.kdp-page:not(.has-custom-content) .db-content br {
-  display: block;
-  content: "";
-  margin-top: 1.25rem;
-}
 .kdp-page:not(.has-custom-content) .db-content br + br {
-  display: none;
+  display: none !important;
 }
 
 /* Drop Cap for the first letter of the container */

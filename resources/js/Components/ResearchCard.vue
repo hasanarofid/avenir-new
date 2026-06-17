@@ -82,6 +82,10 @@ const recColor = computed(() => {
             <span class="meta-lbl">Upside</span>
             <span class="meta-val" :class="upsideColor">{{ data.upside || '-' }}</span>
           </div>
+          <div class="meta-item">
+            <span class="meta-lbl">Tanggal Terbit</span>
+            <span class="meta-val">{{ data.date || 'TBA' }}</span>
+          </div>
           <div class="meta-item" v-if="isFeatured">
             <span class="meta-lbl">Rekomendasi</span>
             <span :class="['rec-badge mt-1 inline-block', recColor]">{{ data.recommendation || 'BUY' }}</span>
