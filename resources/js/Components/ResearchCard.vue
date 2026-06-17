@@ -55,7 +55,7 @@ const recColor = computed(() => {
         <div class="rcard-header">
           <div class="rcard-header-info">
             <span class="ticker">{{ data.ticker || 'N/A' }}</span>
-            <span class="company-name text-slate-400 text-xs ml-2 truncate" style="max-width: 150px;">{{ data.sector || 'Perusahaan' }}</span>
+            <span class="company-name text-slate-400 text-xs ml-2 truncate" style="max-width: 150px;">{{ data.company_name || data.sector || 'Perusahaan' }}</span>
           </div>
           <div v-if="isFeatured" class="ml-auto hidden sm:flex items-center gap-2">
              <span v-if="data.is_premium" class="premium-badge-gold">

@@ -116,12 +116,15 @@ class HomeController extends Controller
      */
     public function katalog()
     {
-        $researches = Research::with('author')->select([
+        $researches = Research::with(['author', 'emiten'])->select([
             'id', 'title', 'ticker', 'sector', 'slug', 'subtitle', 'revenue', 
             'patmi', 'sales', 'tags', 'date', 'price', 'recommendation', 
             'target_price', 'upside', 'report_type', 'is_premium', 'pdf_path', 
             'image', 'author_id', 'created_at', 'updated_at'
-        ])->latest()->get();
+        ])->latest()->get()->map(function ($r) {
+            $r->company_name = $r->emiten ? $r->emiten->company_name : null;
+            return $r;
+        });
         $unlockedTickers = auth()->check()
             ? \Illuminate\Support\Facades\DB::table('unlocked_research')
                 ->where('user_id', auth()->id())
@@ -158,11 +161,11 @@ class HomeController extends Controller
         }
 
         // Cari research berdasarkan slug
-        $research = Research::with('author')->where('slug', $slug)->first();
+        $research = Research::with(['author', 'emiten'])->where('slug', $slug)->first();
 
         // Fallback: jika slug tidak ketemu, coba cari by ID (untuk URL lama)
         if (!$research && is_numeric($slug)) {
-            $research = Research::with('author')->find((int) $slug);
+            $research = Research::with(['author', 'emiten'])->find((int) $slug);
             // Redirect ke URL slug jika ditemukan
             if ($research && $research->slug) {
                 return redirect()->route('katalog.detail', ['slug' => $research->slug], 301);
@@ -244,6 +247,7 @@ class HomeController extends Controller
                 'id'             => $research->id,
                 'title'          => $research->title,
                 'ticker'         => $research->ticker,
+                'company_name'   => $research->emiten ? $research->emiten->company_name : null,
                 'sector'         => $research->sector,
                 'slug'           => $research->slug,
                 'subtitle'       => $research->subtitle,

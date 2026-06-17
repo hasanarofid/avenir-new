@@ -19,6 +19,11 @@ class Research extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
+    public function emiten(): BelongsTo
+    {
+        return $this->belongsTo(Ticker::class, 'ticker', 'symbol');
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
