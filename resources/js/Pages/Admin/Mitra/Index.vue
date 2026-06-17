@@ -3,6 +3,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { UserCheck, Edit, Trash, Check } from '@lucide/vue';
 import { ref } from 'vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
   mitra: Array
@@ -44,14 +45,38 @@ function saveEdit(id) {
   router.put(route('admin.mitra.update', id), editForm.value);
 }
 
-function approveMitra(id) {
-  if (confirm('Yakin ingin verifikasi mitra ini?')) {
+async function approveMitra(id) {
+  const result = await Swal.fire({
+    title: 'Konfirmasi Verifikasi',
+    text: 'Yakin ingin verifikasi mitra ini?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#ef4444',
+    confirmButtonText: 'Ya, Verifikasi',
+    cancelButtonText: 'Batal',
+    background: '#121614',
+    color: '#cbd5e1'
+  });
+  if (result.isConfirmed) {
     router.post(route('admin.mitra.approve', id));
   }
 }
 
-function deleteMitra(id) {
-  if (confirm('Yakin ingin menghapus mitra ini?')) {
+async function deleteMitra(id) {
+  const result = await Swal.fire({
+    title: 'Konfirmasi Hapus',
+    text: 'Yakin ingin menghapus mitra ini?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#ef4444',
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal',
+    background: '#121614',
+    color: '#cbd5e1'
+  });
+  if (result.isConfirmed) {
     router.delete(route('admin.mitra.destroy', id));
   }
 }

@@ -3,6 +3,7 @@ import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { authStore } from '@/Stores/authStore';
 import { ref, computed } from 'vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
   status: {
@@ -110,7 +111,14 @@ const handleSelectPackage = (pkg) => {
   }
 
   if (props.status === 'pending') {
-    alert('Anda masih memiliki submission yang sedang diverifikasi. Tunggu sampai admin memprosesnya.');
+    Swal.fire({
+      title: 'Menunggu Verifikasi',
+      text: 'Anda masih memiliki submission yang sedang diverifikasi. Tunggu sampai admin memprosesnya.',
+      icon: 'info',
+      background: '#121614',
+      color: '#cbd5e1',
+      confirmButtonColor: '#10b981'
+    });
     return;
   }
 

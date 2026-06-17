@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { ArrowLeft, Save, UploadCloud, FileText, X } from '@lucide/vue';
+import Swal from 'sweetalert2';
 
 const form = useForm({
     ticker: '',
@@ -19,7 +20,14 @@ const handleFileSelect = (event) => {
         if (file.type === 'application/pdf') {
             form.documents.push(file);
         } else {
-            alert('Hanya file PDF yang diizinkan: ' + file.name);
+            Swal.fire({
+                title: 'Format Tidak Sesuai',
+                text: 'Hanya file PDF yang diizinkan: ' + file.name,
+                icon: 'error',
+                background: '#121614',
+                color: '#cbd5e1',
+                confirmButtonColor: '#10b981'
+            });
         }
     });
     // Reset input so the same file can be selected again if removed

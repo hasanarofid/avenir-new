@@ -146,7 +146,7 @@ class ResearchController extends Controller
     {
         $request->validate([
             'ids' => 'required|array',
-            'ids.*' => 'exists:researches,id',
+            'ids.*' => 'exists:research,id',
         ]);
 
         Research::whereIn('id', $request->ids)->delete();

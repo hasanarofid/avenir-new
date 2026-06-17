@@ -4,6 +4,7 @@ import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
 import { Plus, X, Save } from '@lucide/vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
   pages: {
@@ -40,8 +41,20 @@ const handleEdit = (item) => {
   router.get(route('admin.pages.edit', item.id));
 };
 
-const handleDelete = (item) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus halaman "${item.title}"?`)) {
+const handleDelete = async (item) => {
+  const result = await Swal.fire({
+    title: 'Konfirmasi Hapus',
+    text: `Apakah Anda yakin ingin menghapus halaman "${item.title}"?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#ef4444',
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal',
+    background: '#121614',
+    color: '#cbd5e1'
+  });
+  if (result.isConfirmed) {
     router.delete(route('admin.pages.destroy', item.id));
   }
 };

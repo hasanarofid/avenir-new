@@ -3,6 +3,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { Bell, Plus, Send, Trash2, Link as LinkIcon, Edit } from '@lucide/vue';
 import { ref } from 'vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
   notifications: Array
@@ -51,8 +52,20 @@ function editNotification(notif) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function deleteNotification(id) {
-  if (confirm('Apakah Anda yakin ingin menghapus notifikasi ini?')) {
+async function deleteNotification(id) {
+  const result = await Swal.fire({
+    title: 'Konfirmasi Hapus',
+    text: 'Apakah Anda yakin ingin menghapus notifikasi ini?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#ef4444',
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal',
+    background: '#121614',
+    color: '#cbd5e1'
+  });
+  if (result.isConfirmed) {
     router.delete(route('admin.notifications.destroy', id), {
       preserveScroll: true
     });

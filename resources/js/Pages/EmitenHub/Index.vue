@@ -7,6 +7,7 @@ import {
     TrendingUp, TrendingDown, Star, ChevronLeft, ChevronRight,
     ArrowRight, ArrowUpRight
 } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
 
 const debounce = (fn, delay) => {
     let timeoutId;
@@ -48,8 +49,22 @@ const resetFilters = () => {
     router.get(route('emiten.index'));
 };
 
-const downloadData = () => alert('Fitur Download Data segera hadir!');
-const exportData = () => alert('Fitur Export Data segera hadir!');
+const downloadData = () => Swal.fire({
+    title: 'Segera Hadir!',
+    text: 'Fitur Download Data segera hadir!',
+    icon: 'info',
+    background: '#121614',
+    color: '#cbd5e1',
+    confirmButtonColor: '#10b981'
+});
+const exportData = () => Swal.fire({
+    title: 'Segera Hadir!',
+    text: 'Fitur Export Data segera hadir!',
+    icon: 'info',
+    background: '#121614',
+    color: '#cbd5e1',
+    confirmButtonColor: '#10b981'
+});
 
 
 // Mock data for UI elements that are not dynamic yet
