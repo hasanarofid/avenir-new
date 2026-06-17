@@ -21,6 +21,8 @@ const headers = [
   { text: 'Tanggal', value: 'created_at', type: 'date' }
 ];
 
+const selectedItems = ref([]);
+
 const handleEdit = (item) => {
   router.get(route('admin.katalog-riset.edit', item.id));
 };
@@ -28,6 +30,18 @@ const handleEdit = (item) => {
 const handleDelete = (item) => {
   if (confirm(`Apakah Anda yakin ingin menghapus riset "${item.title}"?`)) {
     router.delete(route('admin.katalog-riset.destroy', item.id));
+  }
+};
+
+const handleBulkDelete = () => {
+  if (selectedItems.value.length === 0) return;
+  if (confirm(`Apakah Anda yakin ingin menghapus ${selectedItems.value.length} riset yang dipilih?`)) {
+    router.delete(route('admin.katalog-riset.bulk-destroy'), {
+      data: { ids: selectedItems.value },
+      onSuccess: () => {
+        selectedItems.value = [];
+      }
+    });
   }
 };
 </script>
@@ -47,6 +61,14 @@ const handleDelete = (item) => {
           <p class="text-sm text-slate-400 mt-1">Kelola daftar laporan riset saham untuk klien dan publik.</p>
         </div>
         <div class="flex items-center gap-3">
+          <button 
+            v-if="selectedItems.length > 0"
+            @click="handleBulkDelete"
+            class="inline-flex items-center px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-sm font-semibold text-white rounded-xl shadow-lg shadow-rose-600/20 transition-all cursor-pointer"
+          >
+            <Trash2 class="w-4.5 h-4.5 mr-1.5" />
+            Hapus {{ selectedItems.length }}
+          </button>
           <Link 
             :href="route('admin.katalog-riset.create')"
             class="inline-flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-sm font-semibold text-white rounded-xl shadow-lg shadow-emerald-600/20 transition-all cursor-pointer"
@@ -63,6 +85,9 @@ const handleDelete = (item) => {
           <DataTable 
             :items="researches.data" 
             :headers="headers" 
+            :pagination="researches.links"
+            selectable
+            v-model:selectedItems="selectedItems"
             search-placeholder="Cari judul riset atau ticker..."
             search-key="title"
             @edit="handleEdit"

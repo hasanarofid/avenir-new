@@ -112,6 +112,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('pages/{page}/sections/{section}', [PageController::class, 'updateSection'])->name('pages.sections.update');
 
     // Katalog Riset
+    Route::delete('katalog-riset/bulk-delete', [\App\Http\Controllers\Admin\ResearchController::class, 'bulkDestroy'])->name('katalog-riset.bulk-destroy');
     Route::resource('katalog-riset', \App\Http\Controllers\Admin\ResearchController::class);
 
     // Posts & Categories

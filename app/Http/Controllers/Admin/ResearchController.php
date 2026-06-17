@@ -138,4 +138,19 @@ class ResearchController extends Controller
         $katalog_riset->delete();
         return redirect()->route('admin.katalog-riset.index')->with('success', 'Katalog Riset berhasil dihapus.');
     }
+
+    /**
+     * Remove multiple resources from storage.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:researches,id',
+        ]);
+
+        Research::whereIn('id', $request->ids)->delete();
+
+        return redirect()->back()->with('success', count($request->ids) . ' Katalog Riset berhasil dihapus.');
+    }
 }

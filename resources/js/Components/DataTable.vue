@@ -35,12 +35,49 @@ const props = defineProps({
   initialSearch: {
     type: String,
     default: ''
+  },
+  selectable: {
+    type: Boolean,
+    default: false
+  },
+  selectedItems: {
+    type: Array,
+    default: () => []
   }
 });
 
-const emit = defineEmits(['edit', 'delete', 'search']);
+const emit = defineEmits(['edit', 'delete', 'search', 'update:selectedItems']);
 
 const search = ref(props.initialSearch);
+
+const toggleAll = (event) => {
+  if (event.target.checked) {
+    emit('update:selectedItems', filteredItems.value.map(i => i.id));
+  } else {
+    emit('update:selectedItems', []);
+  }
+};
+
+const toggleItem = (item) => {
+  const newSelected = [...(props.selectedItems || [])];
+  const index = newSelected.indexOf(item.id);
+  if (index > -1) {
+    newSelected.splice(index, 1);
+  } else {
+    newSelected.push(item.id);
+  }
+  emit('update:selectedItems', newSelected);
+};
+
+const allSelected = computed(() => {
+  if (!filteredItems.value || filteredItems.value.length === 0) return false;
+  return filteredItems.value.every(item => (props.selectedItems || []).includes(item.id));
+});
+
+const someSelected = computed(() => {
+  if (!filteredItems.value || filteredItems.value.length === 0) return false;
+  return filteredItems.value.some(item => (props.selectedItems || []).includes(item.id)) && !allSelected.value;
+});
 
 watch(search, (newVal) => {
   if (props.serverSearch) {
@@ -84,6 +121,15 @@ const filteredItems = computed(() => {
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="border-b border-emerald-950/30 bg-[#090b0a]/40">
+            <th v-if="selectable" class="px-6 py-4 w-12 text-center">
+              <input 
+                type="checkbox" 
+                :checked="allSelected"
+                :indeterminate="someSelected"
+                @change="toggleAll"
+                class="w-4 h-4 rounded border-emerald-950/40 bg-[#090b0a] text-emerald-500 focus:ring-emerald-500/20 focus:ring-offset-[#121614] cursor-pointer"
+              />
+            </th>
             <th 
               v-for="header in headers" 
               :key="header.value" 
@@ -102,6 +148,14 @@ const filteredItems = computed(() => {
             :key="item.id || index"
             class="hover:bg-[#090b0a]/30 transition-colors"
           >
+            <td v-if="selectable" class="px-6 py-4 w-12 text-center">
+              <input 
+                type="checkbox" 
+                :checked="(selectedItems || []).includes(item.id)"
+                @change="toggleItem(item)"
+                class="w-4 h-4 rounded border-emerald-950/40 bg-[#090b0a] text-emerald-500 focus:ring-emerald-500/20 focus:ring-offset-[#121614] cursor-pointer"
+              />
+            </td>
             <td 
               v-for="header in headers" 
               :key="header.value" 
