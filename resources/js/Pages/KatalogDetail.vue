@@ -35,6 +35,12 @@ const formattedPrice = computed(() => {
     return Number(props.research.target_price).toLocaleString('id-ID');
 });
 
+const formattedDate = computed(() => {
+    if (!props.research.created_at) return 'TBA';
+    const date = new Date(props.research.created_at);
+    return isNaN(date.getTime()) ? props.research.created_at : date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+});
+
 // ── Komentar ──────────────────────────────────────────────────────────────
 const commentForm = useForm({
     content: '',
@@ -189,7 +195,7 @@ const handleShare = async () => {
 
             <!-- Meta Row -->
             <div class="kdp-meta-modern">
-              <span>Tanggal Terbit: {{ research.created_at }}</span>
+              <span>Tanggal Terbit: {{ formattedDate }}</span>
               <span class="dot">•</span>
               <span class="flex items-center gap-1" v-if="research.is_premium">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>

@@ -30,6 +30,12 @@ const recColor = computed(() => {
     if (rec === 'SELL') return 'bg-red-500/10 text-red-400 border-red-500/30';
     return 'bg-amber-500/10 text-amber-400 border-amber-500/30'; // HOLD
 });
+
+const formattedDate = computed(() => {
+    if (!props.data.created_at) return 'TBA';
+    const date = new Date(props.data.created_at);
+    return isNaN(date.getTime()) ? props.data.created_at : date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+});
 </script>
 
 <template>
@@ -84,7 +90,7 @@ const recColor = computed(() => {
           </div>
           <div class="meta-item">
             <span class="meta-lbl">Tanggal Terbit</span>
-            <span class="meta-val text-slate-400 text-xs">{{ data.created_at || 'TBA' }}</span>
+            <span class="meta-val text-slate-400 text-xs">{{ formattedDate }}</span>
           </div>
           <div class="meta-item" v-if="isFeatured">
             <span class="meta-lbl">Rekomendasi</span>
