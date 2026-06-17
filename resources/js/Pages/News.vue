@@ -1,7 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
     newsList: {
@@ -35,6 +35,23 @@ const recentNews = computed(() => {
 const categories = ['Semua', 'Market', 'Corporate', 'Macro', 'Global', 'Commodity', 'Fixed Income'];
 const selectedCategory = ref('Semua');
 const searchQuery = ref('');
+
+let pollInterval = null;
+
+onMounted(() => {
+    // Polling data market setiap 60 detik secara background (tanpa loading screen)
+    pollInterval = setInterval(() => {
+        router.reload({
+            only: ['marketData', 'marketConfig'],
+            preserveState: true,
+            preserveScroll: true
+        });
+    }, 60000);
+});
+
+onUnmounted(() => {
+    if (pollInterval) clearInterval(pollInterval);
+});
 
 // --- Dynamic Data ---
 const getQuote = (symbol, fallback) => {
