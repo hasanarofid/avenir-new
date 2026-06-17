@@ -53,8 +53,8 @@ class FetchMarketData extends Command
 
         $data = $marketService->getQuotes($allSymbols);
 
-        // Cache the data for 15 minutes
-        Cache::put('market_summary', $data, now()->addMinutes(15));
+        // Cache the data for 1 minute
+        Cache::put('market_summary', $data, now()->addMinute(1));
 
         $this->info('Successfully fetched and cached market data.');
     }
