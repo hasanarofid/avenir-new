@@ -121,7 +121,7 @@ class HomeController extends Controller
             'patmi', 'sales', 'tags', 'date', 'price', 'recommendation', 
             'target_price', 'upside', 'report_type', 'is_premium', 'pdf_path', 
             'image', 'author_id', 'created_at', 'updated_at'
-        ])->latest()->get()->map(function ($r) {
+        ])->orderBy('updated_at', 'desc')->orderBy('created_at', 'desc')->get()->map(function ($r) {
             $r->company_name = $r->emiten ? $r->emiten->company_name : null;
             return $r;
         });
@@ -290,7 +290,8 @@ class HomeController extends Controller
     public function artikel()
     {
         $articles = Article::where('status', 'published')
-            ->orderByDesc('published_at')
+            ->orderBy('updated_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
         
         return Inertia::render('Artikel', [
@@ -470,7 +471,8 @@ class HomeController extends Controller
     public function news()
     {
         $newsList = News::where('status', 'published')
-            ->orderByDesc('published_at')
+            ->orderBy('updated_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($news) {
                 return [
