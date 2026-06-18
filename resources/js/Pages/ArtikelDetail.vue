@@ -61,9 +61,9 @@ const hasCustomHtml = computed(() => {
           <div class="db-article-meta flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-[#1e293b] overflow-hidden border border-white/10 flex items-center justify-center text-slate-500">
               <img v-if="article.author?.profile_photo_url" :src="article.author.profile_photo_url" alt="Author" class="w-full h-full object-cover">
-              <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <img v-else :src="'https://ui-avatars.com/api/?name=' + encodeURIComponent(article.author?.name || (typeof article.author === 'string' ? article.author : 'Tim Avenir Research')) + '&background=10B981&color=fff'" alt="Author" class="w-full h-full object-cover">
             </div>
-            <span class="author">Oleh <strong>{{ article.author?.name || 'Tim Avenir Research' }}</strong></span>
+            <span class="author">Oleh <strong>{{ article.author?.name || (typeof article.author === 'string' ? article.author : 'Tim Avenir Research') }}</strong></span>
             <span class="meta-sep">·</span>
             <span class="date">{{ article.published_at }}</span>
             <span v-if="article.read_time" class="meta-sep">·</span>
