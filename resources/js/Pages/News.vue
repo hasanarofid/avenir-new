@@ -119,6 +119,7 @@ const timeframes = ['1D', '1W', '1M', '3M', 'YTD', '1Y', '3Y', '5Y'];
 const activeTimeframe = ref('1D');
 const isFullscreen = ref(false);
 const chartContainer = ref(null);
+const chartType = ref('line');
 
 const carouselItems = computed(() => [
     { ...marketSummary.value.ihsg, id: 'ihsg', name: 'IHSG', fullName: 'Indeks Harga Saham Gabungan', prevClose: getQuote('^JKSE', {}).prevClose || getQuote('^JKSE', {}).price || 0, chartData: getQuote('^JKSE', {}).chartData || [] },
@@ -206,6 +207,7 @@ const chartContext = computed(() => {
     let path = '';
     let maxPointX = 0, maxPointY = 0;
     let minPointX = 0, minPointY = 0;
+    const candles = [];
 
     prices.forEach((val, i) => {
         const x = (i / (prices.length - 1)) * width;
@@ -215,6 +217,28 @@ const chartContext = computed(() => {
 
         if (val === max) { maxPointX = x; maxPointY = y; }
         if (val === min) { minPointX = x; minPointY = y; }
+        
+        // Generate simulated candlestick data
+        const open = i === 0 ? prevClose : prices[i-1];
+        const close = val;
+        const high = Math.max(open, close) + (range * 0.05 * Math.random());
+        const low = Math.min(open, close) - (range * 0.05 * Math.random());
+        const isUp = close >= open;
+        
+        const yOpen = height - ((open - paddedMin) / paddedRange) * height;
+        const yClose = height - ((close - paddedMin) / paddedRange) * height;
+        const yHigh = height - ((high - paddedMin) / paddedRange) * height;
+        const yLow = height - ((low - paddedMin) / paddedRange) * height;
+        
+        candles.push({
+            x,
+            y: Math.min(yOpen, yClose),
+            width: Math.max(2, (width / prices.length) * 0.6),
+            height: Math.max(1, Math.abs(yOpen - yClose)),
+            yHigh,
+            yLow,
+            isUp
+        });
     });
     
     const fillPath = path + ` L${width},${height} L0,${height} Z`;
@@ -237,7 +261,8 @@ const chartContext = computed(() => {
         minPointPctX: (minPointX / width) * 100,
         minPointPctY: (minPointY / height) * 100,
         maxFormatted: new Intl.NumberFormat('id-ID', { maximumFractionDigits: max < 1000 ? 2 : 0 }).format(max),
-        minFormatted: new Intl.NumberFormat('id-ID', { maximumFractionDigits: min < 1000 ? 2 : 0 }).format(min)
+        minFormatted: new Intl.NumberFormat('id-ID', { maximumFractionDigits: min < 1000 ? 2 : 0 }).format(min),
+        candles
     };
 });
 
@@ -354,7 +379,15 @@ const economicCalendar = [
                             <line x1="0" :y1="chartContext.prevCloseY" x2="800" :y2="chartContext.prevCloseY" stroke="#64748b" stroke-width="2" stroke-dasharray="6,6" opacity="0.4" />
                             
                             <!-- Main Line -->
-                            <path v-if="chartContext.path" :d="chartContext.path" fill="none" :stroke="activeMarket.isUp ? '#10b981' : '#ef4444'" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+                            <path v-if="chartType === 'line' && chartContext.path" :d="chartContext.path" fill="none" :stroke="activeMarket.isUp ? '#10b981' : '#ef4444'" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+                            
+                            <!-- Candlesticks -->
+                            <g v-if="chartType === 'candle'">
+                                <g v-for="(candle, i) in chartContext.candles" :key="i">
+                                    <line :x1="candle.x" :y1="candle.yHigh" :x2="candle.x" :y2="candle.yLow" :stroke="candle.isUp ? '#10b981' : '#ef4444'" stroke-width="1.5" />
+                                    <rect :x="candle.x - candle.width/2" :y="candle.y" :width="candle.width" :height="candle.height" :fill="candle.isUp ? '#10b981' : '#ef4444'" />
+                                </g>
+                            </g>
                         </svg>
                     </div>
 
@@ -380,8 +413,8 @@ const economicCalendar = [
                         </button>
                     </div>
                     <div class="flex items-center gap-2 bg-[#1a1f1d] p-1 rounded-lg border border-white/5">
-                        <button class="p-1.5 rounded-md text-slate-400 hover:text-white transition-colors"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
-                        <button class="p-1.5 rounded-md bg-emerald-500/20 text-emerald-400 transition-colors"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
+                        <button @click="chartType = 'candle'" :class="['p-1.5 rounded-md transition-colors', chartType === 'candle' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white']"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
+                        <button @click="chartType = 'line'" :class="['p-1.5 rounded-md transition-colors', chartType === 'line' ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white']"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
                     </div>
                 </div>
             </div>
