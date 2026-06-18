@@ -13,7 +13,7 @@ class NewsController extends Controller
 {
     public function index(Request $request)
     {
-        $query = News::query();
+        $query = News::query()->with('author');
 
         if ($request->has('search') && $request->search != '') {
             $query->where('title', 'like', '%' . $request->search . '%')
@@ -60,6 +60,8 @@ class NewsController extends Controller
             $data['cover_image'] = '/storage/' . $path;
         }
         unset($data['image']);
+
+        $data['author_id'] = auth()->id();
 
         News::create($data);
 

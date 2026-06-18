@@ -12,6 +12,11 @@ class News extends Model
         'published_at' => 'date',
     ];
 
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
     public function tickers()
     {
         return $this->belongsToMany(Ticker::class, 'news_ticker');

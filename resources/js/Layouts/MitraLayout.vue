@@ -138,8 +138,9 @@ const logout = () => {
         </div>
 
         <div :class="[isSidebarCollapsed ? 'lg:px-0 lg:justify-center' : 'px-2 gap-3', 'flex items-center pt-3 border-t border-emerald-950/20']">
-          <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-emerald-450 border border-slate-700 shrink-0">
-            {{ user.name.charAt(0).toUpperCase() }}
+          <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-emerald-450 border border-slate-700 shrink-0 overflow-hidden">
+            <img v-if="user.profile_photo_path" :src="user.profile_photo_url" :alt="user.name" class="w-full h-full object-cover" />
+            <span v-else>{{ user.name.charAt(0).toUpperCase() }}</span>
           </div>
           <div :class="[isSidebarCollapsed ? 'lg:hidden' : 'block', 'flex-1 min-w-0 transition-opacity duration-300']">
             <p class="text-sm font-semibold text-slate-200 truncate">{{ user.name }}</p>
@@ -198,8 +199,9 @@ const logout = () => {
               @click="isUserMenuOpen = !isUserMenuOpen"
               class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#121614] border border-transparent hover:border-emerald-950/20 transition-all text-slate-200"
             >
-              <div class="w-7 h-7 rounded-lg bg-emerald-600/10 border border-emerald-500/20 text-emerald-450 font-bold flex items-center justify-center text-xs">
-                {{ user.name.charAt(0).toUpperCase() }}
+              <div class="w-7 h-7 rounded-lg bg-emerald-600/10 border border-emerald-500/20 text-emerald-450 font-bold flex items-center justify-center text-xs overflow-hidden">
+                <img v-if="user.profile_photo_path" :src="user.profile_photo_url" :alt="user.name" class="w-full h-full object-cover" />
+                <span v-else>{{ user.name.charAt(0).toUpperCase() }}</span>
               </div>
               <span class="text-xs font-semibold hidden md:inline-block">{{ user.name }}</span>
               <ChevronDown class="w-4 h-4 text-slate-500 transition-transform duration-200" :class="{ 'rotate-180': isUserMenuOpen }" />

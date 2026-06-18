@@ -16,6 +16,7 @@ const props = defineProps({
 
 const headers = [
   { text: 'Judul Riset', value: 'title' },
+  { text: 'Penulis', value: 'author' },
   { text: 'Ticker', value: 'ticker' },
   { text: 'Rekomendasi', value: 'recommendation' },
   { text: 'Tipe', value: 'report_type' },
@@ -119,7 +120,11 @@ const handleBulkDelete = async () => {
             search-key="title"
             @edit="handleEdit"
             @delete="handleDelete"
-          />
+          >
+            <template #cell(author)="{ item }">
+              {{ typeof item.author === 'object' && item.author !== null ? item.author.name : item.author }}
+            </template>
+          </DataTable>
         </div>
       </div>
 

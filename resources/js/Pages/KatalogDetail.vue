@@ -209,7 +209,7 @@ const handleShare = async () => {
             <!-- Author Info -->
             <div class="kdp-author-row">
               <div class="kdp-author-avatar">
-                <img v-if="research.author?.avatar" :src="research.author.avatar" alt="Author">
+                <img v-if="research.author?.profile_photo_url" :src="research.author.profile_photo_url" alt="Author" class="w-full h-full object-cover">
                 <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
               <div class="kdp-author-details">

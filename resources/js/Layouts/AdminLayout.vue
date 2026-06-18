@@ -67,12 +67,14 @@ const isUserMenuOpen = ref(false);
 const navigationGroups = [
   {
     title: 'MAIN MENU',
+    roles: ['admin', 'team_research'],
     items: [
       { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, current: route().current('admin.dashboard') },
     ]
   },
   {
     title: 'CONTENT MANAGEMENT',
+    roles: ['admin', 'team_research'],
     items: [
       { name: 'Katalog Riset', href: route('admin.katalog-riset.index'), icon: FileText, current: route().current('admin.katalog-riset.*') },
       { name: 'News (Berita Pasar)', href: route('admin.news.index'), icon: Newspaper, current: route().current('admin.news.*') },
@@ -81,31 +83,48 @@ const navigationGroups = [
   },
   {
     title: 'AVENIR AI ENGINES',
+    roles: ['admin', 'team_research'],
     items: [
       { name: 'Research AI', href: route('admin.research-generator.index'), icon: BrainCircuit, current: route().current('admin.research-generator.*') },
       { name: 'News AI Generator', href: route('admin.news-generator.index'), icon: Globe, current: route().current('admin.news-generator.*') },
-      { name: 'AI Logs (Audit)', href: route('admin.ai-logs.index'), icon: Activity, current: route().current('admin.ai-logs.*') },
+      { name: 'AI Logs (Audit)', href: route('admin.ai-logs.index'), icon: Activity, current: route().current('admin.ai-logs.*'), roles: ['admin'] },
     ]
   },
   {
     title: 'COMMUNITY & FINANCE',
+    roles: ['admin'],
     items: [
       { name: 'Pembayaran', href: route('admin.payments.index'), icon: CreditCard, current: route().current('admin.payments.*') },
       { name: 'Mitra Analis', href: route('admin.mitra.index'), icon: UserCheck, current: route().current('admin.mitra.*') },
+      { name: 'Team Research', href: route('admin.team-research.index'), icon: Users, current: route().current('admin.team-research.*') },
       { name: 'Subscriber', href: route('admin.users.index'), icon: Users, current: route().current('admin.users.*') },
       { name: 'Notifikasi & Blast', href: route('admin.notifications.index'), icon: Bell, current: route().current('admin.notifications.*') },
     ]
   },
   {
     title: 'SYSTEM & CMS',
+    roles: ['admin'],
     items: [
       { name: 'Emiten Hub', href: route('admin.emitens.index'), icon: TrendingUp, current: route().current('admin.emitens.*') },
-      // { name: 'Pages & Sections', href: route('admin.pages.index'), icon: Layers, current: route().current('admin.pages.*') },
-      // { name: 'Posts & Categories', href: route('admin.posts.index'), icon: FileText, current: route().current('admin.posts.*') },
       { name: 'Web Settings', href: route('admin.settings.index'), icon: SettingsIcon, current: route().current('admin.settings.index') },
     ]
   }
 ];
+
+const hasRole = (allowedRoles) => {
+  if (!allowedRoles) return true;
+  if (user.roles && Array.isArray(user.roles)) {
+    return user.roles.some(r => allowedRoles.includes(r.name));
+  }
+  return false;
+};
+
+const filteredNavigationGroups = navigationGroups.filter(group => hasRole(group.roles)).map(group => {
+  return {
+    ...group,
+    items: group.items.filter(item => hasRole(item.roles))
+  };
+});
 
 const logout = () => {
   router.post(route('logout'));
@@ -146,9 +165,8 @@ const logout = () => {
           </button>
         </div>
 
-        <!-- Navigation Links -->
         <nav class="flex-1 px-3 py-6 space-y-6 overflow-y-auto custom-scrollbar">
-          <div v-for="group in navigationGroups" :key="group.title">
+          <div v-for="group in filteredNavigationGroups" :key="group.title">
             <h3 v-if="!isSidebarCollapsed" class="px-4 text-[10px] font-black tracking-widest text-emerald-600/70 uppercase mb-2">
               {{ group.title }}
             </h3>
@@ -203,8 +221,9 @@ const logout = () => {
         </div>
 
         <div :class="[isSidebarCollapsed ? 'lg:px-0 lg:justify-center' : 'px-2 gap-3', 'flex items-center pt-3 border-t border-emerald-950/20']">
-          <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-emerald-450 border border-slate-700 shrink-0">
-            {{ user.name.charAt(0).toUpperCase() }}
+          <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-emerald-450 border border-slate-700 shrink-0 overflow-hidden">
+            <img v-if="user.profile_photo_path" :src="user.profile_photo_url" :alt="user.name" class="w-full h-full object-cover" />
+            <span v-else>{{ user.name.charAt(0).toUpperCase() }}</span>
           </div>
           <div :class="[isSidebarCollapsed ? 'lg:hidden' : 'block', 'flex-1 min-w-0 transition-opacity duration-300']">
             <p class="text-sm font-semibold text-slate-200 truncate">{{ user.name }}</p>
@@ -269,8 +288,9 @@ const logout = () => {
               @click="isUserMenuOpen = !isUserMenuOpen"
               class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#121614] border border-transparent hover:border-emerald-950/20 transition-all text-slate-200"
             >
-              <div class="w-7 h-7 rounded-lg bg-emerald-600/10 border border-emerald-500/20 text-emerald-450 font-bold flex items-center justify-center text-xs">
-                {{ user.name.charAt(0).toUpperCase() }}
+              <div class="w-7 h-7 rounded-lg bg-emerald-600/10 border border-emerald-500/20 text-emerald-450 font-bold flex items-center justify-center text-xs overflow-hidden">
+                <img v-if="user.profile_photo_path" :src="user.profile_photo_url" :alt="user.name" class="w-full h-full object-cover" />
+                <span v-else>{{ user.name.charAt(0).toUpperCase() }}</span>
               </div>
               <span class="text-xs font-semibold hidden md:inline-block">{{ user.name }}</span>
               <ChevronDown class="w-4 h-4 text-slate-500 transition-transform duration-200" :class="{ 'rotate-180': isUserMenuOpen }" />

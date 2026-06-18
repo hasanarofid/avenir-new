@@ -4,6 +4,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 defineProps({
     mustVerifyEmail: {
@@ -19,7 +20,22 @@ const user = usePage().props.auth.user;
 const form = useForm({
     name: user.name,
     email: user.email,
+    photo: null,
 });
+
+const photoPreview = ref(null);
+
+const updatePhotoPreview = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    form.photo = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        photoPreview.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+};
 </script>
 
 <template>
@@ -35,9 +51,48 @@ const form = useForm({
         </header>
 
         <form
-            @submit.prevent="form.patch(route('profile.update'))"
+            @submit.prevent="form.post(route('profile.update', { _method: 'patch' }))"
             class="mt-6 space-y-6"
         >
+            <!-- Profile Photo -->
+            <div class="col-span-1 md:col-span-2 flex flex-col items-start gap-4">
+                <InputLabel for="photo" value="Profile Photo" />
+                
+                <div class="flex items-center gap-4">
+                    <!-- Current Profile Photo -->
+                    <div v-show="!photoPreview" class="mt-2 relative h-20 w-20 rounded-full overflow-hidden border-2 border-emerald-500/30">
+                        <img :src="user.profile_photo_url" :alt="user.name" class="rounded-full h-full w-full object-cover">
+                    </div>
+
+                    <!-- New Profile Photo Preview -->
+                    <div v-show="photoPreview" class="mt-2 relative h-20 w-20 rounded-full overflow-hidden border-2 border-emerald-500/30">
+                        <span class="block rounded-full w-full h-full bg-cover bg-no-repeat bg-center"
+                              :style="'background-image: url(\'' + photoPreview + '\');'">
+                        </span>
+                    </div>
+
+                    <div>
+                        <input
+                            ref="photoInput"
+                            type="file"
+                            class="hidden"
+                            accept="image/*"
+                            @change="updatePhotoPreview"
+                        >
+                        
+                        <button
+                            type="button"
+                            class="inline-flex items-center px-4 py-2 bg-emerald-600/10 border border-emerald-500 text-emerald-400 rounded-md font-semibold text-xs tracking-widest shadow-sm hover:bg-emerald-600/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
+                            @click="$refs.photoInput.click()"
+                        >
+                            Select A New Photo
+                        </button>
+                        
+                        <InputError class="mt-2" :message="form.errors.photo" />
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <InputLabel for="name" value="Name" />

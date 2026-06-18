@@ -24,10 +24,30 @@ class UserController extends Controller
                 'trial_email_history.created_at as trial_started_at'
             )
             ->orderBy('users.created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($user) {
+                $userModel = \App\Models\User::find($user->id);
+                $user->roles = $userModel ? $userModel->getRoleNames() : collect([]);
+                return $user;
+            });
 
         return Inertia::render('Admin/Users/Index', [
-            'users' => $users
+            'users' => $users,
+            'availableRoles' => \Spatie\Permission\Models\Role::pluck('name')
         ]);
+    }
+
+    public function updateRole(Request $request, $id)
+    {
+        $request->validate([
+            'role' => 'required|string|exists:roles,name',
+        ]);
+
+        $user = \App\Models\User::findOrFail($id);
+        
+        // Remove all current roles and assign the new one
+        $user->syncRoles([$request->role]);
+
+        return redirect()->back()->with('success', 'User role updated successfully.');
     }
 }

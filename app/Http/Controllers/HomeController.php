@@ -308,7 +308,7 @@ class HomeController extends Controller
      */
     public function artikelDetail($slug)
     {
-        $article = Article::where('slug', $slug)
+        $article = Article::with('author')->where('slug', $slug)
             ->where('status', 'published')
             ->first();
 
@@ -513,7 +513,7 @@ class HomeController extends Controller
      */
     public function newsDetail($slug)
     {
-        $news = News::where('slug', $slug)
+        $news = News::with('author')->where('slug', $slug)
             ->where('status', 'published')
             ->firstOrFail();
 
@@ -529,6 +529,7 @@ class HomeController extends Controller
                 'published_at' => $news->published_at ? $news->published_at->format('d M Y') : null,
                 'content' => $content,
                 'cover_image' => $news->cover_image,
+                'author' => $news->author,
             ]
         ])->withViewData([
             'meta' => [

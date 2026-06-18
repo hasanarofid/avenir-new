@@ -79,74 +79,85 @@ Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () 
 
 
 // Admin CMS Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // AI Logs (Audit)
-    Route::get('/ai-logs', [\App\Http\Controllers\Admin\AILogController::class, 'index'])->name('ai-logs.index');
+Route::prefix('admin')->name('admin.')->group(function () {
     
-    // Payments
-    Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
-    Route::post('/payments/{id}/verify', [\App\Http\Controllers\Admin\PaymentController::class, 'verify'])->name('payments.verify');
-    Route::post('/payments/{id}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
+    // Shared Routes for Admin & Team Research
+    Route::middleware(['auth', 'role:admin|team_research'])->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Mitra Analis
-    Route::get('/mitra', [\App\Http\Controllers\Admin\MitraController::class, 'index'])->name('mitra.index');
-    Route::post('/mitra/{id}/approve', [\App\Http\Controllers\Admin\MitraController::class, 'approve'])->name('mitra.approve');
-    Route::put('/mitra/{id}', [\App\Http\Controllers\Admin\MitraController::class, 'update'])->name('mitra.update');
-    Route::delete('/mitra/{id}', [\App\Http\Controllers\Admin\MitraController::class, 'destroy'])->name('mitra.destroy');
+        // Katalog Riset
+        Route::delete('katalog-riset/bulk-delete', [\App\Http\Controllers\Admin\ResearchController::class, 'bulkDestroy'])->name('katalog-riset.bulk-destroy');
+        Route::resource('katalog-riset', \App\Http\Controllers\Admin\ResearchController::class);
+        
+        // News (Berita Pasar)
+        Route::delete('news/bulk-delete', [\App\Http\Controllers\Admin\NewsController::class, 'bulkDestroy'])->name('news.bulk-destroy');
+        Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
 
-    // Users
-    Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        // Artikel Edukasi
+        Route::delete('articles/bulk-delete', [\App\Http\Controllers\Admin\ArticleController::class, 'bulkDestroy'])->name('articles.bulk-destroy');
+        Route::resource('articles', \App\Http\Controllers\Admin\ArticleController::class);
 
-    // Notifications
-    Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'store'])->name('notifications.store');
-    Route::put('/notifications/{id}', [\App\Http\Controllers\Admin\NotificationController::class, 'update'])->name('notifications.update');
-    Route::delete('/notifications/{id}', [\App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('notifications.destroy');
-    // Settings
-    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+        // Posts & Categories
+        Route::resource('posts', PostController::class);
+        Route::post('categories', [PostController::class, 'storeCategory'])->name('categories.store');
+        Route::delete('categories/{category}', [PostController::class, 'destroyCategory'])->name('categories.destroy');
 
-    // Pages
-    Route::resource('pages', PageController::class);
-    Route::put('pages/{page}/sections/{section}', [PageController::class, 'updateSection'])->name('pages.sections.update');
+        // Research Generator
+        Route::get('/research-generator', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'index'])->name('research-generator.index');
+        Route::get('/research-generator/create', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'create'])->name('research-generator.create');
+        Route::post('/research-generator', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'store'])->name('research-generator.store');
+        Route::get('/research-generator/{project}', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'show'])->name('research-generator.show');
+        Route::post('/research-generator/{project}/generate', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'generate'])->name('research-generator.generate');
+        Route::post('/research-generator/{project}/publish', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'publishToKatalog'])->name('research-generator.publish');
+        Route::put('/research-generator/{project}/draft/{draft}', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'updateDraft'])->name('research-generator.update-draft');
 
-    // Katalog Riset
-    Route::delete('katalog-riset/bulk-delete', [\App\Http\Controllers\Admin\ResearchController::class, 'bulkDestroy'])->name('katalog-riset.bulk-destroy');
-    Route::resource('katalog-riset', \App\Http\Controllers\Admin\ResearchController::class);
-    
-    // News (Berita Pasar)
-    Route::delete('news/bulk-delete', [\App\Http\Controllers\Admin\NewsController::class, 'bulkDestroy'])->name('news.bulk-destroy');
-    Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
+        // News Generator
+        Route::get('/news-generator', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'index'])->name('news-generator.index');
+        Route::post('/news-generator/generate', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'generate'])->name('news-generator.generate');
+        Route::post('/news-generator/publish', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'publish'])->name('news-generator.publish');
+    });
 
-    // Artikel Edukasi
-    Route::delete('articles/bulk-delete', [\App\Http\Controllers\Admin\ArticleController::class, 'bulkDestroy'])->name('articles.bulk-destroy');
-    Route::resource('articles', \App\Http\Controllers\Admin\ArticleController::class);
+    // Admin Only Routes
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        // AI Logs (Audit)
+        Route::get('/ai-logs', [\App\Http\Controllers\Admin\AILogController::class, 'index'])->name('ai-logs.index');
+        
+        // Payments
+        Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
+        Route::post('/payments/{id}/verify', [\App\Http\Controllers\Admin\PaymentController::class, 'verify'])->name('payments.verify');
+        Route::post('/payments/{id}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
 
-    // Posts & Categories
-    Route::resource('posts', PostController::class);
-    Route::post('categories', [PostController::class, 'storeCategory'])->name('categories.store');
-    Route::delete('categories/{category}', [PostController::class, 'destroyCategory'])->name('categories.destroy');
+        // Mitra Analis
+        Route::get('/mitra', [\App\Http\Controllers\Admin\MitraController::class, 'index'])->name('mitra.index');
+        Route::post('/mitra/{id}/approve', [\App\Http\Controllers\Admin\MitraController::class, 'approve'])->name('mitra.approve');
+        Route::put('/mitra/{id}', [\App\Http\Controllers\Admin\MitraController::class, 'update'])->name('mitra.update');
+        Route::delete('/mitra/{id}', [\App\Http\Controllers\Admin\MitraController::class, 'destroy'])->name('mitra.destroy');
 
-    // Research Generator
-    Route::get('/research-generator', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'index'])->name('research-generator.index');
-    Route::get('/research-generator/create', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'create'])->name('research-generator.create');
-    Route::post('/research-generator', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'store'])->name('research-generator.store');
-    Route::get('/research-generator/{project}', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'show'])->name('research-generator.show');
-    Route::post('/research-generator/{project}/generate', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'generate'])->name('research-generator.generate');
-    Route::post('/research-generator/{project}/publish', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'publishToKatalog'])->name('research-generator.publish');
-    Route::put('/research-generator/{project}/draft/{draft}', [\App\Http\Controllers\Admin\ResearchGeneratorController::class, 'updateDraft'])->name('research-generator.update-draft');
+        // Team Research
+        Route::resource('team-research', \App\Http\Controllers\Admin\TeamResearchController::class)->except(['create', 'show', 'edit']);
 
-    // News Generator
-    Route::get('/news-generator', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'index'])->name('news-generator.index');
-    Route::post('/news-generator/generate', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'generate'])->name('news-generator.generate');
-    Route::post('/news-generator/publish', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'publish'])->name('news-generator.publish');
+        // Users
+        Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        Route::put('/users/{id}/role', [\App\Http\Controllers\Admin\UserController::class, 'updateRole'])->name('users.update-role');
 
-    // Emiten (Ticker)
-    Route::post('/emitens/import', [\App\Http\Controllers\Admin\TickerController::class, 'import'])->name('emitens.import');
-    Route::post('/emitens/generate-ai', [\App\Http\Controllers\Admin\TickerController::class, 'generateWithAI'])->name('emitens.generate-ai');
-    Route::resource('emitens', \App\Http\Controllers\Admin\TickerController::class);
+        // Notifications
+        Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'store'])->name('notifications.store');
+        Route::put('/notifications/{id}', [\App\Http\Controllers\Admin\NotificationController::class, 'update'])->name('notifications.update');
+        Route::delete('/notifications/{id}', [\App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('notifications.destroy');
+        // Settings
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+        // Pages
+        Route::resource('pages', PageController::class);
+        Route::put('pages/{page}/sections/{section}', [PageController::class, 'updateSection'])->name('pages.sections.update');
+
+        // Emiten (Ticker)
+        Route::post('/emitens/import', [\App\Http\Controllers\Admin\TickerController::class, 'import'])->name('emitens.import');
+        Route::post('/emitens/generate-ai', [\App\Http\Controllers\Admin\TickerController::class, 'generateWithAI'])->name('emitens.generate-ai');
+        Route::resource('emitens', \App\Http\Controllers\Admin\TickerController::class);
+    });
 });
 
 require __DIR__.'/auth.php';

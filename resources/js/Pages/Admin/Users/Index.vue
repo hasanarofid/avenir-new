@@ -1,16 +1,25 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { Users } from '@lucide/vue';
 
 const props = defineProps({
-  users: Array
+  users: Array,
+  availableRoles: Array
 });
 
 function formatDate(dateString) {
   if (!dateString) return '-';
   const d = new Date(dateString);
   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function updateRole(userId, role) {
+  if (confirm(`Apakah Anda yakin ingin mengubah role user ini menjadi ${role}?`)) {
+    router.put(route('admin.users.update-role', userId), { role: role }, {
+      preserveScroll: true
+    });
+  }
 }
 </script>
 
@@ -53,13 +62,24 @@ function formatDate(dateString) {
               <div class="text-sm text-slate-400 font-mono">{{ user.email }}</div>
             </div>
             
-            <div class="flex gap-2">
-              <button class="px-3 py-1.5 bg-[#090b0a] border border-emerald-950/50 text-slate-300 hover:text-emerald-400 hover:border-emerald-700 text-xs font-semibold rounded-lg transition-all">
-                Edit
-              </button>
-              <button class="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 text-xs font-semibold rounded-lg transition-all">
-                Hapus
-              </button>
+            <div class="flex flex-col items-end gap-2">
+              <select 
+                class="bg-[#090b0a] border border-emerald-950/50 text-slate-300 text-xs rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2"
+                @change="updateRole(user.id, $event.target.value)"
+              >
+                <option value="">-- Pilih Role --</option>
+                <option v-for="role in availableRoles" :key="role" :value="role" :selected="user.roles.includes(role)">
+                  {{ role }}
+                </option>
+              </select>
+              <div class="flex gap-2 w-full justify-end mt-1">
+                <button class="px-3 py-1.5 bg-[#090b0a] border border-emerald-950/50 text-slate-300 hover:text-emerald-400 hover:border-emerald-700 text-xs font-semibold rounded-lg transition-all">
+                  Edit
+                </button>
+                <button class="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 text-xs font-semibold rounded-lg transition-all">
+                  Hapus
+                </button>
+              </div>
             </div>
           </div>
 

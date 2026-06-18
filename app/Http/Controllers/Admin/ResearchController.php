@@ -15,7 +15,7 @@ class ResearchController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Research::query();
+        $query = Research::query()->with('author');
 
         if ($request->has('search')) {
             $query->where('title', 'like', '%' . $request->search . '%')
