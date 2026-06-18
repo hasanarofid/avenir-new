@@ -119,7 +119,11 @@ const handleBulkDelete = async () => {
             search-key="title"
             @edit="handleEdit"
             @delete="handleDelete"
-          />
+          >
+            <template #cell(author)="{ item }">
+              {{ typeof item.author === 'object' && item.author !== null ? item.author.name : item.author }}
+            </template>
+          </DataTable>
         </div>
       </div>
 

@@ -116,10 +116,10 @@ const marketSummary = computed(() => {
 
 const activeMarketIndex = ref(0);
 const carouselItems = computed(() => [
-    { ...marketSummary.value.ihsg, id: 'ihsg', name: 'IHSG', prevClose: getQuote('^JKSE', {}).prevClose || getQuote('^JKSE', {}).price || 0, chartData: getQuote('^JKSE', {}).chartData || [] },
-    { ...marketSummary.value.usd, id: 'usd', name: 'USD/IDR', prevClose: getQuote('IDR=X', {}).prevClose || getQuote('IDR=X', {}).price || 0, chartData: getQuote('IDR=X', {}).chartData || [] },
-    { ...marketSummary.value.gold, id: 'gold', name: 'Gold (XAU/USD)', prevClose: getQuote('GC=F', {}).prevClose || getQuote('GC=F', {}).price || 0, chartData: getQuote('GC=F', {}).chartData || [] },
-    { ...marketSummary.value.oil, id: 'oil', name: 'Oil (Brent)', prevClose: getQuote('BZ=F', {}).prevClose || getQuote('BZ=F', {}).price || 0, chartData: getQuote('BZ=F', {}).chartData || [] }
+    { ...marketSummary.value.ihsg, id: 'ihsg', name: 'IHSG', fullName: 'Indeks Harga Saham Gabungan', prevClose: getQuote('^JKSE', {}).prevClose || getQuote('^JKSE', {}).price || 0, chartData: getQuote('^JKSE', {}).chartData || [] },
+    { ...marketSummary.value.usd, id: 'usd', name: 'USD/IDR', fullName: 'Nilai Tukar Dolar AS terhadap Rupiah', prevClose: getQuote('IDR=X', {}).prevClose || getQuote('IDR=X', {}).price || 0, chartData: getQuote('IDR=X', {}).chartData || [] },
+    { ...marketSummary.value.gold, id: 'gold', name: 'Gold (XAU/USD)', fullName: 'Harga Emas Global', prevClose: getQuote('GC=F', {}).prevClose || getQuote('GC=F', {}).price || 0, chartData: getQuote('GC=F', {}).chartData || [] },
+    { ...marketSummary.value.oil, id: 'oil', name: 'Oil (Brent)', fullName: 'Harga Minyak Mentah Global', prevClose: getQuote('BZ=F', {}).prevClose || getQuote('BZ=F', {}).price || 0, chartData: getQuote('BZ=F', {}).chartData || [] }
 ]);
 
 const activeMarket = computed(() => carouselItems.value[activeMarketIndex.value] || carouselItems.value[0]);
@@ -156,11 +156,17 @@ const chartContext = computed(() => {
     const paddedRange = paddedMax - paddedMin;
     
     let path = '';
+    let maxPointX = 0, maxPointY = 0;
+    let minPointX = 0, minPointY = 0;
+
     prices.forEach((val, i) => {
         const x = (i / (prices.length - 1)) * width;
         const y = height - ((val - paddedMin) / paddedRange) * height;
         if (i === 0) path += `M${x},${y} `;
         else path += `L${x},${y} `;
+
+        if (val === max) { maxPointX = x; maxPointY = y; }
+        if (val === min) { minPointX = x; minPointY = y; }
     });
     
     const fillPath = path + ` L${width},${height} L0,${height} Z`;
@@ -173,7 +179,18 @@ const chartContext = computed(() => {
         labels.push(formatted);
     }
     
-    return { path, fillPath, labels, prevCloseY };
+    return { 
+        path, 
+        fillPath, 
+        labels, 
+        prevCloseY,
+        maxPointPctX: (maxPointX / width) * 100,
+        maxPointPctY: (maxPointY / height) * 100,
+        minPointPctX: (minPointX / width) * 100,
+        minPointPctY: (minPointY / height) * 100,
+        maxFormatted: new Intl.NumberFormat('id-ID', { maximumFractionDigits: max < 1000 ? 2 : 0 }).format(max),
+        minFormatted: new Intl.NumberFormat('id-ID', { maximumFractionDigits: min < 1000 ? 2 : 0 }).format(min)
+    };
 });
 
 const mostRead = [
@@ -244,52 +261,49 @@ const economicCalendar = [
             
             <div class="relative flex-1 bg-[#111413] border border-white/10 rounded-xl p-6 lg:mr-6 overflow-hidden shadow-2xl">
                 <!-- Header -->
-                <div class="flex items-center justify-between relative z-10 mb-8">
-                    <div class="flex items-center gap-4">
-                        <div :class="['w-1.5 h-10 rounded-full', activeMarket.isUp ? 'bg-emerald-500' : 'bg-red-500']"></div>
-                        <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-3">
-                            <h2 class="text-2xl font-bold text-white tracking-tight">{{ activeMarket.name }}</h2>
-                            <div class="text-2xl font-bold text-white">{{ activeMarket.value }}</div>
-                            <div class="text-[15px] font-medium text-slate-400">
-                                {{ Number(activeMarket.change || 0).toFixed(2) }} 
-                                <span :class="activeMarket.isUp ? 'text-emerald-400' : 'text-red-400'">({{ activeMarket.changePercent }}%)</span>
+                <div class="relative z-10 mb-6 flex justify-between items-start">
+                    <div>
+                        <div class="flex items-center gap-1.5 cursor-pointer group w-fit" @click="nextMarket">
+                            <h2 class="text-[20px] font-bold text-white tracking-tight">{{ activeMarket.name }}</h2>
+                            <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="text-[14px] text-slate-400 mt-0.5 mb-5">{{ activeMarket.fullName }}</div>
+                        
+                        <div class="text-[42px] leading-none font-extrabold text-white mb-3">{{ activeMarket.value }}</div>
+                        <div class="flex items-center gap-2 text-[15px]">
+                            <div :class="['flex items-center gap-1 font-medium', activeMarket.isUp ? 'text-emerald-400' : 'text-red-400']">
+                                <svg v-if="activeMarket.isUp" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="17" y1="7" x2="7" y2="17"/><polyline points="17 17 7 17 7 7"/></svg>
+                                {{ activeMarket.isUp ? '+' : '' }}{{ Number(activeMarket.change || 0).toFixed(2) }} ({{ activeMarket.changePercent }}%)
                             </div>
+                            <span class="text-slate-400">Hari Ini</span>
                         </div>
                     </div>
-                    <button class="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-emerald-400 hover:bg-white/5 transition-colors">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                    </button>
                 </div>
                 
                 <!-- Chart Area -->
-                <div class="relative w-full h-[250px]">
-                    <!-- Nav Buttons -->
-                    <button @click="prevMarket" class="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 w-8 h-8 flex items-center justify-center bg-[#1a1f1d] border border-white/10 shadow-lg rounded-full z-20 text-slate-400 hover:text-white transition-colors cursor-pointer">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-                    </button>
-                    <button @click="nextMarket" class="absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-[#1a1f1d] border border-white/10 shadow-lg rounded-full z-20 text-slate-400 hover:text-white transition-colors cursor-pointer">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-                    </button>
-
+                <div class="relative w-full h-[220px] mb-12">
                     <!-- SVG Chart -->
-                    <div class="absolute inset-0 right-16 overflow-hidden">
+                    <div class="absolute inset-0 right-14 overflow-visible">
+                        <!-- Max/Min Labels -->
+                        <div 
+                           class="absolute text-[12px] font-medium -translate-y-full pb-1 -translate-x-1/2 whitespace-nowrap z-10"
+                           :class="activeMarket.isUp ? 'text-emerald-400' : 'text-red-400'"
+                           :style="{ left: `${chartContext.maxPointPctX}%`, top: `${chartContext.maxPointPctY}%` }"
+                        >
+                           {{ chartContext.maxFormatted }}
+                        </div>
+                        <div 
+                           class="absolute text-[12px] font-medium pt-1 -translate-x-1/2 whitespace-nowrap z-10"
+                           :class="activeMarket.isUp ? 'text-emerald-400' : 'text-red-400'"
+                           :style="{ left: `${chartContext.minPointPctX}%`, top: `${chartContext.minPointPctY}%` }"
+                        >
+                           {{ chartContext.minFormatted }}
+                        </div>
+
                         <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 800 300">
-                            <defs>
-                                <linearGradient id="chartGradientUp" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
-                                    <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-                                </linearGradient>
-                                <linearGradient id="chartGradientDown" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#ef4444" stop-opacity="0.25"/>
-                                    <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
-                                </linearGradient>
-                            </defs>
-                            
                             <!-- Dashed Previous Close Line -->
-                            <line x1="0" :y1="chartContext.prevCloseY" x2="800" :y2="chartContext.prevCloseY" stroke="#64748b" stroke-width="2" stroke-dasharray="8,8" opacity="0.6" />
-                            
-                            <!-- Gradient Fill -->
-                            <path v-if="chartContext.fillPath" :d="chartContext.fillPath" :fill="activeMarket.isUp ? 'url(#chartGradientUp)' : 'url(#chartGradientDown)'" />
+                            <line x1="0" :y1="chartContext.prevCloseY" x2="800" :y2="chartContext.prevCloseY" stroke="#64748b" stroke-width="2" stroke-dasharray="6,6" opacity="0.4" />
                             
                             <!-- Main Line -->
                             <path v-if="chartContext.path" :d="chartContext.path" fill="none" :stroke="activeMarket.isUp ? '#10b981' : '#ef4444'" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
@@ -297,8 +311,31 @@ const economicCalendar = [
                     </div>
 
                     <!-- Y Axis Labels -->
-                    <div class="absolute right-0 top-0 bottom-0 w-12 flex flex-col justify-between text-right text-[12px] text-slate-400 py-1">
+                    <div class="absolute right-0 top-0 bottom-0 w-12 flex flex-col justify-between text-right text-[12px] text-slate-500 py-1">
                         <span v-for="(label, i) in chartContext.labels" :key="i">{{ label }}</span>
+                    </div>
+
+                    <!-- Expand button -->
+                    <button class="absolute -bottom-6 right-14 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                    </button>
+                </div>
+
+                <!-- Bottom Controls -->
+                <div class="flex items-center justify-between border-t border-white/5 pt-5">
+                    <div class="flex items-center gap-1 sm:gap-2 text-[13px] font-semibold text-slate-400">
+                        <button class="px-2.5 py-1 text-emerald-400 border-b-2 border-emerald-400 hover:bg-white/5">1D</button>
+                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">1W</button>
+                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">1M</button>
+                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">3M</button>
+                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">YTD</button>
+                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">1Y</button>
+                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">3Y</button>
+                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">5Y</button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button class="text-slate-400 hover:text-white transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
+                        <button class="text-emerald-400 transition-colors bg-emerald-500/10 p-1.5 rounded-md"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
                     </div>
                 </div>
             </div>
