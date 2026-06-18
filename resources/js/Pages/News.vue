@@ -1,7 +1,8 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     newsList: {
@@ -130,6 +131,35 @@ const carouselItems = computed(() => [
 
 const activeMarket = computed(() => carouselItems.value[activeMarketIndex.value] || carouselItems.value[0]);
 
+const historicalDataMap = ref({});
+const isLoadingChart = ref(false);
+
+watch([activeTimeframe, () => activeMarket.value.id], async ([newTf, newId]) => {
+    if (!newId) return;
+    
+    let sym = '';
+    if (newId === 'ihsg') sym = '^JKSE';
+    else if (newId === 'usd') sym = 'IDR=X';
+    else if (newId === 'gold') sym = 'GC=F';
+    else if (newId === 'oil') sym = 'BZ=F';
+    
+    if (!sym) return;
+
+    if (historicalDataMap.value[`${newId}-${newTf}`]) {
+        return; // Already loaded
+    }
+
+    isLoadingChart.value = true;
+    try {
+        const response = await axios.get(`/api/market-chart/${encodeURIComponent(sym)}?range=${newTf}`);
+        historicalDataMap.value[`${newId}-${newTf}`] = response.data;
+    } catch (e) {
+        console.error("Failed to fetch historical data", e);
+    } finally {
+        isLoadingChart.value = false;
+    }
+}, { immediate: true });
+
 const nextMarket = () => {
     activeMarketIndex.value = (activeMarketIndex.value + 1) % carouselItems.value.length;
 };
@@ -160,41 +190,31 @@ const chartContext = computed(() => {
     const item = activeMarket.value;
     const width = 800;
     const height = 300;
-    
-    let data = item.chartData || [];
-    
-    // Create random variation based on timeframe for demo purposes
-    if (data.length > 0) {
-        const tfMap = { '1D': 30, '1W': 50, '1M': 100, '3M': 150, 'YTD': 200, '1Y': 250, '3Y': 350, '5Y': 500 };
-        const dataPoints = tfMap[activeTimeframe.value] || 100;
-        
-        // Simulating different data sets by slicing differently
-        const startIndex = Math.max(0, data.length - dataPoints);
-        data = data.slice(startIndex);
-        
-        // Add some noise if data is too small to make the chart look different
-        if (data.length < dataPoints && data.length > 0) {
-            const lastVal = data[data.length - 1];
-            for (let i = data.length; i < dataPoints; i++) {
-                data.push(lastVal + (Math.random() - 0.5) * lastVal * 0.01);
-            }
-        }
+    const hist = historicalDataMap.value[`${item.id}-${activeTimeframe.value}`];
+    let points = [];
+    let prevClose = Number(item.prevClose);
+
+    if (hist && hist.points && hist.points.length > 0) {
+        points = hist.points;
+        if (hist.prevClose) prevClose = Number(hist.prevClose);
     } else {
-        // If no real data, create a flat line at current price
-        data = [item.prevClose, item.prevClose];
-        // Add random data for visual effect when toggling
-        const points = 50;
-        let curr = item.prevClose;
-        data = [curr];
-        const tfMultiplier = { '1D': 1, '1W': 2, '1M': 5, '3M': 10, 'YTD': 15, '1Y': 20, '3Y': 30, '5Y': 50 }[activeTimeframe.value] || 1;
-        for(let i=1; i<points; i++) {
-            curr = curr + (Math.random() - 0.5) * curr * 0.01 * tfMultiplier;
-            data.push(curr);
+        // Fallback to 1D data passed from props if available
+        let data = item.chartData || [];
+        if (data.length > 0) {
+            points = data.map((c, i) => ({
+                close: c,
+                open: i === 0 ? prevClose : data[i-1],
+                high: c,
+                low: c
+            }));
         }
     }
-    
-    const prices = data.map(Number);
-    const prevClose = Number(item.prevClose);
+
+    if (points.length === 0) {
+        return { path: '', fillPath: '', labels: [], minFormatted: '0', maxFormatted: '0', prevCloseY: height / 2, candles: [] };
+    }
+
+    const prices = points.map(p => p.close);
     
     let min = Math.min(...prices, prevClose);
     let max = Math.max(...prices, prevClose);
@@ -209,20 +229,20 @@ const chartContext = computed(() => {
     let minPointX = 0, minPointY = 0;
     const candles = [];
 
-    prices.forEach((val, i) => {
-        const x = (i / (prices.length - 1)) * width;
-        const y = height - ((val - paddedMin) / paddedRange) * height;
+    points.forEach((pt, i) => {
+        const x = (i / (points.length - 1)) * width;
+        const y = height - ((pt.close - paddedMin) / paddedRange) * height;
         if (i === 0) path += `M${x},${y} `;
         else path += `L${x},${y} `;
 
-        if (val === max) { maxPointX = x; maxPointY = y; }
-        if (val === min) { minPointX = x; minPointY = y; }
+        if (pt.close === max) { maxPointX = x; maxPointY = y; }
+        if (pt.close === min) { minPointX = x; minPointY = y; }
         
-        // Generate simulated candlestick data
-        const open = i === 0 ? prevClose : prices[i-1];
-        const close = val;
-        const high = Math.max(open, close) + (range * 0.05 * Math.random());
-        const low = Math.min(open, close) - (range * 0.05 * Math.random());
+        // Use real OHLC from the API
+        const open = pt.open;
+        const close = pt.close;
+        const high = pt.high;
+        const low = pt.low;
         const isUp = close >= open;
         
         const yOpen = height - ((open - paddedMin) / paddedRange) * height;
@@ -233,7 +253,7 @@ const chartContext = computed(() => {
         candles.push({
             x,
             y: Math.min(yOpen, yClose),
-            width: Math.max(2, (width / prices.length) * 0.6),
+            width: Math.max(2, (width / points.length) * 0.6),
             height: Math.max(1, Math.abs(yOpen - yClose)),
             yHigh,
             yLow,

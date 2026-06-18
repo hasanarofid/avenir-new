@@ -113,4 +113,97 @@ class MarketDataService
 
         return $results;
     }
+
+    /**
+     * Fetch historical OHLC data for a specific symbol and timeframe.
+     */
+    public function getHistoricalData($symbol, $range = '1D')
+    {
+        // Map UI range to Yahoo API interval
+        $intervalMap = [
+            '1D' => '5m',
+            '1W' => '15m',
+            '1M' => '1d',
+            '3M' => '1d',
+            'YTD' => '1d',
+            '1Y' => '1d',
+            '3Y' => '1wk',
+            '5Y' => '1wk',
+        ];
+        
+        // Map UI range to Yahoo API range
+        $yahooRangeMap = [
+            '1D' => '1d',
+            '1W' => '5d',
+            '1M' => '1mo',
+            '3M' => '3mo',
+            'YTD' => 'ytd',
+            '1Y' => '1y',
+            '3Y' => '3y',
+            '5Y' => '5y',
+        ];
+
+        $interval = $intervalMap[$range] ?? '1d';
+        $yahooRange = $yahooRangeMap[$range] ?? '1mo';
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'User-Agent' => 'Mozilla/5.0',
+            ])->get("https://query2.finance.yahoo.com/v8/finance/chart/" . urlencode($symbol), [
+                'range' => $yahooRange,
+                'interval' => $interval,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $result = $data['chart']['result'][0] ?? null;
+                if ($result) {
+                    $quote = $result['indicators']['quote'][0] ?? [];
+                    $closes = $quote['close'] ?? [];
+                    $opens = $quote['open'] ?? [];
+                    $highs = $quote['high'] ?? [];
+                    $lows = $quote['low'] ?? [];
+                    $timestamps = $result['timestamp'] ?? [];
+                    
+                    $meta = $result['meta'] ?? [];
+                    $prevClose = $meta['chartPreviousClose'] ?? ($closes[0] ?? 0);
+
+                    $points = [];
+                    foreach ($closes as $i => $c) {
+                        if ($c !== null) {
+                            $points[] = [
+                                'time' => $timestamps[$i] ?? null,
+                                'open' => round($opens[$i] ?? $c, 2),
+                                'high' => round($highs[$i] ?? $c, 2),
+                                'low' => round($lows[$i] ?? $c, 2),
+                                'close' => round($c, 2),
+                            ];
+                        }
+                    }
+
+                    // Optional: Subsample if too many points for the frontend
+                    if (count($points) > 500) {
+                        $step = max(1, floor(count($points) / 300));
+                        $subsampled = [];
+                        for ($i = 0; $i < count($points); $i += $step) {
+                            $subsampled[] = $points[$i];
+                        }
+                        $points = $subsampled;
+                    }
+
+                    return [
+                        'points' => $points,
+                        'prevClose' => $prevClose,
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Exception in getHistoricalData ($symbol, $range): " . $e->getMessage());
+        }
+        
+        return [
+            'points' => [],
+            'prevClose' => 0
+        ];
+    }
 }

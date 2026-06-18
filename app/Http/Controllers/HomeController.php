@@ -540,7 +540,16 @@ class HomeController extends Controller
         ]);
     }
 
-
+    /**
+     * API Endpoint to fetch historical OHLC chart data.
+     */
+    public function marketChartApi(Request $request, $symbol)
+    {
+        $range = $request->query('range', '1D');
+        $service = new \App\Services\MarketDataService();
+        $data = $service->getHistoricalData($symbol, $range);
+        return response()->json($data);
+    }
 
     /**
      * Render tentang page.
