@@ -15,6 +15,10 @@ class ArticleController extends Controller
     {
         $query = Article::query()->with('author');
 
+        if (!auth()->user()->hasRole('admin')) {
+            $query->where('user_id', auth()->id());
+        }
+
         if ($request->has('search') && $request->search != '') {
             $query->where('title', 'like', '%' . $request->search . '%')
                   ->orWhere('category', 'like', '%' . $request->search . '%');

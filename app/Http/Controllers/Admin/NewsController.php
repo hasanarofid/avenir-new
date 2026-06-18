@@ -15,6 +15,10 @@ class NewsController extends Controller
     {
         $query = News::query()->with('author');
 
+        if (!auth()->user()->hasRole('admin')) {
+            $query->where('author_id', auth()->id());
+        }
+
         if ($request->has('search') && $request->search != '') {
             $query->where('title', 'like', '%' . $request->search . '%')
                   ->orWhere('category', 'like', '%' . $request->search . '%');

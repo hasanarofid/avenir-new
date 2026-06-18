@@ -39,6 +39,7 @@ jobs:
 
             # 5. Jalankan migrasi database & command terkait
             php artisan migrate --force
+            php artisan db:seed --class=RoleAndPermissionSeeder --force
             php artisan optimize:clear
             php artisan view:clear
             php artisan queue:restart

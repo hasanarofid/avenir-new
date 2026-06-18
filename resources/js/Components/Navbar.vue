@@ -12,7 +12,7 @@ const hasRole = (roleName) => {
     return user.value?.roles?.some(r => r.name === roleName) || false;
 };
 
-const isAdmin = computed(() => hasRole('admin'));
+const isAdmin = computed(() => hasRole('admin') || hasRole('team_research'));
 const isMitra = computed(() => hasRole('mitra'));
 
 const dropdownOpen = ref(false);

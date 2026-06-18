@@ -17,6 +17,10 @@ class ResearchController extends Controller
     {
         $query = Research::query()->with('author');
 
+        if (!auth()->user()->hasRole('admin')) {
+            $query->where('author_id', auth()->id());
+        }
+
         if ($request->has('search')) {
             $query->where('title', 'like', '%' . $request->search . '%')
                   ->orWhere('ticker', 'like', '%' . $request->search . '%');
