@@ -101,7 +101,8 @@ const formattedDate = computed(() => {
             <span class="meta-lbl">Analis</span>
             <div class="flex items-center gap-2 mt-1">
               <div class="w-8 h-8 rounded-full bg-slate-800 overflow-hidden flex items-center justify-center border border-white/10">
-                <span class="text-xs">🧑‍💼</span>
+                <img v-if="data.author?.profile_photo_url" :src="data.author.profile_photo_url" :alt="data.author?.name" class="w-full h-full object-cover" />
+                <span v-else class="text-xs">🧑‍💼</span>
               </div>
               <div class="flex flex-col">
                 <span class="text-sm font-semibold text-white">{{ data.author?.name || 'Tim Avenir' }}</span>
@@ -120,8 +121,9 @@ const formattedDate = computed(() => {
           <span v-else class="free-badge-sm">GRATIS</span>
           
           <div class="analyst-info-sm ml-auto flex items-center gap-2">
-            <div class="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center border border-white/10">
-              <span class="text-[8px]">🧑‍💼</span>
+            <div class="w-5 h-5 rounded-full bg-slate-800 overflow-hidden flex items-center justify-center border border-white/10">
+              <img v-if="data.author?.profile_photo_url" :src="data.author.profile_photo_url" :alt="data.author?.name" class="w-full h-full object-cover" />
+              <span v-else class="text-[8px]">🧑‍💼</span>
             </div>
             <span class="text-xs text-slate-400 font-medium">{{ data.author?.name || 'Tim Avenir' }}</span>
           </div>
