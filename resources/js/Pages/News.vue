@@ -115,6 +115,11 @@ const marketSummary = computed(() => {
 });
 
 const activeMarketIndex = ref(0);
+const timeframes = ['1D', '1W', '1M', '3M', 'YTD', '1Y', '3Y', '5Y'];
+const activeTimeframe = ref('1D');
+const isFullscreen = ref(false);
+const chartContainer = ref(null);
+
 const carouselItems = computed(() => [
     { ...marketSummary.value.ihsg, id: 'ihsg', name: 'IHSG', fullName: 'Indeks Harga Saham Gabungan', prevClose: getQuote('^JKSE', {}).prevClose || getQuote('^JKSE', {}).price || 0, chartData: getQuote('^JKSE', {}).chartData || [] },
     { ...marketSummary.value.usd, id: 'usd', name: 'USD/IDR', fullName: 'Nilai Tukar Dolar AS terhadap Rupiah', prevClose: getQuote('IDR=X', {}).prevClose || getQuote('IDR=X', {}).price || 0, chartData: getQuote('IDR=X', {}).chartData || [] },
@@ -132,6 +137,25 @@ const prevMarket = () => {
     activeMarketIndex.value = (activeMarketIndex.value - 1 + carouselItems.value.length) % carouselItems.value.length;
 };
 
+const toggleFullscreen = () => {
+    if (!chartContainer.value) return;
+    if (!document.fullscreenElement) {
+        chartContainer.value.requestFullscreen().catch(err => {
+            console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+};
+
+// Handle fullscreen change events to sync state
+onMounted(() => {
+    document.addEventListener('fullscreenchange', () => {
+        isFullscreen.value = !!document.fullscreenElement;
+    });
+    // ...existing interval code...
+
+
 const chartContext = computed(() => {
     const item = activeMarket.value;
     const width = 800;
@@ -139,9 +163,34 @@ const chartContext = computed(() => {
     
     let data = item.chartData || [];
     
-    // If no real data, create a flat line at current price
-    if (!data || data.length === 0) {
+    // Create random variation based on timeframe for demo purposes
+    if (data.length > 0) {
+        const tfMap = { '1D': 30, '1W': 50, '1M': 100, '3M': 150, 'YTD': 200, '1Y': 250, '3Y': 350, '5Y': 500 };
+        const dataPoints = tfMap[activeTimeframe.value] || 100;
+        
+        // Simulating different data sets by slicing differently
+        const startIndex = Math.max(0, data.length - dataPoints);
+        data = data.slice(startIndex);
+        
+        // Add some noise if data is too small to make the chart look different
+        if (data.length < dataPoints && data.length > 0) {
+            const lastVal = data[data.length - 1];
+            for (let i = data.length; i < dataPoints; i++) {
+                data.push(lastVal + (Math.random() - 0.5) * lastVal * 0.01);
+            }
+        }
+    } else {
+        // If no real data, create a flat line at current price
         data = [item.prevClose, item.prevClose];
+        // Add random data for visual effect when toggling
+        const points = 50;
+        let curr = item.prevClose;
+        data = [curr];
+        const tfMultiplier = { '1D': 1, '1W': 2, '1M': 5, '3M': 10, 'YTD': 15, '1Y': 20, '3Y': 30, '5Y': 50 }[activeTimeframe.value] || 1;
+        for(let i=1; i<points; i++) {
+            curr = curr + (Math.random() - 0.5) * curr * 0.01 * tfMultiplier;
+            data.push(curr);
+        }
     }
     
     const prices = data.map(Number);
@@ -259,7 +308,7 @@ const economicCalendar = [
           
           <div class="flex flex-col lg:flex-row gap-6 items-stretch">
             
-            <div class="relative flex-1 bg-[#111413] border border-white/10 rounded-xl p-6 lg:mr-6 overflow-hidden shadow-2xl">
+            <div ref="chartContainer" :class="['relative flex-1 bg-[#111413] border border-white/10 p-6 shadow-2xl transition-all duration-300', isFullscreen ? 'fixed inset-0 z-50 rounded-none w-full h-full flex flex-col' : 'rounded-xl lg:mr-6 overflow-hidden']">
                 <!-- Header -->
                 <div class="relative z-10 mb-6 flex justify-between items-start">
                     <div>
@@ -282,7 +331,7 @@ const economicCalendar = [
                 </div>
                 
                 <!-- Chart Area -->
-                <div class="relative w-full h-[220px] mb-12">
+                <div :class="['relative w-full mb-8', isFullscreen ? 'flex-1' : 'h-[240px]']">
                     <!-- SVG Chart -->
                     <div class="absolute inset-0 right-14 overflow-visible">
                         <!-- Max/Min Labels -->
@@ -316,26 +365,24 @@ const economicCalendar = [
                     </div>
 
                     <!-- Expand button -->
-                    <button class="absolute -bottom-6 right-14 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                    <button @click="toggleFullscreen" class="absolute -bottom-8 right-14 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors">
+                        <svg v-if="!isFullscreen" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                        <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                     </button>
                 </div>
 
                 <!-- Bottom Controls -->
-                <div class="flex items-center justify-between border-t border-white/5 pt-5">
-                    <div class="flex items-center gap-1 sm:gap-2 text-[13px] font-semibold text-slate-400">
-                        <button class="px-2.5 py-1 text-emerald-400 border-b-2 border-emerald-400 hover:bg-white/5">1D</button>
-                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">1W</button>
-                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">1M</button>
-                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">3M</button>
-                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">YTD</button>
-                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">1Y</button>
-                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">3Y</button>
-                        <button class="px-2.5 py-1 hover:text-white hover:bg-white/5 rounded">5Y</button>
+                <div class="flex items-center justify-between border-t border-white/5 pt-4 mt-auto">
+                    <div class="flex items-center gap-1 sm:gap-2 text-[12px] font-bold text-slate-500">
+                        <button v-for="tf in timeframes" :key="tf" 
+                            @click="activeTimeframe = tf"
+                            :class="['px-2 sm:px-3 py-1.5 transition-all', activeTimeframe === tf ? 'text-emerald-400 border-b-2 border-emerald-400' : 'hover:text-slate-300 hover:bg-white/5 rounded-md']">
+                            {{ tf }}
+                        </button>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <button class="text-slate-400 hover:text-white transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
-                        <button class="text-emerald-400 transition-colors bg-emerald-500/10 p-1.5 rounded-md"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
+                    <div class="flex items-center gap-2 bg-[#1a1f1d] p-1 rounded-lg border border-white/5">
+                        <button class="p-1.5 rounded-md text-slate-400 hover:text-white transition-colors"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
+                        <button class="p-1.5 rounded-md bg-emerald-500/20 text-emerald-400 transition-colors"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></button>
                     </div>
                 </div>
             </div>
