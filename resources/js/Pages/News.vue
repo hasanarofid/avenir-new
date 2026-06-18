@@ -205,6 +205,21 @@ const chartContext = computed(() => {
     if (hist && hist.points && hist.points.length > 0) {
         points = hist.points;
         if (hist.prevClose) prevClose = Number(hist.prevClose);
+
+        // Sesuaikan titik chart jika data Yahoo Finance usang atau berbeda jauh (lebih dari 5%)
+        let actualPrice = Number(String(item.value).replace(/[^0-9,-]+/g,"").replace(",","."));
+        let lastPointClose = points[points.length - 1].close;
+        if (actualPrice && lastPointClose && Math.abs(lastPointClose - actualPrice) > (actualPrice * 0.05)) {
+            let ratio = actualPrice / lastPointClose;
+            points = points.map(p => ({
+                ...p,
+                open: p.open * ratio,
+                high: p.high * ratio,
+                low: p.low * ratio,
+                close: p.close * ratio
+            }));
+            prevClose = prevClose * ratio;
+        }
     } else {
         // Fallback to 1D data passed from props if available
         let data = item.chartData || [];

@@ -11,8 +11,7 @@ import { Link } from '@inertiajs/vue3';
         <!-- Column 1: Branding, Description, and Socials (Col Span 3) -->
         <div class="lg:col-span-3 space-y-6">
           <div class="flex items-center">
-            <!-- Green Stylized Logo -->
-            <span class="text-2xl font-extrabold text-emerald-500 tracking-wider font-heading">AVENIR</span>
+            <img src="/images/logo.png" class="h-8 w-auto" alt="Avenir" />
           </div>
           
           <p class="text-xs text-slate-400 leading-relaxed max-w-xs">

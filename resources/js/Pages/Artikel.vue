@@ -11,6 +11,7 @@ const categories = ['Semua', 'Fundamental', 'Makro', 'Sektor', 'Valuasi', 'Belaj
 const selectedCategory = ref('Semua');
 const searchQuery = ref('');
 const sortOrder = ref('Terbaru');
+const displayCount = ref(5);
 
 const filteredArticles = computed(() => {
     let result = props.articles || [];
@@ -35,9 +36,13 @@ const filteredArticles = computed(() => {
 });
 
 const featuredArticle = computed(() => filteredArticles.value[0]);
-const recentArticles = computed(() => filteredArticles.value.slice(1, 5));
+const recentArticles = computed(() => filteredArticles.value.slice(1, displayCount.value));
 const editorPicks = computed(() => (props.articles || []).slice(0, 3)); 
 const trendingArticles = computed(() => (props.articles || []).slice(0, 5)); 
+
+const loadMore = () => {
+    displayCount.value += 4;
+};
 
 const populerTopics = [
   { name: 'IHSG', count: 128 },
@@ -191,8 +196,8 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
               </Link>
             </div>
 
-            <div class="flex justify-center mt-6">
-              <button class="load-more-btn">
+            <div v-if="filteredArticles.length > displayCount" class="flex justify-center mt-6">
+              <button class="load-more-btn" @click="loadMore">
                 Muat lebih banyak artikel
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
