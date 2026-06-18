@@ -524,7 +524,14 @@ const economicCalendar = [
                      <p class="text-slate-400 text-[13px] mb-4 line-clamp-3 leading-relaxed flex-1">{{ news.excerpt }}</p>
                      
                      <div class="flex items-center gap-2 text-[11px] text-slate-500 mb-4">
-                        <span class="text-slate-300">{{ news.source || 'AVENIR Research' }}</span>
+                        <div v-if="news.author" class="flex items-center gap-1.5">
+                            <div class="w-4 h-4 rounded-full overflow-hidden bg-slate-800 border border-white/10 shrink-0 flex items-center justify-center">
+                                <img v-if="news.author.profile_photo_url" :src="news.author.profile_photo_url" alt="Author" class="w-full h-full object-cover">
+                                <span v-else class="text-[8px]">🧑‍💼</span>
+                            </div>
+                            <span class="text-slate-300 font-medium">{{ news.author.name }}</span>
+                        </div>
+                        <span v-else class="text-slate-300">{{ news.source || 'AVENIR Research' }}</span>
                         <span>&bull;</span>
                         <span>{{ news.published_at || 'Baru saja' }}</span>
                      </div>

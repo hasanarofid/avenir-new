@@ -289,7 +289,7 @@ class HomeController extends Controller
      */
     public function artikel()
     {
-        $articles = Article::where('status', 'published')
+        $articles = Article::with('author')->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -470,7 +470,7 @@ class HomeController extends Controller
      */
     public function news()
     {
-        $newsList = News::where('status', 'published')
+        $newsList = News::with('author')->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -484,6 +484,7 @@ class HomeController extends Controller
                     'excerpt' => $news->excerpt,
                     'published_at' => $news->published_at ? $news->published_at->format('d M Y') : null,
                     'cover_image' => $news->cover_image,
+                    'author' => $news->author,
                 ];
             });
 

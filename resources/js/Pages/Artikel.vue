@@ -114,11 +114,12 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                   <p class="featured-excerpt">{{ featuredArticle.excerpt }}</p>
                   
                   <div class="author-meta">
-                    <div class="author-avatar">
-                      <img :src="'https://ui-avatars.com/api/?name=' + encodeURIComponent(featuredArticle.author || 'Tim Avenir') + '&background=10B981&color=fff'" alt="Author" />
+                    <div class="author-avatar rounded-full overflow-hidden flex items-center justify-center bg-slate-800">
+                      <img v-if="featuredArticle.author?.profile_photo_url" :src="featuredArticle.author.profile_photo_url" alt="Author" class="w-full h-full object-cover" />
+                      <img v-else :src="'https://ui-avatars.com/api/?name=' + encodeURIComponent(featuredArticle.author?.name || 'Tim Avenir') + '&background=10B981&color=fff'" alt="Author" />
                     </div>
                     <div class="author-info">
-                      <div class="author-name">{{ featuredArticle.author || 'Tim Avenir' }}</div>
+                      <div class="author-name">{{ featuredArticle.author?.name || 'Tim Avenir' }}</div>
                       <div class="author-role">Tim Riset AVENIR</div>
                     </div>
                   </div>
@@ -166,9 +167,12 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                   <p class="recent-excerpt">{{ article.excerpt }}</p>
                   
                   <div class="author-meta-small">
-                    <img :src="'https://ui-avatars.com/api/?name=' + encodeURIComponent(article.author || 'Tim Avenir') + '&background=10B981&color=fff'" alt="Author" />
+                    <div class="w-[28px] h-[28px] rounded-full overflow-hidden flex items-center justify-center bg-slate-800 shrink-0">
+                      <img v-if="article.author?.profile_photo_url" :src="article.author.profile_photo_url" alt="Author" class="w-full h-full object-cover" />
+                      <img v-else :src="'https://ui-avatars.com/api/?name=' + encodeURIComponent(article.author?.name || 'Tim Avenir') + '&background=10B981&color=fff'" alt="Author" class="w-full h-full" />
+                    </div>
                     <div>
-                      <div class="author-name">{{ article.author || 'Tim Avenir' }}</div>
+                      <div class="author-name">{{ article.author?.name || 'Tim Avenir' }}</div>
                       <div class="author-role">Analis Avenir</div>
                     </div>
                   </div>
