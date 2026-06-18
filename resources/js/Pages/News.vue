@@ -72,15 +72,23 @@ const marketSummary = computed(() => {
     const gold = getQuote('GC=F', { price: 2343.89, change: 15.2, changePercent: 0.68, name: 'Gold' });
     const oil = getQuote('BZ=F', { price: 82.47, change: -1.1, changePercent: -1.31, name: 'Oil' });
 
-    // Format top movers based on config
-    const topMoversList = (props.marketConfig.top || []).map(sym => {
-        const quote = getQuote(sym, { symbol: sym, changePercent: 0, price: 0 });
-        return {
-            ticker: sym.replace('.JK', ''),
+    // Format top movers dynamically from all available real-time market data
+    const excludeSymbols = ['^JKSE', 'IDR=X', 'GC=F', 'BZ=F'];
+    const allMovers = Object.values(props.marketData || {})
+        .filter(q => q && !excludeSymbols.includes(q.symbol) && q.price > 0)
+        .sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent))
+        .map(quote => ({
+            ticker: quote.symbol.replace('.JK', ''),
             change: (quote.changePercent > 0 ? '+' : '') + Number(quote.changePercent).toFixed(2) + '%',
-            isUp: quote.changePercent >= 0
-        };
-    });
+            isUp: quote.changePercent >= 0,
+            price: formatPrice(quote.price)
+        }));
+
+    // Ensure even number to keep the 2-column grid balanced (max 10)
+    let topMoversList = allMovers.slice(0, 10);
+    if (topMoversList.length % 2 !== 0 && topMoversList.length > 0) {
+        topMoversList.pop();
+    }
 
     return {
         time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
@@ -444,16 +452,17 @@ const economicCalendar = [
                <div class="flex justify-between items-center mb-3">
                  <div class="text-slate-400 text-xs font-medium">Top Movers (IHSG)</div>
                </div>
-               <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px] mb-4 flex-1">
-                  <div v-for="mover in marketSummary.topMovers" :key="mover.ticker" class="flex justify-between items-center">
-                     <span class="text-slate-300 flex items-center gap-1">
-                       <span :class="mover.isUp ? 'text-emerald-400' : 'text-red-400'">
-                         <svg v-if="mover.isUp" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
-                         <svg v-else width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
-                       </span>
-                       {{ mover.ticker }}
-                     </span>
-                     <span :class="mover.isUp ? 'text-emerald-400' : 'text-red-400 font-medium'">{{ mover.change }}</span>
+               <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-[11px] mb-4 flex-1 content-start">
+                  <div v-for="mover in marketSummary.topMovers" :key="mover.ticker" class="flex flex-col bg-[#1a1f1d] border border-white/5 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-default">
+                     <div class="flex justify-between items-center mb-1">
+                         <span class="text-slate-300 font-bold">{{ mover.ticker }}</span>
+                         <span :class="mover.isUp ? 'text-emerald-400' : 'text-red-400'" class="font-medium flex items-center text-[10px]">
+                           <svg v-if="mover.isUp" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                           <svg v-else width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+                           {{ mover.change }}
+                         </span>
+                     </div>
+                     <div class="text-slate-500 font-medium">Rp {{ mover.price }}</div>
                   </div>
                </div>
                <Link href="/market" class="block w-full text-center bg-[#111413] border border-white/5 hover:border-white/20 hover:bg-white/5 text-slate-300 text-[11px] font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5">
