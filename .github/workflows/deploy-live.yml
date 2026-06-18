@@ -20,13 +20,14 @@ jobs:
           script_stop: true # Menghentikan script langsung jika ada command yang gagal (error)
           script: |
             # PENTING: Ubah /home/avenir/live_html sesuai dengan nama folder untuk aplikasi live di VPS Anda!
-            
+
             # 1. Pindah ke direktori web untuk branch live
             cd /home/avenir/live_html
 
             # 2. Tarik kode terbaru dari branch live
             git fetch --all
             git reset --hard origin/live
+
 
             # 3. Update library PHP
             composer install --no-interaction --prefer-dist --optimize-autoloader
