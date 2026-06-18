@@ -153,8 +153,7 @@ onMounted(() => {
     document.addEventListener('fullscreenchange', () => {
         isFullscreen.value = !!document.fullscreenElement;
     });
-    // ...existing interval code...
-
+});
 
 const chartContext = computed(() => {
     const item = activeMarket.value;
