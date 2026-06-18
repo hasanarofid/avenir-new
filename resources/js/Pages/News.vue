@@ -110,6 +110,18 @@ const marketSummary = computed(() => {
     };
 });
 
+const getTrendPath = (isUp, index) => {
+    if (isUp) {
+        return index === 1 ? "M0,20 L10,15 L20,18 L30,10 L40,12 L50,5 L60,8 L70,2 L80,6 L90,1 L100,0" :
+               index === 2 ? "M0,20 L10,16 L20,14 L30,18 L40,10 L50,12 L60,5 L70,6 L80,2 L90,4 L100,0" :
+               "M0,20 L15,10 L30,15 L45,5 L60,8 L75,2 L90,6 L100,0";
+    } else {
+        return index === 1 ? "M0,0 L10,5 L20,2 L30,10 L40,8 L50,15 L60,12 L70,18 L80,14 L90,19 L100,20" :
+               index === 2 ? "M0,0 L10,4 L20,6 L30,2 L40,10 L50,8 L60,15 L70,14 L80,18 L90,16 L100,20" :
+               "M0,0 L15,10 L30,5 L45,15 L60,12 L75,18 L90,14 L100,20";
+    }
+};
+
 const mostRead = [
   { id: 1, title: 'IHSG Menguat ke 7.275, Investor Asing Net Buy Rp1,02 Triliun' },
   { id: 2, title: 'BI Tahan Suku Bunga di 6,25%, Rupiah Menguat ke 16.255' },
@@ -182,9 +194,9 @@ const economicCalendar = [
                  <div class="text-slate-400 text-xs font-medium mb-1">IHSG</div>
                  <div class="flex items-end gap-2 mb-2">
                    <div class="text-xl font-bold text-white">{{ marketSummary.ihsg.value }}</div>
-                   <div class="text-emerald-400 text-xs font-bold mb-1">{{ marketSummary.ihsg.change }}</div>
+                   <div :class="[marketSummary.ihsg.isUp ? 'text-emerald-400' : 'text-red-400', 'text-xs font-bold mb-1']">{{ marketSummary.ihsg.change }}</div>
                  </div>
-                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path d="M0,20 L10,15 L20,18 L30,10 L40,12 L50,5 L60,8 L70,2 L80,6 L90,1 L100,0" fill="none" stroke="#10b981" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path :d="getTrendPath(marketSummary.ihsg.isUp, 1)" fill="none" :stroke="marketSummary.ihsg.isUp ? '#10b981' : '#ef4444'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
                  <div class="hidden md:block absolute right-0 top-0 bottom-0 w-px bg-white/10 -mr-3"></div>
               </div>
               
@@ -193,9 +205,9 @@ const economicCalendar = [
                  <div class="text-slate-400 text-xs font-medium mb-1">USD/IDR</div>
                  <div class="flex items-end gap-2 mb-2">
                    <div class="text-xl font-bold text-white">{{ marketSummary.usd.value }}</div>
-                   <div class="text-emerald-400 text-xs font-bold mb-1">{{ marketSummary.usd.change }}</div>
+                   <div :class="[marketSummary.usd.isUp ? 'text-emerald-400' : 'text-red-400', 'text-xs font-bold mb-1']">{{ marketSummary.usd.change }}</div>
                  </div>
-                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path d="M0,20 L10,16 L20,14 L30,18 L40,10 L50,12 L60,5 L70,6 L80,2 L90,4 L100,0" fill="none" stroke="#10b981" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path :d="getTrendPath(marketSummary.usd.isUp, 2)" fill="none" :stroke="marketSummary.usd.isUp ? '#10b981' : '#ef4444'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
                  <div class="hidden md:block absolute right-0 top-0 bottom-0 w-px bg-white/10 -mr-3"></div>
               </div>
               
@@ -204,9 +216,9 @@ const economicCalendar = [
                  <div class="text-slate-400 text-xs font-medium mb-1">Gold (XAU/USD)</div>
                  <div class="flex items-end gap-2 mb-2">
                    <div class="text-xl font-bold text-white">{{ marketSummary.gold.value }}</div>
-                   <div class="text-emerald-400 text-xs font-bold mb-1">{{ marketSummary.gold.change }}</div>
+                   <div :class="[marketSummary.gold.isUp ? 'text-emerald-400' : 'text-red-400', 'text-xs font-bold mb-1']">{{ marketSummary.gold.change }}</div>
                  </div>
-                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path d="M0,20 L15,10 L30,15 L45,5 L60,8 L75,2 L90,6 L100,0" fill="none" stroke="#10b981" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path :d="getTrendPath(marketSummary.gold.isUp, 3)" fill="none" :stroke="marketSummary.gold.isUp ? '#10b981' : '#ef4444'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
                  <div class="hidden md:block absolute right-0 top-0 bottom-0 w-px bg-white/10 -mr-3"></div>
               </div>
               
@@ -215,9 +227,9 @@ const economicCalendar = [
                  <div class="text-slate-400 text-xs font-medium mb-1">Oil (Brent)</div>
                  <div class="flex items-end gap-2 mb-2">
                    <div class="text-xl font-bold text-white">{{ marketSummary.oil.value }}</div>
-                   <div class="text-red-400 text-xs font-bold mb-1">{{ marketSummary.oil.change }}</div>
+                   <div :class="[marketSummary.oil.isUp ? 'text-emerald-400' : 'text-red-400', 'text-xs font-bold mb-1']">{{ marketSummary.oil.change }}</div>
                  </div>
-                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path d="M0,0 L15,10 L30,5 L45,15 L60,12 L75,18 L90,14 L100,20" fill="none" stroke="#ef4444" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path :d="getTrendPath(marketSummary.oil.isUp, 4)" fill="none" :stroke="marketSummary.oil.isUp ? '#10b981' : '#ef4444'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
               </div>
             </div>
 

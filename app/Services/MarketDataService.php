@@ -85,40 +85,72 @@ class MarketDataService
     }
 
     /**
-     * Fallback mock data if API fails or is unconfigured.
+     * Fallback to free Yahoo Finance API if RapidAPI fails or is unconfigured.
      */
     protected function getMockData($symbols)
     {
-        $mock = [];
-        foreach ($symbols as $sym) {
-            $isPositive = rand(0, 1) === 1;
-            $price = rand(1000, 10000);
-            $change = rand(10, 100) * ($isPositive ? 1 : -1);
-            $changePct = round(($change / $price) * 100, 2);
+        $results = [];
+        
+        try {
+            // Using Http::pool to fetch all symbols concurrently
+            $responses = \Illuminate\Support\Facades\Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($symbols) {
+                foreach ($symbols as $sym) {
+                    $pool->as($sym)->withHeaders([
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    ])->get("https://query2.finance.yahoo.com/v8/finance/chart/" . urlencode($sym));
+                }
+            });
 
-            $mock[$sym] = [
-                'symbol' => $sym,
-                'price' => $price,
-                'change' => $change,
-                'changePercent' => $changePct,
-                'name' => str_replace('.JK', '', $sym)
-            ];
+            foreach ($responses as $sym => $response) {
+                if ($response instanceof \Illuminate\Http\Client\Response && $response->successful()) {
+                    $data = $response->json();
+                    $meta = $data['chart']['result'][0]['meta'] ?? null;
+                    if ($meta) {
+                        $price = $meta['regularMarketPrice'] ?? 0;
+                        $prevClose = $meta['chartPreviousClose'] ?? $price;
+                        $change = $price - $prevClose;
+                        $changePercent = $prevClose != 0 ? ($change / $prevClose) * 100 : 0;
+                        
+                        $results[$sym] = [
+                            'symbol' => $sym,
+                            'price' => $price,
+                            'change' => round($change, 2),
+                            'changePercent' => round($changePercent, 2),
+                            'name' => $meta['shortName'] ?? str_replace('.JK', '', $sym),
+                        ];
+                        continue;
+                    }
+                }
+                
+                // Static fallback if specific symbol fails
+                $results[$sym] = [
+                    'symbol' => $sym,
+                    'price' => 0,
+                    'change' => 0,
+                    'changePercent' => 0,
+                    'name' => str_replace('.JK', '', $sym),
+                ];
+            }
+        } catch (\Exception $e) {
+            Log::error('Exception in Yahoo Finance Public API fallback: ' . $e->getMessage());
+            // Hardcode base defaults if everything fails
+            foreach ($symbols as $sym) {
+                $results[$sym] = [
+                    'symbol' => $sym,
+                    'price' => 0,
+                    'change' => 0,
+                    'changePercent' => 0,
+                    'name' => str_replace('.JK', '', $sym),
+                ];
+            }
         }
 
-        // Hardcode indices for better mock display
-        if (in_array('^JKSE', $symbols)) {
-            $mock['^JKSE'] = ['symbol' => '^JKSE', 'price' => 7250.15, 'change' => 25.50, 'changePercent' => 0.35, 'name' => 'IHSG'];
-        }
-        if (in_array('IDR=X', $symbols)) {
-            $mock['IDR=X'] = ['symbol' => 'IDR=X', 'price' => 15500.00, 'change' => -50.00, 'changePercent' => -0.32, 'name' => 'USD/IDR'];
-        }
-        if (in_array('GC=F', $symbols)) {
-            $mock['GC=F'] = ['symbol' => 'GC=F', 'price' => 2450.80, 'change' => 15.20, 'changePercent' => 0.62, 'name' => 'Gold'];
-        }
-        if (in_array('BZ=F', $symbols)) {
-            $mock['BZ=F'] = ['symbol' => 'BZ=F', 'price' => 82.50, 'change' => -1.10, 'changePercent' => -1.31, 'name' => 'Oil'];
-        }
+        // Apply specific naming overrides for market summary
+        if (isset($results['^JKSE'])) $results['^JKSE']['name'] = 'IHSG';
+        if (isset($results['IDR=X'])) $results['IDR=X']['name'] = 'USD/IDR';
+        if (isset($results['GC=F'])) $results['GC=F']['name'] = 'Gold';
+        if (isset($results['BZ=F'])) $results['BZ=F']['name'] = 'Oil';
 
-        return $mock;
+        return $results;
     }
 }
