@@ -113,6 +113,9 @@ class ArticleController extends Controller
             $data['published_at'] = now();
         }
 
+        $data['user_id'] = auth()->id();
+        $data['author'] = auth()->user()->name ?? 'Tim Avenir Research';
+
         $article->update($data);
 
         return redirect()->route('admin.articles.index')->with('success', 'Artikel berhasil diperbarui');

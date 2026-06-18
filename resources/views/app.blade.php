@@ -6,7 +6,7 @@
 
         @php
             $defaultSiteName = \App\Models\Setting::getValue('site_name', config('app.name', 'Avenir Research'));
-            $defaultDescription = \App\Models\Setting::getValue('site_description', 'AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif.');
+            $defaultDescription = \App\Models\Setting::getValue('site_description', 'Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif.');
             
             $seoTitle = $meta['title'] ?? $defaultSiteName;
             $seoDesc = $meta['description'] ?? $defaultDescription;

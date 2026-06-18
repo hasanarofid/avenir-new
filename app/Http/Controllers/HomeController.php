@@ -105,7 +105,7 @@ class HomeController extends Controller
             'headlinesPasar' => $headlinesPasar
         ])->withViewData([
             'meta' => [
-                'title' => 'AVENIR Research | Platform Riset Ekuitas Indonesia',
+                'title' => 'Avenir Research | Platform Riset Ekuitas Indonesia',
                 'description' => 'Akses laporan riset mendalam untuk keputusan investasi yang lebih cerdas. Disusun oleh tim analis berpengalaman.',
             ]
         ]);
@@ -137,8 +137,8 @@ class HomeController extends Controller
             'unlockedTickers' => $unlockedTickers
         ])->withViewData([
             'meta' => [
-                'title' => 'Katalog Riset | AVENIR Research',
-                'description' => 'Jelajahi berbagai laporan riset saham, rekomendasi, dan target price dari AVENIR Research.',
+                'title' => 'Katalog Riset | Avenir Research',
+                'description' => 'Jelajahi berbagai laporan riset saham, rekomendasi, dan target price dari Avenir Research.',
             ]
         ]);
     }
@@ -276,8 +276,8 @@ class HomeController extends Controller
             ],
         ])->withViewData([
             'meta' => [
-                'title' => ($research->ticker ? $research->ticker . ' — ' : '') . $research->title . ' | AVENIR Research',
-                'description' => \Illuminate\Support\Str::limit(strip_tags($research->subtitle ?? $research->content), 150),
+                'title' => ($research->ticker ? $research->ticker . ' — ' : '') . $research->title . ' | Avenir Research',
+                'description' => \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($research->subtitle ?? $research->content))), 150),
                 'image' => $research->image ? asset($research->image) : asset('favicon.png'),
                 'type' => 'article',
             ]
@@ -298,7 +298,7 @@ class HomeController extends Controller
             'articles' => $articles
         ])->withViewData([
             'meta' => [
-                'title' => 'Artikel & Insight | AVENIR Research',
+                'title' => 'Artikel & Insight | Avenir Research',
                 'description' => 'Baca artikel, insight, dan analisis terbaru mengenai pasar modal Indonesia.',
             ]
         ]);
@@ -391,8 +391,8 @@ class HomeController extends Controller
             ]
         ])->withViewData([
             'meta' => [
-                'title' => $article->title . ' | AVENIR Research',
-                'description' => $article->excerpt ? \Illuminate\Support\Str::limit(strip_tags($article->excerpt), 150) : \Illuminate\Support\Str::limit(strip_tags($content), 150),
+                'title' => $article->title . ' | Avenir Research',
+                'description' => $article->excerpt ? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($article->excerpt))), 150) : \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($content))), 150),
                 'image' => $article->cover_image ? asset($article->cover_image) : asset('favicon.png'),
                 'type' => 'article',
             ]
@@ -505,7 +505,7 @@ class HomeController extends Controller
             ]
         ])->withViewData([
             'meta' => [
-                'title' => 'Berita Pasar | AVENIR Research',
+                'title' => 'Berita Pasar | Avenir Research',
                 'description' => 'Ikuti perkembangan dan berita terbaru dari pasar modal Indonesia.',
             ]
         ]);
@@ -536,8 +536,8 @@ class HomeController extends Controller
             ]
         ])->withViewData([
             'meta' => [
-                'title' => $news->title . ' | AVENIR Research',
-                'description' => $news->excerpt ? \Illuminate\Support\Str::limit(strip_tags($news->excerpt), 150) : \Illuminate\Support\Str::limit(strip_tags($content), 150),
+                'title' => $news->title . ' | Avenir Research',
+                'description' => $news->excerpt ? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($news->excerpt))), 150) : \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($content))), 150),
                 'image' => $news->cover_image ? asset($news->cover_image) : asset('favicon.png'),
                 'type' => 'article',
             ]
@@ -562,8 +562,8 @@ class HomeController extends Controller
     {
         return Inertia::render('About')->withViewData([
             'meta' => [
-                'title' => 'Tentang Kami | AVENIR Research',
-                'description' => 'Pelajari lebih lanjut tentang visi, misi, dan tim profesional di balik AVENIR Research.',
+                'title' => 'Tentang Kami | Avenir Research',
+                'description' => 'Pelajari lebih lanjut tentang visi, misi, dan tim profesional di balik Avenir Research.',
             ]
         ]);
     }
@@ -598,7 +598,7 @@ class HomeController extends Controller
             'partners' => $partners
         ])->withViewData([
             'meta' => [
-                'title' => 'Mitra Analis | AVENIR Research',
+                'title' => 'Mitra Analis | Avenir Research',
                 'description' => 'Temui para mitra analis independen kami yang menyediakan riset pasar modal berkualitas.',
             ]
         ]);
@@ -650,7 +650,7 @@ class HomeController extends Controller
             ] : null
         ])->withViewData([
             'meta' => [
-                'title' => 'Berlangganan | AVENIR Research',
+                'title' => 'Berlangganan | Avenir Research',
                 'description' => 'Dapatkan akses penuh ke laporan riset premium, insight pasar, dan rekomendasi saham eksklusif.',
             ]
         ]);

@@ -125,6 +125,8 @@ class ResearchController extends Controller
             unset($validated['image']); // Keep existing if string
         }
 
+        $validated['author_id'] = auth()->id();
+
         $katalog_riset->update($validated);
 
         return redirect()->route('admin.katalog-riset.index')->with('success', 'Katalog Riset berhasil diperbarui.');

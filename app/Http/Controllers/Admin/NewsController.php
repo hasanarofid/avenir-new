@@ -112,6 +112,8 @@ class NewsController extends Controller
         }
         unset($data['image']);
 
+        $data['author_id'] = auth()->id();
+
         $news->update($data);
 
         return redirect()->route('admin.news.index')->with('success', 'Berita berhasil diperbarui');
