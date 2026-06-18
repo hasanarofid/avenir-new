@@ -85,22 +85,26 @@ const marketSummary = computed(() => {
         time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
         ihsg: { 
             value: formatPrice(ihsg.price), 
-            change: (ihsg.change >= 0 ? '+' : '') + Number(ihsg.changePercent).toFixed(2) + '%', 
+            change: ihsg.change, 
+            changePercent: (ihsg.changePercent >= 0 ? '+' : '') + Number(ihsg.changePercent).toFixed(2), 
             isUp: ihsg.change >= 0 
         },
         usd: { 
             value: formatPrice(usd.price), 
-            change: (usd.change >= 0 ? '+' : '') + Number(usd.changePercent).toFixed(2) + '%', 
+            change: usd.change, 
+            changePercent: (usd.changePercent >= 0 ? '+' : '') + Number(usd.changePercent).toFixed(2), 
             isUp: usd.change >= 0 
         },
         gold: { 
             value: formatPrice(gold.price), 
-            change: (gold.change >= 0 ? '+' : '') + Number(gold.changePercent).toFixed(2) + '%', 
+            change: gold.change, 
+            changePercent: (gold.changePercent >= 0 ? '+' : '') + Number(gold.changePercent).toFixed(2), 
             isUp: gold.change >= 0 
         },
         oil: { 
             value: formatPrice(oil.price), 
-            change: (oil.change >= 0 ? '+' : '') + Number(oil.changePercent).toFixed(2) + '%', 
+            change: oil.change, 
+            changePercent: (oil.changePercent >= 0 ? '+' : '') + Number(oil.changePercent).toFixed(2), 
             isUp: oil.change >= 0 
         },
         topMovers: topMoversList.length > 0 ? topMoversList : [
@@ -110,17 +114,67 @@ const marketSummary = computed(() => {
     };
 });
 
-const getTrendPath = (isUp, index) => {
-    if (isUp) {
-        return index === 1 ? "M0,20 L10,15 L20,18 L30,10 L40,12 L50,5 L60,8 L70,2 L80,6 L90,1 L100,0" :
-               index === 2 ? "M0,20 L10,16 L20,14 L30,18 L40,10 L50,12 L60,5 L70,6 L80,2 L90,4 L100,0" :
-               "M0,20 L15,10 L30,15 L45,5 L60,8 L75,2 L90,6 L100,0";
-    } else {
-        return index === 1 ? "M0,0 L10,5 L20,2 L30,10 L40,8 L50,15 L60,12 L70,18 L80,14 L90,19 L100,20" :
-               index === 2 ? "M0,0 L10,4 L20,6 L30,2 L40,10 L50,8 L60,15 L70,14 L80,18 L90,16 L100,20" :
-               "M0,0 L15,10 L30,5 L45,15 L60,12 L75,18 L90,14 L100,20";
-    }
+const activeMarketIndex = ref(0);
+const carouselItems = computed(() => [
+    { ...marketSummary.value.ihsg, id: 'ihsg', name: 'IHSG', prevClose: getQuote('^JKSE', {}).prevClose || getQuote('^JKSE', {}).price || 0, chartData: getQuote('^JKSE', {}).chartData || [] },
+    { ...marketSummary.value.usd, id: 'usd', name: 'USD/IDR', prevClose: getQuote('IDR=X', {}).prevClose || getQuote('IDR=X', {}).price || 0, chartData: getQuote('IDR=X', {}).chartData || [] },
+    { ...marketSummary.value.gold, id: 'gold', name: 'Gold (XAU/USD)', prevClose: getQuote('GC=F', {}).prevClose || getQuote('GC=F', {}).price || 0, chartData: getQuote('GC=F', {}).chartData || [] },
+    { ...marketSummary.value.oil, id: 'oil', name: 'Oil (Brent)', prevClose: getQuote('BZ=F', {}).prevClose || getQuote('BZ=F', {}).price || 0, chartData: getQuote('BZ=F', {}).chartData || [] }
+]);
+
+const activeMarket = computed(() => carouselItems.value[activeMarketIndex.value] || carouselItems.value[0]);
+
+const nextMarket = () => {
+    activeMarketIndex.value = (activeMarketIndex.value + 1) % carouselItems.value.length;
 };
+
+const prevMarket = () => {
+    activeMarketIndex.value = (activeMarketIndex.value - 1 + carouselItems.value.length) % carouselItems.value.length;
+};
+
+const chartContext = computed(() => {
+    const item = activeMarket.value;
+    const width = 800;
+    const height = 300;
+    
+    let data = item.chartData || [];
+    
+    // If no real data, create a flat line at current price
+    if (!data || data.length === 0) {
+        data = [item.prevClose, item.prevClose];
+    }
+    
+    const prices = data.map(Number);
+    const prevClose = Number(item.prevClose);
+    
+    let min = Math.min(...prices, prevClose);
+    let max = Math.max(...prices, prevClose);
+    const range = max - min || 1;
+    
+    const paddedMin = min - (range * 0.15);
+    const paddedMax = max + (range * 0.15);
+    const paddedRange = paddedMax - paddedMin;
+    
+    let path = '';
+    prices.forEach((val, i) => {
+        const x = (i / (prices.length - 1)) * width;
+        const y = height - ((val - paddedMin) / paddedRange) * height;
+        if (i === 0) path += `M${x},${y} `;
+        else path += `L${x},${y} `;
+    });
+    
+    const fillPath = path + ` L${width},${height} L0,${height} Z`;
+    const prevCloseY = height - ((prevClose - paddedMin) / paddedRange) * height;
+    
+    const labels = [];
+    for(let i=0; i<5; i++) {
+        const val = paddedMax - (i * (paddedRange / 4));
+        let formatted = new Intl.NumberFormat('id-ID', { maximumFractionDigits: val < 1000 ? 2 : 0 }).format(val);
+        labels.push(formatted);
+    }
+    
+    return { path, fillPath, labels, prevCloseY };
+});
 
 const mostRead = [
   { id: 1, title: 'IHSG Menguat ke 7.275, Investor Asing Net Buy Rp1,02 Triliun' },
@@ -188,49 +242,65 @@ const economicCalendar = [
           
           <div class="flex flex-col lg:flex-row gap-6 items-stretch">
             
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 flex-1 lg:border-r border-white/10 lg:pr-6">
-              <!-- IHSG -->
-              <div class="relative">
-                 <div class="text-slate-400 text-xs font-medium mb-1">IHSG</div>
-                 <div class="flex items-end gap-2 mb-2">
-                   <div class="text-xl font-bold text-white">{{ marketSummary.ihsg.value }}</div>
-                   <div :class="[marketSummary.ihsg.isUp ? 'text-emerald-400' : 'text-red-400', 'text-xs font-bold mb-1']">{{ marketSummary.ihsg.change }}</div>
-                 </div>
-                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path :d="getTrendPath(marketSummary.ihsg.isUp, 1)" fill="none" :stroke="marketSummary.ihsg.isUp ? '#10b981' : '#ef4444'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
-                 <div class="hidden md:block absolute right-0 top-0 bottom-0 w-px bg-white/10 -mr-3"></div>
-              </div>
-              
-              <!-- USD/IDR -->
-              <div class="relative">
-                 <div class="text-slate-400 text-xs font-medium mb-1">USD/IDR</div>
-                 <div class="flex items-end gap-2 mb-2">
-                   <div class="text-xl font-bold text-white">{{ marketSummary.usd.value }}</div>
-                   <div :class="[marketSummary.usd.isUp ? 'text-emerald-400' : 'text-red-400', 'text-xs font-bold mb-1']">{{ marketSummary.usd.change }}</div>
-                 </div>
-                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path :d="getTrendPath(marketSummary.usd.isUp, 2)" fill="none" :stroke="marketSummary.usd.isUp ? '#10b981' : '#ef4444'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
-                 <div class="hidden md:block absolute right-0 top-0 bottom-0 w-px bg-white/10 -mr-3"></div>
-              </div>
-              
-              <!-- Gold -->
-              <div class="relative">
-                 <div class="text-slate-400 text-xs font-medium mb-1">Gold (XAU/USD)</div>
-                 <div class="flex items-end gap-2 mb-2">
-                   <div class="text-xl font-bold text-white">{{ marketSummary.gold.value }}</div>
-                   <div :class="[marketSummary.gold.isUp ? 'text-emerald-400' : 'text-red-400', 'text-xs font-bold mb-1']">{{ marketSummary.gold.change }}</div>
-                 </div>
-                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path :d="getTrendPath(marketSummary.gold.isUp, 3)" fill="none" :stroke="marketSummary.gold.isUp ? '#10b981' : '#ef4444'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
-                 <div class="hidden md:block absolute right-0 top-0 bottom-0 w-px bg-white/10 -mr-3"></div>
-              </div>
-              
-              <!-- Oil -->
-              <div>
-                 <div class="text-slate-400 text-xs font-medium mb-1">Oil (Brent)</div>
-                 <div class="flex items-end gap-2 mb-2">
-                   <div class="text-xl font-bold text-white">{{ marketSummary.oil.value }}</div>
-                   <div :class="[marketSummary.oil.isUp ? 'text-emerald-400' : 'text-red-400', 'text-xs font-bold mb-1']">{{ marketSummary.oil.change }}</div>
-                 </div>
-                 <svg class="w-full h-8 mb-2" preserveAspectRatio="none" viewBox="0 0 100 20"><path :d="getTrendPath(marketSummary.oil.isUp, 4)" fill="none" :stroke="marketSummary.oil.isUp ? '#10b981' : '#ef4444'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
-              </div>
+            <div class="relative flex-1 bg-[#111413] border border-white/10 rounded-xl p-6 lg:mr-6 overflow-hidden shadow-2xl">
+                <!-- Header -->
+                <div class="flex items-center justify-between relative z-10 mb-8">
+                    <div class="flex items-center gap-4">
+                        <div :class="['w-1.5 h-10 rounded-full', activeMarket.isUp ? 'bg-emerald-500' : 'bg-red-500']"></div>
+                        <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-3">
+                            <h2 class="text-2xl font-bold text-white tracking-tight">{{ activeMarket.name }}</h2>
+                            <div class="text-2xl font-bold text-white">{{ activeMarket.value }}</div>
+                            <div class="text-[15px] font-medium text-slate-400">
+                                {{ Number(activeMarket.change || 0).toFixed(2) }} 
+                                <span :class="activeMarket.isUp ? 'text-emerald-400' : 'text-red-400'">({{ activeMarket.changePercent }}%)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-emerald-400 hover:bg-white/5 transition-colors">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    </button>
+                </div>
+                
+                <!-- Chart Area -->
+                <div class="relative w-full h-[250px]">
+                    <!-- Nav Buttons -->
+                    <button @click="prevMarket" class="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 w-8 h-8 flex items-center justify-center bg-[#1a1f1d] border border-white/10 shadow-lg rounded-full z-20 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+                    <button @click="nextMarket" class="absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-[#1a1f1d] border border-white/10 shadow-lg rounded-full z-20 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+
+                    <!-- SVG Chart -->
+                    <div class="absolute inset-0 right-16 overflow-hidden">
+                        <svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 800 300">
+                            <defs>
+                                <linearGradient id="chartGradientUp" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+                                    <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                                </linearGradient>
+                                <linearGradient id="chartGradientDown" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#ef4444" stop-opacity="0.25"/>
+                                    <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Dashed Previous Close Line -->
+                            <line x1="0" :y1="chartContext.prevCloseY" x2="800" :y2="chartContext.prevCloseY" stroke="#64748b" stroke-width="2" stroke-dasharray="8,8" opacity="0.6" />
+                            
+                            <!-- Gradient Fill -->
+                            <path v-if="chartContext.fillPath" :d="chartContext.fillPath" :fill="activeMarket.isUp ? 'url(#chartGradientUp)' : 'url(#chartGradientDown)'" />
+                            
+                            <!-- Main Line -->
+                            <path v-if="chartContext.path" :d="chartContext.path" fill="none" :stroke="activeMarket.isUp ? '#10b981' : '#ef4444'" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+                        </svg>
+                    </div>
+
+                    <!-- Y Axis Labels -->
+                    <div class="absolute right-0 top-0 bottom-0 w-12 flex flex-col justify-between text-right text-[12px] text-slate-400 py-1">
+                        <span v-for="(label, i) in chartContext.labels" :key="i">{{ label }}</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Top Movers -->

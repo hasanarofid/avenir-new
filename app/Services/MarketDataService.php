@@ -17,82 +17,17 @@ class MarketDataService
     }
 
     /**
-     * Fetch quotes for a given list of symbols.
+     * Fetch quotes and intraday chart data for a given list of symbols.
      * 
      * @param array $symbols Example: ['BBRI.JK', '^JKSE', 'IDR=X']
      * @return array
      */
     public function getQuotes(array $symbols)
     {
-        if (empty($this->apiKey)) {
-            Log::warning('RapidAPI Key is not configured for Yahoo Finance.');
-            return $this->getMockData($symbols);
-        }
-
-        $symbolsStr = implode(',', $symbols);
-
-        try {
-            // NOTE: The exact endpoint depends on the specific RapidAPI provider format.
-            // Using a common format here. If you get a 404, adjust the endpoint path.
-            $response = Http::withHeaders([
-                'x-rapidapi-host' => $this->apiHost,
-                'x-rapidapi-key'  => $this->apiKey,
-            ])->get("https://{$this->apiHost}/api/market/get-quote", [
-                'region' => 'US',
-                'symbols' => $symbolsStr
-            ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                return $this->formatData($data);
-            }
-
-            Log::error('Yahoo Finance API error', ['status' => $response->status(), 'body' => $response->body()]);
-            return $this->getMockData($symbols);
-
-        } catch (\Exception $e) {
-            Log::error('Exception calling Yahoo Finance API: ' . $e->getMessage());
-            return $this->getMockData($symbols);
-        }
-    }
-
-    protected function formatData($apiResponse)
-    {
-        $results = [];
-        
-        // RapidAPI responses from Yahoo Finance typically wrap results
-        // like `quoteResponse.result` or sometimes just an array under `quote`.
-        $quotes = $apiResponse['quoteResponse']['result'] ?? $apiResponse['quote'] ?? []; 
-        
-        // If it directly returned an array of objects
-        if (empty($quotes) && is_array($apiResponse) && isset($apiResponse[0]['symbol'])) {
-            $quotes = $apiResponse;
-        }
-
-        foreach ($quotes as $quote) {
-            $symbol = $quote['symbol'] ?? '';
-            if ($symbol) {
-                $results[$symbol] = [
-                    'symbol' => $symbol,
-                    'price' => $quote['regularMarketPrice'] ?? 0,
-                    'change' => $quote['regularMarketChange'] ?? 0,
-                    'changePercent' => $quote['regularMarketChangePercent'] ?? 0,
-                    'name' => $quote['shortName'] ?? $quote['longName'] ?? $symbol,
-                ];
-            }
-        }
-        return $results;
-    }
-
-    /**
-     * Fallback to free Yahoo Finance API if RapidAPI fails or is unconfigured.
-     */
-    protected function getMockData($symbols)
-    {
         $results = [];
         
         try {
-            // Using Http::pool to fetch all symbols concurrently
+            // Using Http::pool to fetch all symbols concurrently from Yahoo Finance Public API
             $responses = \Illuminate\Support\Facades\Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($symbols) {
                 foreach ($symbols as $sym) {
                     $pool->as($sym)->withHeaders([
@@ -111,12 +46,33 @@ class MarketDataService
                         $change = $price - $prevClose;
                         $changePercent = $prevClose != 0 ? ($change / $prevClose) * 100 : 0;
                         
+                        // Extract intraday data points
+                        $closes = $data['chart']['result'][0]['indicators']['quote'][0]['close'] ?? [];
+                        
+                        $chartPoints = [];
+                        foreach ($closes as $c) {
+                            if ($c !== null) {
+                                $chartPoints[] = round($c, 2);
+                            }
+                        }
+                        
+                        // Subsample to max ~60 points to keep payload small
+                        $subsampled = [];
+                        if (count($chartPoints) > 0) {
+                            $step = max(1, floor(count($chartPoints) / 60));
+                            for ($i = 0; $i < count($chartPoints); $i += $step) {
+                                $subsampled[] = $chartPoints[$i];
+                            }
+                        }
+                        
                         $results[$sym] = [
                             'symbol' => $sym,
                             'price' => $price,
+                            'prevClose' => $prevClose,
                             'change' => round($change, 2),
                             'changePercent' => round($changePercent, 2),
                             'name' => $meta['shortName'] ?? str_replace('.JK', '', $sym),
+                            'chartData' => $subsampled,
                         ];
                         continue;
                     }
@@ -126,21 +82,25 @@ class MarketDataService
                 $results[$sym] = [
                     'symbol' => $sym,
                     'price' => 0,
+                    'prevClose' => 0,
                     'change' => 0,
                     'changePercent' => 0,
                     'name' => str_replace('.JK', '', $sym),
+                    'chartData' => [],
                 ];
             }
         } catch (\Exception $e) {
-            Log::error('Exception in Yahoo Finance Public API fallback: ' . $e->getMessage());
+            Log::error('Exception in Yahoo Finance Public API: ' . $e->getMessage());
             // Hardcode base defaults if everything fails
             foreach ($symbols as $sym) {
                 $results[$sym] = [
                     'symbol' => $sym,
                     'price' => 0,
+                    'prevClose' => 0,
                     'change' => 0,
                     'changePercent' => 0,
                     'name' => str_replace('.JK', '', $sym),
+                    'chartData' => [],
                 ];
             }
         }
