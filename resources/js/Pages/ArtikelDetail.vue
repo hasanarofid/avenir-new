@@ -49,7 +49,11 @@ const hasCustomHtml = computed(() => {
       <!-- Glow Backdrops -->
       <div class="radial-glow glow-top-right"></div>
       <div class="radial-glow glow-bottom-left"></div>
-
+       <div class="article-container">
+        <!-- Back Link -->
+        <a href="/artikel" class="back-link">
+          <span class="arrow">←</span> Kembali ke Artikel
+        </a>
       <div 
         class="guest-lock-wrap" 
         :class="{ 'is-guest': isLocked }"
@@ -90,13 +94,35 @@ const hasCustomHtml = computed(() => {
           :price="'Setelah trial: mulai <strong>Rp 149.000 / bulan</strong>'"
         />
       </div>
+      </div>
     </div>
   </AppLayout>
 </template>
 
 <style>
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #10b981;
+  text-decoration: none;
+  margin-bottom: 32px;
+  transition: transform 0.2s, color 0.2s;
+}
 
-
+.back-link:hover {
+  color: #34d399;
+  transform: translateX(-4px);
+}
+.article-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px 100px;
+  position: relative;
+  z-index: 2;
+}
 .article-detail-page {
   background-color: #090b0a;
   color: #cbd5e1;
