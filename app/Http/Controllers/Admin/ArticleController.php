@@ -47,7 +47,7 @@ class ArticleController extends Controller
             'content' => 'nullable|string',
             'is_paid' => 'boolean',
             'status' => 'required|string',
-            'image' => 'nullable|image|max:2048'
+            'image' => 'nullable|image|max:5120'
         ]);
 
         $data['slug'] = Str::slug($data['title']);
@@ -90,7 +90,7 @@ class ArticleController extends Controller
             'content' => 'nullable|string',
             'is_paid' => 'boolean',
             'status' => 'required|string',
-            'image' => 'nullable|image|max:2048'
+            'image' => 'nullable|image|max:5120'
         ]);
 
         if ($data['title'] !== $article->title) {

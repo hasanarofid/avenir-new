@@ -43,7 +43,7 @@ class PostController extends Controller
             'title' => 'required|string|max:150',
             'slug' => 'required|string|max:150|unique:posts,slug',
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'image' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:5120',
             'status' => 'required|in:draft,published',
             'is_featured' => 'required|boolean',
         ]);
@@ -82,7 +82,7 @@ class PostController extends Controller
             'title' => 'required|string|max:150',
             'slug' => 'required|string|max:150|unique:posts,slug,' . $post->id,
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'image' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:5120',
             'status' => 'required|in:draft,published',
             'is_featured' => 'required|boolean',
         ]);

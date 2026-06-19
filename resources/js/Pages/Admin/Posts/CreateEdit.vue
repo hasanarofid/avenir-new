@@ -185,7 +185,7 @@ const submit = () => {
                   </div>
                   <div>
                     <p class="text-xs font-semibold text-slate-200">Drag & drop cover di sini</p>
-                    <p class="text-[10px] text-slate-500 mt-0.5">Maksimal 2 MB (PNG, JPG, WEBP)</p>
+                    <p class="text-[10px] text-slate-500 mt-0.5">Maksimal 5 MB (PNG, JPG, WEBP)</p>
                   </div>
                 </div>
               </div>

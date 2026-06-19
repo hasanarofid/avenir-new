@@ -49,7 +49,7 @@ class NewsController extends Controller
             'sentiment' => 'nullable|string',
             'published_at' => 'nullable|date',
             'status' => 'required|string',
-            'image' => 'nullable|image|max:2048'
+            'image' => 'nullable|image|max:5120'
         ]);
 
         $data['slug'] = Str::slug($data['title']);
@@ -91,7 +91,7 @@ class NewsController extends Controller
             'sentiment' => 'nullable|string',
             'published_at' => 'nullable|date',
             'status' => 'required|string',
-            'image' => 'nullable|image|max:2048'
+            'image' => 'nullable|image|max:5120'
         ]);
 
         if ($data['title'] !== $news->title) {

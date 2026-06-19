@@ -175,7 +175,7 @@ const submit = () => {
                   </div>
                   <div>
                     <p class="text-xs font-semibold text-slate-200">Klik atau Drag Cover ke sini</p>
-                    <p class="text-[10px] text-slate-500 mt-0.5">Maks 2MB (JPG, PNG)</p>
+                    <p class="text-[10px] text-slate-500 mt-0.5">Maks 5MB (JPG, PNG)</p>
                   </div>
                 </div>
               </div>
