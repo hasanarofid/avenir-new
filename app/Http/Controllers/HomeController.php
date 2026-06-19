@@ -293,9 +293,48 @@ class HomeController extends Controller
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
+            
+        $editorPicks = Article::with('author')->where('status', 'published')
+            ->whereNotNull('badge')
+            ->orderBy('updated_at', 'desc')
+            ->take(3)
+            ->get();
+            
+        // Fallback for Editor Picks if there are fewer than 3
+        if ($editorPicks->count() < 3) {
+            $excludeIds = $editorPicks->pluck('id')->toArray();
+            $fallback = Article::with('author')->where('status', 'published')
+                ->when(count($excludeIds) > 0, function($q) use ($excludeIds) {
+                    return $q->whereNotIn('id', $excludeIds);
+                })
+                ->inRandomOrder()
+                ->take(3 - $editorPicks->count())
+                ->get();
+            $editorPicks = $editorPicks->concat($fallback);
+        }
+
+        // Trending articles
+        $trendingArticles = Article::with('author')->where('status', 'published')
+            ->inRandomOrder()
+            ->take(5)
+            ->get();
+
+        // Topik Populer
+        $populerTopics = \Illuminate\Support\Facades\DB::table('articles')
+            ->select('category as name', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+            ->where('status', 'published')
+            ->whereNotNull('category')
+            ->where('category', '!=', '')
+            ->groupBy('category')
+            ->orderByDesc('count')
+            ->take(10)
+            ->get();
         
         return Inertia::render('Artikel', [
-            'articles' => $articles
+            'articles' => $articles,
+            'editorPicks' => $editorPicks,
+            'trendingArticles' => $trendingArticles,
+            'populerTopics' => $populerTopics
         ])->withViewData([
             'meta' => [
                 'title' => 'Artikel & Insight | Avenir Research',

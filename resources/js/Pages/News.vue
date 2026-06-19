@@ -33,7 +33,7 @@ const recentNews = computed(() => {
 });
 
 // Filter states
-const categories = ['Semua', 'Market', 'Corporate', 'Macro', 'Global', 'Commodity', 'Fixed Income'];
+const categories = ['Semua', 'Market', 'Corporate Action', 'Macroekonomi', 'Global', 'Commodity', 'Fixed Income'];
 const selectedCategory = ref('Semua');
 const searchQuery = ref('');
 

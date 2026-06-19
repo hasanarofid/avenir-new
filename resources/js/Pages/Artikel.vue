@@ -4,7 +4,10 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
-    articles: Array
+    articles: Array,
+    editorPicks: Array,
+    trendingArticles: Array,
+    populerTopics: Array,
 });
 
 const categories = ['Semua', 'Fundamental', 'Makro', 'Sektor', 'Valuasi', 'Belajar Saham', 'Strategi', 'Opini'];
@@ -37,26 +40,10 @@ const filteredArticles = computed(() => {
 
 const featuredArticle = computed(() => filteredArticles.value[0]);
 const recentArticles = computed(() => filteredArticles.value.slice(1, displayCount.value));
-const editorPicks = computed(() => (props.articles || []).slice(0, 3)); 
-const trendingArticles = computed(() => (props.articles || []).slice(0, 5)); 
 
 const loadMore = () => {
     displayCount.value += 4;
 };
-
-const populerTopics = [
-  { name: 'IHSG', count: 128 },
-  { name: 'Suku Bunga', count: 96 },
-  { name: 'Inflasi', count: 82 },
-  { name: 'Bank', count: 75 },
-  { name: 'Rupiah', count: 64 },
-  { name: 'Kredit', count: 58 },
-  { name: 'Energi', count: 54 },
-  { name: 'Dividen', count: 47 },
-  { name: 'AS', count: 45 },
-  { name: 'Komoditas', count: 43 },
-  { name: 'Teknologi', count: 39 }
-];
 
 const newsletterEmail = ref('');
 const subscribeNewsletter = () => {
