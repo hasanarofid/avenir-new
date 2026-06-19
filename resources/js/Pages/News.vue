@@ -28,14 +28,40 @@ const featuredNews = computed(() => {
     return props.newsList && props.newsList.length > 0 ? props.newsList.slice(0, 3) : [];
 });
 
-const recentNews = computed(() => {
-    return props.newsList && props.newsList.length > 3 ? props.newsList.slice(3) : [];
-});
-
-// Filter states
 const categories = ['Semua', 'Market', 'Corporate Action', 'Macroekonomi', 'Global', 'Commodity', 'Fixed Income'];
 const selectedCategory = ref('Semua');
 const searchQuery = ref('');
+const sortOrder = ref('Terbaru');
+const visibleCount = ref(10);
+
+const loadMore = () => {
+    visibleCount.value += 10;
+};
+
+const filteredRecentNews = computed(() => {
+    let list = props.newsList && props.newsList.length > 3 ? props.newsList.slice(3) : [];
+    
+    if (searchQuery.value) {
+        list = list.filter(n => n.title.toLowerCase().includes(searchQuery.value.toLowerCase()));
+    }
+    if (selectedCategory.value !== 'Semua') {
+        list = list.filter(n => n.category === selectedCategory.value);
+    }
+    
+    if (sortOrder.value === 'Terpopuler') {
+        list = [...list].sort((a, b) => b.title.length - a.title.length); 
+    }
+    
+    return list;
+});
+
+const recentNews = computed(() => {
+    return filteredRecentNews.value.slice(0, visibleCount.value);
+});
+
+const hasMoreRecentNews = computed(() => {
+    return filteredRecentNews.value.length > visibleCount.value;
+});
 
 let pollInterval = null;
 
@@ -309,40 +335,49 @@ const chartContext = computed(() => {
     };
 });
 
-const mostRead = [
-  { id: 1, title: 'IHSG Menguat ke 7.275, Investor Asing Net Buy Rp1,02 Triliun' },
-  { id: 2, title: 'BI Tahan Suku Bunga di 6,25%, Rupiah Menguat ke 16.255' },
-  { id: 3, title: 'BBRI Catat Laba Bersih Q1 2025 Naik 12% YoY Jadi Rp15,06 Triliun' },
-  { id: 4, title: 'Inflasi April 2025 Terkendali di 2,72% YoY, Sesuai Ekspektasi' },
-  { id: 5, title: 'Harga Minyak Turun di Tengah Data Inventori AS yang Meningkat' },
-];
+const mostRead = computed(() => {
+    return [...props.newsList].sort((a, b) => b.title.length - a.title.length).slice(0, 5); 
+});
 
 const watchlistNews = computed(() => {
     const list = props.marketConfig.watchlist || [];
-    if (list.length === 0) {
-        return [
-            { ticker: 'BBRI', title: 'BBRI Catat Laba Bersih Q1 2025 Naik 12% YoY', time: '09:15' },
-            { ticker: 'TLKM', title: 'TLKM Jajaki Kerja Sama Strategis dengan AWS', time: '08:33' }
-        ];
-    }
-    return list.map(sym => {
-        const quote = getQuote(sym, { symbol: sym, price: 0, changePercent: 0 });
-        const name = quote.name || sym;
-        const changeStr = (quote.changePercent > 0 ? '+' : '') + Number(quote.changePercent).toFixed(2) + '%';
-        
-        return {
-            ticker: sym.replace('.JK', ''),
-            title: `${name} diperdagangkan di Rp ${formatPrice(quote.price)} (${changeStr})`,
-            time: 'Baru saja'
-        };
+    const result = [];
+    
+    list.forEach(sym => {
+        const ticker = sym.replace('.JK', '');
+        const newsItem = props.newsList.find(n => n.title.includes(ticker));
+        if (newsItem) {
+            result.push({
+                ticker: ticker,
+                title: newsItem.title,
+                time: newsItem.published_at || 'Baru saja',
+                slug: newsItem.slug
+            });
+        }
     });
+    
+    if (result.length < 3) {
+        list.forEach(sym => {
+            const ticker = sym.replace('.JK', '');
+            if (!result.find(r => r.ticker === ticker)) {
+                const quote = getQuote(sym, { symbol: sym, price: 0, changePercent: 0 });
+                const name = quote.name || sym;
+                const changeStr = (quote.changePercent > 0 ? '+' : '') + Number(quote.changePercent).toFixed(2) + '%';
+                result.push({
+                    ticker: ticker,
+                    title: `${name} diperdagangkan di Rp ${formatPrice(quote.price)} (${changeStr})`,
+                    time: 'Hari ini',
+                    slug: null
+                });
+            }
+        });
+    }
+    
+    return result;
 });
 
 const trendingTickers = computed(() => {
     const list = props.marketConfig.trending || [];
-    if (list.length === 0) {
-        return ['BBRI', 'TLKM', 'ASII', 'MDKA', 'AMMN', 'GOTO', 'ANTM', 'UNVR', 'ICBP', 'SIDO'];
-    }
     return list.map(sym => sym.replace('.JK', ''));
 });
 
@@ -575,9 +610,9 @@ const economicCalendar = [
                  <h3 class="text-white font-bold text-[17px]">Berita Terbaru</h3>
                  <div class="flex items-center gap-2 text-xs text-slate-400">
                    <span>Sort by:</span>
-                   <select class="bg-transparent border-none text-white focus:outline-none cursor-pointer font-medium p-0">
-                      <option>Terbaru</option>
-                      <option>Terpopuler</option>
+                   <select v-model="sortOrder" class="bg-transparent border-none text-white focus:outline-none cursor-pointer font-medium p-0">
+                      <option value="Terbaru">Terbaru</option>
+                      <option value="Terpopuler">Terpopuler</option>
                    </select>
                  </div>
               </div>
@@ -616,7 +651,7 @@ const economicCalendar = [
                 </div>
               </div>
 
-              <button v-if="recentNews.length > 0" class="w-full mt-6 py-3 bg-[#111413] border border-white/5 text-slate-300 text-[13px] font-semibold rounded-lg hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 group">
+              <button v-if="hasMoreRecentNews" @click="loadMore" class="w-full mt-6 py-3 bg-[#111413] border border-white/5 text-slate-300 text-[13px] font-semibold rounded-lg hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 group">
                  Muat lebih banyak
                  <svg class="group-hover:translate-y-0.5 transition-transform" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
@@ -634,7 +669,7 @@ const economicCalendar = [
                    News Sentiment
                    <svg class="text-slate-500" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                  </h3>
-                 <span class="text-[11px] text-emerald-400 cursor-pointer font-medium hover:text-emerald-300">Lihat Semua</span>
+                 <Link href="/market" class="text-[11px] text-emerald-400 cursor-pointer font-medium hover:text-emerald-300">Lihat Semua</Link>
                </div>
                
                <div class="text-[11px] text-slate-400 mb-3 flex justify-between border-b border-white/5 pb-2">
@@ -666,7 +701,7 @@ const economicCalendar = [
                  <span class="text-[10px] text-slate-500">24 jam terakhir</span>
                </div>
                <div class="flex flex-col gap-4">
-                 <Link v-for="(item, idx) in mostRead" :key="item.id" href="#" class="group flex gap-3 items-start">
+                 <Link v-for="(item, idx) in mostRead" :key="item.id || idx" :href="item.slug ? `/news/${item.slug}` : '#'" class="group flex gap-3 items-start">
                    <span class="text-emerald-400 font-bold text-[13px] mt-0.5 w-3 text-right">{{ idx + 1 }}</span>
                    <p class="text-slate-300 text-[13px] leading-relaxed group-hover:text-emerald-400 transition-colors flex-1">{{ item.title }}</p>
                  </Link>
@@ -677,10 +712,10 @@ const economicCalendar = [
              <div class="bg-[#111413] border border-white/5 rounded-[14px] p-5">
                <div class="flex justify-between items-center mb-5">
                  <h3 class="text-white font-bold text-[15px]">Watchlist News</h3>
-                 <span class="text-[11px] text-emerald-400 cursor-pointer font-medium hover:text-emerald-300">Lihat Semua</span>
+                 <Link href="/market" class="text-[11px] text-emerald-400 cursor-pointer font-medium hover:text-emerald-300">Lihat Semua</Link>
                </div>
                <div class="flex flex-col gap-4">
-                 <Link v-for="item in watchlistNews" :key="item.ticker" href="#" class="group flex items-start gap-3">
+                 <Link v-for="item in watchlistNews" :key="item.ticker" :href="item.slug ? `/news/${item.slug}` : '#'" class="group flex items-start gap-3">
                    <span class="text-emerald-400 font-bold text-[11px] w-9 flex-shrink-0 mt-1">{{ item.ticker }}</span>
                    <p class="text-slate-300 text-[13px] leading-relaxed group-hover:text-emerald-400 transition-colors line-clamp-2 flex-1">{{ item.title }}</p>
                    <span class="text-[10px] text-slate-500 flex-shrink-0 mt-1 w-8 text-right">{{ item.time }}</span>
@@ -695,7 +730,7 @@ const economicCalendar = [
                  <span class="text-[10px] text-slate-500">24 jam terakhir</span>
                </div>
                <div class="flex flex-wrap gap-2">
-                 <Link v-for="ticker in trendingTickers" :key="ticker" href="#" class="px-3.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-bold rounded-lg hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all">
+                 <Link v-for="ticker in trendingTickers" :key="ticker" :href="`/market?search=${ticker}`" class="px-3.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-bold rounded-lg hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all">
                    {{ ticker }}
                  </Link>
                </div>
