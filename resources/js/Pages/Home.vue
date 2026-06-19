@@ -28,7 +28,8 @@ const defaultRiset = [
     targetPrice: 'Rp 11,600',
     upside: '+18.7%',
     rating: 'BUY',
-    date: '14 Mei 2025'
+    date: '14 Mei 2025',
+    slug: 'bbca'
   },
   {
     ticker: 'TLKM IJ',
@@ -37,7 +38,8 @@ const defaultRiset = [
     targetPrice: 'Rp 4,250',
     upside: '+16.2%',
     rating: 'BUY',
-    date: '12 Mei 2025'
+    date: '12 Mei 2025',
+    slug: 'tlkm'
   },
   {
     ticker: 'ASII IJ',
@@ -46,7 +48,8 @@ const defaultRiset = [
     targetPrice: 'Rp 5,850',
     upside: '+8.3%',
     rating: 'HOLD',
-    date: '9 Mei 2025'
+    date: '9 Mei 2025',
+    slug: 'asii'
   }
 ];
 
@@ -305,7 +308,7 @@ const headlinesPasar = computed(() => {
             <!-- Column 1: Riset Unggulan -->
             <div class="dashboard-col text-left lg:col-span-3">
               <div class="col-header flex justify-between items-center mb-6">
-                <h2 class="col-title text-xl font-extrabold font-heading text-white">Riset Unggulan</h2>
+                <h2 class="col-title text-xl font-extrabold font-heading text-white">Research Desk</h2>
                 <Link href="/katalog" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
                   Lihat Semua
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -340,7 +343,7 @@ const headlinesPasar = computed(() => {
                   
                   <div class="flex justify-between items-center mt-3 pt-2">
                     <span class="text-[11px] text-slate-500 font-mono">{{ riset.date }}</span>
-                    <Link href="/katalog" class="text-[11px] font-bold text-emerald-400 hover:underline flex items-center gap-1">
+                    <Link :href="`/katalog/${riset.slug}`" class="text-[11px] font-bold text-emerald-400 hover:underline flex items-center gap-1">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-block"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                       Premium Report
                     </Link>

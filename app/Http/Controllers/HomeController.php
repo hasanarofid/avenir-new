@@ -15,30 +15,31 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // 1. Fetch Tickers as Riset Unggulan
-        $dbTickers = \App\Models\Ticker::latest()->take(3)->get();
+        // 1. Fetch Research as Research Desk
+        $dbResearches = \App\Models\Research::with('emiten')
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+            
         $risetUnggulan = [];
-        foreach ($dbTickers as $t) {
-            $upsideVal = 0;
-            if ($t->current_price > 0 && $t->target_price > 0) {
-                $upsideVal = (($t->target_price - $t->current_price) / $t->current_price) * 100;
+        foreach ($dbResearches as $r) {
+            $rating = strtoupper($r->recommendation);
+            if (empty($rating)) {
+                $rating = 'BUY';
             }
             
-            $rating = 'BUY';
-            if ($t->recommendation === 'neutral') {
-                $rating = 'HOLD';
-            } elseif ($t->recommendation === 'bearish') {
-                $rating = 'SELL';
-            }
+            $upsideVal = floatval($r->upside);
 
             $risetUnggulan[] = [
-                'ticker' => $t->symbol . ' IJ',
-                'name' => $t->company_name,
-                'sector' => $t->sector ?? 'Financials',
-                'targetPrice' => 'Rp ' . number_format($t->target_price, 0, ',', '.'),
+                'ticker' => $r->ticker ?? 'N/A',
+                'name' => $r->emiten ? $r->emiten->company_name : $r->title,
+                'sector' => $r->sector ?? 'Financials',
+                'targetPrice' => 'Rp ' . number_format((float)$r->target_price, 0, ',', '.'),
                 'upside' => ($upsideVal >= 0 ? '+' : '') . number_format($upsideVal, 1) . '%',
                 'rating' => $rating,
-                'date' => $t->updated_at ? $t->updated_at->format('d M Y') : now()->format('d M Y')
+                'date' => $r->date ? \Carbon\Carbon::parse($r->date)->format('d M Y') : ($r->created_at ? $r->created_at->format('d M Y') : now()->format('d M Y')),
+                'slug' => $r->slug
             ];
         }
 
@@ -292,7 +293,7 @@ class HomeController extends Controller
      */
     public function artikel()
     {
-        $selectColumns = ['id', 'title', 'slug', 'category', 'badge', 'excerpt', 'cover_image', 'author_id', 'published_at', 'created_at', 'status'];
+        $selectColumns = ['id', 'title', 'slug', 'category', 'badge', 'excerpt', 'cover_image', 'user_id', 'published_at', 'created_at', 'status'];
 
         $articles = Article::with('author')->select($selectColumns)->where('status', 'published')
             ->orderBy('updated_at', 'desc')
