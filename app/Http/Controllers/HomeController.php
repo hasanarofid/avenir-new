@@ -312,6 +312,7 @@ class HomeController extends Controller
         $article = Article::with('author')->where('slug', $slug)
             ->where('status', 'published')
             ->first();
+            // dd($article->author());
 
         // Fallback: jika slug tidak ketemu, coba cari by ID (untuk URL lama)
         if (!$article && is_numeric($slug)) {
@@ -381,7 +382,7 @@ class HomeController extends Controller
                 'badge'        => $article->badge,
                 'excerpt'      => $article->excerpt,
                 'cover_image'  => $article->cover_image,
-                'author'       => $article->author,
+                'author' => $article->getRelation('author'),
                 'published_at' => $article->published_at 
                     ? $article->published_at->format('d M Y') 
                     : null,
