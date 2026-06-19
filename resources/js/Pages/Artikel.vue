@@ -107,8 +107,8 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                   
                   <div class="author-meta">
                     <div class="author-avatar rounded-full overflow-hidden flex items-center justify-center bg-slate-800">
-                      <img v-if="featuredArticle.author?.profile_photo_url" :src="featuredArticle.author.profile_photo_url" alt="Author" class="w-full h-full object-cover" />
-                      <img v-else :src="'https://ui-avatars.com/api/?name=' + encodeURIComponent(featuredArticle.author?.name || 'Tim Avenir') + '&background=10B981&color=fff'" alt="Author" />
+                      <img v-if="featuredArticle.author?.profile_photo_url" :src="featuredArticle.author.profile_photo_url" loading="lazy" alt="Author" class="w-full h-full object-cover" />
+                      <img v-else :src="'https://ui-avatars.com/api/?name=' + encodeURIComponent(featuredArticle.author?.name || 'Tim Avenir') + '&background=10B981&color=fff'" loading="lazy" alt="Author" />
                     </div>
                     <div class="author-info">
                       <div class="author-name">{{ featuredArticle.author?.name || 'Tim Avenir' }}</div>
@@ -150,7 +150,7 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                 class="recent-card"
               >
                 <div class="recent-image">
-                  <img v-if="article.cover_image" :src="article.cover_image" :alt="article.title" />
+                  <img v-if="article.cover_image" :src="article.cover_image" loading="lazy" :alt="article.title" />
                   <div v-else class="placeholder-img"></div>
                   <div class="badge-cat" v-if="article.category">{{ article.category.toUpperCase() }}</div>
                 </div>
@@ -160,8 +160,8 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                   
                   <div class="author-meta-small">
                     <div class="w-[28px] h-[28px] rounded-full overflow-hidden flex items-center justify-center bg-slate-800 shrink-0">
-                      <img v-if="article.author?.profile_photo_url" :src="article.author.profile_photo_url" alt="Author" class="w-full h-full object-cover" />
-                      <img v-else :src="'https://ui-avatars.com/api/?name=' + encodeURIComponent(article.author?.name || 'Tim Avenir') + '&background=10B981&color=fff'" alt="Author" class="w-full h-full" />
+                      <img v-if="article.author?.profile_photo_url" :src="article.author.profile_photo_url" loading="lazy" alt="Author" class="w-full h-full object-cover" />
+                      <img v-else :src="'https://ui-avatars.com/api/?name=' + encodeURIComponent(article.author?.name || 'Tim Avenir') + '&background=10B981&color=fff'" loading="lazy" alt="Author" class="w-full h-full" />
                     </div>
                     <div>
                       <div class="author-name">{{ article.author?.name || 'Tim Avenir' }}</div>
@@ -209,7 +209,7 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                   class="editor-pick-card"
                 >
                   <div class="editor-pick-image">
-                    <img v-if="article.cover_image" :src="article.cover_image" :alt="article.title" />
+                    <img v-if="article.cover_image" :src="article.cover_image" loading="lazy" :alt="article.title" />
                     <div v-else class="placeholder-img"></div>
                   </div>
                   <div class="editor-pick-content">
@@ -247,7 +247,7 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                 >
                   <div class="trending-num">{{ index + 1 }}</div>
                   <div class="trending-image">
-                     <img v-if="article.cover_image" :src="article.cover_image" :alt="article.title" />
+                     <img v-if="article.cover_image" :src="article.cover_image" loading="lazy" :alt="article.title" />
                      <div v-else class="placeholder-img"></div>
                   </div>
                   <div class="trending-content">

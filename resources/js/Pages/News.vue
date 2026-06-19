@@ -565,7 +565,7 @@ const economicCalendar = [
               <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <Link v-for="news in featuredNews" :key="news.id" :href="'/news/' + news.slug" class="group flex flex-col bg-[#111413] border border-white/5 rounded-[14px] overflow-hidden hover:border-emerald-500/30 transition-all duration-300 shadow-sm hover:shadow-[0_8px_25px_rgba(0,0,0,0.5)]">
                    <div class="aspect-[16/10] relative overflow-hidden bg-slate-800">
-                     <img v-if="news.cover_image" :src="news.cover_image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                     <img v-if="news.cover_image" :src="news.cover_image" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                      <div class="absolute inset-0 bg-gradient-to-t from-[#111413] via-[#111413]/20 to-transparent opacity-80"></div>
                      <div class="absolute bottom-3 left-3 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm tracking-wider">FEATURED</div>
                    </div>
@@ -576,7 +576,7 @@ const economicCalendar = [
                      <div class="flex items-center gap-2 text-[11px] text-slate-500 mb-4">
                         <div v-if="news.author" class="flex items-center gap-1.5">
                             <div class="w-4 h-4 rounded-full overflow-hidden bg-slate-800 border border-white/10 shrink-0 flex items-center justify-center">
-                                <img v-if="news.author.profile_photo_url" :src="news.author.profile_photo_url" alt="Author" class="w-full h-full object-cover">
+                                <img v-if="news.author.profile_photo_url" :src="news.author.profile_photo_url" loading="lazy" alt="Author" class="w-full h-full object-cover">
                                 <span v-else class="text-[8px]">🧑‍💼</span>
                             </div>
                             <span class="text-slate-300 font-medium">{{ news.author.name }}</span>

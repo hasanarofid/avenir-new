@@ -43,7 +43,8 @@ class HomeController extends Controller
         }
 
         // 2. Fetch Latest Articles as Insight Terbaru
-        $dbArticles = \App\Models\Article::where('category', '!=', 'news')
+        $dbArticles = \App\Models\Article::select(['id', 'title', 'cover_image', 'published_at', 'created_at'])
+            ->where('category', '!=', 'news')
             ->where('status', 'published')
             ->latest()
             ->take(3)
@@ -64,14 +65,16 @@ class HomeController extends Controller
         }
 
         // 3. Fetch Latest Headlines
-        $dbNews = \App\Models\News::where('status', 'published')
+        $dbNews = \App\Models\News::select(['id', 'title', 'published_at', 'created_at'])
+            ->where('status', 'published')
             ->latest()
             ->take(5)
             ->get();
         
         // If news is empty, fallback to recent posts of any category
         if ($dbNews->isEmpty()) {
-            $dbNews = \App\Models\Article::where('status', 'published')
+            $dbNews = \App\Models\Article::select(['id', 'title', 'published_at', 'created_at'])
+                ->where('status', 'published')
                 ->latest()
                 ->take(5)
                 ->get();
@@ -289,12 +292,14 @@ class HomeController extends Controller
      */
     public function artikel()
     {
-        $articles = Article::with('author')->where('status', 'published')
+        $selectColumns = ['id', 'title', 'slug', 'category', 'badge', 'excerpt', 'cover_image', 'author_id', 'published_at', 'created_at', 'status'];
+
+        $articles = Article::with('author')->select($selectColumns)->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
             
-        $editorPicks = Article::with('author')->where('status', 'published')
+        $editorPicks = Article::with('author')->select($selectColumns)->where('status', 'published')
             ->whereNotNull('badge')
             ->orderBy('updated_at', 'desc')
             ->take(3)
@@ -303,7 +308,7 @@ class HomeController extends Controller
         // Fallback for Editor Picks if there are fewer than 3
         if ($editorPicks->count() < 3) {
             $excludeIds = $editorPicks->pluck('id')->toArray();
-            $fallback = Article::with('author')->where('status', 'published')
+            $fallback = Article::with('author')->select($selectColumns)->where('status', 'published')
                 ->when(count($excludeIds) > 0, function($q) use ($excludeIds) {
                     return $q->whereNotIn('id', $excludeIds);
                 })
@@ -314,7 +319,7 @@ class HomeController extends Controller
         }
 
         // Trending articles
-        $trendingArticles = Article::with('author')->where('status', 'published')
+        $trendingArticles = Article::with('author')->select($selectColumns)->where('status', 'published')
             ->inRandomOrder()
             ->take(5)
             ->get();
@@ -510,7 +515,9 @@ class HomeController extends Controller
      */
     public function news()
     {
-        $newsList = News::with('author')->where('status', 'published')
+        $newsList = News::with('author')
+            ->select(['id', 'title', 'slug', 'category', 'sentiment', 'source', 'excerpt', 'published_at', 'created_at', 'cover_image', 'author_id', 'status'])
+            ->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get()

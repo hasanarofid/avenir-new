@@ -195,84 +195,7 @@ const headlinesPasar = computed(() => {
         </div>
       </section>
 
-      <!-- STATS ROW BANNER -->
-      <section class="stats-row-section">
-        <div class="section-container">
-          <div class="stats-banner-card">
-            <div class="stats-grid-row">
-              <!-- Stat 1 -->
-              <div class="stat-row-item">
-                <div class="stat-icon-box">
-                  <!-- Chart Icon -->
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="20" x2="18" y2="10"></line>
-                    <line x1="12" y1="20" x2="12" y2="4"></line>
-                    <line x1="6" y1="20" x2="6" y2="14"></line>
-                  </svg>
-                </div>
-                <div class="stat-text-box">
-                  <div class="stat-num-val">13</div>
-                  <div class="stat-num-lbl">Riset di Katalog</div>
-                </div>
-              </div>
-              
-              <!-- Stat 2 -->
-              <div class="stat-row-item">
-                <div class="stat-icon-box">
-                  <!-- Shield Check Icon -->
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    <path d="M9 11l2 2 4-4"></path>
-                  </svg>
-                </div>
-                <div class="stat-text-box">
-                  <div class="stat-num-val">4</div>
-                  <div class="stat-num-lbl">Tahun Data Audited</div>
-                </div>
-              </div>
-              
-              <!-- Stat 3 -->
-              <div class="stat-row-item">
-                <div class="stat-icon-box">
-                  <!-- Calculator Icon -->
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
-                    <line x1="9" y1="22" x2="9" y2="16"></line>
-                    <line x1="8" y1="6" x2="16" y2="6"></line>
-                    <line x1="16" y1="22" x2="16" y2="16"></line>
-                    <line x1="12" y1="22" x2="12" y2="16"></line>
-                    <circle cx="9" cy="11" r="1"></circle>
-                    <circle cx="15" cy="11" r="1"></circle>
-                    <circle cx="9" cy="15" r="1"></circle>
-                    <circle cx="15" cy="15" r="1"></circle>
-                    <circle cx="12" cy="11" r="1"></circle>
-                    <circle cx="12" cy="15" r="1"></circle>
-                  </svg>
-                </div>
-                <div class="stat-text-box">
-                  <div class="stat-num-val">DCF/FCFE</div>
-                  <div class="stat-num-lbl">Model Valuasi</div>
-                </div>
-              </div>
-              
-              <!-- Stat 4 -->
-              <div class="stat-row-item">
-                <div class="stat-icon-box">
-                  <!-- Award Icon -->
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="8" r="7"></circle>
-                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                  </svg>
-                </div>
-                <div class="stat-text-box">
-                  <div class="stat-num-val">100%</div>
-                  <div class="stat-num-lbl">Annual Report</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+   
 
       <!-- FEATURE GRID (6 CARDS) -->
       <section class="features-grid-section">
@@ -443,7 +366,7 @@ const headlinesPasar = computed(() => {
                 <div v-for="(insight, idx) in insightTerbaru" :key="idx" class="dashboard-card-glass flex gap-3.5 p-3 rounded-xl border border-slate-900 bg-slate-950/20 hover:border-emerald-500/30 transition-all duration-300">
                   <!-- Custom Thumbnail -->
                   <div class="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0 border border-slate-850 bg-slate-900">
-                    <img v-if="insight.image" :src="insight.image" class="w-full h-full object-cover" :alt="insight.title" />
+                    <img v-if="insight.image" :src="insight.image" loading="lazy" class="w-full h-full object-cover" :alt="insight.title" />
                     <div v-else class="w-full h-full bg-gradient-to-br flex items-center justify-center" :class="insight.gradient || 'from-blue-950/60 to-emerald-950/60'">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-white/30">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
