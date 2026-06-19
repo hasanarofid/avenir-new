@@ -2,7 +2,7 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { authStore } from '@/Stores/authStore';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
   risetUnggulan: {
@@ -84,13 +84,49 @@ const defaultHeadlines = [
 
 const risetUnggulan = computed(() => {
   if (!props.risetUnggulan || props.risetUnggulan.length === 0) {
-    return defaultRiset;
+    const merged = [];
+    while (merged.length < 9) {
+      merged.push(defaultRiset[merged.length % defaultRiset.length]);
+    }
+    return merged;
   }
-  const merged = [...props.risetUnggulan];
-  while (merged.length < 3) {
-    merged.push(defaultRiset[merged.length % defaultRiset.length]);
+  return props.risetUnggulan;
+});
+
+const currentRisetSlide = ref(0);
+let risetSlideInterval = null;
+
+const totalRisetSlides = computed(() => {
+  return Math.ceil(risetUnggulan.value.length / 3);
+});
+
+const visibleRiset = computed(() => {
+  const start = currentRisetSlide.value * 3;
+  return risetUnggulan.value.slice(start, start + 3);
+});
+
+const goToRisetSlide = (idx) => {
+  currentRisetSlide.value = idx;
+  resetRisetSlideInterval();
+};
+
+const nextRisetSlide = () => {
+  if (totalRisetSlides.value > 0) {
+    currentRisetSlide.value = (currentRisetSlide.value + 1) % totalRisetSlides.value;
   }
-  return merged.slice(0, 3);
+};
+
+const resetRisetSlideInterval = () => {
+  if (risetSlideInterval) clearInterval(risetSlideInterval);
+  risetSlideInterval = setInterval(nextRisetSlide, 5000);
+};
+
+onMounted(() => {
+  resetRisetSlideInterval();
+});
+
+onUnmounted(() => {
+  if (risetSlideInterval) clearInterval(risetSlideInterval);
 });
 
 const insightTerbaru = computed(() => {
@@ -316,7 +352,7 @@ const headlinesPasar = computed(() => {
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div v-for="(riset, idx) in risetUnggulan" :key="idx" class="dashboard-card-glass flex flex-col justify-between p-4 rounded-xl border border-slate-900 bg-slate-950/20 hover:border-emerald-500/30 transition-all duration-300">
+                <Link v-for="(riset, idx) in visibleRiset" :key="currentRisetSlide + '-' + idx" :href="`/katalog/${riset.slug}`" class="dashboard-card-glass flex flex-col justify-between p-4 rounded-xl border border-slate-900 bg-slate-950/20 hover:border-emerald-500/30 transition-all duration-300 group block">
                   <div class="flex justify-between items-start mb-1.5">
                     <div>
                       <div class="flex items-center gap-2">
@@ -343,19 +379,24 @@ const headlinesPasar = computed(() => {
                   
                   <div class="flex justify-between items-center mt-3 pt-2">
                     <span class="text-[11px] text-slate-500 font-mono">{{ riset.date }}</span>
-                    <Link :href="`/katalog/${riset.slug}`" class="text-[11px] font-bold text-emerald-400 hover:underline flex items-center gap-1">
+                    <span class="text-[11px] font-bold text-emerald-400 group-hover:underline flex items-center gap-1">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-block"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                       Premium Report
-                    </Link>
+                    </span>
                   </div>
-                </div>
+                </Link>
               </div>
               
               <!-- Slider Indicator Dots -->
-              <div class="flex justify-center gap-1.5 mt-6">
-                <span class="w-5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span class="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
-                <span class="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
+              <div v-if="totalRisetSlides > 1" class="flex justify-center gap-1.5 mt-6">
+                <button 
+                  v-for="slideIdx in totalRisetSlides" 
+                  :key="slideIdx"
+                  @click="goToRisetSlide(slideIdx - 1)"
+                  :class="currentRisetSlide === (slideIdx - 1) ? 'w-5 bg-emerald-500' : 'w-1.5 bg-slate-800'"
+                  class="h-1.5 rounded-full transition-all duration-300 focus:outline-none"
+                  aria-label="Go to slide"
+                ></button>
               </div>
             </div>
             

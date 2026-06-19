@@ -19,7 +19,7 @@ class HomeController extends Controller
         $dbResearches = \App\Models\Research::with('emiten')
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
-            ->take(3)
+            ->take(9)
             ->get();
             
         $risetUnggulan = [];
