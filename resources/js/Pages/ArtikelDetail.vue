@@ -117,7 +117,7 @@ const hasCustomHtml = computed(() => {
   transform: translateX(-4px);
 }
 .article-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 40px 24px 100px;
   position: relative;
@@ -160,8 +160,6 @@ const hasCustomHtml = computed(() => {
 .guest-lock-wrap {
   position: relative;
   min-height: 600px;
-  max-width: 1000px;
-  margin: 0 auto;
   z-index: 2;
 }
 
@@ -302,9 +300,7 @@ const hasCustomHtml = computed(() => {
 
 /* ── Dynamic Content Styles Overrides ── */
 .article-detail-page .art-page {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 24px 80px;
+  padding: 0 0 80px;
   font-family: 'Roboto', sans-serif !important;
 }
 
@@ -579,9 +575,7 @@ const hasCustomHtml = computed(() => {
 
 /* ── Dynamic Header for DB-seeded articles ── */
 .db-article-header {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 24px 0;
+  margin-bottom: 40px;
   font-family: 'Roboto', sans-serif;
   position: relative;
   z-index: 5;
@@ -639,20 +633,27 @@ const hasCustomHtml = computed(() => {
 
 .db-article-hero {
   width: 100% !important;
-  aspect-ratio: 16/7 !important;
+  height: auto !important;
+  max-height: 500px !important;
   object-fit: cover !important;
-  border-radius: 12px !important;
-  margin-bottom: 36px !important;
+  border-radius: 16px !important;
+  margin-bottom: 40px !important;
   background: #090b0a !important;
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Fallback styles for database-seeded articles that don't have .art-page wrapper */
 .article-detail-page .guest-lock-content.db-content {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 24px 80px;
+  padding: 0 0 80px;
+}
+
+/* Force inner wrappers from CMS to span full width to match image width */
+.article-detail-page .guest-lock-content div,
+.article-detail-page .guest-lock-content p,
+.article-detail-page .art-page div,
+.article-detail-page .art-page p {
+  max-width: 100% !important;
 }
 
 .article-detail-page .guest-lock-content.db-content p {
