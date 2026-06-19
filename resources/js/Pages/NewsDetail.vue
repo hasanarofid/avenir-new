@@ -202,6 +202,14 @@ const props = defineProps({
   color: #cbd5e1;
 }
 
+/* Force inner wrappers from CMS to span full width to match image width */
+:deep(.news-content div),
+:deep(.news-content p),
+:deep(.art-body div),
+:deep(.art-body p) {
+  max-width: 100% !important;
+}
+
 :deep(.art-body p) {
   margin-bottom: 24px;
 }
