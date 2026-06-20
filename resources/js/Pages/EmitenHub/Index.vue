@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { 
@@ -20,7 +20,9 @@ const debounce = (fn, delay) => {
 const props = defineProps({
     tickers: Object,
     sectors: Array,
-    filters: Object
+    filters: Object,
+    rapidApiKey: String,
+    rapidApiHost: String
 });
 
 const filterForm = ref({
@@ -110,6 +112,64 @@ const featuredCards = [
     { ticker: 'TLKM', name: 'Telkom Indonesia (Persero) Tbk', price: '2,620', d1: '-0.38%', per: '12.34x', roe: '16.7%', yield: '4.27%', rec: 'HOLD', recColor: 'text-yellow-500' },
 ];
 
+const marketTickers = ref([
+    { symbol: 'IHSG', yahooSymbol: '^JKSE', price: 'Loading...', change: '...', isUp: true, category: 'index' },
+    { symbol: 'LQ45', yahooSymbol: '^JKLQ45', price: 'Loading...', change: '...', isUp: true, category: 'index' },
+    { symbol: 'BBCA', yahooSymbol: 'BBCA.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'BBRI', yahooSymbol: 'BBRI.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'UNTR', yahooSymbol: 'UNTR.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'TPIA', yahooSymbol: 'TPIA.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'INDF', yahooSymbol: 'INDF.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'UNVR', yahooSymbol: 'UNVR.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'BTC - USD', yahooSymbol: 'BTC-USD', price: 'Loading...', change: '...', isUp: true, category: 'crypto' },
+    { symbol: 'ETH - USD', yahooSymbol: 'ETH-USD', price: 'Loading...', change: '...', isUp: true, category: 'crypto' },
+    { symbol: 'USD - IDR', yahooSymbol: 'IDR=X', price: 'Loading...', change: '...', isUp: true, category: 'forex' },
+    { symbol: 'EUR - IDR', yahooSymbol: 'EURIDR=X', price: 'Loading...', change: '...', isUp: true, category: 'forex' },
+]);
+
+onMounted(async () => {
+    if (props.rapidApiKey && props.rapidApiHost) {
+        const symbols = marketTickers.value.map(t => t.yahooSymbol).join(',');
+        try {
+            const response = await fetch(`https://${props.rapidApiHost}/api/market/get-quote?region=US&symbols=${symbols}`, {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-host': props.rapidApiHost,
+                    'x-rapidapi-key': props.rapidApiKey
+                }
+            });
+            const data = await response.json();
+            
+            if (data && data.quoteResponse && data.quoteResponse.result) {
+                const results = data.quoteResponse.result;
+                marketTickers.value.forEach((ticker, index) => {
+                    const quote = results.find(r => r.symbol === ticker.yahooSymbol);
+                    if (quote) {
+                        marketTickers.value[index].price = quote.regularMarketPrice ? quote.regularMarketPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A';
+                        marketTickers.value[index].change = quote.regularMarketChangePercent ? `${quote.regularMarketChangePercent > 0 ? '+' : ''}${quote.regularMarketChangePercent.toFixed(2)}%` : '0.00%';
+                        marketTickers.value[index].isUp = quote.regularMarketChangePercent >= 0;
+                    } else {
+                        marketTickers.value[index].price = 'N/A';
+                        marketTickers.value[index].change = 'Not Found';
+                    }
+                });
+            } else if (data.message) {
+                console.error('RapidAPI Error:', data.message);
+                marketTickers.value.forEach((t, i) => {
+                    marketTickers.value[i].price = 'API Limit?';
+                    marketTickers.value[i].change = '0.00%';
+                });
+            }
+        } catch (e) {
+            console.error('Error fetching data from RapidAPI:', e);
+            marketTickers.value.forEach((t, i) => {
+                marketTickers.value[i].price = 'Error';
+                marketTickers.value[i].change = '0.00%';
+            });
+        }
+    }
+});
+
 const formatNumber = (num) => {
     return Number(num).toLocaleString('id-ID');
 };
@@ -148,6 +208,39 @@ const getDummyChange = (id) => {
         <div class="min-h-screen bg-[#090b0a] pt-24 pb-12 font-sans text-slate-300">
             <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 
+                <!-- Market Ticker Strip (Bloomberg Technoz Style) -->
+                <div class="mb-10 border-b border-white/5 pb-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                        <div class="text-slate-400 text-xs flex items-center gap-2 font-medium">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Last updated: <span class="text-slate-300">{{ new Date().toLocaleString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) }} WIB</span>
+                        </div>
+                        <div class="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            <div class="flex items-center gap-1.5">
+                                Data Powered By <span class="text-white text-sm font-serif italic normal-case font-medium">Yahoo Finance</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="marquee-container py-1">
+                        <div class="marquee-content group hover:animation-paused">
+                            <template v-for="loop in 2" :key="loop">
+                                <div v-for="ticker in marketTickers" :key="ticker.symbol + loop" 
+                                     :class="['shrink-0 rounded-lg p-3 min-w-[130px] flex flex-col transition-all border shadow-sm', 
+                                              ticker.category === 'crypto' ? 'bg-[#0f172a]/40 border-blue-500/20' : 'bg-[#121614] border-white/5']">
+                                    <span class="text-slate-400 text-[11px] font-bold mb-1">{{ ticker.symbol }}</span>
+                                    <span class="text-white text-[15px] font-bold mb-1 tracking-tight">{{ ticker.price }}</span>
+                                    <div :class="[ticker.isUp ? 'text-emerald-500' : 'text-red-500', 'flex items-center gap-1 text-[11px] font-bold']">
+                                        <svg v-if="ticker.isUp" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                                        <svg v-else width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                                        {{ ticker.change }}
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Page Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
@@ -565,3 +658,32 @@ const getDummyChange = (id) => {
     </AppLayout>
 </template>
 
+<style scoped>
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    padding-right: 1rem;
+}
+
+.marquee-container {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    width: 100%;
+}
+.marquee-content {
+    display: flex;
+    gap: 0.75rem; /* 12px */
+    width: max-content;
+    animation: marquee 35s linear infinite;
+}
+.marquee-content:hover {
+    animation-play-state: paused;
+}
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-50% - 0.375rem)); } /* Shift exactly half the width minus half the gap */
+}
+</style>

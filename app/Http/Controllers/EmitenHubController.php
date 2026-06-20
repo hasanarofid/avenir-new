@@ -36,7 +36,9 @@ class EmitenHubController extends Controller
             'sectors' => $sectors,
             'filters' => $request->only([
                 'search', 'sector', 'market_cap', 'per', 'growth', 'yield', 'papan', 'index_board'
-            ])
+            ]),
+            'rapidApiKey' => env('RAPIDAPI_KEY'),
+            'rapidApiHost' => env('RAPIDAPI_HOST')
         ]);
     }
 
