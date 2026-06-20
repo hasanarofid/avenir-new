@@ -98,10 +98,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // News (Berita Pasar)
         Route::delete('news/bulk-delete', [\App\Http\Controllers\Admin\NewsController::class, 'bulkDestroy'])->name('news.bulk-destroy');
+        Route::patch('news/{news}/toggle-featured', [\App\Http\Controllers\Admin\NewsController::class, 'toggleFeatured'])->name('news.toggle-featured');
         Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
 
         // Artikel Edukasi
         Route::delete('articles/bulk-delete', [\App\Http\Controllers\Admin\ArticleController::class, 'bulkDestroy'])->name('articles.bulk-destroy');
+        Route::patch('articles/{article}/toggle-editor-pick', [\App\Http\Controllers\Admin\ArticleController::class, 'toggleEditorPick'])->name('articles.toggle-editor-pick');
         Route::resource('articles', \App\Http\Controllers\Admin\ArticleController::class);
 
         // Posts & Categories

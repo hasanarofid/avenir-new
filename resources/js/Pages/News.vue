@@ -25,7 +25,14 @@ const props = defineProps({
 
 // Computed split for Featured and Recent
 const featuredNews = computed(() => {
-    return props.newsList && props.newsList.length > 0 ? props.newsList.slice(0, 3) : [];
+    if (!props.newsList) return [];
+    let featured = props.newsList.filter(n => n.is_featured);
+    if (featured.length === 0) {
+        featured = props.newsList.slice(0, 3);
+    } else {
+        featured = featured.slice(0, 3);
+    }
+    return featured;
 });
 
 const categories = ['Semua', 'Market', 'Corporate Action', 'Macroekonomi', 'Global', 'Commodity', 'Fixed Income'];
@@ -39,7 +46,8 @@ const loadMore = () => {
 };
 
 const filteredRecentNews = computed(() => {
-    let list = props.newsList && props.newsList.length > 3 ? props.newsList.slice(3) : [];
+    const featuredIds = featuredNews.value.map(f => f.id);
+    let list = props.newsList ? props.newsList.filter(n => !featuredIds.includes(n.id)) : [];
     
     if (searchQuery.value) {
         list = list.filter(n => n.title.toLowerCase().includes(searchQuery.value.toLowerCase()));
@@ -406,28 +414,6 @@ const economicCalendar = [
         <div class="mb-10">
           <h1 class="text-4xl md:text-[42px] font-bold text-white mb-2 leading-tight">Market News</h1>
           <p class="text-slate-400 text-[15px] mb-8">Update pasar harian tepercaya untuk keputusan investasi yang lebih cerdas.</p>
-
-          <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5">
-            <div class="flex flex-wrap gap-2">
-               <button v-for="cat in categories" :key="cat" 
-                 @click="selectedCategory = cat"
-                 :class="['px-5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border', 
-                 selectedCategory === cat ? 'bg-emerald-500 text-white border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-transparent text-slate-400 border-white/10 hover:border-white/20 hover:text-slate-200']">
-                 {{ cat }}
-               </button>
-            </div>
-            
-            <div class="flex gap-3 w-full xl:w-auto">
-               <button class="flex items-center justify-center gap-2 bg-[#111413] border border-white/10 px-4 py-2 rounded-lg text-slate-300 text-xs font-medium hover:bg-white/5 transition-colors">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-                  Filter
-               </button>
-               <div class="relative flex-1 xl:w-72">
-                  <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <input type="text" v-model="searchQuery" placeholder="Cari berita, emiten, topik..." class="w-full bg-[#111413] border border-white/10 rounded-lg pl-10 pr-4 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 h-[36px] transition-all">
-               </div>
-            </div>
-          </div>
         </div>
 
         <!-- Main Layout Split -->
@@ -491,6 +477,28 @@ const economicCalendar = [
 
             <!-- Berita Terbaru -->
             <div>
+              <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 mb-8">
+                <div class="flex flex-wrap gap-2">
+                   <button v-for="cat in categories" :key="cat" 
+                     @click="selectedCategory = cat"
+                     :class="['px-5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border', 
+                     selectedCategory === cat ? 'bg-emerald-500 text-white border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-transparent text-slate-400 border-white/10 hover:border-white/20 hover:text-slate-200']">
+                     {{ cat }}
+                   </button>
+                </div>
+                
+                <div class="flex gap-3 w-full xl:w-auto">
+                   <button class="flex items-center justify-center gap-2 bg-[#111413] border border-white/10 px-4 py-2 rounded-lg text-slate-300 text-xs font-medium hover:bg-white/5 transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                      Filter
+                   </button>
+                   <div class="relative flex-1 xl:w-72">
+                      <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      <input type="text" v-model="searchQuery" placeholder="Cari berita, emiten, topik..." class="w-full bg-[#111413] border border-white/10 rounded-lg pl-10 pr-4 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 h-[36px] transition-all">
+                   </div>
+                </div>
+              </div>
+              
               <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-2">
                  <h3 class="text-white font-bold text-[17px]">Berita Terbaru</h3>
                  <div class="flex items-center gap-2 text-xs text-slate-400">

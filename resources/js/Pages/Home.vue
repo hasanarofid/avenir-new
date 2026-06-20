@@ -58,28 +58,31 @@ const defaultInsight = [
     title: 'Outlook IHSG: Menguji Resistance 7,400, Apa Sinyalnya?',
     date: '15 Mei 2025',
     gradient: 'from-blue-950/60 to-emerald-950/60',
-    image: '/images/articles/outlook_ihsg.png'
+    image: '/images/articles/outlook_ihsg.png',
+    slug: 'outlook-ihsg'
   },
   {
     title: 'BI Tahan Suku Bunga, Stabilitas Rupiah Jadi Kunci',
     date: '14 Mei 2025',
     gradient: 'from-cyan-950/60 to-blue-950/60',
-    image: '/images/articles/rupiah_chart.png'
+    image: '/images/articles/rupiah_chart.png',
+    slug: 'bi-tahan-suku-bunga'
   },
   {
     title: 'Banking Sector: Kredit Tumbuh, NIM Masih Terjaga',
     date: '13 Mei 2025',
     gradient: 'from-teal-950/60 to-emerald-950/60',
-    image: '/images/articles/banking_sector.png'
+    image: '/images/articles/banking_sector.png',
+    slug: 'banking-sector-kredit'
   }
 ];
 
 const defaultHeadlines = [
-  { ticker: 'BBRI', text: 'BBRI Catat Laba Q1 2025 Naik 12% YoY', time: '09:12' },
-  { ticker: 'BMRI', text: 'BMRI Salurkan Kredit Rp 620 T di Q1 2025', time: '08:48' },
-  { ticker: 'TLKM', text: 'TLKM Siapkan Spin-off Bisnis Data Center', time: '08:31' },
-  { ticker: 'MDKA', text: 'MDKA Akuisisi Tambang Emas Baru', time: '08:05' },
-  { ticker: 'IHSG', text: 'IHSG Menguat 1.35% ke Level 7,275', time: '07:45' }
+  { ticker: 'BBRI', text: 'BBRI Catat Laba Q1 2025 Naik 12% YoY', time: '09:12', slug: 'bbri-catat-laba' },
+  { ticker: 'BMRI', text: 'BMRI Salurkan Kredit Rp 620 T di Q1 2025', time: '08:48', slug: 'bmri-salurkan-kredit' },
+  { ticker: 'TLKM', text: 'TLKM Siapkan Spin-off Bisnis Data Center', time: '08:31', slug: 'tlkm-spinoff' },
+  { ticker: 'MDKA', text: 'MDKA Akuisisi Tambang Emas Baru', time: '08:05', slug: 'mdka-akuisisi' },
+  { ticker: 'IHSG', text: 'IHSG Menguat 1.35% ke Level 7,275', time: '07:45', slug: 'ihsg-menguat' }
 ];
 
 const risetUnggulan = computed(() => {
@@ -420,7 +423,7 @@ const headlinesPasar = computed(() => {
                   </div>
                   <div class="flex flex-col justify-between py-0.5">
                     <h3 class="text-xs font-bold text-slate-200 hover:text-emerald-400 transition-colors leading-snug cursor-pointer line-clamp-2">
-                      <Link href="/artikel">{{ insight.title }}</Link>
+                      <Link :href="insight.slug ? `/artikel/${insight.slug}` : '/artikel'">{{ insight.title }}</Link>
                     </h3>
                     <span class="text-[11px] text-slate-500 font-mono">{{ insight.date }}</span>
                   </div>
@@ -441,7 +444,7 @@ const headlinesPasar = computed(() => {
                       {{ headline.ticker }}
                     </span>
                     <span class="text-xs font-semibold text-slate-300 line-clamp-1 hover:text-emerald-400 cursor-pointer">
-                      <Link href="/news">{{ headline.text }}</Link>
+                      <Link :href="headline.slug ? `/news/${headline.slug}` : '/news'">{{ headline.text }}</Link>
                     </span>
                   </div>
                   <span class="text-[11px] font-mono text-slate-500 pl-2">{{ headline.time }}</span>

@@ -30,9 +30,9 @@ const filteredArticles = computed(() => {
     
     // Sort logic
     if (sortOrder.value === 'Terbaru') {
-        result = result.sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
+        result = result.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
     } else {
-        result = result.sort((a, b) => new Date(a.published_at || 0) - new Date(b.published_at || 0));
+        result = result.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
     }
     
     return result;

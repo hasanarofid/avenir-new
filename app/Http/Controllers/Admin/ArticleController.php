@@ -159,4 +159,17 @@ class ArticleController extends Controller
 
         return redirect()->back()->with('success', 'Artikel terpilih berhasil dihapus');
     }
+
+    public function toggleEditorPick(Article $article)
+    {
+        if ($article->badge) {
+            $article->update(['badge' => null]);
+            $message = 'Artikel dihapus dari Pilihan Editor';
+        } else {
+            $article->update(['badge' => 'Pilihan Editor']);
+            $message = 'Artikel ditambahkan ke Pilihan Editor';
+        }
+        
+        return redirect()->back()->with('success', $message);
+    }
 }

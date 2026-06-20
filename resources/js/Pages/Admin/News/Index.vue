@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
-import { Plus, Trash2, Newspaper } from '@lucide/vue';
+import { Plus, Trash2, Newspaper, Crown, Star } from '@lucide/vue';
 import Swal from 'sweetalert2';
 
 const props = defineProps({
@@ -19,6 +19,7 @@ const headers = [
   { text: 'Penulis', value: 'author' },
   { text: 'Kategori', value: 'category' },
   { text: 'Status', value: 'status' },
+  { text: 'Berita Utama', value: 'is_featured' },
   { text: 'Tgl Publish', value: 'published_at', type: 'date' }
 ];
 
@@ -71,6 +72,13 @@ const handleBulkDelete = async () => {
     });
   }
 };
+
+const toggleFeatured = (item) => {
+  router.patch(route('admin.news.toggle-featured', item.id), {}, {
+    preserveScroll: true,
+    preserveState: true,
+  });
+};
 </script>
 
 <template>
@@ -122,6 +130,21 @@ const handleBulkDelete = async () => {
           >
             <template #cell(author)="{ item }">
               {{ typeof item.author === 'object' && item.author !== null ? item.author.name : item.author }}
+            </template>
+            <template #cell(is_featured)="{ item }">
+              <button 
+                @click="toggleFeatured(item)"
+                class="group relative inline-flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 shadow-sm"
+                :class="item.is_featured ? 'bg-amber-500/10 border border-amber-500/30 text-amber-500 hover:bg-amber-500/20' : 'bg-slate-800/50 border border-white/5 text-slate-500 hover:bg-slate-800 hover:text-slate-300 hover:border-white/10'"
+                :title="item.is_featured ? 'Hapus dari Berita Utama' : 'Jadikan Berita Utama'"
+              >
+                <Crown v-if="item.is_featured" class="w-4 h-4 fill-amber-500" />
+                <Star v-else class="w-4 h-4 group-hover:fill-slate-400" />
+                
+                <span class="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1.5 bg-[#1a1f1c] border border-white/10 text-slate-300 text-[10px] font-medium rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10 shadow-xl">
+                  {{ item.is_featured ? 'Hapus dari Berita Utama' : 'Jadikan Berita Utama' }}
+                </span>
+              </button>
             </template>
           </DataTable>
         </div>

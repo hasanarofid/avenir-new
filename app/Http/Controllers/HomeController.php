@@ -44,7 +44,7 @@ class HomeController extends Controller
         }
 
         // 2. Fetch Latest Articles as Insight Terbaru
-        $dbArticles = \App\Models\Article::select(['id', 'title', 'cover_image', 'published_at', 'created_at'])
+        $dbArticles = \App\Models\Article::select(['id', 'title', 'slug', 'cover_image', 'published_at', 'created_at'])
             ->where('category', '!=', 'news')
             ->where('status', 'published')
             ->latest()
@@ -59,6 +59,7 @@ class HomeController extends Controller
         foreach ($dbArticles as $index => $art) {
             $insightTerbaru[] = [
                 'title' => $art->title,
+                'slug' => $art->slug,
                 'date' => $art->published_at ? $art->published_at->format('d M Y') : $art->created_at->format('d M Y'),
                 'gradient' => $gradients[$index % count($gradients)],
                 'image' => $art->cover_image,
@@ -66,7 +67,7 @@ class HomeController extends Controller
         }
 
         // 3. Fetch Latest Headlines
-        $dbNews = \App\Models\News::select(['id', 'title', 'published_at', 'created_at'])
+        $dbNews = \App\Models\News::select(['id', 'title', 'slug', 'published_at', 'created_at'])
             ->where('status', 'published')
             ->latest()
             ->take(5)
@@ -74,7 +75,7 @@ class HomeController extends Controller
         
         // If news is empty, fallback to recent posts of any category
         if ($dbNews->isEmpty()) {
-            $dbNews = \App\Models\Article::select(['id', 'title', 'published_at', 'created_at'])
+            $dbNews = \App\Models\Article::select(['id', 'title', 'slug', 'published_at', 'created_at'])
                 ->where('status', 'published')
                 ->latest()
                 ->take(5)
@@ -99,6 +100,7 @@ class HomeController extends Controller
             $headlinesPasar[] = [
                 'ticker' => $tickerTag,
                 'text' => $news->title,
+                'slug' => $news->slug,
                 'time' => $news->published_at ? $news->published_at->format('H:i') : $news->created_at->format('H:i')
             ];
         }
@@ -517,7 +519,7 @@ class HomeController extends Controller
     public function news()
     {
         $newsList = News::with('author')
-            ->select(['id', 'title', 'slug', 'category', 'sentiment', 'source', 'excerpt', 'published_at', 'created_at', 'cover_image', 'author_id', 'status', 'is_paid'])
+            ->select(['id', 'title', 'slug', 'category', 'sentiment', 'source', 'excerpt', 'published_at', 'created_at', 'cover_image', 'author_id', 'status', 'is_paid', 'is_featured'])
             ->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
@@ -534,6 +536,7 @@ class HomeController extends Controller
                     'cover_image' => $news->cover_image,
                     'author' => $news->author,
                     'is_paid' => $news->is_paid,
+                    'is_featured' => $news->is_featured,
                 ];
             });
 

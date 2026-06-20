@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
-import { Plus, Trash2, LibraryBig } from '@lucide/vue';
+import { Plus, Trash2, LibraryBig, Crown, Star } from '@lucide/vue';
 import Swal from 'sweetalert2';
 
 const props = defineProps({
@@ -18,6 +18,7 @@ const headers = [
   { text: 'Judul Artikel', value: 'title' },
   { text: 'Penulis', value: 'author' },
   { text: 'Kategori', value: 'category' },
+  { text: 'Pilihan Editor', value: 'badge' },
   { text: 'Status', value: 'status' },
   { text: 'Tgl Publish', value: 'published_at', type: 'date' }
 ];
@@ -26,6 +27,12 @@ const selectedItems = ref([]);
 
 const handleEdit = (item) => {
   router.get(route('admin.articles.edit', item.id));
+};
+
+const toggleEditorPick = (item) => {
+  router.patch(route('admin.articles.toggle-editor-pick', item.id), {}, {
+    preserveScroll: true
+  });
 };
 
 const handleDelete = async (item) => {
@@ -122,6 +129,17 @@ const handleBulkDelete = async () => {
           >
             <template #cell(author)="{ item }">
               {{ typeof item.author === 'object' && item.author !== null ? item.author.name : item.author }}
+            </template>
+            <template #cell(badge)="{ item }">
+              <button 
+                @click="toggleEditorPick(item)"
+                class="flex items-center justify-center p-1.5 rounded-lg transition-colors border"
+                :class="item.badge ? 'bg-amber-500/10 text-amber-500 border-amber-500/30 hover:bg-amber-500/20' : 'bg-slate-800 text-slate-500 border-slate-700 hover:bg-slate-700 hover:text-slate-300'"
+                :title="item.badge ? 'Hapus dari Pilihan Editor' : 'Jadikan Pilihan Editor'"
+              >
+                <Crown class="w-4 h-4" v-if="item.badge" />
+                <Star class="w-4 h-4" v-else />
+              </button>
             </template>
           </DataTable>
         </div>

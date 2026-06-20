@@ -163,4 +163,17 @@ class NewsController extends Controller
 
         return redirect()->back()->with('success', 'Berita terpilih berhasil dihapus');
     }
+
+    public function toggleFeatured(News $news)
+    {
+        if ($news->is_featured) {
+            $news->update(['is_featured' => false]);
+            $message = 'Berita dihapus dari Berita Utama';
+        } else {
+            $news->update(['is_featured' => true]);
+            $message = 'Berita ditambahkan ke Berita Utama';
+        }
+        
+        return redirect()->back()->with('success', $message);
+    }
 }
