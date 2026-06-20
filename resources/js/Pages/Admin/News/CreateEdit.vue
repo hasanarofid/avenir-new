@@ -26,6 +26,7 @@ const form = useForm({
   sentiment: props.news?.sentiment || 'neutral',
   published_at: props.news?.published_at || new Date().toISOString().slice(0, 10),
   status: props.news?.status || 'published',
+  is_paid: props.news?.is_paid ? true : false,
   image: ''
 });
 
@@ -174,6 +175,13 @@ const submit = () => {
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
               </select>
+            </div>
+            
+            <div class="space-y-1 flex items-center pt-5">
+              <label class="flex items-center gap-2 cursor-pointer bg-[#090b0a] border border-emerald-950/40 p-4 rounded-xl w-full">
+                <input type="checkbox" v-model="form.is_paid" class="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500 bg-slate-900 border-slate-700" />
+                <span class="text-sm font-semibold text-slate-200">Jadikan Berita PREMIUM (Terkunci)</span>
+              </label>
             </div>
             
             <!-- File paths -->

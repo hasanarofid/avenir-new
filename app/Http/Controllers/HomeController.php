@@ -517,7 +517,7 @@ class HomeController extends Controller
     public function news()
     {
         $newsList = News::with('author')
-            ->select(['id', 'title', 'slug', 'category', 'sentiment', 'source', 'excerpt', 'published_at', 'created_at', 'cover_image', 'author_id', 'status'])
+            ->select(['id', 'title', 'slug', 'category', 'sentiment', 'source', 'excerpt', 'published_at', 'created_at', 'cover_image', 'author_id', 'status', 'is_paid'])
             ->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
@@ -533,6 +533,7 @@ class HomeController extends Controller
                     'published_at' => $news->published_at ? $news->published_at->format('d M Y') : null,
                     'cover_image' => $news->cover_image,
                     'author' => $news->author,
+                    'is_paid' => $news->is_paid,
                 ];
             });
 
@@ -568,7 +569,50 @@ class HomeController extends Controller
             ->where('status', 'published')
             ->firstOrFail();
 
-        $content = $this->cleanHtmlForDarkMode($news->content);
+        $isLoggedIn = auth()->check();
+        $isSubscriber = false;
+        $isUnlocked = false;
+
+        if ($isLoggedIn) {
+            $isSubscriber = auth()->user()->hasActivePremium() || auth()->user()->hasRole('admin');
+            $isUnlocked = $isSubscriber;
+        }
+
+        $content = $news->content;
+
+        $isPaid   = (bool) $news->is_paid;
+        $isTrial  = false;
+
+        // Trial check: logged-in non-subscribers are treated as trial users
+        if ($isLoggedIn && !$isSubscriber) {
+            $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
+                ->where('user_id', auth()->id())
+                ->first();
+            $isTrial = !($profile && $profile->is_subscriber);
+        }
+
+        // Trial paywall: limit access to N newest news
+        if ($isTrial) {
+            $trialLimit = (int) \App\Models\Setting::getValue('trial_artikel_limit', 3);
+            $allowedIds = \App\Models\News::where('status', 'published')
+                ->orderByDesc('published_at')
+                ->take($trialLimit)
+                ->pluck('id');
+            if (!$allowedIds->contains($news->id)) {
+                $content = $this->truncateForGuest($content);
+                $isUnlocked = false;
+            } else {
+                $isUnlocked = true;
+            }
+        }
+
+        // Secure paywall check
+        if ($isPaid && !$isLoggedIn) {
+            $content = $this->truncateForGuest($content);
+            $isUnlocked = false;
+        }
+
+        $content = $this->cleanHtmlForDarkMode($content);
 
         return Inertia::render('NewsDetail', [
             'news' => [
@@ -581,6 +625,8 @@ class HomeController extends Controller
                 'content' => $content,
                 'cover_image' => $news->cover_image,
                 'author' => $news->author,
+                'is_paid' => $isPaid,
+                'is_unlocked' => $isUnlocked,
             ]
         ])->withViewData([
             'meta' => [

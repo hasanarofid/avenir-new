@@ -10,6 +10,7 @@ class News extends Model
 
     protected $casts = [
         'published_at' => 'date',
+        'is_paid' => 'boolean',
     ];
 
     public function author()

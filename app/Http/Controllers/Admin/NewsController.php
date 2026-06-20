@@ -49,6 +49,7 @@ class NewsController extends Controller
             'sentiment' => 'nullable|string',
             'published_at' => 'nullable|date',
             'status' => 'required|string',
+            'is_paid' => 'boolean',
             'image' => 'nullable|image|max:5120'
         ]);
 
@@ -91,6 +92,7 @@ class NewsController extends Controller
             'sentiment' => 'nullable|string',
             'published_at' => 'nullable|date',
             'status' => 'required|string',
+            'is_paid' => 'boolean',
             'image' => 'nullable|image|max:5120'
         ]);
 

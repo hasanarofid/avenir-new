@@ -568,6 +568,9 @@ const economicCalendar = [
                      <img v-if="news.cover_image" :src="news.cover_image" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                      <div class="absolute inset-0 bg-gradient-to-t from-[#111413] via-[#111413]/20 to-transparent opacity-80"></div>
                      <div class="absolute bottom-3 left-3 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm tracking-wider">FEATURED</div>
+                     <div v-if="news.is_paid" class="absolute top-3 right-3 bg-[#090b0a]/80 backdrop-blur-md text-emerald-400 p-1.5 rounded shadow-sm border border-emerald-500/20" title="Premium News">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                     </div>
                    </div>
                    <div class="p-5 flex flex-col flex-1">
                      <h4 class="text-slate-100 font-semibold text-[15px] mb-2 group-hover:text-emerald-400 transition-colors line-clamp-2 leading-[1.4]">{{ news.title }}</h4>
@@ -639,6 +642,9 @@ const economicCalendar = [
                          <span v-if="news.title && news.title.includes('Inflasi')" class="bg-[#111413] border border-white/10 text-slate-400 text-[9px] font-semibold px-2 py-0.5 rounded tracking-wider">INFLASI</span>
                          <span v-else-if="news.title && news.title.includes('BBRI')" class="bg-[#111413] border border-white/10 text-slate-400 text-[9px] font-semibold px-2 py-0.5 rounded tracking-wider">BBRI</span>
                          <span v-else class="bg-[#111413] border border-white/10 text-slate-400 text-[9px] font-semibold px-2 py-0.5 rounded tracking-wider">NEWS</span>
+                         <div v-if="news.is_paid" class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-1 rounded ml-1" title="Premium News">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                         </div>
                       </div>
                       <button class="text-slate-500 hover:text-emerald-400 transition-colors" @click.prevent>
                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>

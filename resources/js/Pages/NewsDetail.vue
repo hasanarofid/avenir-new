@@ -1,12 +1,21 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import Paywall from '@/Components/Paywall.vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     news: {
         type: Object,
         required: true,
     }
+});
+
+const page = usePage();
+const isLoggedIn = computed(() => !!page.props.auth?.user);
+
+const isLocked = computed(() => {
+    return props.news.is_paid && !props.news.is_unlocked;
 });
 </script>
 
@@ -42,7 +51,7 @@ const props = defineProps({
           <span class="arrow">←</span> Kembali ke Market News
         </a>
 
-        <div class="guest-lock-wrap">
+        <div class="guest-lock-wrap" :class="{ 'is-guest': isLocked }">
           <!-- News Header -->
           <div class="news-header">
             <div class="flex items-center gap-3 mb-5">
@@ -80,8 +89,14 @@ const props = defineProps({
 
           <!-- News Content -->
           <div 
-            class="news-content" 
+            class="guest-lock-content news-content" 
             v-html="news.content"
+          />
+
+          <!-- Lock Overlay Gate -->
+          <Paywall 
+            v-if="isLocked"
+            :price="'Setelah trial: mulai <strong>Rp 149.000 / bulan</strong>'"
           />
         </div>
       </div>
@@ -91,6 +106,45 @@ const props = defineProps({
 
 <style scoped>
 /* Content styles */
+.guest-lock-wrap {
+  position: relative;
+  min-height: 400px;
+  z-index: 2;
+}
+
+.guest-lock-content {
+  filter: none;
+  pointer-events: auto;
+  user-select: auto;
+}
+
+/* When news is locked (is_guest status) */
+.guest-lock-wrap.is-guest .guest-lock-content {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  max-height: 650px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+}
+
+.guest-lock-wrap.is-guest :deep(.guest-lock-overlay) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 60px 24px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(9, 11, 10, 0) 0%, rgba(9, 11, 10, 0.96) 25%, #090b0a 55%);
+  z-index: 100;
+}
+
 .news-content {
   filter: none;
   pointer-events: auto;
