@@ -26,3 +26,7 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 .serena/
+
+# Database Backups
+database_backup/
+*.sql

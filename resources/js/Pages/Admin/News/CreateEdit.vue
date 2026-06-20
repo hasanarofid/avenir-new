@@ -31,6 +31,12 @@ const form = useForm({
 });
 
 const isRawHtmlMode = ref(false);
+
+// Deteksi otomatis jika konten mengandung HTML kompleks (class/div/table statis)
+if (props.news?.content && (props.news.content.includes('class=') || props.news.content.includes('<div') || props.news.content.includes('<table'))) {
+  isRawHtmlMode.value = true;
+}
+
 const imagePreview = ref(props.news?.cover_image || null);
 const isDragging = ref(false);
 
