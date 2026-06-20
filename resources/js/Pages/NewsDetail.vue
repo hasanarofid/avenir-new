@@ -56,10 +56,19 @@ const isLocked = computed(() => {
           <div class="news-header">
             <div class="flex items-center gap-3 mb-5">
               <div class="news-cat !mb-0" v-if="news.category">{{ news.category }}</div>
+              
+              <div v-if="news.is_paid" class="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                PREMIUM
+              </div>
+              <div v-else class="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                GRATIS
+              </div>
+
               <div v-if="news.sentiment" :class="[
-                'px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase',
-                news.sentiment.toLowerCase() === 'positif' ? 'bg-emerald-500/10 text-emerald-400' : 
-                (news.sentiment.toLowerCase() === 'negatif' ? 'bg-red-500/10 text-red-400' : 'bg-slate-500/10 text-slate-400')
+                'px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border',
+                news.sentiment.toLowerCase() === 'positif' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
+                (news.sentiment.toLowerCase() === 'negatif' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-slate-500/10 text-slate-400 border-slate-500/20')
               ]">{{ news.sentiment }}</div>
             </div>
             <h1 class="news-title">{{ news.title }}</h1>
