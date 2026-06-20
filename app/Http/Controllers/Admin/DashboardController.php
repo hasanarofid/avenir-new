@@ -16,6 +16,14 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+
+        if (!$user->hasRole('admin')) {
+            return Inertia::render('Admin/GenericDashboard', [
+                'user' => $user
+            ]);
+        }
+
         $totalUsers = User::count();
         $activeSubscribers = \Illuminate\Support\Facades\DB::table('user_profiles')->where('is_subscriber', true)->count();
         $activeTrials = \Illuminate\Support\Facades\DB::table('trial_email_history')->count(); // Or any logic for trials

@@ -52,7 +52,14 @@ Route::get('/migrate-setup', [MigratedPasswordController::class, 'showSetupForm'
 Route::post('/migrate-setup', [MigratedPasswordController::class, 'storeNewPassword'])->name('password.migrate.store');
 
 Route::get('/dashboard', function () {
-    return redirect()->route('admin.dashboard');
+    $user = auth()->user();
+    if ($user->hasRole('admin') || $user->hasRole('team_research')) {
+        return redirect()->route('admin.dashboard');
+    } elseif ($user->hasRole('mitra')) {
+        return redirect()->route('mitra.dashboard');
+    }
+    // Fallback for standard users without specific dashboard
+    return Inertia\Inertia::render('User/Dashboard', ['user' => $user]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
