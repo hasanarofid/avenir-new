@@ -65,6 +65,9 @@ class UserController extends Controller
 
     public function destroy(\App\Models\User $user)
     {
+        if ($user->hasRole('admin')) {
+            return redirect()->back()->with('error', 'User Admin tidak dapat dihapus.');
+        }
         $user->delete();
         return redirect()->back()->with('success', 'User berhasil dihapus.');
     }
@@ -76,8 +79,20 @@ class UserController extends Controller
             'ids.*' => 'exists:users,id'
         ]);
 
-        \App\Models\User::whereIn('id', $request->ids)->delete();
+        $adminIds = \App\Models\User::role('admin')->pluck('id')->toArray();
+        $idsToDelete = array_diff($request->ids, $adminIds);
 
-        return redirect()->back()->with('success', 'Users terpilih berhasil dihapus.');
+        if (empty($idsToDelete)) {
+            return redirect()->back()->with('error', 'Tidak ada user yang bisa dihapus (User Admin dilindungi).');
+        }
+
+        \App\Models\User::whereIn('id', $idsToDelete)->delete();
+
+        $message = 'Users terpilih berhasil dihapus.';
+        if (count($request->ids) > count($idsToDelete)) {
+            $message .= ' (Beberapa user Admin diabaikan dari penghapusan)';
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 }

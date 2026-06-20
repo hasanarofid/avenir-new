@@ -120,6 +120,8 @@ const handleBulkDelete = async () => {
           <select 
             class="bg-[#090b0a] border border-emerald-950/50 text-slate-300 text-xs rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-[120px] p-1.5"
             @change="updateRole(item.id, $event.target.value)"
+            :disabled="item.roles.includes('admin')"
+            :class="{'opacity-50 cursor-not-allowed': item.roles.includes('admin')}"
           >
             <option value="">-- Pilih Role --</option>
             <option v-for="role in availableRoles" :key="role" :value="role" :selected="item.roles.includes(role)">
@@ -135,6 +137,20 @@ const handleBulkDelete = async () => {
 
         <template #cell(phone_number)="{ item }">
             {{ item.phone_number || '-' }}
+        </template>
+
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-2">
+            <button 
+              v-if="!item.roles.includes('admin')"
+              @click="handleDelete(item)" 
+              class="p-2 text-rose-400 hover:bg-rose-600/10 rounded-lg transition-colors"
+              title="Hapus"
+            >
+              <Trash2 class="w-4 h-4" />
+            </button>
+            <span v-else class="text-emerald-500/50 text-[10px] font-bold tracking-wider px-2">PROTECTED</span>
+          </div>
         </template>
         
         <template #actions-header>

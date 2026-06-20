@@ -190,22 +190,24 @@ const filteredItems = computed(() => {
             
             <!-- Actions -->
             <td v-if="showActions" class="px-6 py-4.5 text-sm text-right whitespace-nowrap">
-              <div class="flex items-center justify-end gap-2">
-                <button 
-                  @click="emit('edit', item)" 
-                  class="p-2 text-emerald-400 hover:bg-emerald-600/10 rounded-lg transition-colors"
-                  title="Edit"
-                >
-                  <Edit2 class="w-4 h-4" />
-                </button>
-                <button 
-                  @click="emit('delete', item)" 
-                  class="p-2 text-rose-400 hover:bg-rose-600/10 rounded-lg transition-colors"
-                  title="Hapus"
-                >
-                  <Trash2 class="w-4 h-4" />
-                </button>
-              </div>
+              <slot name="actions" :item="item">
+                <div class="flex items-center justify-end gap-2">
+                  <button 
+                    @click="emit('edit', item)" 
+                    class="p-2 text-emerald-400 hover:bg-emerald-600/10 rounded-lg transition-colors"
+                    title="Edit"
+                  >
+                    <Edit2 class="w-4 h-4" />
+                  </button>
+                  <button 
+                    @click="emit('delete', item)" 
+                    class="p-2 text-rose-400 hover:bg-rose-600/10 rounded-lg transition-colors"
+                    title="Hapus"
+                  >
+                    <Trash2 class="w-4 h-4" />
+                  </button>
+                </div>
+              </slot>
             </td>
           </tr>
           
