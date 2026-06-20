@@ -1,26 +1,87 @@
 <script setup>
+import { ref } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import DataTable from '@/Components/DataTable.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { Users } from '@lucide/vue';
+import { Users, Trash2 } from '@lucide/vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
-  users: Array,
-  availableRoles: Array
+  users: Object,
+  availableRoles: Array,
+  filters: Object
 });
 
-function formatDate(dateString) {
-  if (!dateString) return '-';
-  const d = new Date(dateString);
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+const headers = [
+  { text: 'Nama', value: 'name' },
+  { text: 'Email', value: 'email' },
+  { text: 'Status', value: 'is_subscriber' },
+  { text: 'No HP', value: 'phone_number' },
+  { text: 'Role', value: 'roles' },
+  { text: 'Daftar Sejak', value: 'created_at', type: 'date' }
+];
 
-function updateRole(userId, role) {
+const selectedItems = ref([]);
+
+const handleSearch = (searchQuery) => {
+  router.get(
+    route('admin.users.index'),
+    { search: searchQuery },
+    { preserveState: true, preserveScroll: true, replace: true }
+  );
+};
+
+const updateRole = (userId, role) => {
   if (confirm(`Apakah Anda yakin ingin mengubah role user ini menjadi ${role}?`)) {
     router.put(route('admin.users.update-role', userId), { role: role }, {
       preserveScroll: true
     });
   }
-}
+};
+
+const handleDelete = async (item) => {
+  const result = await Swal.fire({
+    title: 'Konfirmasi Hapus',
+    text: `Apakah Anda yakin ingin menghapus user "${item.name}"?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#ef4444',
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal',
+    background: '#121614',
+    color: '#cbd5e1'
+  });
+
+  if (result.isConfirmed) {
+    router.delete(route('admin.users.destroy', item.id));
+  }
+};
+
+const handleBulkDelete = async () => {
+  if (selectedItems.value.length === 0) return;
+  const result = await Swal.fire({
+    title: 'Konfirmasi Hapus Massal',
+    text: `Apakah Anda yakin ingin menghapus ${selectedItems.value.length} user yang dipilih?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#ef4444',
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal',
+    background: '#121614',
+    color: '#cbd5e1'
+  });
+
+  if (result.isConfirmed) {
+    router.delete(route('admin.users.bulk-destroy'), {
+      data: { ids: selectedItems.value },
+      onSuccess: () => {
+        selectedItems.value = [];
+      }
+    });
+  }
+};
 </script>
 
 <template>
@@ -38,73 +99,56 @@ function updateRole(userId, role) {
           <p class="text-sm text-slate-400 mt-1">Daftar semua pengguna terdaftar dan status berlangganan.</p>
         </div>
         <div class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono font-bold text-xs rounded-full">
-          {{ users.length }} USERS
+          {{ users.total }} USERS
         </div>
       </div>
 
-      <!-- List Users -->
-      <div v-if="users.length === 0" class="text-center py-12 bg-[#121614] border border-emerald-950/30 rounded-2xl">
-        <Users class="w-12 h-12 text-emerald-900/50 mx-auto mb-3" />
-        <h3 class="text-lg font-bold text-slate-300">Belum Ada User</h3>
-        <p class="text-sm text-slate-500 mt-1">Sistem belum memiliki pengguna terdaftar.</p>
-      </div>
+      <!-- DataTable -->
+      <DataTable 
+        :items="users.data" 
+        :headers="headers" 
+        :pagination="users.links"
+        :server-search="true"
+        :initial-search="filters?.search || ''"
+        selectable
+        v-model:selectedItems="selectedItems"
+        search-placeholder="Cari nama, email, atau no HP..."
+        @search="handleSearch"
+        @delete="handleDelete"
+      >
+        <template #cell(roles)="{ item }">
+          <select 
+            class="bg-[#090b0a] border border-emerald-950/50 text-slate-300 text-xs rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-[120px] p-1.5"
+            @change="updateRole(item.id, $event.target.value)"
+          >
+            <option value="">-- Pilih Role --</option>
+            <option v-for="role in availableRoles" :key="role" :value="role" :selected="item.roles.includes(role)">
+              {{ role }}
+            </option>
+          </select>
+        </template>
+        
+        <template #cell(is_subscriber)="{ item }">
+            <span v-if="item.is_subscriber" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Premium</span>
+            <span v-else class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/30">Standard</span>
+        </template>
 
-      <div v-else class="space-y-4">
-        <div v-for="user in users" :key="user.id" class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-5 shadow-xl hover:border-emerald-700/50 transition-colors">
-          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-            <div>
-              <div class="flex items-center gap-3 mb-1">
-                <h3 class="text-lg font-bold text-white">{{ user.name }}</h3>
-                <span v-if="user.is_admin" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/20 text-amber-500 border border-amber-500/30">Admin</span>
-                <span v-if="user.is_subscriber" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Subscriber</span>
-                <span v-else class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/30">Trial/Basic</span>
-              </div>
-              <div class="text-sm text-slate-400 font-mono">{{ user.email }}</div>
-            </div>
-            
-            <div class="flex flex-col items-end gap-2">
-              <select 
-                class="bg-[#090b0a] border border-emerald-950/50 text-slate-300 text-xs rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2"
-                @change="updateRole(user.id, $event.target.value)"
-              >
-                <option value="">-- Pilih Role --</option>
-                <option v-for="role in availableRoles" :key="role" :value="role" :selected="user.roles.includes(role)">
-                  {{ role }}
-                </option>
-              </select>
-              <div class="flex gap-2 w-full justify-end mt-1">
-                <button class="px-3 py-1.5 bg-[#090b0a] border border-emerald-950/50 text-slate-300 hover:text-emerald-400 hover:border-emerald-700 text-xs font-semibold rounded-lg transition-all">
-                  Edit
-                </button>
-                <button class="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 text-xs font-semibold rounded-lg transition-all">
-                  Hapus
-                </button>
-              </div>
-            </div>
-          </div>
+        <template #cell(phone_number)="{ item }">
+            {{ item.phone_number || '-' }}
+        </template>
+        
+        <template #actions-header>
+          <button 
+            v-if="selectedItems.length > 0"
+            @click="handleBulkDelete"
+            class="inline-flex items-center px-4 py-2 bg-rose-600 hover:bg-rose-700 text-sm font-semibold text-white rounded-lg shadow-lg shadow-rose-600/20 transition-all cursor-pointer"
+          >
+            <Trash2 class="w-4 h-4 mr-1.5" />
+            Hapus {{ selectedItems.length }}
+          </button>
+        </template>
+      </DataTable>
 
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-4 border-t border-emerald-950/30">
-            <div>
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Trial Started</div>
-              <div class="text-sm font-semibold text-slate-300">{{ formatDate(user.trial_started_at) }}</div>
-            </div>
-            <div>
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Daftar Sejak</div>
-              <div class="text-sm font-semibold text-slate-300">{{ formatDate(user.created_at) }}</div>
-            </div>
-            <div>
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">No HP</div>
-              <div class="text-sm font-semibold text-slate-300">{{ user.phone_number || '-' }}</div>
-            </div>
-            <div>
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Status</div>
-              <div class="text-sm font-semibold" :class="user.is_subscriber ? 'text-emerald-400' : 'text-blue-400'">
-                {{ user.is_subscriber ? 'Premium' : 'Standard' }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </AdminLayout>
 </template>
