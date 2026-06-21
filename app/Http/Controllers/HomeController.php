@@ -526,6 +526,7 @@ class HomeController extends Controller
             ->get()
             ->map(function ($news) {
                 return [
+                    'id' => $news->id,
                     'title' => $news->title,
                     'slug' => $news->slug,
                     'category' => $news->category,
