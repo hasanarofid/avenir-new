@@ -2,6 +2,8 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import Multiselect from '@vueform/multiselect';
+import '@vueform/multiselect/themes/default.css';
 
 const props = defineProps({
     newsList: {
@@ -25,20 +27,40 @@ const props = defineProps({
 // Computed split for Featured and Recent
 const featuredNews = computed(() => {
     if (!props.newsList) return [];
-    let featured = props.newsList.filter(n => n.is_featured);
-    if (featured.length === 0) {
-        featured = props.newsList.slice(0, 3);
-    } else {
-        featured = featured.slice(0, 3);
-    }
-    return featured;
+    return props.newsList.filter(n => n.is_featured).slice(0, 3);
 });
 
-const categories = ['Semua', 'Market', 'Corporate Action', 'Macroekonomi', 'Global', 'Commodity', 'Fixed Income'];
-const selectedCategory = ref('Semua');
+const selectedCategories = ref([]);
+const selectedSources = ref([]);
+const selectedYear = ref('Semua');
 const searchQuery = ref('');
 const sortOrder = ref('Terbaru');
 const visibleCount = ref(10);
+
+const uniqueCategories = computed(() => {
+    const cats = props.newsList.map(n => n.category).filter(Boolean).map(s => s.trim());
+    return [...new Set(cats)];
+});
+const uniqueSources = computed(() => {
+    const sources = props.newsList.map(n => n.source ? n.source.trim() : 'Avenir Research');
+    return [...new Set(sources)];
+});
+const uniqueYears = computed(() => {
+    const years = props.newsList.map(n => {
+        if(!n.published_at) return null;
+        const match = String(n.published_at).match(/\d{4}/);
+        return match ? match[0] : null;
+    }).filter(Boolean);
+    return ['Semua', ...new Set(years)].sort((a,b) => b-a);
+});
+
+const resetFilters = () => {
+    searchQuery.value = '';
+    selectedCategories.value = [];
+    selectedSources.value = [];
+    selectedYear.value = 'Semua';
+    sortOrder.value = 'Terbaru';
+};
 
 const loadMore = () => {
     visibleCount.value += 10;
@@ -50,15 +72,30 @@ const filteredRecentNews = computed(() => {
     // Hanya kecualikan berita utama dari daftar terbaru jika total berita cukup banyak (> 5)
     // agar bagian 'Berita Terbaru' tidak terlihat kosong saat jumlah berita masih sedikit.
     const featuredIds = featuredNews.value.map(f => f.id);
-    if (list.length > 5) {
+    const hasFilters = searchQuery.value || selectedCategories.value.length > 0 || selectedSources.value.length > 0 || selectedYear.value !== 'Semua';
+    
+    if (list.length > 5 && !hasFilters) {
         list = list.filter(n => !featuredIds.includes(n.id));
     }
     
     if (searchQuery.value) {
-        list = list.filter(n => n.title.toLowerCase().includes(searchQuery.value.toLowerCase()));
+        const q = searchQuery.value.toLowerCase();
+        list = list.filter(n => 
+            (n.title && n.title.toLowerCase().includes(q)) || 
+            (n.category && n.category.toLowerCase().includes(q))
+        );
     }
-    if (selectedCategory.value !== 'Semua') {
-        list = list.filter(n => n.category === selectedCategory.value);
+    if (selectedCategories.value.length > 0) {
+        list = list.filter(n => selectedCategories.value.includes(n.category));
+    }
+    if (selectedSources.value.length > 0) {
+        list = list.filter(n => {
+            const src = n.source ? n.source.trim() : 'Avenir Research';
+            return selectedSources.value.includes(src);
+        });
+    }
+    if (selectedYear.value !== 'Semua') {
+        list = list.filter(n => n.published_at && String(n.published_at).includes(selectedYear.value));
     }
     
     if (sortOrder.value === 'Terpopuler') {
@@ -210,7 +247,8 @@ const trendingTickers = computed(() => {
                             </div>
                             <span class="text-slate-300 font-medium">{{ news.author.name }}</span>
                         </div>
-                        <span v-else class="text-slate-300">{{ news.source || 'Avenir Research' }}</span>
+                        <span v-if="news.source" class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-medium">{{ news.source }}</span>
+                        <span v-else-if="!news.author" class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded font-medium">Avenir Research</span>
                         <span>&bull;</span>
                         <span>{{ news.published_at || 'Baru saja' }}</span>
                      </div>
@@ -235,25 +273,49 @@ const trendingTickers = computed(() => {
 
             <!-- Berita Terbaru -->
             <div>
-              <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 mb-8">
-                <div class="flex flex-wrap gap-2">
-                   <button v-for="cat in categories" :key="cat" 
-                     @click="selectedCategory = cat"
-                     :class="['px-5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border', 
-                     selectedCategory === cat ? 'bg-emerald-500 text-white border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-transparent text-slate-400 border-white/10 hover:border-white/20 hover:text-slate-200']">
-                     {{ cat }}
-                   </button>
-                </div>
-                
-                <div class="flex gap-3 w-full xl:w-auto">
-                   <button class="flex items-center justify-center gap-2 bg-[#111413] border border-white/10 px-4 py-2 rounded-lg text-slate-300 text-xs font-medium hover:bg-white/5 transition-colors">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-                      Filter
-                   </button>
-                   <div class="relative flex-1 xl:w-72">
-                      <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                      <input type="text" v-model="searchQuery" placeholder="Cari berita, emiten, topik..." class="w-full bg-[#111413] border border-white/10 rounded-lg pl-10 pr-4 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 h-[36px] transition-all">
-                   </div>
+              <div class="bg-[#111413] border border-white/5 rounded-xl p-4 mb-8">
+                <div class="flex flex-col md:flex-row gap-4 items-end">
+                  <div class="relative flex-1 w-full">
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" v-model="searchQuery" placeholder="Cari berita, emiten, topik..." class="w-full bg-[#090b0a] border border-white/10 rounded-lg pl-10 pr-4 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 h-[36px] transition-all">
+                  </div>
+                  
+                  <div class="flex flex-wrap gap-4 w-full md:w-auto">
+                    <div class="filter-group flex-1 md:flex-none min-w-[140px]">
+                      <label class="text-[10.5px] text-slate-500 font-semibold mb-1.5 block">Kategori</label>
+                      <Multiselect
+                        v-model="selectedCategories"
+                        mode="tags"
+                        :options="uniqueCategories"
+                        :searchable="true"
+                        placeholder="Semua"
+                      />
+                    </div>
+                    <div class="filter-group flex-1 md:flex-none min-w-[140px]">
+                      <label class="text-[10.5px] text-slate-500 font-semibold mb-1.5 block">Sumber Media</label>
+                      <Multiselect
+                        v-model="selectedSources"
+                        mode="tags"
+                        :options="uniqueSources"
+                        :searchable="true"
+                        placeholder="Semua"
+                      />
+                    </div>
+                    <div class="filter-group flex-1 md:flex-none min-w-[120px]">
+                      <label class="text-[10.5px] text-slate-500 font-semibold mb-1.5 block">Tahun</label>
+                      <Multiselect
+                        v-model="selectedYear"
+                        :options="uniqueYears"
+                        :searchable="true"
+                        :can-clear="false"
+                      />
+                    </div>
+                    
+                    <button class="flex items-center gap-2 text-xs text-slate-400 bg-transparent border border-white/10 px-4 h-[36px] rounded-lg hover:bg-white/5 hover:text-white transition-colors ml-auto md:ml-0" @click="resetFilters">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                      Reset
+                    </button>
+                  </div>
                 </div>
               </div>
               
@@ -291,8 +353,8 @@ const trendingTickers = computed(() => {
                          <span v-else class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold" title="Berita Gratis">
                            GRATIS
                          </span>
-                         <span v-if="news.source">{{ news.source }}</span>
-                         <span v-else>Avenir Research</span>
+                         <span v-if="news.source" class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-medium">{{ news.source }}</span>
+                         <span v-else class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded font-medium">Avenir Research</span>
                          <span>&bull;</span>
                          <span>{{ news.published_at || 'Baru saja' }}</span>
                       </div>
@@ -414,5 +476,33 @@ select {
   background-position: right 0.2rem top 50%;
   background-size: 0.65rem auto;
   padding-right: 1rem;
+}
+.filter-group {
+  --ms-bg: #090b0a;
+  --ms-border-color: rgba(255, 255, 255, 0.1);
+  --ms-dropdown-bg: #111413;
+  --ms-dropdown-border-color: rgba(255, 255, 255, 0.1);
+  --ms-option-color-pointed: #fff;
+  --ms-option-bg-pointed: rgba(16, 185, 129, 0.1);
+  --ms-option-color-selected: #fff;
+  --ms-option-bg-selected: #10B981;
+  --ms-option-color-selected-pointed: #fff;
+  --ms-option-bg-selected-pointed: #059669;
+  --ms-font-size: 12px;
+  --ms-line-height: 1.2;
+  --ms-radius: 6px;
+  --ms-ring-color: rgba(16, 185, 129, 0.5);
+  --ms-placeholder-color: #64748b;
+  --ms-caret-color: #94a3b8;
+  --ms-clear-color: #94a3b8;
+  --ms-tag-bg: rgba(16, 185, 129, 0.2);
+  --ms-tag-color: #10B981;
+}
+.filter-group .multiselect {
+  min-height: 36px;
+  color: #cbd5e1;
+}
+.filter-group .multiselect-dropdown {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 }
 </style>

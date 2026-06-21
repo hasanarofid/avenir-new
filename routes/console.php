@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('market:fetch')->everyMinute();
+Schedule::command('news:fetch-rss')->hourly();

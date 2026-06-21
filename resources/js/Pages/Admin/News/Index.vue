@@ -16,7 +16,7 @@ const props = defineProps({
 
 const headers = [
   { text: 'Judul Artikel', value: 'title' },
-  { text: 'Penulis', value: 'author' },
+  { text: 'Penulis / Media', value: 'author' },
   { text: 'Kategori', value: 'category' },
   { text: 'Status', value: 'status' },
   { text: 'Berita Utama', value: 'is_featured' },
@@ -129,7 +129,10 @@ const toggleFeatured = (item) => {
             @delete="handleDelete"
           >
             <template #cell(author)="{ item }">
-              {{ typeof item.author === 'object' && item.author !== null ? item.author.name : item.author }}
+              <div class="flex flex-col">
+                <span>{{ typeof item.author === 'object' && item.author !== null ? item.author.name : item.author }}</span>
+                <span v-if="item.source" class="text-[10px] text-emerald-400 mt-0.5 font-medium">{{ item.source }}</span>
+              </div>
             </template>
             <template #cell(is_featured)="{ item }">
               <button 

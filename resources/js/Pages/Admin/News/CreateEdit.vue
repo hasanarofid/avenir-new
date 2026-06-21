@@ -30,6 +30,17 @@ const form = useForm({
   image: ''
 });
 
+const localContent = ref(form.content);
+import { watch } from 'vue';
+watch(localContent, (newVal) => {
+  form.content = newVal;
+});
+watch(() => form.content, (newVal) => {
+  if (localContent.value !== newVal) {
+    localContent.value = newVal;
+  }
+});
+
 const isRawHtmlMode = ref(false);
 
 // Deteksi otomatis jika konten mengandung HTML kompleks (class/div/table statis)
@@ -261,7 +272,7 @@ const submit = () => {
             <div v-if="!isRawHtmlMode" class="bg-[#090b0a] border border-emerald-950/40 rounded-xl overflow-hidden quill-wrapper">
               <QuillEditor 
                 theme="snow" 
-                v-model:content="form.content" 
+                v-model:content="localContent" 
                 contentType="html"
                 style="min-height: 400px; color: white;" 
               />

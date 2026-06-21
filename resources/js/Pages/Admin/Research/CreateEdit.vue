@@ -31,7 +31,21 @@ const form = useForm({
   content: props.research?.content || ''
 });
 
+const localContent = ref(form.content);
+import { watch } from 'vue';
+watch(localContent, (newVal) => {
+  form.content = newVal;
+});
+watch(() => form.content, (newVal) => {
+  if (localContent.value !== newVal) {
+    localContent.value = newVal;
+  }
+});
+
 const isRawHtmlMode = ref(false);
+if (props.research?.content && (props.research.content.includes('class=') || props.research.content.includes('<div') || props.research.content.includes('<table'))) {
+  isRawHtmlMode.value = true;
+}
 
 const imagePreview = ref(props.research?.image || null);
 const isDragging = ref(false);
@@ -261,7 +275,7 @@ const submit = () => {
             <div v-if="!isRawHtmlMode" class="bg-[#090b0a] border border-emerald-950/40 rounded-xl overflow-hidden quill-wrapper">
               <QuillEditor 
                 theme="snow" 
-                v-model:content="form.content" 
+                v-model:content="localContent" 
                 contentType="html"
                 style="min-height: 400px; color: white;" 
               />
