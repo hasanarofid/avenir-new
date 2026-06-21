@@ -26,10 +26,10 @@ const hasCustomHtml = computed(() => {
 
 <template>
     <Head>
-        <title>ArtikelDetail | AVENIR</title>
-        <meta name="description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
-        <meta property="og:title" content="ArtikelDetail | AVENIR" />
-        <meta property="og:description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <title>ArtikelDetail | Avenir</title>
+        <meta name="description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <meta property="og:title" content="ArtikelDetail | Avenir" />
+        <meta property="og:description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         

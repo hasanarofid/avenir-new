@@ -182,7 +182,7 @@ const topSectors = computed(() => {
               Akses laporan riset mendalam untuk keputusan investasi yang lebih cerdas.
               <br/><br/>
               Semua laporan disusun oleh tim analis berpengalaman, berbasis data audited,
-              metodologi terverifikasi, dan insight eksklusif dari AVENIR Research.
+              metodologi terverifikasi, dan insight eksklusif dari Avenir Research.
             </p>
           </div>
 
@@ -370,7 +370,7 @@ const topSectors = computed(() => {
 
           <!-- Benefits -->
           <div class="sidebar-box">
-            <h3 class="sidebar-title">Manfaat Premium AVENIR</h3>
+            <h3 class="sidebar-title">Manfaat Premium Avenir</h3>
             <ul class="benefits-list mt-4 flex flex-col gap-3">
               <li>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>

@@ -189,9 +189,9 @@ const getDummyChange = (id) => {
 
 <template>
     <Head>
-        <title>Emiten Hub | AVENIR</title>
-        <meta name="description" content="Jelajahi dan analisis kinerja seluruh emiten tercatat di Bursa Efek Indonesia secara komprehensif bersama AVENIR." />
-        <meta property="og:title" content="Emiten Hub | AVENIR" />
+        <title>Emiten Hub | Avenir</title>
+        <meta name="description" content="Jelajahi dan analisis kinerja seluruh emiten tercatat di Bursa Efek Indonesia secara komprehensif bersama Avenir." />
+        <meta property="og:title" content="Emiten Hub | Avenir" />
         <meta property="og:description" content="Direktori lengkap perusahaan terbuka di BEI. Temukan saham terbaik untuk portofolio Anda." />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -647,7 +647,7 @@ const getDummyChange = (id) => {
                 </div>
 
                 <div class="flex justify-between items-center text-xs text-slate-500 pt-4 border-t border-slate-800">
-                    <p>Data disediakan oleh AVENIR Research • Terakhir diperbarui 14 Mei 2025 15:30 WIB</p>
+                    <p>Data disediakan oleh Avenir Research • Terakhir diperbarui 14 Mei 2025 15:30 WIB</p>
                     <div class="flex gap-4">
                         <Link href="#" class="hover:text-slate-300">Disclaimer</Link>
                         <Link href="#" class="hover:text-slate-300">Metodologi</Link>

@@ -199,10 +199,10 @@ const handleCloseModal = () => {
 
 <template>
     <Head>
-        <title>Subscription | AVENIR</title>
-        <meta name="description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
-        <meta property="og:title" content="Subscription | AVENIR" />
-        <meta property="og:description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <title>Subscription | Avenir</title>
+        <meta name="description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <meta property="og:title" content="Subscription | Avenir" />
+        <meta property="og:description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         

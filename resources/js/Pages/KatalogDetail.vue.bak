@@ -38,10 +38,10 @@ const formattedPrice = computed(() => {
 
 <template>
     <Head>
-        <title>KatalogDetail | AVENIR</title>
-        <meta name="description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
-        <meta property="og:title" content="KatalogDetail | AVENIR" />
-        <meta property="og:description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <title>KatalogDetail | Avenir</title>
+        <meta name="description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <meta property="og:title" content="KatalogDetail | Avenir" />
+        <meta property="og:description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         

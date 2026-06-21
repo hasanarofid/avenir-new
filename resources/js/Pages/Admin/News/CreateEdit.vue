@@ -145,7 +145,7 @@ const submit = () => {
                 v-model="form.source"
                 type="text" 
                 class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-650 focus:outline-none focus:border-emerald-500 transition-all"
-                placeholder="Contoh: AVENIR Research"
+                placeholder="Contoh: Avenir Research"
               />
             </div>
 

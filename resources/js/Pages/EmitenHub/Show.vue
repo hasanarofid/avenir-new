@@ -75,7 +75,7 @@ const toggleWatchlist = () => {
 
 <template>
     <Head>
-        <title>{{ ticker.symbol }} - {{ ticker.company_name }} | AVENIR Emiten Hub</title>
+        <title>{{ ticker.symbol }} - {{ ticker.company_name }} | Avenir Emiten Hub</title>
         <meta name="description" :content="`Analisis, profil perusahaan, laporan keuangan, dan riset saham ${ticker.symbol} - ${ticker.company_name}.`" />
     </Head>
     <AppLayout>

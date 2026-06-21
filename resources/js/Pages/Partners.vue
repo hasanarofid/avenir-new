@@ -56,10 +56,10 @@ const TIER_BAGIAN = [
 
 <template>
     <Head>
-        <title>Partners | AVENIR</title>
-        <meta name="description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
-        <meta property="og:title" content="Partners | AVENIR" />
-        <meta property="og:description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <title>Partners | Avenir</title>
+        <meta name="description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <meta property="og:title" content="Partners | Avenir" />
+        <meta property="og:description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         
@@ -174,7 +174,7 @@ const TIER_BAGIAN = [
         </div>
 
         <!-- Features / Advantages Section -->
-        <div class="section-divider">KENAPA JADI MITRA AVENIR?</div>
+        <div class="section-divider">KENAPA JADI MITRA Avenir?</div>
         <div class="partners-features">
           <div class="feature-card">
             <div class="feat-icon">📈</div>

@@ -136,7 +136,7 @@ import { Link } from '@inertiajs/vue3';
       <!-- Bottom Disclaimer / Copyright & OJK -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
         <span>
-          &copy; 2025 AVENIR Research. All rights reserved.
+          &copy; 2025 Avenir Research. All rights reserved.
         </span>
         
         <!-- OJK Compliance Badge -->

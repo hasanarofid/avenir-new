@@ -157,10 +157,10 @@ const headlinesPasar = computed(() => {
 
 <template>
     <Head>
-        <title>Home | AVENIR</title>
-        <meta name="description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
-        <meta property="og:title" content="Home | AVENIR" />
-        <meta property="og:description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <title>Home | Avenir</title>
+        <meta name="description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <meta property="og:title" content="Home | Avenir" />
+        <meta property="og:description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         
@@ -473,7 +473,7 @@ const headlinesPasar = computed(() => {
               </div>
               <div>
                 <h2 class="text-xl lg:text-2xl font-extrabold font-heading text-white tracking-wide">Tingkatkan Keputusan Investasi Anda</h2>
-                <p class="text-xs text-slate-400 mt-1 max-w-xl">Bergabunglah dengan ribuan investor &amp; profesional yang mengandalkan riset AVENIR setiap hari.</p>
+                <p class="text-xs text-slate-400 mt-1 max-w-xl">Bergabunglah dengan ribuan investor &amp; profesional yang mengandalkan riset Avenir setiap hari.</p>
                 
                 <!-- Horizontal list with custom green ticks -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 mt-5">

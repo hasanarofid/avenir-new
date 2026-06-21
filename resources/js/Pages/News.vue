@@ -398,8 +398,8 @@ const economicCalendar = [
 
 <template>
   <Head>
-    <title>News | AVENIR</title>
-    <meta name="description" content="AVENIR - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+    <title>News | Avenir</title>
+    <meta name="description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
     <!-- ...other metas... -->
   </Head>
 
@@ -452,7 +452,7 @@ const economicCalendar = [
                             </div>
                             <span class="text-slate-300 font-medium">{{ news.author.name }}</span>
                         </div>
-                        <span v-else class="text-slate-300">{{ news.source || 'AVENIR Research' }}</span>
+                        <span v-else class="text-slate-300">{{ news.source || 'Avenir Research' }}</span>
                         <span>&bull;</span>
                         <span>{{ news.published_at || 'Baru saja' }}</span>
                      </div>
@@ -534,7 +534,7 @@ const economicCalendar = [
                            GRATIS
                          </span>
                          <span v-if="news.source">{{ news.source }}</span>
-                         <span v-else>AVENIR Research</span>
+                         <span v-else>Avenir Research</span>
                          <span>&bull;</span>
                          <span>{{ news.published_at || 'Baru saja' }}</span>
                       </div>

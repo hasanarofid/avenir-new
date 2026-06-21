@@ -57,7 +57,7 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
 
 <template>
   <Head>
-    <title>Artikel | AVENIR Research</title>
+    <title>Artikel | Avenir Research</title>
   </Head>
 
   <AppLayout>
@@ -112,7 +112,7 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                     </div>
                     <div class="author-info">
                       <div class="author-name">{{ featuredArticle.author?.name || 'Tim Avenir' }}</div>
-                      <div class="author-role">Tim Riset AVENIR</div>
+                      <div class="author-role">Tim Riset Avenir</div>
                     </div>
                   </div>
                   
@@ -275,7 +275,7 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
             <div class="sidebar-box">
               <h3 class="text-[15px] font-bold text-white flex items-center gap-2 mb-3">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                Newsletter AVENIR
+                Newsletter Avenir
               </h3>
               <p class="text-[13px] text-slate-400 leading-relaxed mb-5">Dapatkan analisis pasar, artikel eksklusif, dan insight terbaru langsung ke inbox Anda.</p>
               
