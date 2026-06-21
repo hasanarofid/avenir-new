@@ -160,7 +160,8 @@ const watchlistNews = computed(() => {
                 title: newsItem.title,
                 time: newsItem.published_at || 'Baru saja',
                 slug: newsItem.slug,
-                source_url: newsItem.source_url
+                source_url: newsItem.source_url,
+                author: newsItem.author
             });
         }
     });
@@ -223,7 +224,7 @@ const trendingTickers = computed(() => {
               <h3 class="text-white font-bold text-[17px] mb-5">Berita Utama</h3>
               
               <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <component :is="news.source_url ? 'a' : Link" v-for="news in featuredNews" :key="news.id" :href="news.source_url || ('/news/' + news.slug)" :target="news.source_url ? '_blank' : null" class="group flex flex-col bg-[#111413] border border-white/5 rounded-[14px] overflow-hidden hover:border-emerald-500/30 transition-all duration-300 shadow-sm hover:shadow-[0_8px_25px_rgba(0,0,0,0.5)]">
+                <component :is="(!news.author && news.source_url) ? 'a' : Link" v-for="news in featuredNews" :key="news.id" :href="(!news.author && news.source_url) ? news.source_url : ('/news/' + news.slug)" :target="(!news.author && news.source_url) ? '_blank' : null" class="group flex flex-col bg-[#111413] border border-white/5 rounded-[14px] overflow-hidden hover:border-emerald-500/30 transition-all duration-300 shadow-sm hover:shadow-[0_8px_25px_rgba(0,0,0,0.5)]">
                    <div class="aspect-[16/10] relative overflow-hidden bg-slate-800">
                      <img v-if="news.cover_image" :src="news.cover_image" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                      <div class="absolute inset-0 bg-gradient-to-t from-[#111413] via-[#111413]/20 to-transparent opacity-80"></div>
@@ -332,7 +333,7 @@ const trendingTickers = computed(() => {
               </div>
 
               <div class="flex flex-col">
-                <component :is="news.source_url ? 'a' : Link" v-for="(news, idx) in recentNews" :key="news.id" :href="news.source_url || ('/news/' + news.slug)" :target="news.source_url ? '_blank' : null" class="group flex items-center gap-4 py-4 lg:py-5 border-b border-white/5 hover:bg-white/[0.02] px-2 -mx-2 rounded transition-colors">
+                <component :is="(!news.author && news.source_url) ? 'a' : Link" v-for="(news, idx) in recentNews" :key="news.id" :href="(!news.author && news.source_url) ? news.source_url : ('/news/' + news.slug)" :target="(!news.author && news.source_url) ? '_blank' : null" class="group flex items-center gap-4 py-4 lg:py-5 border-b border-white/5 hover:bg-white/[0.02] px-2 -mx-2 rounded transition-colors">
                    
                    <div class="w-14 lg:w-16 flex-shrink-0 text-center">
                      <div class="text-[13px] text-slate-300 font-medium">{{ news.published_at ? news.published_at.split(' ')[0] : '09:28' }}</div>
@@ -421,7 +422,7 @@ const trendingTickers = computed(() => {
                  <span class="text-[10px] text-slate-500">24 jam terakhir</span>
                </div>
                <div class="flex flex-col gap-4">
-                  <component :is="item.source_url ? 'a' : Link" v-for="(item, idx) in mostRead" :key="item.id || idx" :href="item.source_url || (item.slug ? `/news/${item.slug}` : '#')" :target="item.source_url ? '_blank' : null" class="group flex gap-3 items-start">
+                  <component :is="(!item.author && item.source_url) ? 'a' : Link" v-for="(item, idx) in mostRead" :key="item.id || idx" :href="(!item.author && item.source_url) ? item.source_url : (item.slug ? `/news/${item.slug}` : '#')" :target="(!item.author && item.source_url) ? '_blank' : null" class="group flex gap-3 items-start">
                    <span class="text-emerald-400 font-bold text-[13px] mt-0.5 w-3 text-right">{{ idx + 1 }}</span>
                    <p class="text-slate-300 text-[13px] leading-relaxed group-hover:text-emerald-400 transition-colors flex-1">{{ item.title }}</p>
                  </component>
@@ -435,7 +436,7 @@ const trendingTickers = computed(() => {
                  <Link href="/market" class="text-[11px] text-emerald-400 cursor-pointer font-medium hover:text-emerald-300">Lihat Semua</Link>
                </div>
                <div class="flex flex-col gap-4">
-                  <component :is="item.source_url ? 'a' : Link" v-for="item in watchlistNews" :key="item.ticker" :href="item.source_url || (item.slug ? `/news/${item.slug}` : '#')" :target="item.source_url ? '_blank' : null" class="group flex items-start gap-3">
+                  <component :is="(!item.author && item.source_url) ? 'a' : Link" v-for="item in watchlistNews" :key="item.ticker" :href="(!item.author && item.source_url) ? item.source_url : (item.slug ? `/news/${item.slug}` : '#')" :target="(!item.author && item.source_url) ? '_blank' : null" class="group flex items-start gap-3">
                    <span class="text-emerald-400 font-bold text-[11px] w-9 flex-shrink-0 mt-1">{{ item.ticker }}</span>
                    <p class="text-slate-300 text-[13px] leading-relaxed group-hover:text-emerald-400 transition-colors line-clamp-2 flex-1">{{ item.title }}</p>
                    <span class="text-[10px] text-slate-500 flex-shrink-0 mt-1 w-8 text-right">{{ item.time }}</span>
