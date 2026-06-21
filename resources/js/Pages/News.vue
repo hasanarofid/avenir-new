@@ -46,8 +46,14 @@ const loadMore = () => {
 };
 
 const filteredRecentNews = computed(() => {
+    let list = props.newsList || [];
+    
+    // Hanya kecualikan berita utama dari daftar terbaru jika total berita cukup banyak (> 5)
+    // agar bagian 'Berita Terbaru' tidak terlihat kosong saat jumlah berita masih sedikit.
     const featuredIds = featuredNews.value.map(f => f.id);
-    let list = props.newsList ? props.newsList.filter(n => !featuredIds.includes(n.id)) : [];
+    if (list.length > 5) {
+        list = list.filter(n => !featuredIds.includes(n.id));
+    }
     
     if (searchQuery.value) {
         list = list.filter(n => n.title.toLowerCase().includes(searchQuery.value.toLowerCase()));
