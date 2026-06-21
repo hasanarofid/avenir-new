@@ -17,6 +17,9 @@ class NewsController extends Controller
 
         if (!auth()->user()->hasRole('admin')) {
             $query->where('author_id', auth()->id());
+        } else {
+            // Sembunyikan berita hasil scrape RSS (dibuat sistem tanpa author)
+            $query->whereNotNull('author_id');
         }
 
         if ($request->has('search') && $request->search != '') {

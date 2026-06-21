@@ -519,7 +519,7 @@ class HomeController extends Controller
     public function news()
     {
         $newsList = News::with('author')
-            ->select(['id', 'title', 'slug', 'category', 'sentiment', 'source', 'excerpt', 'published_at', 'created_at', 'cover_image', 'author_id', 'status', 'is_paid', 'is_featured'])
+            ->select(['id', 'title', 'slug', 'category', 'sentiment', 'source', 'source_url', 'excerpt', 'published_at', 'created_at', 'cover_image', 'author_id', 'status', 'is_paid', 'is_featured'])
             ->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
@@ -532,6 +532,7 @@ class HomeController extends Controller
                     'category' => $news->category,
                     'sentiment' => $news->sentiment,
                     'source' => $news->source,
+                    'source_url' => $news->source_url,
                     'excerpt' => $news->excerpt,
                     'published_at' => $news->published_at ? $news->published_at->format('d M Y') : null,
                     'cover_image' => $news->cover_image,
