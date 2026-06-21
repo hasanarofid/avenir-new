@@ -15,7 +15,7 @@ const props = defineProps({
   }
 });
 
-const trendData = props.stats.trend_data?.reverse() || [30, 45, 40, 60, 50, 80, 70, 90, 85, 110, 95, 120];
+const trendData = props.stats.trend_data || [];
 const totalViews = props.stats.total_views || 0;
 const activeSubscribers = props.stats.active_subscribers || 0;
 const activeTrials = props.stats.active_trials || 0;
@@ -24,6 +24,12 @@ const totalAccounts = props.stats.users_count || 0;
 const totalLikes = props.stats.likes_count || 0;
 const totalComments = props.stats.comments_count || 0;
 const totalEngagement = totalLikes + totalComments;
+
+const newUsersThisMonth = props.stats.new_users_this_month || 0;
+const mrr = props.stats.mrr || 0;
+const topResearch = props.stats.top_research || [];
+const topAuthors = props.stats.top_authors || [];
+const heatmapData = props.stats.heatmap || [];
 
 // Donut chart math helpers
 const donutData = [
@@ -60,16 +66,9 @@ const donutArcs = donutData.map(d => {
 const filters = ['Trending Now', 'Kesehatan Perusahaan', 'Persaingan', 'Sales Flow & Valuasi', 'Target Evaluasi', 'Fitback'];
 const activeFilter = ref('Trending Now');
 
+// Provide real top research data when Trending Now is selected
 const filteredResearch = computed(() => {
-  const data = {
-    'Trending Now': ['ADRO', 'BBCA', 'ASII', 'GOTO', 'BREN', 'UNTR', 'TLKM', 'ICBP', 'AMMN', 'BMRI'],
-    'Kesehatan Perusahaan': ['BBCA', 'BMRI', 'BBNI', 'BBRI', 'ASII', 'TLKM', 'KLBF', 'ICBP', 'INDF', 'UNVR'],
-    'Persaingan': ['GOTO', 'BUKA', 'BELI', 'WIRG', 'EMTK', 'SCMA', 'MNCN', 'MSIN', 'BMTR', 'VIVA'],
-    'Sales Flow & Valuasi': ['ADRO', 'ITMG', 'PTBA', 'UNTR', 'BYAN', 'HRUM', 'INDY', 'BUMI', 'ENRG', 'MEDC'],
-    'Target Evaluasi': ['BREN', 'CUAN', 'PANI', 'AMMN', 'TPIA', 'BRPT', 'PGEO', 'VKTR', 'NCKL', 'MBMA'],
-    'Fitback': ['GOTO', 'ARTO', 'BBYB', 'BANK', 'AGRO', 'BBHI', 'BGTG', 'PNBS', 'DNAR', 'NOBU']
-  };
-  return data[activeFilter.value] || data['Trending Now'];
+  return topResearch;
 });
 
 const filteredTrendViews = computed(() => {
@@ -86,8 +85,7 @@ const filteredTrendViews = computed(() => {
 });
 
 const filteredTotalViews = computed(() => {
-  // Base total from backend, adjusted mock style for UX feedback
-  const base = totalViews || 52400;
+  const base = totalViews;
   const multipliers = {
     'Trending Now': 1,
     'Kesehatan Perusahaan': 0.8,
@@ -101,12 +99,32 @@ const filteredTotalViews = computed(() => {
 
 const filteredMaxTrend = computed(() => Math.max(...filteredTrendViews.value, 1));
 const filteredTrendPoints = computed(() => {
+  if (!filteredTrendViews.value || filteredTrendViews.value.length === 0) return '0,100';
   return filteredTrendViews.value.map((val, i) => {
     const x = (i / (filteredTrendViews.value.length - 1)) * 100;
     const y = 100 - ((val / filteredMaxTrend.value) * 100);
     return `${x},${y}`;
   }).join(' ');
 });
+
+const maxResearchViews = computed(() => {
+  if (topResearch.length === 0) return 1;
+  return Math.max(...topResearch.map(r => r.views_count));
+});
+
+const totalAuthorViews = computed(() => {
+  return topAuthors.reduce((sum, author) => sum + author.views_count, 0) || 1;
+});
+
+const getHeatmapClass = (day, hour) => {
+  // mysql DAYOFWEEK: 1 = Sunday, 2 = Monday, ... 7 = Saturday
+  // To map week row nicely, let's say day 1..7 directly
+  const cell = heatmapData.find(d => d.day_of_week === day && d.hour_of_day === hour);
+  if (!cell || cell.views_count === 0) return 'bg-slate-800';
+  if (cell.views_count > 20) return 'bg-emerald-500';
+  if (cell.views_count > 10) return 'bg-emerald-700';
+  return 'bg-emerald-900';
+};
 
 </script>
 
@@ -353,22 +371,22 @@ const filteredTrendPoints = computed(() => {
         </div>
         
         <div class="mt-6 space-y-4">
-          <!-- Dummy List -->
-          <div v-for="(item, i) in filteredResearch" :key="item" class="flex items-center gap-4">
+          <div v-if="filteredResearch.length === 0" class="text-sm text-slate-500">Belum ada data views.</div>
+          <div v-for="(item, i) in filteredResearch" :key="item.id" class="flex items-center gap-4">
             <div class="w-6 h-6 rounded bg-[#090b0a] border border-emerald-950/50 flex items-center justify-center text-xs font-bold text-slate-400">{{ i + 1 }}</div>
             <div class="flex-1">
               <div class="flex items-center justify-between mb-1.5">
                 <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-white">{{ item }}</span>
-                  <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Tim Avenir</span>
+                  <span class="text-sm font-bold text-white truncate max-w-[200px]" :title="item.title">{{ item.title || item.ticker }}</span>
+                  <span v-if="item.author_type" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ item.author_type }}</span>
                 </div>
-                <div class="text-sm font-bold font-mono text-white">{{ Math.round((80 - i * 5) * (filteredTotalViews / 52400)) }}</div>
+                <div class="text-sm font-bold font-mono text-white">{{ item.views_count.toLocaleString('id-ID') }}</div>
               </div>
               <div class="w-full bg-[#090b0a] h-1.5 rounded overflow-hidden">
-                <div class="bg-emerald-500 h-full rounded transition-all duration-500" :style="{ width: (100 - i * 10) + '%' }"></div>
+                <div class="bg-emerald-500 h-full rounded transition-all duration-500" :style="{ width: ((item.views_count / maxResearchViews) * 100) + '%' }"></div>
               </div>
             </div>
-            <div class="w-16 text-right text-[10px] text-slate-500 font-semibold">{{ Math.round((80 - i * 5) * (filteredTotalViews / 52400)) }} unique</div>
+            <div class="w-16 text-right text-[10px] text-slate-500 font-semibold">{{ item.views_count.toLocaleString('id-ID') }} views</div>
           </div>
         </div>
       </div>
@@ -377,27 +395,24 @@ const filteredTrendPoints = computed(() => {
       <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl">
         <div>
           <h3 class="text-lg font-bold text-white">Heatmap Aktivitas — Hari × Jam</h3>
-          <p class="text-xs text-slate-500">30 HARI · WIB · Excluded Tim Avenir · Hover untuk detail</p>
+          <p class="text-xs text-slate-500">30 HARI · WIB · Excluded Tim Avenir</p>
         </div>
         
-        <!-- Mock Github style Heatmap Grid -->
         <div class="mt-6 overflow-x-auto pb-4">
           <div class="min-w-[700px] flex gap-1">
-            <div v-for="col in 24" :key="col" class="flex flex-col gap-1">
-              <div v-for="row in 7" :key="row" 
+            <!-- 0 to 23 for hours -->
+            <div v-for="hour in 24" :key="hour" class="flex flex-col gap-1">
+              <!-- MySQL DAYOFWEEK: 1=Sunday to 7=Saturday -->
+              <div v-for="day in 7" :key="day" 
                 class="w-4 h-4 rounded-sm border border-[#090b0a]" 
-                :class="[
-                  Math.random() > 0.8 ? 'bg-emerald-500' : 
-                  Math.random() > 0.6 ? 'bg-emerald-700' : 
-                  Math.random() > 0.4 ? 'bg-emerald-900' : 'bg-slate-800'
-                ]"
+                :class="getHeatmapClass(day, hour - 1)"
               ></div>
             </div>
           </div>
           <div class="flex justify-between items-center mt-4">
-            <div class="text-xs font-bold text-white">Minggu <span class="text-slate-500 font-normal block">Peak Day</span></div>
-            <div class="text-xs font-bold text-white">10:00 <span class="text-slate-500 font-normal block">Peak Hour</span></div>
-            <div class="text-xs font-bold text-white">119 <span class="text-slate-500 font-normal block">Views on Peak</span></div>
+            <div class="text-xs font-bold text-white">Minggu s.d. Sabtu <span class="text-slate-500 font-normal block">Hari</span></div>
+            <div class="text-xs font-bold text-white">00:00 - 23:00 <span class="text-slate-500 font-normal block">Jam</span></div>
+            <div class="text-xs font-bold text-white"><span class="w-3 h-3 inline-block rounded-sm bg-emerald-500 mr-1"></span> Tinggi <span class="w-3 h-3 inline-block rounded-sm bg-emerald-900 mx-1"></span> Rendah</div>
           </div>
         </div>
       </div>
@@ -427,50 +442,49 @@ const filteredTrendPoints = computed(() => {
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4 mt-6">
-            <div class="p-4 bg-[#090b0a] border border-emerald-950/30 rounded-xl">
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Conversion Rate</div>
-              <div class="text-xl font-black text-white font-mono">5.0<span class="text-slate-400">%</span></div>
+            <div class="grid grid-cols-2 gap-4 mt-6">
+              <div class="p-4 bg-[#090b0a] border border-emerald-950/30 rounded-xl">
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Conversion Rate</div>
+                <div class="text-xl font-black text-white font-mono">{{ conversionRate }}<span class="text-slate-400">%</span></div>
+              </div>
+              <div class="p-4 bg-[#090b0a] border border-emerald-950/30 rounded-xl">
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">MRR (30 Hari)</div>
+                <div class="text-xl font-black text-white font-mono">Rp {{ mrr.toLocaleString('id-ID') }}</div>
+              </div>
             </div>
-            <div class="p-4 bg-[#090b0a] border border-emerald-950/30 rounded-xl">
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Estimated LTV</div>
-              <div class="text-xl font-black text-white font-mono">Rp 598.000</div>
-            </div>
-          </div>
         </div>
 
         <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl">
           <div>
             <h3 class="text-lg font-bold text-white">Status Subscription</h3>
             <p class="text-xs text-slate-500">DISTRIBUSI · Akun aktif vs expired/guest</p>
-          </div>
-          
-          <div class="mt-8 space-y-6">
-            <div>
-              <div class="flex justify-between text-xs font-bold text-white mb-2">
-                <span>Active Subs</span>
-                <span>{{ activeSubscribers }} <span class="text-slate-500 font-normal ml-1">5.1%</span></span>
+            <div class="mt-8 space-y-6">
+              <div>
+                <div class="flex justify-between text-xs font-bold text-white mb-2">
+                  <span>Active Subs</span>
+                  <span>{{ activeSubscribers }} <span class="text-slate-500 font-normal ml-1">{{ totalAccounts > 0 ? ((activeSubscribers / totalAccounts) * 100).toFixed(1) : 0 }}%</span></span>
+                </div>
+                <div class="w-full bg-[#090b0a] h-2 rounded-full overflow-hidden border border-emerald-950/20">
+                  <div class="bg-emerald-500 h-full rounded-full" :style="{ width: (totalAccounts > 0 ? (activeSubscribers / totalAccounts) * 100 : 0) + '%' }"></div>
+                </div>
               </div>
-              <div class="w-full bg-[#090b0a] h-2 rounded-full overflow-hidden border border-emerald-950/20">
-                <div class="bg-emerald-500 h-full rounded-full" style="width: 5.1%"></div>
+              <div>
+                <div class="flex justify-between text-xs font-bold text-white mb-2">
+                  <span>Trial Aktif</span>
+                  <span>{{ activeTrials }} <span class="text-slate-500 font-normal ml-1">{{ totalAccounts > 0 ? ((activeTrials / totalAccounts) * 100).toFixed(1) : 0 }}%</span></span>
+                </div>
+                <div class="w-full bg-[#090b0a] h-2 rounded-full overflow-hidden border border-emerald-950/20">
+                  <div class="bg-emerald-500 h-full rounded-full" :style="{ width: (totalAccounts > 0 ? (activeTrials / totalAccounts) * 100 : 0) + '%' }"></div>
+                </div>
               </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs font-bold text-white mb-2">
-                <span>Trial Aktif</span>
-                <span>{{ activeTrials }} <span class="text-slate-500 font-normal ml-1">97.4%</span></span>
-              </div>
-              <div class="w-full bg-[#090b0a] h-2 rounded-full overflow-hidden border border-emerald-950/20">
-                <div class="bg-emerald-500 h-full rounded-full" style="width: 97.4%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between text-xs font-bold text-white mb-2">
-                <span>Inactive/Guest</span>
-                <span>0 <span class="text-slate-500 font-normal ml-1">0%</span></span>
-              </div>
-              <div class="w-full bg-[#090b0a] h-2 rounded-full overflow-hidden border border-emerald-950/20">
-                <div class="bg-slate-700 h-full rounded-full" style="width: 0%"></div>
+              <div>
+                <div class="flex justify-between text-xs font-bold text-white mb-2">
+                  <span>Inactive/Guest</span>
+                  <span>{{ Math.max(0, totalAccounts - activeSubscribers - activeTrials) }} <span class="text-slate-500 font-normal ml-1">{{ totalAccounts > 0 ? ((Math.max(0, totalAccounts - activeSubscribers - activeTrials) / totalAccounts) * 100).toFixed(1) : 0 }}%</span></span>
+                </div>
+                <div class="w-full bg-[#090b0a] h-2 rounded-full overflow-hidden border border-emerald-950/20">
+                  <div class="bg-slate-700 h-full rounded-full" :style="{ width: (totalAccounts > 0 ? (Math.max(0, totalAccounts - activeSubscribers - activeTrials) / totalAccounts) * 100 : 0) + '%' }"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -483,15 +497,16 @@ const filteredTrendPoints = computed(() => {
           <h3 class="text-lg font-bold text-white">Top Authors — Share of Views</h3>
           <p class="text-xs text-slate-500">LEADERBOARD · {{ new Date().toLocaleString('id-ID', {month: 'long', year: 'numeric'}) }} · % share dari total views bulan ini</p>
         </div>
-        <div class="mt-8">
-          <div class="flex items-center gap-4">
-            <span class="text-xs font-bold text-white w-20 truncate">Tim Avenir</span>
-            <div class="flex-1 bg-[#090b0a] h-4 rounded-full overflow-hidden border border-emerald-950/20">
-              <div class="bg-emerald-600 h-full" style="width: 100%"></div>
+          <div class="mt-8 space-y-4">
+            <div v-if="topAuthors.length === 0" class="text-sm text-slate-500">Belum ada data views.</div>
+            <div v-for="author in topAuthors" :key="author.author_display_name" class="flex items-center gap-4">
+              <span class="text-xs font-bold text-white w-20 truncate" :title="author.author_display_name">{{ author.author_display_name || 'Tim Avenir' }}</span>
+              <div class="flex-1 bg-[#090b0a] h-4 rounded-full overflow-hidden border border-emerald-950/20">
+                <div class="bg-emerald-600 h-full" :style="{ width: ((author.views_count / totalAuthorViews) * 100) + '%' }"></div>
+              </div>
+              <span class="text-xs font-bold font-mono text-emerald-400 w-12 text-right">{{ ((author.views_count / totalAuthorViews) * 100).toFixed(1) }}%</span>
             </div>
-            <span class="text-xs font-bold font-mono text-emerald-400">100%</span>
           </div>
-        </div>
       </div>
 
       <!-- Quick Insights -->
