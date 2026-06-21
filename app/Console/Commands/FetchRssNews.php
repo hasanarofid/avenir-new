@@ -25,6 +25,26 @@ class FetchRssNews extends Command
         [
             'source' => 'CNBC Indonesia',
             'url' => 'https://www.cnbcindonesia.com/market/rss'
+        ],
+        [
+            'source' => 'Kontan',
+            'url' => 'https://nasional.kontan.co.id/rss'
+        ],
+        [
+            'source' => 'Bisnis.com',
+            'url' => 'https://www.bisnis.com/rss'
+        ],
+        [
+            'source' => 'Investor.id',
+            'url' => 'https://investor.id/rss'
+        ],
+        [
+            'source' => 'CNN Indonesia',
+            'url' => 'https://www.cnnindonesia.com/ekonomi/rss'
+        ],
+        [
+            'source' => 'Okezone',
+            'url' => 'https://economy.okezone.com/rss'
         ]
     ];
 
