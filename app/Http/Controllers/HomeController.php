@@ -69,6 +69,7 @@ class HomeController extends Controller
         // 3. Fetch Latest Headlines
         $dbNews = \App\Models\News::select(['id', 'title', 'slug', 'published_at', 'created_at'])
             ->where('status', 'published')
+            ->whereNull('source_url')
             ->latest()
             ->take(5)
             ->get();
