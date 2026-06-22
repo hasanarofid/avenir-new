@@ -336,7 +336,7 @@ const trendingTickers = computed(() => {
                 <component :is="(!news.author && news.source_url) ? 'a' : Link" v-for="(news, idx) in recentNews" :key="news.id" :href="(!news.author && news.source_url) ? news.source_url : ('/news/' + news.slug)" :target="(!news.author && news.source_url) ? '_blank' : null" class="group flex items-center gap-4 py-4 lg:py-5 border-b border-white/5 hover:bg-white/[0.02] px-2 -mx-2 rounded transition-colors">
                    
                    <div class="w-14 lg:w-16 flex-shrink-0 text-center">
-                     <div class="text-[13px] text-slate-300 font-medium">{{ news.published_at ? news.published_at.split(' ')[0] : '09:28' }}</div>
+                     <div class="text-[13px] text-slate-300 font-medium">{{ news.published_time || '09:28' }}</div>
                      <div class="text-[10px] text-slate-500 mt-0.5">WIB</div>
                    </div>
                    

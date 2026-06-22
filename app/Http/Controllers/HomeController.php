@@ -535,6 +535,7 @@ class HomeController extends Controller
                     'source_url' => $news->source_url,
                     'excerpt' => $news->excerpt,
                     'published_at' => $news->published_at ? $news->published_at->format('d M Y') : null,
+                    'published_time' => $news->published_at ? $news->published_at->format('H:i') : null,
                     'cover_image' => $news->cover_image,
                     'author' => $news->author,
                     'is_paid' => $news->is_paid,
