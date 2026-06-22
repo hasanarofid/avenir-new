@@ -67,7 +67,7 @@ function formatRupiah(number) {
             </div>
           </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-4 border-t border-emerald-950/30">
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-5 pt-4 border-t border-emerald-950/30">
             <div>
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Jumlah Transfer</div>
               <div class="text-sm font-semibold text-emerald-400">{{ formatRupiah(p.nominal) }}</div>
@@ -81,10 +81,17 @@ function formatRupiah(number) {
               <div class="text-sm font-semibold text-slate-300">{{ p.durasi_hari ? p.durasi_hari + ' Hari' : '-' }}</div>
             </div>
             <div>
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Batas Akses</div>
+              <div class="text-sm font-semibold text-slate-300">
+                  <span v-if="p.status === 'verified'">{{ formatDate(p.subscription_ends_at) }}</span>
+                  <span v-else class="text-slate-500 italic">Menunggu verifikasi</span>
+              </div>
+            </div>
+            <div>
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Waktu Submit</div>
               <div class="text-sm font-semibold text-slate-300">{{ formatDate(p.created_at) }}</div>
             </div>
-            <div class="col-span-2 md:col-span-4">
+            <div class="col-span-2 md:col-span-5">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Bukti Transfer</div>
               <div class="text-sm font-semibold text-slate-300">
                 <a v-if="p.bukti_url" :href="p.bukti_url" target="_blank" class="text-blue-400 hover:underline">Lihat Bukti Transfer ↗</a>

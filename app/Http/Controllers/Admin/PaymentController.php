@@ -13,10 +13,12 @@ class PaymentController extends Controller
     {
         $payments = DB::table('payment_submissions')
             ->leftJoin('users', 'payment_submissions.user_id', '=', 'users.id')
+            ->leftJoin('user_profiles', 'payment_submissions.user_id', '=', 'user_profiles.user_id')
             ->select(
                 'payment_submissions.*',
                 'users.name as user_name',
-                'users.email as user_email'
+                'users.email as user_email',
+                'user_profiles.subscription_ends_at'
             )
             ->orderBy('payment_submissions.created_at', 'desc')
             ->get();
