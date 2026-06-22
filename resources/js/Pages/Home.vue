@@ -440,14 +440,16 @@ const headlinesPasar = computed(() => {
               <div class="space-y-2.5">
                 <div v-for="(headline, idx) in headlinesPasar" :key="idx" class="flex items-center justify-between p-2.5 rounded-xl border border-slate-900 bg-slate-950/10 hover:bg-slate-950/30 transition-colors">
                   <div class="flex items-center gap-3">
-                    <span class="bg-emerald-950/30 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/20 font-mono tracking-wider">
-                      {{ headline.ticker }}
-                    </span>
+                    <div class="w-14 h-9 rounded overflow-hidden flex-shrink-0 border border-emerald-950/40 bg-[#0a0d0b] flex items-center justify-center">
+                      <img v-if="headline.cover_image" :src="headline.cover_image" loading="lazy" class="w-full h-full object-cover" :alt="headline.ticker" />
+                      <span v-else class="text-emerald-400 text-[9px] font-bold font-mono tracking-wider">
+                        {{ headline.ticker }}
+                      </span>
+                    </div>
                     <span class="text-xs font-semibold text-slate-300 line-clamp-1 hover:text-emerald-400 cursor-pointer">
                       <Link :href="headline.slug ? `/news/${headline.slug}` : '/news'">{{ headline.text }}</Link>
                     </span>
                   </div>
-                  <span class="text-[11px] font-mono text-slate-500 pl-2">{{ headline.time }}</span>
                 </div>
               </div>
             </div>

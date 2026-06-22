@@ -67,7 +67,7 @@ class HomeController extends Controller
         }
 
         // 3. Fetch Latest Headlines
-        $dbNews = \App\Models\News::select(['id', 'title', 'slug', 'published_at', 'created_at'])
+        $dbNews = \App\Models\News::select(['id', 'title', 'slug', 'published_at', 'created_at', 'cover_image'])
             ->where('status', 'published')
             ->whereNull('source_url')
             ->latest()
@@ -76,7 +76,7 @@ class HomeController extends Controller
         
         // If news is empty, fallback to recent posts of any category
         if ($dbNews->isEmpty()) {
-            $dbNews = \App\Models\Article::select(['id', 'title', 'slug', 'published_at', 'created_at'])
+            $dbNews = \App\Models\Article::select(['id', 'title', 'slug', 'published_at', 'created_at', 'cover_image'])
                 ->where('status', 'published')
                 ->latest()
                 ->take(5)
@@ -102,7 +102,8 @@ class HomeController extends Controller
                 'ticker' => $tickerTag,
                 'text' => $news->title,
                 'slug' => $news->slug,
-                'time' => $news->published_at ? $news->published_at->format('H:i') : $news->created_at->format('H:i')
+                'time' => $news->published_at ? $news->published_at->format('H:i') : $news->created_at->format('H:i'),
+                'cover_image' => $news->cover_image
             ];
         }
 
