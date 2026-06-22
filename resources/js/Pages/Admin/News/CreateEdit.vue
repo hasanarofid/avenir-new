@@ -24,7 +24,7 @@ const form = useForm({
   excerpt: props.news?.excerpt || '',
   content: props.news?.content || '',
   sentiment: props.news?.sentiment || 'neutral',
-  published_at: props.news?.published_at ? props.news.published_at.slice(0, 16).replace(' ', 'T') : new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+  published_at: props.news?.published_at ? new Date(new Date(props.news.published_at).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
   status: props.news?.status || 'published',
   is_paid: props.news?.is_paid ? true : false,
   image: ''
