@@ -21,8 +21,7 @@ const props = defineProps({
     tickers: Object,
     sectors: Array,
     filters: Object,
-    rapidApiKey: String,
-    rapidApiHost: String
+    sectorApiKey: String
 });
 
 const filterForm = ref({
@@ -113,60 +112,32 @@ const featuredCards = [
 ];
 
 const marketTickers = ref([
-    { symbol: 'IHSG', yahooSymbol: '^JKSE', price: 'Loading...', change: '...', isUp: true, category: 'index' },
-    { symbol: 'LQ45', yahooSymbol: '^JKLQ45', price: 'Loading...', change: '...', isUp: true, category: 'index' },
-    { symbol: 'BBCA', yahooSymbol: 'BBCA.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
-    { symbol: 'BBRI', yahooSymbol: 'BBRI.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
-    { symbol: 'UNTR', yahooSymbol: 'UNTR.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
-    { symbol: 'TPIA', yahooSymbol: 'TPIA.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
-    { symbol: 'INDF', yahooSymbol: 'INDF.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
-    { symbol: 'UNVR', yahooSymbol: 'UNVR.JK', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
-    { symbol: 'BTC - USD', yahooSymbol: 'BTC-USD', price: 'Loading...', change: '...', isUp: true, category: 'crypto' },
-    { symbol: 'ETH - USD', yahooSymbol: 'ETH-USD', price: 'Loading...', change: '...', isUp: true, category: 'crypto' },
-    { symbol: 'USD - IDR', yahooSymbol: 'IDR=X', price: 'Loading...', change: '...', isUp: true, category: 'forex' },
-    { symbol: 'EUR - IDR', yahooSymbol: 'EURIDR=X', price: 'Loading...', change: '...', isUp: true, category: 'forex' },
+    { symbol: 'BBCA', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'BBRI', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'BMRI', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'AMMN', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'BREN', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'TLKM', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'ASII', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'UNTR', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'TPIA', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'INDF', price: 'Loading...', change: '...', isUp: true, category: 'stock' }
 ]);
 
 onMounted(async () => {
-    if (props.rapidApiKey && props.rapidApiHost) {
-        const symbols = marketTickers.value.map(t => t.yahooSymbol).join(',');
-        try {
-            const response = await fetch(`https://${props.rapidApiHost}/api/market/get-quote?region=US&symbols=${symbols}`, {
-                method: 'GET',
-                headers: {
-                    'x-rapidapi-host': props.rapidApiHost,
-                    'x-rapidapi-key': props.rapidApiKey
-                }
-            });
-            const data = await response.json();
-            
-            if (data && data.quoteResponse && data.quoteResponse.result) {
-                const results = data.quoteResponse.result;
-                marketTickers.value.forEach((ticker, index) => {
-                    const quote = results.find(r => r.symbol === ticker.yahooSymbol);
-                    if (quote) {
-                        marketTickers.value[index].price = quote.regularMarketPrice ? quote.regularMarketPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A';
-                        marketTickers.value[index].change = quote.regularMarketChangePercent ? `${quote.regularMarketChangePercent > 0 ? '+' : ''}${quote.regularMarketChangePercent.toFixed(2)}%` : '0.00%';
-                        marketTickers.value[index].isUp = quote.regularMarketChangePercent >= 0;
-                    } else {
-                        marketTickers.value[index].price = 'N/A';
-                        marketTickers.value[index].change = 'Not Found';
-                    }
-                });
-            } else if (data.message) {
-                console.error('RapidAPI Error:', data.message);
-                marketTickers.value.forEach((t, i) => {
-                    marketTickers.value[i].price = 'API Limit?';
-                    marketTickers.value[i].change = '0.00%';
-                });
-            }
-        } catch (e) {
-            console.error('Error fetching data from RapidAPI:', e);
-            marketTickers.value.forEach((t, i) => {
-                marketTickers.value[i].price = 'Error';
-                marketTickers.value[i].change = '0.00%';
-            });
+    try {
+        const response = await fetch('/api/market-tickers');
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            marketTickers.value = data;
         }
+    } catch (e) {
+        console.error('Error fetching data from API:', e);
+        marketTickers.value.forEach((t, i) => {
+            marketTickers.value[i].price = 'Error';
+            marketTickers.value[i].change = '0.00%';
+        });
     }
 });
 
@@ -217,7 +188,7 @@ const getDummyChange = (id) => {
                         </div>
                         <div class="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                             <div class="flex items-center gap-1.5">
-                                Data Powered By <span class="text-white text-sm font-serif italic normal-case font-medium">Yahoo Finance</span>
+                                Data Powered By <span class="text-white text-sm font-serif italic normal-case font-medium">Sectors.app</span>
                             </div>
                         </div>
                     </div>

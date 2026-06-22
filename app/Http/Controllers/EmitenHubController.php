@@ -37,8 +37,7 @@ class EmitenHubController extends Controller
             'filters' => $request->only([
                 'search', 'sector', 'market_cap', 'per', 'growth', 'yield', 'papan', 'index_board'
             ]),
-            'rapidApiKey' => env('RAPIDAPI_KEY'),
-            'rapidApiHost' => env('RAPIDAPI_HOST')
+            'sectorApiKey' => env('SECTOR_API_KEY')
         ]);
     }
 
@@ -69,5 +68,58 @@ class EmitenHubController extends Controller
             'realtimePrice' => $realtimePrice,
             'isWatchlisted' => $isWatchlisted,
         ]);
+    }
+    
+    public function tickers()
+    {
+        $tickers = \Illuminate\Support\Facades\Cache::remember('market_tickers', 300, function () {
+            // Include top 10 tickers
+            $symbols = ['BBCA.JK', 'BBRI.JK', 'BMRI.JK', 'AMMN.JK', 'BREN.JK', 'TLKM.JK', 'ASII.JK', 'UNTR.JK', 'TPIA.JK', 'INDF.JK'];
+            $results = [];
+            $apiKey = env('SECTOR_API_KEY');
+            
+            // Get data from 7 days ago to ensure we have at least 2 trading days
+            $start = now()->subDays(7)->format('Y-m-d');
+            
+            // Multi-curl or parallel requests would be faster, but since it's cached every 5 mins,
+            // sequential is acceptable. We use Pool for concurrent requests to speed up the cache generation.
+            $responses = \Illuminate\Support\Facades\Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($symbols, $apiKey, $start) {
+                $reqs = [];
+                foreach ($symbols as $symbol) {
+                    $reqs[] = $pool->as($symbol)->withHeaders(['Authorization' => $apiKey])->timeout(5)->get("https://api.sectors.app/v2/daily/{$symbol}/?start={$start}");
+                }
+                return $reqs;
+            });
+            
+            foreach ($responses as $symbol => $response) {
+                if ($response->successful()) {
+                    $data = $response->json();
+                    if (is_array($data) && count($data) >= 2) {
+                        $latest = $data[count($data) - 1];
+                        $previous = $data[count($data) - 2];
+                        
+                        $price = $latest['close'];
+                        $prevPrice = $previous['close'];
+                        
+                        $changePercent = 0;
+                        if ($prevPrice > 0) {
+                            $changePercent = (($price - $prevPrice) / $prevPrice) * 100;
+                        }
+                        
+                        $results[] = [
+                            'symbol' => str_replace('.JK', '', $symbol),
+                            'price' => number_format($price, 0, ',', '.'),
+                            'change' => ($changePercent > 0 ? '+' : '') . number_format($changePercent, 2) . '%',
+                            'isUp' => $changePercent >= 0,
+                            'category' => 'stock'
+                        ];
+                    }
+                }
+            }
+            
+            return $results;
+        });
+
+        return response()->json($tickers);
     }
 }
