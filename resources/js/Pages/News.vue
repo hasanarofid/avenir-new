@@ -113,9 +113,22 @@ const hasMoreRecentNews = computed(() => {
     return filteredRecentNews.value.length > visibleCount.value;
 });
 
+const marketTickers = ref([
+    { symbol: 'BBCA', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'BBRI', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'BMRI', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'AMMN', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'BREN', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'TLKM', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'ASII', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'UNTR', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'TPIA', price: 'Loading...', change: '...', isUp: true, category: 'stock' },
+    { symbol: 'INDF', price: 'Loading...', change: '...', isUp: true, category: 'stock' }
+]);
+
 let pollInterval = null;
 
-onMounted(() => {
+onMounted(async () => {
     // Polling data market setiap 60 detik secara background (tanpa loading screen)
     pollInterval = setInterval(() => {
         router.reload({
@@ -124,6 +137,21 @@ onMounted(() => {
             preserveScroll: true
         });
     }, 60000);
+
+    try {
+        const response = await fetch('/api/market-tickers');
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            marketTickers.value = data;
+        }
+    } catch (e) {
+        console.error('Error fetching data from API:', e);
+        marketTickers.value.forEach((t, i) => {
+            marketTickers.value[i].price = 'Error';
+            marketTickers.value[i].change = '0.00%';
+        });
+    }
 });
 
 onUnmounted(() => {
@@ -211,6 +239,39 @@ const trendingTickers = computed(() => {
         <div class="mb-10">
           <h1 class="text-4xl md:text-[42px] font-bold text-white mb-2 leading-tight">Market News</h1>
           <p class="text-slate-400 text-[15px] mb-8">Update pasar harian tepercaya untuk keputusan investasi yang lebih cerdas.</p>
+        </div>
+
+        <!-- Market Ticker Strip (Bloomberg Technoz Style) -->
+        <div class="mb-10 border-b border-white/5 pb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <div class="text-slate-400 text-xs flex items-center gap-2 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Last updated: <span class="text-slate-300">{{ new Date().toLocaleString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}) }} WIB</span>
+                </div>
+                <div class="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <div class="flex items-center gap-1.5">
+                        Data Powered By <span class="text-white text-sm font-serif italic normal-case font-medium">Sectors.app</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="marquee-container py-1">
+                <div class="marquee-content group hover:animation-paused">
+                    <template v-for="loop in 2" :key="loop">
+                        <div v-for="ticker in marketTickers" :key="ticker.symbol + loop" 
+                             :class="['shrink-0 rounded-lg p-3 min-w-[130px] flex flex-col transition-all border shadow-sm', 
+                                      ticker.category === 'crypto' ? 'bg-[#0f172a]/40 border-blue-500/20' : 'bg-[#121614] border-white/5']">
+                            <span class="text-slate-400 text-[11px] font-bold mb-1">{{ ticker.symbol }}</span>
+                            <span class="text-white text-[15px] font-bold mb-1 tracking-tight">{{ ticker.price }}</span>
+                            <div :class="[ticker.isUp ? 'text-emerald-500' : 'text-red-500', 'flex items-center gap-1 text-[11px] font-bold']">
+                                <svg v-if="ticker.isUp" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                                <svg v-else width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                                {{ ticker.change }}
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
         </div>
 
         <!-- Main Layout Split -->
@@ -509,5 +570,24 @@ select {
 }
 .filter-group .multiselect-dropdown {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+.marquee-container {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    width: 100%;
+}
+.marquee-content {
+    display: inline-flex;
+    gap: 1rem;
+    animation: marquee 35s linear infinite;
+}
+.marquee-content:hover {
+    animation-play-state: paused;
+}
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
 </style>
