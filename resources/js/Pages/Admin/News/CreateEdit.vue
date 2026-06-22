@@ -24,7 +24,7 @@ const form = useForm({
   excerpt: props.news?.excerpt || '',
   content: props.news?.content || '',
   sentiment: props.news?.sentiment || 'neutral',
-  published_at: props.news?.published_at || new Date().toISOString().slice(0, 10),
+  published_at: props.news?.published_at ? props.news.published_at.slice(0, 16).replace(' ', 'T') : new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
   status: props.news?.status || 'published',
   is_paid: props.news?.is_paid ? true : false,
   image: ''
@@ -177,7 +177,7 @@ const submit = () => {
               <input 
                 id="published_at"
                 v-model="form.published_at"
-                type="date" 
+                type="datetime-local" 
                 class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition-all"
               />
             </div>
