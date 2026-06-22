@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
 });
 
 
+Route::get('/p/{slug}', [\App\Http\Controllers\PageController::class, 'show'])->name('page.show');
 Route::get('/tentang', [HomeController::class, 'tentang'])->name('tentang');
 Route::get('/mitra', [HomeController::class, 'mitra'])->name('mitra');
 Route::get('/langganan', [HomeController::class, 'langganan'])->name('langganan');

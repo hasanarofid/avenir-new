@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Save, ChevronLeft, Layout, Edit, Eye, Plus, Trash2 } from '@lucide/vue';
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 const props = defineProps({
   page: {
@@ -374,6 +376,22 @@ const removeTestimonialItem = (index) => {
                           class="w-full bg-[#121614] border border-emerald-950/25 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-250 resize-none"
                         ></textarea>
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Content Section Editor (Rich Text) -->
+                <div v-else-if="page.sections.find(s => s.id === activeSectionId)?.key === 'content'" class="space-y-4">
+                  <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500">Teks Konten (Rich Text)</label>
+                    <div class="bg-[#121614] rounded-xl overflow-hidden border border-emerald-950/40">
+                      <QuillEditor 
+                        v-model:content="sectionForm.content.body" 
+                        contentType="html" 
+                        toolbar="essential"
+                        theme="snow"
+                        class="h-64 text-slate-100"
+                      />
                     </div>
                   </div>
                 </div>
