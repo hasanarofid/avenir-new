@@ -181,6 +181,11 @@ const filteredItems = computed(() => {
                   {{ new Date(item[header.value]).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) }}
                 </span>
 
+                <!-- DateTime Type -->
+                <span v-else-if="header.type === 'datetime'">
+                  {{ new Date(item[header.value]).toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', '').replace('pukul ', '').replace(/\./g, ':') }} WIB
+                </span>
+
                 <!-- Text fallback -->
                 <span v-else class="line-clamp-1">
                   {{ item[header.value] }}

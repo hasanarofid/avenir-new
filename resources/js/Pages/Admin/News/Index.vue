@@ -20,7 +20,7 @@ const headers = [
   { text: 'Kategori', value: 'category' },
   { text: 'Status', value: 'status' },
   { text: 'Berita Utama', value: 'is_featured' },
-  { text: 'Tgl Publish', value: 'published_at', type: 'date' }
+  { text: 'Tgl Publish', value: 'published_at', type: 'datetime' }
 ];
 
 const selectedItems = ref([]);

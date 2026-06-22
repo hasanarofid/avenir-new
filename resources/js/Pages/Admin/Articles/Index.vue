@@ -20,7 +20,7 @@ const headers = [
   { text: 'Kategori', value: 'category' },
   { text: 'Pilihan Editor', value: 'badge' },
   { text: 'Status', value: 'status' },
-  { text: 'Tgl Publish', value: 'published_at', type: 'date' }
+  { text: 'Tgl Publish', value: 'published_at', type: 'datetime' }
 ];
 
 const selectedItems = ref([]);
