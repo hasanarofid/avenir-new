@@ -131,6 +131,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'role:admin'])->group(function () {
         // AI Logs (Audit)
         Route::get('/ai-logs', [\App\Http\Controllers\Admin\AILogController::class, 'index'])->name('ai-logs.index');
+
+        // Activity Logs
+        Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-logs.index');
+
         
         // Payments
         Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');

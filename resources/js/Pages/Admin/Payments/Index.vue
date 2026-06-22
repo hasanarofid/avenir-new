@@ -70,15 +70,15 @@ function formatRupiah(number) {
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-4 border-t border-emerald-950/30">
             <div>
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Jumlah Transfer</div>
-              <div class="text-sm font-semibold text-emerald-400">{{ formatRupiah(p.amount) }}</div>
+              <div class="text-sm font-semibold text-emerald-400">{{ formatRupiah(p.nominal) }}</div>
             </div>
             <div>
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Bank Pengirim</div>
-              <div class="text-sm font-semibold text-slate-300">{{ p.bank_sender || '-' }}</div>
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Paket</div>
+              <div class="text-sm font-semibold text-slate-300">{{ p.paket || '-' }}</div>
             </div>
             <div>
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Atas Nama</div>
-              <div class="text-sm font-semibold text-slate-300">{{ p.account_sender || '-' }}</div>
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Durasi</div>
+              <div class="text-sm font-semibold text-slate-300">{{ p.durasi_hari ? p.durasi_hari + ' Hari' : '-' }}</div>
             </div>
             <div>
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Waktu Submit</div>
@@ -87,7 +87,7 @@ function formatRupiah(number) {
             <div class="col-span-2 md:col-span-4">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Bukti Transfer</div>
               <div class="text-sm font-semibold text-slate-300">
-                <a v-if="p.proof_url" :href="p.proof_url" target="_blank" class="text-blue-400 hover:underline">Lihat Bukti Transfer ↗</a>
+                <a v-if="p.bukti_url" :href="p.bukti_url" target="_blank" class="text-blue-400 hover:underline">Lihat Bukti Transfer ↗</a>
                 <span v-else>-</span>
               </div>
             </div>

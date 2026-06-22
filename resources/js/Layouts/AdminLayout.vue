@@ -24,7 +24,8 @@ import {
   BrainCircuit,
   Globe,
   Activity,
-  TrendingUp
+  TrendingUp,
+  ShieldAlert
 } from '@lucide/vue';
 
 const page = usePage();
@@ -88,6 +89,7 @@ const navigationGroups = [
       { name: 'Research AI', href: route('admin.research-generator.index'), icon: BrainCircuit, current: route().current('admin.research-generator.*') },
       { name: 'News AI Generator', href: route('admin.news-generator.index'), icon: Globe, current: route().current('admin.news-generator.*') },
       { name: 'AI Logs (Audit)', href: route('admin.ai-logs.index'), icon: Activity, current: route().current('admin.ai-logs.*'), roles: ['admin'] },
+    { name: 'Activity Logs', href: route('admin.activity-logs.index'), icon: ShieldAlert, current: route().current('admin.activity-logs.*'), roles: ['admin'] },
     ]
   },
   {
