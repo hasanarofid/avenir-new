@@ -16,6 +16,18 @@ defineProps({
     status: {
         type: String,
     },
+    hasActivePremium: {
+        type: Boolean,
+        default: false,
+    },
+    activePackage: {
+        type: String,
+        default: null,
+    },
+    subscriptionEndsAt: {
+        type: String,
+        default: null,
+    },
 });
 
 const page = usePage();
@@ -55,6 +67,30 @@ const activeLayout = computed(() => {
       </div>
 
       <div class="grid grid-cols-1 gap-8">
+        <!-- Subscription Info Card -->
+        <div class="panel-card">
+          <h3 class="text-lg font-bold text-white mb-4">Status Langganan</h3>
+          <div v-if="hasActivePremium" class="flex items-center justify-between p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+            <div>
+              <p class="text-sm text-slate-400 mb-1">Paket Aktif</p>
+              <p class="font-bold text-emerald-400">{{ activePackage }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-slate-400 mb-1">Berlaku Sampai</p>
+              <p class="font-bold text-white">{{ subscriptionEndsAt || 'Seumur Hidup' }}</p>
+            </div>
+          </div>
+          <div v-else class="flex flex-col sm:flex-row items-center justify-between p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl gap-4">
+            <div>
+              <p class="text-sm text-slate-400 mb-1">Status Anda saat ini</p>
+              <p class="font-bold text-white">Pengguna Gratis (Basic)</p>
+            </div>
+            <a href="/langganan" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg transition-colors">
+              Tingkatkan ke Premium
+            </a>
+          </div>
+        </div>
+
         <!-- Update Info Card -->
         <div class="panel-card">
           <UpdateProfileInformationForm
@@ -110,6 +146,30 @@ const activeLayout = computed(() => {
 
         <!-- Forms Section -->
         <div class="profile-sections">
+          <!-- Subscription Info Card -->
+          <div class="profile-card">
+            <h3 class="text-lg font-bold text-white mb-4">Status Langganan</h3>
+            <div v-if="hasActivePremium" class="flex items-center justify-between p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+              <div>
+                <p class="text-sm text-slate-400 mb-1">Paket Aktif</p>
+                <p class="font-bold text-emerald-400">{{ activePackage }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm text-slate-400 mb-1">Berlaku Sampai</p>
+                <p class="font-bold text-white">{{ subscriptionEndsAt || 'Seumur Hidup' }}</p>
+              </div>
+            </div>
+            <div v-else class="flex flex-col sm:flex-row items-center justify-between p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl gap-4">
+              <div>
+                <p class="text-sm text-slate-400 mb-1">Status Anda saat ini</p>
+                <p class="font-bold text-white">Pengguna Gratis (Basic)</p>
+              </div>
+              <a href="/langganan" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg transition-colors">
+                Tingkatkan ke Premium
+              </a>
+            </div>
+          </div>
+
           <!-- Update Info Card -->
           <div class="profile-card">
             <UpdateProfileInformationForm

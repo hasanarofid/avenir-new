@@ -18,9 +18,45 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+        $hasActivePremium = $user->hasActivePremium() || $user->hasRole('admin');
+        $subscriptionEndsAt = null;
+        $activePackage = null;
+
+        if ($hasActivePremium) {
+            $profile = \Illuminate\Support\Facades\DB::table('user_profiles')->where('user_id', $user->id)->first();
+            $subscriptionEndsAt = $profile ? $profile->subscription_ends_at : null;
+            
+            $latestPayment = \Illuminate\Support\Facades\DB::table('payment_submissions')
+                ->where('user_id', $user->id)
+                ->where('status', 'verified')
+                ->orderBy('verified_at', 'desc')
+                ->first();
+                
+            if ($latestPayment) {
+                $activePackage = $latestPayment->paket;
+                // Translate package name
+                if ($activePackage === '1bulan') $activePackage = 'Langganan 1 Bulan';
+                elseif ($activePackage === '3bulan') $activePackage = 'Langganan 3 Bulan';
+                elseif ($activePackage === '6bulan') $activePackage = 'Langganan 6 Bulan';
+                elseif ($activePackage === '12bulan') $activePackage = 'Langganan 1 Tahun';
+            } else {
+                $activePackage = $user->hasRole('admin') ? 'Akses Administrator' : 'Akses Premium Khusus';
+            }
+            
+            if ($subscriptionEndsAt) {
+                $subscriptionEndsAt = \Carbon\Carbon::parse($subscriptionEndsAt)->translatedFormat('d F Y');
+            } else if (!$user->hasRole('admin')) {
+                $subscriptionEndsAt = 'Akses Seumur Hidup';
+            }
+        }
+
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
+            'hasActivePremium' => $hasActivePremium,
+            'subscriptionEndsAt' => $subscriptionEndsAt,
+            'activePackage' => $activePackage,
         ]);
     }
 

@@ -116,10 +116,11 @@ const updatePhotoPreview = (e) => {
                     <TextInput
                         id="email"
                         type="email"
-                        class="mt-1 block w-full"
+                        class="mt-1 block w-full opacity-60 cursor-not-allowed"
                         v-model="form.email"
                         required
                         autocomplete="username"
+                        disabled
                     />
 
                     <InputError class="mt-2" :message="form.errors.email" />
