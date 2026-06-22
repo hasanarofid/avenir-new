@@ -191,7 +191,7 @@ class HomeController extends Controller
             $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
                 ->where('user_id', auth()->id())
                 ->first();
-            if ($profile && $profile->is_subscriber) {
+            if (auth()->user()->hasActivePremium() || auth()->user()->hasRole("admin")) {
                 $isSubscriber = true;
                 $isUnlocked   = true;
             }
@@ -722,7 +722,7 @@ class HomeController extends Controller
             $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
                 ->where('user_id', $user->id)
                 ->first();
-            if ($profile && $profile->is_subscriber) {
+            if (auth()->user()->hasActivePremium() || auth()->user()->hasRole("admin")) {
                 $isSubscriber = true;
                 $status = 'active';
             }

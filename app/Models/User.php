@@ -48,9 +48,19 @@ class User extends Authenticatable
      */
     public function hasActivePremium()
     {
-        // For MVP, if they have an approved subscription, they are premium.
-        // We can check if verified_at + durasi_hari is greater than now().
-        $activeSub = $this->subscriptions()->where('status', 'approved')->first();
+        $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
+            ->where('user_id', $this->id)
+            ->first();
+
+        if ($profile && $profile->is_subscriber) {
+            if ($profile->subscription_ends_at) {
+                return \Carbon\Carbon::parse($profile->subscription_ends_at)->isFuture();
+            }
+            return true;
+        }
+
+        // Fallback to checking payment_submissions
+        $activeSub = $this->subscriptions()->latest('verified_at')->first();
         if (!$activeSub) return false;
 
         if ($activeSub->verified_at && $activeSub->durasi_hari) {
@@ -60,9 +70,10 @@ class User extends Authenticatable
 
         return true;
     }
+
     public function subscriptions()
     {
-        return $this->hasMany(PaymentSubmission::class, 'user_id')->where('status', 'approved');
+        return $this->hasMany(PaymentSubmission::class, 'user_id')->where('status', 'verified');
     }
 
     public function watchlists()
