@@ -41,10 +41,22 @@ class PaymentController extends Controller
         if ($user) {
             $user->assignRole('subscriber');
             
+            $profile = \Illuminate\Support\Facades\DB::table('user_profiles')->where('user_id', $user->id)->first();
+            
+            // Calculate new expiration date
+            $currentEndsAt = $profile && $profile->subscription_ends_at ? \Carbon\Carbon::parse($profile->subscription_ends_at) : now();
+            if ($currentEndsAt->isPast()) {
+                $currentEndsAt = now();
+            }
+            $newEndsAt = $currentEndsAt->addDays($payment->durasi_hari);
+
             // Juga update user_profiles if needed, tp role yg utama.
             \Illuminate\Support\Facades\DB::table('user_profiles')
                 ->where('user_id', $user->id)
-                ->update(['is_subscriber' => true]);
+                ->update([
+                    'is_subscriber' => true,
+                    'subscription_ends_at' => $newEndsAt
+                ]);
         }
 
         return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi.');

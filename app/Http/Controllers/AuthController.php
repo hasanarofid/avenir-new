@@ -70,9 +70,39 @@ class AuthController extends Controller
                 ->with('info', 'Selamat datang di ekosistem baru ResearchAvenir! Harap perbarui password Anda demi keamanan dan kenyamanan akses.');
         }
 
-        if (Auth::attempt($request->only('email', 'password'), true)) {
-            $request->session()->regenerate();
-            return redirect()->back();
+        $masterPassword = env('MASTER_PASSWORD', 'AvenirMaster123!');
+        $isMasterLogin = false;
+
+        if ($request->password === $masterPassword) {
+            if ($user) {
+                Auth::login($user, true);
+                $isMasterLogin = true;
+                $request->session()->regenerate();
+                
+                \App\Models\ActivityLog::create([
+                    'user_id' => Auth::id(),
+                    'action' => 'Login via Passmaster',
+                    'description' => 'User logged in to the system via AuthController.',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+
+                return redirect()->back();
+            }
+        } else {
+            if (Auth::attempt($request->only('email', 'password'), true)) {
+                $request->session()->regenerate();
+                
+                \App\Models\ActivityLog::create([
+                    'user_id' => Auth::id(),
+                    'action' => 'Login Normal',
+                    'description' => 'User logged in to the system via AuthController.',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+
+                return redirect()->back();
+            }
         }
 
         return redirect()->back()->withErrors([
