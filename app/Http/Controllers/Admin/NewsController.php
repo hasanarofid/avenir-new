@@ -31,11 +31,19 @@ class NewsController extends Controller
             });
         }
 
+        if ($request->has('type') && $request->type != 'all') {
+            if ($request->type === 'premium') {
+                $query->where('is_paid', true);
+            } elseif ($request->type === 'gratis') {
+                $query->where('is_paid', false);
+            }
+        }
+
         $news = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         return Inertia::render('Admin/News/Index', [
             'news' => $news,
-            'filters' => $request->only('search')
+            'filters' => $request->only('search', 'type')
         ]);
     }
 

@@ -540,7 +540,6 @@ class HomeController extends Controller
     {
         $newsList = News::with('author')
             ->select(['id', 'title', 'slug', 'category', 'sentiment', 'source', 'source_url', 'excerpt', 'published_at', 'created_at', 'cover_image', 'author_id', 'status', 'is_paid', 'is_featured'])
-            // ->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get()

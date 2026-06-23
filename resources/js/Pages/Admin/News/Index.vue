@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
@@ -18,12 +18,36 @@ const headers = [
   { text: 'Judul Artikel', value: 'title' },
   { text: 'Penulis / Media', value: 'author' },
   { text: 'Kategori', value: 'category' },
+  { text: 'Tipe', value: 'is_paid' },
   { text: 'Status', value: 'status' },
   { text: 'Berita Utama', value: 'is_featured' },
   { text: 'Tgl Publish', value: 'published_at', type: 'datetime' }
 ];
 
 const selectedItems = ref([]);
+const filterType = ref(props.filters?.type || 'all');
+const search = ref(props.filters?.search || '');
+
+let searchTimeout = null;
+const handleSearch = (val) => {
+    search.value = val;
+    fetchData();
+};
+
+const fetchData = () => {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        router.get(
+            route('admin.news.index'), 
+            { search: search.value, type: filterType.value }, 
+            { preserveState: true, replace: true }
+        );
+    }, 300);
+};
+
+watch(filterType, () => {
+    fetchData();
+});
 
 const handleEdit = (item) => {
   router.get(route('admin.news.edit', item.id));
@@ -123,11 +147,29 @@ const toggleFeatured = (item) => {
             :pagination="news.links"
             selectable
             v-model:selectedItems="selectedItems"
+            :server-search="true"
+            :initial-search="search"
             search-placeholder="Cari judul berita atau kategori..."
             search-key="title"
+            @search="handleSearch"
             @edit="handleEdit"
             @delete="handleDelete"
           >
+            <template #actions-header>
+               <select v-model="filterType" class="bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors h-[42px] cursor-pointer w-full md:w-auto">
+                  <option value="all">Semua Tipe</option>
+                  <option value="gratis">Gratis</option>
+                  <option value="premium">Premium</option>
+               </select>
+            </template>
+            <template #cell(is_paid)="{ item }">
+              <span v-if="item.is_paid" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                Premium
+              </span>
+              <span v-else class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                Gratis
+              </span>
+            </template>
             <template #cell(author)="{ item }">
               <div class="flex flex-col">
                 <span>{{ typeof item.author === 'object' && item.author !== null ? item.author.name : item.author }}</span>
