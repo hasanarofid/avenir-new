@@ -722,60 +722,9 @@ class HomeController extends Controller
         $currentMonth = now()->month;
         $currentYear = now()->year;
 
-        // Ambil budget pool bulan ini dari database
-        $poolConfig = \Illuminate\Support\Facades\DB::table('pool_config')
-            ->where('period_year', $currentYear)
-            ->where('period_month', $currentMonth)
-            ->first();
-            
-        $poolBudget = $poolConfig ? $poolConfig->pool_budget_idr : 0;
-
-        $partnersData = \Illuminate\Support\Facades\DB::table('partners')
-            ->join('users', 'partners.user_id', '=', 'users.id')
-            ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-            ->where('partners.is_verified', true)
-            ->select(
-                'users.id',
-                'users.name',
-                'partners.certification',
-                'partners.specializations',
-                'user_profiles.first_name',
-                'user_profiles.last_name'
-            )
-            ->get();
-
-        $partnerIds = $partnersData->pluck('id')->toArray();
-        
-        $researchViews = \Illuminate\Support\Facades\DB::table('research_view_logs')
-            ->join('research', 'research_view_logs.research_id', '=', 'research.id')
-            ->whereIn('research.author_id', $partnerIds)
-            ->whereMonth('research_view_logs.created_at', $currentMonth)
-            ->whereYear('research_view_logs.created_at', $currentYear)
-            ->select('research.author_id as user_id', \Illuminate\Support\Facades\DB::raw('count(*) as total_views'))
-            ->groupBy('research.author_id')
-            ->get()->keyBy('user_id');
-
-        $articleViews = \Illuminate\Support\Facades\DB::table('article_view_logs')
-            ->join('articles', 'article_view_logs.article_id', '=', 'articles.id')
-            ->whereIn('articles.user_id', $partnerIds)
-            ->whereMonth('article_view_logs.created_at', $currentMonth)
-            ->whereYear('article_view_logs.created_at', $currentYear)
-            ->select('articles.user_id as user_id', \Illuminate\Support\Facades\DB::raw('count(*) as total_views'))
-            ->groupBy('articles.user_id')
-            ->get()->keyBy('user_id');
-
-        $partners = $partnersData->map(function ($p) use ($researchViews, $articleViews) {
-            $rViews = $researchViews->has($p->id) ? $researchViews->get($p->id)->total_views : 0;
-            $aViews = $articleViews->has($p->id) ? $articleViews->get($p->id)->total_views : 0;
-            $totalViews = $rViews + $aViews;
-
-            return [
-                'name' => $p->name ?? (trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) ?: 'Mitra Analis'),
-                'certification' => $p->certification ?? 'Mitra Analis',
-                'specializations' => json_decode($p->specializations ?? '[]'),
-                'total_views' => $totalViews,
-            ];
-        })->sortByDesc('total_views')->values()->toArray();
+        $incomeService = new \App\Services\MitraIncomeService();
+        $poolBudget = $incomeService->getMonthlyPool($currentMonth, $currentYear);
+        $partners = $incomeService->getMonthlyRanking($currentMonth, $currentYear);
 
         return Inertia::render('Partners', [
             'partners' => $partners,

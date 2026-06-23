@@ -1,7 +1,7 @@
 <script setup>
 import MitraLayout from '@/Layouts/MitraLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { FileText, TrendingUp, UserPlus } from '@lucide/vue';
+import { FileText, TrendingUp, UserPlus, Wallet, Coins, Heart, MessageSquare, Share2 } from '@lucide/vue';
 import { computed } from 'vue';
 
 const page = usePage();
@@ -9,7 +9,18 @@ const page = usePage();
 const props = defineProps({
   researches: Array,
   articles: Array,
+  monthlyIncome: Number,
+  cumulativeIncome: Number,
+  currentPeriod: String,
 });
+
+const formatRupiah = (number) => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+    }).format(number || 0);
+};
 
 const user = computed(() => page.props.auth.user);
 const partner = computed(() => user.value?.partner);
@@ -70,6 +81,35 @@ const partner = computed(() => user.value?.partner);
             </div>
           </div>
         </div>
+        <!-- Revenue Cards -->
+        <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 opacity-5">
+            <Coins class="w-24 h-24" />
+          </div>
+          <div class="flex items-center justify-between relative z-10">
+            <div>
+              <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Pendapatan {{ currentPeriod }}</p>
+              <p class="text-2xl font-bold text-emerald-400 mt-1">{{ formatRupiah(monthlyIncome) }}</p>
+            </div>
+            <div class="p-3 bg-emerald-500/10 rounded-xl">
+              <Coins class="w-6 h-6 text-emerald-400" />
+            </div>
+          </div>
+        </div>
+        <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 opacity-5">
+            <Wallet class="w-24 h-24" />
+          </div>
+          <div class="flex items-center justify-between relative z-10">
+            <div>
+              <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Akumulasi Pendapatan</p>
+              <p class="text-2xl font-bold text-white mt-1">{{ formatRupiah(cumulativeIncome) }}</p>
+            </div>
+            <div class="p-3 bg-slate-800 rounded-xl">
+              <Wallet class="w-6 h-6 text-slate-400" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Latest Content -->
@@ -77,9 +117,22 @@ const partner = computed(() => user.value?.partner);
         <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6">
           <h3 class="text-lg font-bold text-white mb-4">Research Terbaru</h3>
           <div class="space-y-3" v-if="researches.length">
-            <div v-for="research in researches.slice(0, 5)" :key="research.id" class="p-3 border border-emerald-950/30 rounded-xl hover:border-emerald-500/30 transition-colors">
-              <p class="text-sm font-semibold text-white">{{ research.title }}</p>
-              <p class="text-xs text-slate-500 mt-1">{{ new Date(research.created_at).toLocaleDateString('id-ID') }}</p>
+            <div v-for="research in researches.slice(0, 5)" :key="research.id" class="p-4 border border-emerald-950/30 rounded-xl hover:border-emerald-500/30 transition-colors bg-[#0a0d0b]">
+              <div class="flex justify-between items-start">
+                <p class="text-sm font-semibold text-white leading-snug pr-4">{{ research.title }}</p>
+                <p class="text-xs text-slate-500 whitespace-nowrap">{{ new Date(research.created_at).toLocaleDateString('id-ID') }}</p>
+              </div>
+              <div class="flex items-center gap-4 mt-3 text-xs text-slate-400">
+                <div class="flex items-center gap-1.5" title="Suka">
+                  <Heart class="w-3.5 h-3.5" /> <span>{{ research.likes_count || 0 }}</span>
+                </div>
+                <div class="flex items-center gap-1.5" title="Komentar">
+                  <MessageSquare class="w-3.5 h-3.5" /> <span>{{ research.comments_count || 0 }}</span>
+                </div>
+                <div class="flex items-center gap-1.5" title="Bagikan">
+                  <Share2 class="w-3.5 h-3.5" /> <span>{{ research.shares_count || 0 }}</span>
+                </div>
+              </div>
             </div>
           </div>
           <div v-else class="text-center py-8">
@@ -90,9 +143,22 @@ const partner = computed(() => user.value?.partner);
         <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6">
           <h3 class="text-lg font-bold text-white mb-4">Artikel Terbaru</h3>
           <div class="space-y-3" v-if="articles.length">
-            <div v-for="article in articles.slice(0, 5)" :key="article.id" class="p-3 border border-emerald-950/30 rounded-xl hover:border-emerald-500/30 transition-colors">
-              <p class="text-sm font-semibold text-white">{{ article.title }}</p>
-              <p class="text-xs text-slate-500 mt-1">{{ new Date(article.created_at).toLocaleDateString('id-ID') }}</p>
+            <div v-for="article in articles.slice(0, 5)" :key="article.id" class="p-4 border border-emerald-950/30 rounded-xl hover:border-emerald-500/30 transition-colors bg-[#0a0d0b]">
+              <div class="flex justify-between items-start">
+                <p class="text-sm font-semibold text-white leading-snug pr-4">{{ article.title }}</p>
+                <p class="text-xs text-slate-500 whitespace-nowrap">{{ new Date(article.created_at).toLocaleDateString('id-ID') }}</p>
+              </div>
+              <div class="flex items-center gap-4 mt-3 text-xs text-slate-400">
+                <div class="flex items-center gap-1.5" title="Suka">
+                  <Heart class="w-3.5 h-3.5" /> <span>{{ article.likes_count || 0 }}</span>
+                </div>
+                <div class="flex items-center gap-1.5" title="Komentar">
+                  <MessageSquare class="w-3.5 h-3.5" /> <span>{{ article.comments_count || 0 }}</span>
+                </div>
+                <div class="flex items-center gap-1.5" title="Bagikan">
+                  <Share2 class="w-3.5 h-3.5" /> <span>{{ article.shares_count || 0 }}</span>
+                </div>
+              </div>
             </div>
           </div>
           <div v-else class="text-center py-8">

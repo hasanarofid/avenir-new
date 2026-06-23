@@ -14,24 +14,38 @@ class MitraController extends Controller
 {
     public function dashboard()
     {
-          /** @var \App\Models\User $user */
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        /** @var \App\Models\User $user */
         $user = Auth::user()->load('partner');
         
         try {
-            $researches = Research::where('author_id', $user->id)->orderBy('created_at', 'desc')->get();
+            $researches = Research::where('author_id', $user->id)
+                ->withCount(['likes', 'comments', 'shares'])
+                ->orderBy('created_at', 'desc')->get();
         } catch (\Exception $e) {
             $researches = [];
         }
         
         try {
-            $articles = Article::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+            $articles = Article::where('user_id', $user->id)
+                ->withCount(['likes', 'comments', 'shares'])
+                ->orderBy('created_at', 'desc')->get();
         } catch (\Exception $e) {
             $articles = [];
         }
         
+        $incomeService = new \App\Services\MitraIncomeService();
+        $monthlyIncome = $incomeService->calculateMonthlyIncome($user->id, $currentMonth, $currentYear);
+        $cumulativeIncome = $incomeService->calculateCumulativeIncome($user->id);
+
         return Inertia::render('Mitra/Dashboard', [
             'researches' => $researches,
             'articles' => $articles,
+            'monthlyIncome' => $monthlyIncome,
+            'cumulativeIncome' => $cumulativeIncome,
+            'currentPeriod' => now()->format('F Y')
         ]);
     }
 
