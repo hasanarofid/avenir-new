@@ -3,7 +3,8 @@ import { ref } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { 
   LayoutDashboard, 
-  FileText, 
+  FileText,
+  LibraryBig,
   User, 
   Menu, 
   X, 
@@ -31,7 +32,8 @@ const navigationGroups = [
   {
     title: 'CONTENT',
     items: [
-      { name: 'Research & Articles', href: route('mitra.researches'), icon: FileText, current: route().current('mitra.researches') },
+      { name: 'Artikel Edukasi', href: route('mitra.articles.index'), icon: FileText, current: route().current('mitra.articles.*') },
+      { name: 'Katalog Riset', href: route('mitra.researches.index'), icon: LibraryBig, current: route().current('mitra.researches.*') },
     ]
   },
   {

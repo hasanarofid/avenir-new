@@ -85,7 +85,12 @@ Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () 
     // Route mitra lainnya yang butuh role 'mitra'
     Route::middleware(['role:mitra'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\MitraController::class, 'dashboard'])->name('dashboard');
-        Route::get('/researches', [\App\Http\Controllers\MitraController::class, 'researches'])->name('researches');
+        Route::delete('articles/bulk-delete', [\App\Http\Controllers\Mitra\ArticleController::class, 'bulkDestroy'])->name('articles.bulk-destroy');
+        Route::patch('articles/{article}/toggle-editor-pick', [\App\Http\Controllers\Mitra\ArticleController::class, 'toggleEditorPick'])->name('articles.toggle-editor-pick');
+        Route::resource('articles', \App\Http\Controllers\Mitra\ArticleController::class);
+
+        Route::delete('researches/bulk-delete', [\App\Http\Controllers\Mitra\ResearchController::class, 'bulkDestroy'])->name('researches.bulk-destroy');
+        Route::resource('researches', \App\Http\Controllers\Mitra\ResearchController::class);
         Route::get('/profile', [\App\Http\Controllers\MitraController::class, 'profile'])->name('profile');
     });
 });

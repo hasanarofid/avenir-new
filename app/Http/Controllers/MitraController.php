@@ -49,18 +49,6 @@ class MitraController extends Controller
         ]);
     }
 
-    public function researches()
-    {
-        try {
-            $researches = Research::where('author_id', Auth::id())->orderBy('created_at', 'desc')->get();
-        } catch (\Exception $e) {
-            $researches = [];
-        }
-        
-        return Inertia::render('Mitra/Researches', [
-            'researches' => $researches,
-        ]);
-    }
 
     public function profile()
     {
