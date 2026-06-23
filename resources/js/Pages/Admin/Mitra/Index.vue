@@ -25,15 +25,27 @@ function formatDate(dateString) {
   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+function formatSpecializations(spec) {
+  if (!spec) return '';
+  if (Array.isArray(spec)) return spec.join(', ');
+  try {
+    const parsed = JSON.parse(spec);
+    return Array.isArray(parsed) ? parsed.join(', ') : parsed;
+  } catch (e) {
+    return spec;
+  }
+}
+
 function startEdit(m) {
   editingId.value = m.id;
   editForm.value = {
     certification: m.certification || '',
-    specializations: Array.isArray(m.specializations) ? m.specializations.join(', ') : (m.specializations || ''),
+    specializations: formatSpecializations(m.specializations),
     portfolio_link: m.portfolio_link || '',
     bank_name: m.bank_name || '',
     bank_account_number: m.bank_account_number || '',
     bank_account_name: m.bank_account_name || '',
+    phone_number: m.phone_number || '', // Tambahkan ini
   };
 }
 
@@ -152,6 +164,10 @@ async function deleteMitra(id) {
                 <input v-model="editForm.specializations" type="text" class="w-full bg-[#090b0a] border border-emerald-950/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50">
               </div>
               <div>
+                <label class="text-xs text-slate-400 font-bold uppercase tracking-widest">No HP</label>
+                <input v-model="editForm.phone_number" type="text" class="w-full bg-[#090b0a] border border-emerald-950/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50">
+              </div>
+              <div>
                 <label class="text-xs text-slate-400 font-bold uppercase tracking-widest">Link Portfolio</label>
                 <input v-model="editForm.portfolio_link" type="url" class="w-full bg-[#090b0a] border border-emerald-950/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50">
               </div>
@@ -186,7 +202,7 @@ async function deleteMitra(id) {
             </div>
             <div>
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Spesialisasi</div>
-              <div class="text-sm font-semibold text-slate-300">{{ Array.isArray(m.specializations) ? m.specializations.join(', ') : (m.specializations || '-') }}</div>
+              <div class="text-sm font-semibold text-slate-300">{{ formatSpecializations(m.specializations) || '-' }}</div>
             </div>
             <div>
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">No HP</div>

@@ -52,16 +52,24 @@ class MitraController extends Controller
             'bank_name' => 'required|string|max:255',
             'bank_account_number' => 'required|string|max:255',
             'bank_account_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string|max:20',
         ]);
 
         $partner->update([
             'certification' => $validated['certification'],
-            'specializations' => explode(',', $validated['specializations']),
+            'specializations' => array_map('trim', explode(',', $validated['specializations'])),
             'portfolio_link' => $validated['portfolio_link'],
             'bank_name' => $validated['bank_name'],
             'bank_account_number' => $validated['bank_account_number'],
             'bank_account_name' => $validated['bank_account_name'],
         ]);
+
+        if (array_key_exists('phone_number', $validated)) {
+            DB::table('user_profiles')->updateOrInsert(
+                ['user_id' => $partner->user_id],
+                ['phone_number' => $validated['phone_number'], 'updated_at' => now()]
+            );
+        }
 
         return redirect()->back()->with('success', 'Data mitra berhasil diperbarui!');
     }
