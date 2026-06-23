@@ -414,12 +414,7 @@ const trendingTickers = computed(() => {
 
               <div class="flex flex-col">
                 <component :is="(!news.author && news.source_url) ? 'a' : Link" v-for="(news, idx) in recentNews" :key="news.id" :href="(!news.author && news.source_url) ? news.source_url : ('/news/' + news.slug)" :target="(!news.author && news.source_url) ? '_blank' : null" class="group flex items-center gap-4 py-4 lg:py-5 border-b border-white/5 hover:bg-white/[0.02] px-2 -mx-2 rounded transition-colors">
-                   
-                   <!-- <div class="w-14 lg:w-16 flex-shrink-0 text-center">
-                     <div class="text-[13px] text-slate-300 font-medium">{{ news.published_time || '09:28' }}</div>
-                     <div class="text-[10px] text-slate-500 mt-0.5">WIB</div>
-                   </div> -->
-                   
+                                      
                    <div class="w-24 lg:w-28 flex-shrink-0">
                       <img v-if="news.cover_image" :src="news.cover_image" alt="Cover" class="w-full h-16 object-cover rounded-lg border border-white/5" />
                       <div v-else class="w-full h-16 bg-[#1a1f1c] border border-white/5 rounded-lg flex items-center justify-center">
@@ -441,7 +436,7 @@ const trendingTickers = computed(() => {
                          <span v-if="news.source" class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-medium">{{ news.source }}</span>
                          <span v-else class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded font-medium">Avenir Research</span>
                          <span>&bull;</span>
-                         <span>{{ news.created_at ? news.created_at + ' ' + (news.published_time || '') + ' WIB' : 'Baru saja' }}</span>
+                         <span>{{ news.created_at ? news.created_at  + ' WIB' : 'Baru saja' }}</span>
                       </div>
                    </div>
                    
