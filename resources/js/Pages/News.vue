@@ -36,6 +36,7 @@ const selectedYear = ref('Semua');
 const searchQuery = ref('');
 const sortOrder = ref('Terbaru');
 const visibleCount = ref(10);
+const activeTab = ref('free');
 
 const uniqueCategories = computed(() => {
     const cats = props.newsList.map(n => n.category).filter(Boolean).map(s => s.trim());
@@ -105,12 +106,20 @@ const filteredRecentNews = computed(() => {
     return list;
 });
 
+const displayedNews = computed(() => {
+    if (activeTab.value === 'free') {
+        return filteredRecentNews.value.filter(n => !n.is_paid);
+    } else {
+        return filteredRecentNews.value.filter(n => n.is_paid);
+    }
+});
+
 const recentNews = computed(() => {
-    return filteredRecentNews.value.slice(0, visibleCount.value);
+    return displayedNews.value.slice(0, visibleCount.value);
 });
 
 const hasMoreRecentNews = computed(() => {
-    return filteredRecentNews.value.length > visibleCount.value;
+    return displayedNews.value.length > visibleCount.value;
 });
 
 const marketTickers = ref([
@@ -382,8 +391,18 @@ const trendingTickers = computed(() => {
                 </div>
               </div>
               
-              <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-2">
-                 <h3 class="text-white font-bold text-[17px]">Berita Terbaru</h3>
+              <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-white/10 pb-4 mb-2 gap-4">
+                 <div class="flex items-center gap-6">
+                    <button @click="activeTab = 'free'; visibleCount = 10" 
+                            :class="['font-bold text-[17px] transition-colors pb-1 border-b-2', activeTab === 'free' ? 'text-white border-emerald-500' : 'text-slate-500 border-transparent hover:text-slate-300']">
+                        Berita Terbaru
+                    </button>
+                    <button @click="activeTab = 'premium'; visibleCount = 10" 
+                            :class="['font-bold text-[17px] transition-colors pb-1 border-b-2 flex items-center gap-1.5', activeTab === 'premium' ? 'text-amber-400 border-amber-400' : 'text-slate-500 border-transparent hover:text-amber-400/70']">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        Premium
+                    </button>
+                 </div>
                  <div class="flex items-center gap-2 text-xs text-slate-400">
                    <span>Sort by:</span>
                    <select v-model="sortOrder" class="bg-transparent border-none text-white focus:outline-none cursor-pointer font-medium p-0">
