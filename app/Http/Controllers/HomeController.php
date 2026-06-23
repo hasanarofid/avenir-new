@@ -450,7 +450,7 @@ class HomeController extends Controller
                 'published_at' => $article->published_at
                     ? $article->published_at->format('d M Y')
                     : null,
-                'is_paid' => $isPaid,
+                'is_paid' => (bool) $article->is_paid,
                 'is_unlocked' => $isUnlocked,
                 'content' => $content,
             ]
