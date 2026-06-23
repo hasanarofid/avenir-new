@@ -65,6 +65,11 @@ const showToast = (msg) => {
 
 const sharesCount = ref(props.article.shares_count ?? 0);
 
+const showComments = ref(false);
+const toggleComments = () => {
+    showComments.value = !showComments.value;
+};
+
 const handleShare = async () => {
     const url   = window.location.href;
     const title = props.article.title ?? 'Avenir Artikel';
@@ -186,10 +191,13 @@ const submitComment = () => {
                 <span><strong>{{ likesCount }}</strong> Suka</span>
               </button>
               <div class="kdp-stat-sep"></div>
-              <div class="kdp-stat-item">
+              <button
+                class="kdp-stat-item kdp-stat-btn"
+                @click="toggleComments"
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 <span><strong>{{ article.comments_count ?? 0 }}</strong> Komentar</span>
-              </div>
+              </button>
               <div class="kdp-stat-sep"></div>
               <div class="kdp-stat-item">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -203,6 +211,39 @@ const submitComment = () => {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                 <span><strong>{{ sharesCount }}</strong> Bagikan</span>
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comments Section (Toggled) -->
+        <div v-show="showComments" class="comments-card mb-8 max-w-3xl mx-auto">
+          <h3 class="comments-title">Komentar</h3>
+          
+          <form @submit.prevent="submitComment" class="comment-form mb-8">
+            <div v-if="!isLoggedIn" class="mb-4">
+              <input v-model="commentForm.guest_name" type="text" placeholder="Nama Anda (Guest)" class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div class="mb-4">
+              <textarea v-model="commentForm.content" rows="3" placeholder="Tulis komentar atau pertanyaan Anda di sini..." class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500" required></textarea>
+              <div v-if="commentForm.errors.content" class="text-red-400 text-sm mt-1">{{ commentForm.errors.content }}</div>
+            </div>
+            <div class="flex justify-end">
+              <button type="submit" :disabled="commentForm.processing" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg transition-colors disabled:opacity-50">
+                Kirim Komentar
+              </button>
+            </div>
+          </form>
+
+          <div class="comments-list space-y-6">
+            <div v-if="article.comments && article.comments.length === 0" class="text-slate-500 text-sm italic">
+              Belum ada komentar. Jadilah yang pertama!
+            </div>
+            <div v-for="comment in article.comments" :key="comment.id" class="comment-item">
+              <div class="flex justify-between items-start mb-2">
+                <div class="font-bold text-emerald-400">{{ comment.author_name }}</div>
+                <div class="text-xs text-slate-500">{{ comment.date }}</div>
+              </div>
+              <p class="text-slate-300 text-sm whitespace-pre-wrap">{{ comment.content }}</p>
             </div>
           </div>
         </div>
@@ -235,10 +276,13 @@ const submitComment = () => {
               <span><strong>{{ likesCount }}</strong> Suka</span>
             </button>
             <div class="kdp-stat-sep"></div>
-            <div class="kdp-stat-item">
+            <button
+              class="kdp-stat-item kdp-stat-btn"
+              @click="toggleComments"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               <span><strong>{{ article.comments_count ?? 0 }}</strong> Komentar</span>
-            </div>
+            </button>
             <div class="kdp-stat-sep"></div>
             <div class="kdp-stat-item">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -255,37 +299,7 @@ const submitComment = () => {
           </div>
         </div>
 
-        <div class="comments-card mt-8 max-w-3xl mx-auto">
-          <h3 class="comments-title">Komentar</h3>
-          
-          <form @submit.prevent="submitComment" class="comment-form mb-8">
-            <div v-if="!isLoggedIn" class="mb-4">
-              <input v-model="commentForm.guest_name" type="text" placeholder="Nama Anda (Guest)" class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500" />
-            </div>
-            <div class="mb-4">
-              <textarea v-model="commentForm.content" rows="3" placeholder="Tulis komentar atau pertanyaan Anda di sini..." class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500" required></textarea>
-              <div v-if="commentForm.errors.content" class="text-red-400 text-sm mt-1">{{ commentForm.errors.content }}</div>
-            </div>
-            <div class="flex justify-end">
-              <button type="submit" :disabled="commentForm.processing" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg transition-colors disabled:opacity-50">
-                Kirim Komentar
-              </button>
-            </div>
-          </form>
 
-          <div class="comments-list space-y-6">
-            <div v-if="article.comments && article.comments.length === 0" class="text-slate-500 text-sm italic">
-              Belum ada komentar. Jadilah yang pertama!
-            </div>
-            <div v-for="comment in article.comments" :key="comment.id" class="comment-item">
-              <div class="flex justify-between items-start mb-2">
-                <div class="font-bold text-emerald-400">{{ comment.author_name }}</div>
-                <div class="text-xs text-slate-500">{{ comment.date }}</div>
-              </div>
-              <p class="text-slate-300 text-sm whitespace-pre-wrap">{{ comment.content }}</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       </div>

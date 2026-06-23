@@ -126,6 +126,11 @@ const showToast = (msg) => {
 
 const sharesCount = ref(props.research.shares_count ?? 0);
 
+const showComments = ref(false);
+const toggleComments = () => {
+    showComments.value = !showComments.value;
+};
+
 const handleShare = async () => {
     const url   = window.location.href;
     const title = props.research.title ?? 'Avenir Research';
@@ -290,10 +295,13 @@ const handleShare = async () => {
               <span><strong>{{ likesCount }}</strong> Suka</span>
             </button>
             <div class="kdp-stat-sep"></div>
-            <div class="kdp-stat-item">
+            <button
+              class="kdp-stat-item kdp-stat-btn"
+              @click="toggleComments"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               <span><strong>{{ research.comments_count ?? 0 }}</strong> Komentar</span>
-            </div>
+            </button>
             <div class="kdp-stat-sep"></div>
             <button
               class="kdp-stat-item kdp-stat-btn"
@@ -313,6 +321,41 @@ const handleShare = async () => {
               <svg width="18" height="18" viewBox="0 0 24 24" :fill="isBookmarked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
               <span>{{ isBookmarked ? 'Disimpan' : 'Simpan' }}</span>
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Section (Toggled) -->
+      <div v-show="showComments" class="kdp-container mt-4 mb-8">
+        <div class="comments-card max-w-3xl mx-auto">
+          <h3 class="comments-title">Komentar</h3>
+          
+          <form @submit.prevent="submitComment" class="comment-form mb-8">
+            <div v-if="!isLoggedIn" class="mb-4">
+              <input v-model="commentForm.guest_name" type="text" placeholder="Nama Anda (Guest)" class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div class="mb-4">
+              <textarea v-model="commentForm.content" rows="3" placeholder="Tulis komentar atau pertanyaan Anda di sini..." class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500" required></textarea>
+              <div v-if="commentForm.errors.content" class="text-red-400 text-sm mt-1">{{ commentForm.errors.content }}</div>
+            </div>
+            <div class="flex justify-end">
+              <button type="submit" :disabled="commentForm.processing" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg transition-colors disabled:opacity-50">
+                Kirim Komentar
+              </button>
+            </div>
+          </form>
+
+          <div class="comments-list space-y-6">
+            <div v-if="research.comments && research.comments.length === 0" class="text-slate-500 text-sm italic">
+              Belum ada komentar. Jadilah yang pertama!
+            </div>
+            <div v-for="comment in research.comments" :key="comment.id" class="comment-item">
+              <div class="flex justify-between items-start mb-2">
+                <div class="font-bold text-emerald-400">{{ comment.author_name }}</div>
+                <div class="text-xs text-slate-500">{{ comment.date }}</div>
+              </div>
+              <p class="text-slate-300 text-sm whitespace-pre-wrap">{{ comment.content }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -400,38 +443,7 @@ const handleShare = async () => {
                 </div>
               </div>
 
-              <!-- Comments Section -->
-              <div class="comments-card mt-8">
-                <h3 class="comments-title">Komentar</h3>
-                
-                <form @submit.prevent="submitComment" class="comment-form mb-8">
-                  <div v-if="!isLoggedIn" class="mb-4">
-                    <input v-model="commentForm.guest_name" type="text" placeholder="Nama Anda (Guest)" class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500" />
-                  </div>
-                  <div class="mb-4">
-                    <textarea v-model="commentForm.content" rows="3" placeholder="Tulis komentar atau pertanyaan Anda di sini..." class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500" required></textarea>
-                    <div v-if="commentForm.errors.content" class="text-red-400 text-sm mt-1">{{ commentForm.errors.content }}</div>
-                  </div>
-                  <div class="flex justify-end">
-                    <button type="submit" :disabled="commentForm.processing" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg transition-colors disabled:opacity-50">
-                      Kirim Komentar
-                    </button>
-                  </div>
-                </form>
 
-                <div class="comments-list space-y-6">
-                  <div v-if="research.comments && research.comments.length === 0" class="text-slate-500 text-sm italic">
-                    Belum ada komentar. Jadilah yang pertama!
-                  </div>
-                  <div v-for="comment in research.comments" :key="comment.id" class="comment-item">
-                    <div class="flex justify-between items-start mb-2">
-                      <div class="font-bold text-emerald-400">{{ comment.author_name }}</div>
-                      <div class="text-xs text-slate-500">{{ comment.date }}</div>
-                    </div>
-                    <p class="text-slate-300 text-sm whitespace-pre-wrap">{{ comment.content }}</p>
-                  </div>
-                </div>
-              </div>
 
             </div>
 
