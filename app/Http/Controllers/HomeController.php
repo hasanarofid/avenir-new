@@ -124,7 +124,7 @@ class HomeController extends Controller
      */
     public function katalog()
     {
-        $researches = Research::with(['author', 'emiten'])->withCount(['likes', 'polyComments as comments_count', 'shares'])->select([
+        $researches = Research::with(['author', 'emiten'])->select([
             'id',
             'title',
             'ticker',
@@ -147,8 +147,10 @@ class HomeController extends Controller
             'author_id',
             'created_at',
             'updated_at'
-        ])->orderBy('updated_at', 'desc')->orderBy('created_at', 'desc')->get()->map(function ($r) {
+        ])->withCount(['likes', 'polyComments', 'comments', 'shares'])
+        ->orderBy('updated_at', 'desc')->orderBy('created_at', 'desc')->get()->map(function ($r) {
             $r->company_name = $r->emiten ? $r->emiten->company_name : null;
+            $r->comments_count = $r->poly_comments_count + $r->comments_count;
             return $r;
         });
         $unlockedTickers = auth()->check()
@@ -333,12 +335,12 @@ class HomeController extends Controller
     {
         $selectColumns = ['id', 'title', 'slug', 'category', 'badge', 'excerpt', 'cover_image', 'user_id', 'published_at', 'created_at', 'status'];
 
-        $articles = Article::with('author')->withCount(['likes', 'comments', 'shares'])->select($selectColumns)->where('status', 'published')
+        $articles = Article::with('author')->select($selectColumns)->withCount(['likes', 'comments', 'shares'])->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $editorPicks = Article::with('author')->withCount(['likes', 'comments', 'shares'])->select($selectColumns)->where('status', 'published')
+        $editorPicks = Article::with('author')->select($selectColumns)->withCount(['likes', 'comments', 'shares'])->where('status', 'published')
             ->whereNotNull('badge')
             ->orderBy('updated_at', 'desc')
             ->take(3)
@@ -347,7 +349,7 @@ class HomeController extends Controller
         // Fallback for Editor Picks if there are fewer than 3
         if ($editorPicks->count() < 3) {
             $excludeIds = $editorPicks->pluck('id')->toArray();
-            $fallback = Article::with('author')->withCount(['likes', 'comments', 'shares'])->select($selectColumns)->where('status', 'published')
+            $fallback = Article::with('author')->select($selectColumns)->withCount(['likes', 'comments', 'shares'])->where('status', 'published')
                 ->when(count($excludeIds) > 0, function ($q) use ($excludeIds) {
                     return $q->whereNotIn('id', $excludeIds);
                 })
@@ -358,7 +360,7 @@ class HomeController extends Controller
         }
 
         // Trending articles
-        $trendingArticles = Article::with('author')->withCount(['likes', 'comments', 'shares'])->select($selectColumns)->where('status', 'published')
+        $trendingArticles = Article::with('author')->select($selectColumns)->withCount(['likes', 'comments', 'shares'])->where('status', 'published')
             ->inRandomOrder()
             ->take(5)
             ->get();
