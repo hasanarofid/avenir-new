@@ -37,7 +37,7 @@ class MitraIncomeService
     /**
      * Calculate monthly income for a specific Mitra
      */
-    public function calculateMonthlyIncome(int $userId, int $month, int $year): float
+    public function calculateMonthlyIncome(string|int $userId, int $month, int $year): float
     {
         $poolAmount = $this->getMonthlyPool($month, $year);
         if ($poolAmount <= 0) {
@@ -64,7 +64,7 @@ class MitraIncomeService
     /**
      * Calculate cumulative income for a specific Mitra up to current month
      */
-    public function calculateCumulativeIncome(int $userId): float
+    public function calculateCumulativeIncome(string|int $userId): float
     {
         // To accurately calculate cumulative, we need to iterate over all past pool configurations
         $pastPools = DB::table('pool_config')->orderBy('period_year', 'asc')->orderBy('period_month', 'asc')->get();
