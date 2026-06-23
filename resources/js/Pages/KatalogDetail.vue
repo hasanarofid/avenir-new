@@ -48,10 +48,38 @@ const commentForm = useForm({
 });
 
 const submitComment = () => {
-    commentForm.post(`/katalog/${props.research.id}/comments`, {
+    commentForm.post(`/interaction/research/${props.research.id}/comment`, {
         preserveScroll: true,
         onSuccess: () => commentForm.reset('content'),
     });
+};
+
+// ── Like ──────────────────────────────────────────────────────────────────
+const isLiked = ref(props.research.is_liked ?? false);
+const likesCount = ref(props.research.likes_count ?? 0);
+const isLikeLoading = ref(false);
+
+const handleLike = async () => {
+    if (isLikeLoading.value) return;
+    isLikeLoading.value = true;
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+        const res = await fetch(`/interaction/research/${props.research.id}/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+        });
+        const data = await res.json();
+        isLiked.value = data.is_liked;
+        likesCount.value = data.likes_count;
+    } catch (e) {
+        console.error('Like error:', e);
+    } finally {
+        isLikeLoading.value = false;
+    }
 };
 
 // ── Bookmark ──────────────────────────────────────────────────────────────
@@ -96,24 +124,45 @@ const showToast = (msg) => {
     toastTimer = setTimeout(() => { toastVisible.value = false; }, 2500);
 };
 
+const sharesCount = ref(props.research.shares_count ?? 0);
+
 const handleShare = async () => {
     const url   = window.location.href;
     const title = props.research.title ?? 'Avenir Research';
     const text  = `${title} — Baca laporan riset saham di Avenir Research`;
 
+    let shared = false;
     if (navigator.share) {
         try {
             await navigator.share({ title, text, url });
+            shared = true;
         } catch (e) {
-            // User cancelled — tidak perlu error handling
+            // User cancelled
         }
     } else {
         try {
             await navigator.clipboard.writeText(url);
             showToast('Link berhasil disalin!');
+            shared = true;
         } catch (e) {
             showToast('Gagal menyalin link.');
         }
+    }
+
+    if (shared) {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+            const res = await fetch(`/interaction/research/${props.research.id}/share`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+            });
+            const data = await res.json();
+            sharesCount.value = data.shares_count;
+        } catch (e) {}
     }
 };
 </script>
@@ -231,19 +280,32 @@ const handleShare = async () => {
       <div v-if="!hasCustomHero" class="kdp-stats-bar-wrapper">
         <div class="kdp-container">
           <div class="kdp-stats-bar">
+            <button
+              class="kdp-stat-item kdp-stat-btn"
+              :class="{ 'is-active': isLiked }"
+              @click="handleLike"
+              :disabled="isLikeLoading"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" :fill="isLiked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span><strong>{{ likesCount }}</strong> Suka</span>
+            </button>
+            <div class="kdp-stat-sep"></div>
             <div class="kdp-stat-item">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               <span><strong>{{ research.comments_count ?? 0 }}</strong> Komentar</span>
             </div>
             <div class="kdp-stat-sep"></div>
-            <div class="kdp-stat-item">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <span><strong>{{ research.views_count ?? 0 }}</strong> Tayangan</span>
-            </div>
+            <button
+              class="kdp-stat-item kdp-stat-btn"
+              @click="handleShare"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              <span><strong>{{ sharesCount }}</strong> Bagikan</span>
+            </button>
             <div class="kdp-stat-sep"></div>
             <button
-              class="kdp-stat-item kdp-stat-bookmark"
-              :class="{ 'is-bookmarked': isBookmarked }"
+              class="kdp-stat-item kdp-stat-btn"
+              :class="{ 'is-active': isBookmarked }"
               @click="handleBookmark"
               :disabled="isBookmarkLoading"
               :aria-label="isBookmarked ? 'Hapus Bookmark' : 'Tambah Bookmark'"
@@ -1013,25 +1075,25 @@ const handleShare = async () => {
   color: #10B981 !important;
 }
 
-/* Bookmark button in stats bar */
-.kdp-stat-bookmark {
+/* Button in stats bar */
+.kdp-stat-btn {
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
   transition: color 0.2s, transform 0.15s;
 }
-.kdp-stat-bookmark:hover {
+.kdp-stat-btn:hover {
   color: #10B981;
   transform: scale(1.05);
 }
-.kdp-stat-bookmark.is-bookmarked {
+.kdp-stat-btn.is-active {
   color: #10B981;
 }
-.kdp-stat-bookmark.is-bookmarked svg {
+.kdp-stat-btn.is-active svg {
   color: #10B981;
 }
-.kdp-stat-bookmark:disabled {
+.kdp-stat-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

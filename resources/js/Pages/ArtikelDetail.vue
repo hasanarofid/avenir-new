@@ -1,9 +1,9 @@
 <script setup>
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, usePage, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Paywall from '@/Components/Paywall.vue';
 import { authStore } from '@/Stores/authStore';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
     article: {
@@ -22,6 +22,99 @@ const isLocked = computed(() => {
 const hasCustomHtml = computed(() => {
     return props.article.content && props.article.content.includes('art-page');
 });
+
+// ── Like ──────────────────────────────────────────────────────────────────
+const isLiked = ref(props.article.is_liked ?? false);
+const likesCount = ref(props.article.likes_count ?? 0);
+const isLikeLoading = ref(false);
+
+const handleLike = async () => {
+    if (isLikeLoading.value) return;
+    isLikeLoading.value = true;
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+        const res = await fetch(`/interaction/article/${props.article.id}/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+        });
+        const data = await res.json();
+        isLiked.value = data.is_liked;
+        likesCount.value = data.likes_count;
+    } catch (e) {
+        console.error('Like error:', e);
+    } finally {
+        isLikeLoading.value = false;
+    }
+};
+
+// ── Share ─────────────────────────────────────────────────────────────────
+const toastVisible = ref(false);
+const toastMessage = ref('');
+let toastTimer = null;
+
+const showToast = (msg) => {
+    toastMessage.value = msg;
+    toastVisible.value = true;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastVisible.value = false; }, 2500);
+};
+
+const sharesCount = ref(props.article.shares_count ?? 0);
+
+const handleShare = async () => {
+    const url   = window.location.href;
+    const title = props.article.title ?? 'Avenir Artikel';
+    const text  = `${title} — Baca artikel di Avenir`;
+
+    let shared = false;
+    if (navigator.share) {
+        try {
+            await navigator.share({ title, text, url });
+            shared = true;
+        } catch (e) {}
+    } else {
+        try {
+            await navigator.clipboard.writeText(url);
+            showToast('Link berhasil disalin!');
+            shared = true;
+        } catch (e) {
+            showToast('Gagal menyalin link.');
+        }
+    }
+
+    if (shared) {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+            const res = await fetch(`/interaction/article/${props.article.id}/share`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+            });
+            const data = await res.json();
+            sharesCount.value = data.shares_count;
+        } catch (e) {}
+    }
+};
+
+// ── Komentar ──────────────────────────────────────────────────────────────
+const commentForm = useForm({
+    content: '',
+    guest_name: ''
+});
+
+const submitComment = () => {
+    commentForm.post(`/interaction/article/${props.article.id}/comment`, {
+        preserveScroll: true,
+        onSuccess: () => commentForm.reset('content'),
+    });
+};
 </script>
 
 <template>
@@ -94,7 +187,83 @@ const hasCustomHtml = computed(() => {
           :price="'Setelah trial: mulai <strong>Rp 149.000 / bulan</strong>'"
         />
       </div>
+
+      <!-- Article Engagement & Comments Section -->
+      <div v-if="!isLocked || hasCustomHtml" class="article-engagement-section mt-12 pt-8 border-t border-white/10">
+        <div class="kdp-stats-bar-wrapper mb-10">
+          <div class="kdp-stats-bar">
+            <button
+              class="kdp-stat-item kdp-stat-btn"
+              :class="{ 'is-active': isLiked }"
+              @click="handleLike"
+              :disabled="isLikeLoading"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" :fill="isLiked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span><strong>{{ likesCount }}</strong> Suka</span>
+            </button>
+            <div class="kdp-stat-sep"></div>
+            <div class="kdp-stat-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span><strong>{{ article.comments_count ?? 0 }}</strong> Komentar</span>
+            </div>
+            <div class="kdp-stat-sep"></div>
+            <div class="kdp-stat-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span><strong>{{ article.views_count ?? 0 }}</strong> Tayangan</span>
+            </div>
+            <div class="kdp-stat-sep"></div>
+            <button
+              class="kdp-stat-item kdp-stat-btn"
+              @click="handleShare"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              <span><strong>{{ sharesCount }}</strong> Bagikan</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="comments-card mt-8 max-w-3xl mx-auto">
+          <h3 class="comments-title">Komentar</h3>
+          
+          <form @submit.prevent="submitComment" class="comment-form mb-8">
+            <div v-if="!isLoggedIn" class="mb-4">
+              <input v-model="commentForm.guest_name" type="text" placeholder="Nama Anda (Guest)" class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div class="mb-4">
+              <textarea v-model="commentForm.content" rows="3" placeholder="Tulis komentar atau pertanyaan Anda di sini..." class="w-full bg-[#1e293b] text-white border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500" required></textarea>
+              <div v-if="commentForm.errors.content" class="text-red-400 text-sm mt-1">{{ commentForm.errors.content }}</div>
+            </div>
+            <div class="flex justify-end">
+              <button type="submit" :disabled="commentForm.processing" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg transition-colors disabled:opacity-50">
+                Kirim Komentar
+              </button>
+            </div>
+          </form>
+
+          <div class="comments-list space-y-6">
+            <div v-if="article.comments && article.comments.length === 0" class="text-slate-500 text-sm italic">
+              Belum ada komentar. Jadilah yang pertama!
+            </div>
+            <div v-for="comment in article.comments" :key="comment.id" class="comment-item">
+              <div class="flex justify-between items-start mb-2">
+                <div class="font-bold text-emerald-400">{{ comment.author_name }}</div>
+                <div class="text-xs text-slate-500">{{ comment.date }}</div>
+              </div>
+              <p class="text-slate-300 text-sm whitespace-pre-wrap">{{ comment.content }}</p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      </div>
+
+      <!-- Toast Notification -->
+      <Transition name="toast">
+        <div v-if="toastVisible" class="kdp-toast" role="status" aria-live="polite">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          {{ toastMessage }}
+        </div>
+      </Transition>
     </div>
   </AppLayout>
 </template>
@@ -296,6 +465,121 @@ const hasCustomHtml = computed(() => {
 
 .gl-link a:hover {
   text-decoration: underline;
+}
+
+/* Stats Bar & Interactions (From Katalog) */
+.kdp-stats-bar-wrapper {
+  background: #111413;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 0 16px;
+}
+.kdp-stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+.kdp-stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 12px;
+}
+.kdp-stat-item svg {
+  color: #94a3b8;
+}
+.kdp-stat-item strong {
+  color: #fff;
+  font-size: 13px;
+}
+.kdp-stat-sep {
+  width: 1px;
+  height: 32px;
+  background: rgba(255,255,255,0.08);
+}
+.kdp-stat-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s, transform 0.15s;
+}
+.kdp-stat-btn:hover {
+  color: #10B981;
+  transform: scale(1.05);
+}
+.kdp-stat-btn.is-active {
+  color: #10B981;
+}
+.kdp-stat-btn.is-active svg {
+  color: #10B981;
+}
+.kdp-stat-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Comments Section */
+.comments-card {
+  background: #111413;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+@media (min-width: 900px) {
+  .comments-card {
+    padding: 32px;
+  }
+}
+.comments-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.comment-item {
+  padding: 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+}
+
+/* Toast Notification */
+.kdp-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(16, 185, 129, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10B981;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 200;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
 }
 
 /* ── Dynamic Content Styles Overrides ── */

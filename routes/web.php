@@ -23,6 +23,10 @@ Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/news/{slug}', [HomeController::class, 'newsDetail'])->name('news.detail');
 Route::get('/api/market-chart/{symbol}', [HomeController::class, 'marketChartApi'])->name('api.market-chart');
 
+// Interactions
+Route::post('/interaction/{type}/{id}/like', [\App\Http\Controllers\InteractionController::class, 'toggleLike'])->name('interaction.like');
+Route::post('/interaction/{type}/{id}/comment', [\App\Http\Controllers\InteractionController::class, 'addComment'])->name('interaction.comment');
+Route::post('/interaction/{type}/{id}/share', [\App\Http\Controllers\InteractionController::class, 'incrementShare'])->name('interaction.share');
 // Emiten Hub (V1)
 Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
 Route::get('/emiten', [\App\Http\Controllers\EmitenHubController::class, 'index'])->name('emiten.index');

@@ -252,14 +252,27 @@ class HomeController extends Controller
             ]);
         }
 
-        // ── Stats: hitung views, comments, bookmark ──────────────────────────
+        // ── Stats: hitung views, comments, bookmark, likes, shares ──────────────────────────
         $viewsCount = \App\Models\ResearchViewLog::where('research_id', $research->id)->count();
-        $commentsCount = \App\Models\Comment::where('research_id', $research->id)->count();
+        $commentsCount = $research->polyComments()->count() + \App\Models\Comment::where('research_id', $research->id)->count();
+        $likesCount = $research->likes()->count();
+        $sharesCount = $research->shares()->count();
+
         $isBookmarked = $userId
             ? \App\Models\ResearchBookmark::where('research_id', $research->id)->where('user_id', $userId)->exists()
             : false;
+            
+        $isLiked = $research->likes()->where(function($q) use ($userId, $ip) {
+            if ($userId) {
+                $q->where('user_id', $userId);
+            } else {
+                $q->where('guest_ip', $ip)->whereNull('user_id');
+            }
+        })->exists();
 
-        $comments = $research->comments()->with('user:id,name')->latest()->get()->map(function ($comment) {
+        $legacyComments = $research->comments()->with('user:id,name')->latest()->get();
+        $polyComments = $research->polyComments()->with('user:id,name')->latest()->get();
+        $comments = $polyComments->concat($legacyComments)->sortByDesc('created_at')->values()->map(function ($comment) {
             return [
                 'id' => $comment->id,
                 'author_name' => $comment->user ? $comment->user->name : ($comment->guest_name ?: 'Guest'),
@@ -298,6 +311,9 @@ class HomeController extends Controller
                 // Stats realtime
                 'views_count' => $viewsCount,
                 'comments_count' => $commentsCount,
+                'likes_count' => $likesCount,
+                'shares_count' => $sharesCount,
+                'is_liked' => $isLiked,
                 'is_bookmarked' => $isBookmarked,
             ],
         ])->withViewData([
@@ -437,6 +453,29 @@ class HomeController extends Controller
 
         $content = $this->cleanHtmlForDarkMode($content);
 
+        // ── Stats: hitung views, comments, likes, shares ──────────────────────────
+        $viewsCount = \App\Models\ArticleViewLog::where('article_id', $article->id)->count();
+        $commentsCount = $article->comments()->count();
+        $likesCount = $article->likes()->count();
+        $sharesCount = $article->shares()->count();
+
+        $isLiked = $article->likes()->where(function($q) use ($userId, $ip) {
+            if ($userId) {
+                $q->where('user_id', $userId);
+            } else {
+                $q->where('guest_ip', $ip)->whereNull('user_id');
+            }
+        })->exists();
+
+        $comments = $article->comments()->with('user:id,name')->latest()->get()->map(function ($comment) {
+            return [
+                'id' => $comment->id,
+                'author_name' => $comment->user ? $comment->user->name : ($comment->guest_name ?: 'Guest'),
+                'content' => $comment->content,
+                'date' => $comment->created_at->diffForHumans(),
+            ];
+        });
+
         return Inertia::render('ArtikelDetail', [
             'article' => [
                 'id' => $article->id,
@@ -453,6 +492,12 @@ class HomeController extends Controller
                 'is_paid' => (bool) $article->is_paid,
                 'is_unlocked' => $isUnlocked,
                 'content' => $content,
+                'comments' => $comments,
+                'views_count' => $viewsCount,
+                'comments_count' => $commentsCount,
+                'likes_count' => $likesCount,
+                'shares_count' => $sharesCount,
+                'is_liked' => $isLiked,
             ]
         ])->withViewData([
                     'meta' => [
