@@ -148,6 +148,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/mitra/{id}', [\App\Http\Controllers\Admin\MitraController::class, 'update'])->name('mitra.update');
         Route::delete('/mitra/{id}', [\App\Http\Controllers\Admin\MitraController::class, 'destroy'])->name('mitra.destroy');
 
+        // Pool Mitra
+        Route::get('/pool', [\App\Http\Controllers\Admin\PoolController::class, 'index'])->name('pool.index');
+        Route::post('/pool', [\App\Http\Controllers\Admin\PoolController::class, 'store'])->name('pool.store');
+
         // Team Research
         Route::resource('team-research', \App\Http\Controllers\Admin\TeamResearchController::class)->except(['create', 'show', 'edit']);
 

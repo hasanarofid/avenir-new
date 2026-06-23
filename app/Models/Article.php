@@ -34,4 +34,9 @@ class Article extends Model
         $this->update(['status' => 'published', 'published_at' => now()]);
         ArticlePublished::dispatch($this);
     }
+
+    public function views()
+    {
+        return $this->hasMany(ArticleViewLog::class);
+    }
 }

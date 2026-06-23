@@ -405,37 +405,34 @@ class HomeController extends Controller
 
         $content = $this->getArticleContent($article->slug) ?? $article->content;
 
-        $isPaid = (bool) $article->is_paid;
-        $isTrial = false;
-
-        // Trial check: logged-in non-subscribers are treated as trial users
-        if ($isLoggedIn && !$isSubscriber) {
-            $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
-                ->where('user_id', auth()->id())
-                ->first();
-            $isTrial = !($profile && $profile->is_subscriber);
-        }
-
-        // Trial paywall: limit access to N newest articles
-        if ($isTrial) {
-            $trialLimit = (int) \App\Models\Setting::getValue('trial_artikel_limit', 3);
-            $allowedIds = \App\Models\Article::where('status', 'published')
-                ->orderByDesc('published_at')
-                ->take($trialLimit)
-                ->pluck('id');
-            if (!$allowedIds->contains($article->id)) {
-                // Outside trial limit — truncate same as guest paywall
-                $content = $this->truncateForGuest($content);
-                $isUnlocked = false;
-            } else {
-                $isUnlocked = true;
-            }
-        }
-
-        // Secure paywall check: truncate content sent to guests for paid articles
-        if ($isPaid && !$isLoggedIn) {
+        // Semua artikel hanya untuk subscriber
+        if (!$isUnlocked) {
             $content = $this->truncateForGuest($content);
-            $isUnlocked = false;
+        }
+
+        $content = $this->cleanHtmlForDarkMode($content);
+
+        // ── View Log: catat kunjungan, throttle 24 jam per user/IP ──────────
+        $ip = request()->ip();
+        $userId = auth()->id();
+
+        $alreadyViewed = \App\Models\ArticleViewLog::where('article_id', $article->id)
+            ->where(function ($q) use ($userId, $ip) {
+                if ($userId) {
+                    $q->where('user_id', $userId);
+                } else {
+                    $q->where('ip_address', $ip)->whereNull('user_id');
+                }
+            })
+            ->where('created_at', '>=', now()->subHours(24))
+            ->exists();
+
+        if (!$alreadyViewed) {
+            \App\Models\ArticleViewLog::create([
+                'article_id' => $article->id,
+                'user_id' => $userId,
+                'ip_address' => $userId ? null : $ip,
+            ]);
         }
 
         $content = $this->cleanHtmlForDarkMode($content);
@@ -601,41 +598,23 @@ class HomeController extends Controller
 
         if ($isLoggedIn) {
             $isSubscriber = auth()->user()->hasActivePremium() || auth()->user()->hasRole('admin');
-            $isUnlocked = $isSubscriber;
         }
 
         $content = $news->content;
-
         $isPaid = (bool) $news->is_paid;
-        $isTrial = false;
 
-        // Trial check: logged-in non-subscribers are treated as trial users
-        if ($isLoggedIn && !$isSubscriber) {
-            $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
-                ->where('user_id', auth()->id())
-                ->first();
-            $isTrial = !($profile && $profile->is_subscriber);
-        }
-
-        // Trial paywall: limit access to N newest news
-        if ($isTrial) {
-            $trialLimit = (int) \App\Models\Setting::getValue('trial_artikel_limit', 3);
-            $allowedIds = \App\Models\News::where('status', 'published')
-                ->orderByDesc('published_at')
-                ->take($trialLimit)
-                ->pluck('id');
-            if (!$allowedIds->contains($news->id)) {
+        // Logic akses News:
+        // Premium -> Hanya untuk Subscriber
+        // Free -> Terbuka untuk semua (Guest)
+        if ($isPaid) {
+            if ($isSubscriber) {
+                $isUnlocked = true;
+            } else {
                 $content = $this->truncateForGuest($content);
                 $isUnlocked = false;
-            } else {
-                $isUnlocked = true;
             }
-        }
-
-        // Secure paywall check
-        if ($isPaid && !$isLoggedIn) {
-            $content = $this->truncateForGuest($content);
-            $isUnlocked = false;
+        } else {
+            $isUnlocked = true;
         }
 
         $content = $this->cleanHtmlForDarkMode($content);
@@ -693,7 +672,18 @@ class HomeController extends Controller
      */
     public function mitra()
     {
-        $partners = \Illuminate\Support\Facades\DB::table('partners')
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        // Ambil budget pool bulan ini dari database
+        $poolConfig = \Illuminate\Support\Facades\DB::table('pool_config')
+            ->where('period_year', $currentYear)
+            ->where('period_month', $currentMonth)
+            ->first();
+            
+        $poolBudget = $poolConfig ? $poolConfig->pool_budget_idr : 0;
+
+        $partnersData = \Illuminate\Support\Facades\DB::table('partners')
             ->join('users', 'partners.user_id', '=', 'users.id')
             ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
             ->where('partners.is_verified', true)
@@ -705,17 +695,45 @@ class HomeController extends Controller
                 'user_profiles.first_name',
                 'user_profiles.last_name'
             )
-            ->get()
-            ->map(function ($p) {
-                return [
-                    'name' => $p->name ?? (trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) ?: 'Mitra Analis'),
-                    'certification' => $p->certification ?? 'Mitra Analis',
-                    'specializations' => json_decode($p->specializations ?? '[]'),
-                ];
-            });
+            ->get();
+
+        $partnerIds = $partnersData->pluck('id')->toArray();
+        
+        $researchViews = \Illuminate\Support\Facades\DB::table('research_view_logs')
+            ->join('research', 'research_view_logs.research_id', '=', 'research.id')
+            ->whereIn('research.author_id', $partnerIds)
+            ->whereMonth('research_view_logs.created_at', $currentMonth)
+            ->whereYear('research_view_logs.created_at', $currentYear)
+            ->select('research.author_id as user_id', \Illuminate\Support\Facades\DB::raw('count(*) as total_views'))
+            ->groupBy('research.author_id')
+            ->get()->keyBy('user_id');
+
+        $articleViews = \Illuminate\Support\Facades\DB::table('article_view_logs')
+            ->join('articles', 'article_view_logs.article_id', '=', 'articles.id')
+            ->whereIn('articles.user_id', $partnerIds)
+            ->whereMonth('article_view_logs.created_at', $currentMonth)
+            ->whereYear('article_view_logs.created_at', $currentYear)
+            ->select('articles.user_id as user_id', \Illuminate\Support\Facades\DB::raw('count(*) as total_views'))
+            ->groupBy('articles.user_id')
+            ->get()->keyBy('user_id');
+
+        $partners = $partnersData->map(function ($p) use ($researchViews, $articleViews) {
+            $rViews = $researchViews->has($p->id) ? $researchViews->get($p->id)->total_views : 0;
+            $aViews = $articleViews->has($p->id) ? $articleViews->get($p->id)->total_views : 0;
+            $totalViews = $rViews + $aViews;
+
+            return [
+                'name' => $p->name ?? (trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) ?: 'Mitra Analis'),
+                'certification' => $p->certification ?? 'Mitra Analis',
+                'specializations' => json_decode($p->specializations ?? '[]'),
+                'total_views' => $totalViews,
+            ];
+        })->sortByDesc('total_views')->values()->toArray();
 
         return Inertia::render('Partners', [
-            'partners' => $partners
+            'partners' => $partners,
+            'poolBudget' => (int) $poolBudget,
+            'currentPeriod' => now()->format('F Y')
         ])->withViewData([
                     'meta' => [
                         'title' => 'Mitra Analis | Avenir Research',

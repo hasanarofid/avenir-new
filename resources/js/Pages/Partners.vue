@@ -8,8 +8,22 @@ const page = usePage();
 const user = computed(() => page.props.auth?.user);
 
 const props = defineProps({
-    partners: Array
+    partners: Array,
+    poolBudget: {
+        type: Number,
+        default: 0
+    },
+    currentPeriod: String
 });
+
+const formatRupiah = (number) => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(number);
+};
 
 function handleDaftarClick() {
   router.visit(route('mitra.register'));
@@ -47,11 +61,16 @@ const displayedPartners = computed(() => {
 });
 
 const TIER_PCT = [25, 18, 14, 11, 9, 7, 6, 5, 3, 2];
-const TIER_VIEWS = [312, 284, 241, 198, 175, 142, 118, 97, 82, 71];
-const TIER_BAGIAN = [
-    'Rp 745.000', 'Rp 536.400', 'Rp 417.200', 'Rp 327.800', 'Rp 268.200',
-    'Rp 208.600', 'Rp 178.800', 'Rp 149.000', 'Rp 89.400', 'Rp 59.600'
-];
+
+const getTierBagian = (index) => {
+    if (!props.poolBudget) return 'Rp 0';
+    const pct = TIER_PCT[index] || 0;
+    return formatRupiah(props.poolBudget * (pct / 100));
+};
+
+const getViews = (index) => {
+    return displayedPartners.value[index] ? (displayedPartners.value[index].total_views || 0) : 0;
+};
 </script>
 
 <template>
@@ -142,9 +161,9 @@ const TIER_BAGIAN = [
 
         <!-- Simulation Section -->
         <div class="partners-simulation">
-          <h2>📊 Contoh Perhitungan Pendapatan Bulanan</h2>
+          <h2>📊 Klasemen & Bagi Hasil Pool {{ currentPeriod ? `Bulan Ini (${currentPeriod})` : 'Bulan Ini' }}</h2>
           <p>
-            Asumsi: <strong>100 subscriber</strong> × Rp 149.000 = <strong>Rp 14.900.000</strong> revenue → Pool 20% = <strong>Rp 2.980.000</strong>. Berikut simulasi distribusi ke peringkat Top 10:
+            <strong>Pool Bulan Ini: <span class="text-emerald-400 text-lg">{{ props.poolBudget ? formatRupiah(props.poolBudget) : 'Belum Ditentukan' }}</span></strong>. Berikut adalah distribusi ke peringkat Top 10 berdasarkan akumulasi total views (engagement) bulan ini:
           </p>
           <div class="table-container">
             <table class="simulation-table">
@@ -161,15 +180,15 @@ const TIER_BAGIAN = [
                 <tr v-for="i in 10" :key="i">
                   <td><strong>#{{ i }}</strong></td>
                   <td>{{ displayedPartners[i-1] ? displayedPartners[i-1].name : 'Slot tersedia' }}</td>
-                  <td class="mono">{{ TIER_VIEWS[i-1] }}</td>
+                  <td class="mono">{{ getViews(i-1) }}</td>
                   <td class="mono text-right font-green">{{ TIER_PCT[i-1] }}%</td>
-                  <td class="mono text-right font-green">{{ TIER_BAGIAN[i-1] }}</td>
+                  <td class="mono text-right font-green">{{ getTierBagian(i-1) }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <div class="simulation-note">
-            <strong>Catatan:</strong> Nama-nama di atas adalah <strong>mitra terverifikasi</strong> yang sudah aktif di Avenir Research. Angka views, persentase pool, dan nominal bagian adalah <strong>contoh ilustrasi</strong> untuk menunjukkan mekanisme distribusi — bukan data aktual. Peringkat sesungguhnya akan ditentukan oleh views aktual setiap bulan setelah subscription berbayar aktif.
+            <strong>Catatan:</strong> Klasemen disusun berdasarkan akumulasi views asli bulan ini pada riset maupun artikel Anda. Peringkat 1-10 akan otomatis mendapatkan persentase distribusi dari total Pool yang disediakan admin.
           </div>
         </div>
 

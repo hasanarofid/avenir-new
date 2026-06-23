@@ -25,7 +25,8 @@ import {
   Globe,
   Activity,
   TrendingUp,
-  ShieldAlert
+  ShieldAlert,
+  Coins
 } from '@lucide/vue';
 
 const page = usePage();
@@ -97,6 +98,7 @@ const navigationGroups = [
     roles: ['admin'],
     items: [
       { name: 'Pembayaran', href: route('admin.payments.index'), icon: CreditCard, current: route().current('admin.payments.*') },
+      { name: 'Pool Mitra', href: route('admin.pool.index'), icon: Coins, current: route().current('admin.pool.*') },
       { name: 'Mitra Analis', href: route('admin.mitra.index'), icon: UserCheck, current: route().current('admin.mitra.*') },
       { name: 'Team Research', href: route('admin.team-research.index'), icon: Users, current: route().current('admin.team-research.*') },
       { name: 'Subscriber', href: route('admin.users.index'), icon: Users, current: route().current('admin.users.*') },
