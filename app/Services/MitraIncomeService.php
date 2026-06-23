@@ -137,19 +137,25 @@ class MitraIncomeService
         // Calculate income for each rank
         $poolAmount = $this->getMonthlyPool($month, $year);
         
+        $actualRank = 1;
         foreach ($ranking as $index => &$partner) {
-            $rank = $index + 1;
-            $partner['rank'] = $rank;
-            
-            $income = 0;
-            $percentage = 0;
-            if (isset(self::TIER_PERCENTAGES[$rank])) {
-                $percentage = self::TIER_PERCENTAGES[$rank];
-                $income = $poolAmount * $percentage;
+            if ($partner['total_views'] > 0) {
+                $partner['rank'] = $actualRank;
+                $income = 0;
+                $percentage = 0;
+                if (isset(self::TIER_PERCENTAGES[$actualRank])) {
+                    $percentage = self::TIER_PERCENTAGES[$actualRank];
+                    $income = $poolAmount * $percentage;
+                }
+                
+                $partner['income'] = $income;
+                $partner['tier_percentage'] = $percentage * 100;
+                $actualRank++;
+            } else {
+                $partner['rank'] = null; // No rank if 0 views
+                $partner['income'] = 0;
+                $partner['tier_percentage'] = 0;
             }
-            
-            $partner['income'] = $income;
-            $partner['tier_percentage'] = $percentage * 100;
         }
 
         return $ranking;
