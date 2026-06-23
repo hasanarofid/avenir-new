@@ -313,7 +313,7 @@ const trendingTickers = computed(() => {
                         <span v-if="news.source" class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-medium">{{ news.source }}</span>
                         <span v-else-if="!news.author" class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded font-medium">Avenir Research</span>
                         <span>&bull;</span>
-                        <span>{{ news.published_at || 'Baru saja' }}</span>
+                        <span>{{ news.created_at || 'Baru saja' }}</span>
                      </div>
                      
                      <div class="flex items-center justify-between border-t border-white/5 pt-4 mt-auto">
@@ -422,7 +422,7 @@ const trendingTickers = computed(() => {
                          <span v-if="news.source" class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-medium">{{ news.source }}</span>
                          <span v-else class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded font-medium">Avenir Research</span>
                          <span>&bull;</span>
-                         <span>{{ news.published_at ? news.published_at + ' ' + (news.published_time || '') + ' WIB' : 'Baru saja' }}</span>
+                         <span>{{ news.created_at ? news.created_at + ' ' + (news.published_time || '') + ' WIB' : 'Baru saja' }}</span>
                       </div>
                    </div>
                    
