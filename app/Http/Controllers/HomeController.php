@@ -124,7 +124,7 @@ class HomeController extends Controller
      */
     public function katalog()
     {
-        $researches = Research::with(['author', 'emiten'])->select([
+        $researches = Research::with(['author', 'emiten'])->withCount(['likes', 'polyComments as comments_count', 'shares'])->select([
             'id',
             'title',
             'ticker',
@@ -317,12 +317,12 @@ class HomeController extends Controller
     {
         $selectColumns = ['id', 'title', 'slug', 'category', 'badge', 'excerpt', 'cover_image', 'user_id', 'published_at', 'created_at', 'status'];
 
-        $articles = Article::with('author')->select($selectColumns)->where('status', 'published')
+        $articles = Article::with('author')->withCount(['likes', 'comments', 'shares'])->select($selectColumns)->where('status', 'published')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $editorPicks = Article::with('author')->select($selectColumns)->where('status', 'published')
+        $editorPicks = Article::with('author')->withCount(['likes', 'comments', 'shares'])->select($selectColumns)->where('status', 'published')
             ->whereNotNull('badge')
             ->orderBy('updated_at', 'desc')
             ->take(3)
@@ -331,7 +331,7 @@ class HomeController extends Controller
         // Fallback for Editor Picks if there are fewer than 3
         if ($editorPicks->count() < 3) {
             $excludeIds = $editorPicks->pluck('id')->toArray();
-            $fallback = Article::with('author')->select($selectColumns)->where('status', 'published')
+            $fallback = Article::with('author')->withCount(['likes', 'comments', 'shares'])->select($selectColumns)->where('status', 'published')
                 ->when(count($excludeIds) > 0, function ($q) use ($excludeIds) {
                     return $q->whereNotIn('id', $excludeIds);
                 })
@@ -342,7 +342,7 @@ class HomeController extends Controller
         }
 
         // Trending articles
-        $trendingArticles = Article::with('author')->select($selectColumns)->where('status', 'published')
+        $trendingArticles = Article::with('author')->withCount(['likes', 'comments', 'shares'])->select($selectColumns)->where('status', 'published')
             ->inRandomOrder()
             ->take(5)
             ->get();

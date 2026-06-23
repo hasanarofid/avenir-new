@@ -39,4 +39,19 @@ class Article extends Model
     {
         return $this->hasMany(ArticleViewLog::class);
     }
+
+    public function likes()
+    {
+        return $this->morphMany(AppLike::class, 'likeable');
+    }
+
+    public function comments()
+    {
+        return $this->morphMany(AppComment::class, 'commentable');
+    }
+
+    public function shares()
+    {
+        return $this->morphMany(AppShare::class, 'shareable');
+    }
 }

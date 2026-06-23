@@ -96,6 +96,23 @@ const formattedDate = computed(() => {
             <span class="meta-lbl">Rekomendasi</span>
             <span :class="['rec-badge mt-1 inline-block', recColor]">{{ data.recommendation || 'BUY' }}</span>
           </div>
+          <div class="meta-item ml-6" v-if="isFeatured">
+            <span class="meta-lbl">Engagement</span>
+            <div class="flex items-center gap-4 mt-1">
+              <span class="flex items-center gap-1.5 hover:text-rose-400 transition-colors text-sm text-slate-300 font-medium">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                {{ data.likes_count || 0 }}
+              </span>
+              <span class="flex items-center gap-1.5 hover:text-blue-400 transition-colors text-sm text-slate-300 font-medium">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                {{ data.comments_count || 0 }}
+              </span>
+              <span class="flex items-center gap-1.5 hover:text-emerald-400 transition-colors text-sm text-slate-300 font-medium">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                {{ data.shares_count || 0 }}
+              </span>
+            </div>
+          </div>
           
           <div class="meta-item analyst-info ml-auto" v-if="isFeatured">
             <span class="meta-lbl">Analis</span>
@@ -120,6 +137,21 @@ const formattedDate = computed(() => {
           </span>
           <span v-else class="free-badge-sm">GRATIS</span>
           
+          <div class="flex items-center gap-3 ml-4">
+              <span class="flex items-center gap-1 hover:text-rose-400 transition-colors text-xs text-slate-400">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                {{ data.likes_count || 0 }}
+              </span>
+              <span class="flex items-center gap-1 hover:text-blue-400 transition-colors text-xs text-slate-400">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                {{ data.comments_count || 0 }}
+              </span>
+              <span class="flex items-center gap-1 hover:text-emerald-400 transition-colors text-xs text-slate-400">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                {{ data.shares_count || 0 }}
+              </span>
+          </div>
+
           <div class="analyst-info-sm ml-auto flex items-center gap-2">
             <div class="w-5 h-5 rounded-full bg-slate-800 overflow-hidden flex items-center justify-center border border-white/10">
               <img v-if="data.author?.profile_photo_url" :src="data.author.profile_photo_url" :alt="data.author?.name" class="w-full h-full object-cover" />

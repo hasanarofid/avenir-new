@@ -38,4 +38,19 @@ class Research extends Model
     {
         return $this->hasMany(ResearchBookmark::class);
     }
+
+    public function likes()
+    {
+        return $this->morphMany(AppLike::class, 'likeable');
+    }
+
+    public function polyComments()
+    {
+        return $this->morphMany(AppComment::class, 'commentable');
+    }
+
+    public function shares()
+    {
+        return $this->morphMany(AppShare::class, 'shareable');
+    }
 }
