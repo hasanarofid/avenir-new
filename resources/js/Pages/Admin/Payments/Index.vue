@@ -2,10 +2,13 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { FileText } from '@lucide/vue';
+import { computed } from 'vue';
 
 const props = defineProps({
   payments: Array
 });
+
+const pendingCount = computed(() => props.payments.filter(p => p.status === 'pending').length);
 
 function formatDate(dateString) {
   if (!dateString) return '-';
@@ -33,7 +36,7 @@ function formatRupiah(number) {
           <p class="text-sm text-slate-400 mt-1">Verifikasi bukti transfer langganan Avenir Research.</p>
         </div>
         <div class="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 font-mono font-bold text-xs rounded-full">
-          {{ payments.length }} PENDING
+          {{ pendingCount }} PENDING
         </div>
       </div>
 

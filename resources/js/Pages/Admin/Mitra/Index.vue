@@ -2,12 +2,15 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { UserCheck, Edit, Trash, Check } from '@lucide/vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Swal from 'sweetalert2';
 
 const props = defineProps({
   mitra: Array
 });
+
+const pendingCount = computed(() => props.mitra.filter(m => !m.is_verified).length);
+const activeCount = computed(() => props.mitra.filter(m => m.is_verified).length);
 
 const editingId = ref(null);
 const editForm = ref({
@@ -109,7 +112,7 @@ async function deleteMitra(id) {
           <p class="text-sm text-slate-400 mt-1">Kelola permohonan dan status keanggotaan Mitra Analis Avenir.</p>
         </div>
         <div class="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 font-mono font-bold text-xs rounded-full">
-          {{ mitra.length }} PENDING / AKTIF
+          {{ pendingCount }} PENDING / {{ activeCount }} AKTIF
         </div>
       </div>
 
