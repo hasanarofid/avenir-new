@@ -21,21 +21,21 @@ class HomeController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(9)
             ->get();
-            
+
         $risetUnggulan = [];
         foreach ($dbResearches as $r) {
             $rating = strtoupper($r->recommendation);
             if (empty($rating)) {
                 $rating = 'BUY';
             }
-            
+
             $upsideVal = floatval($r->upside);
 
             $risetUnggulan[] = [
                 'ticker' => $r->ticker ?? 'N/A',
                 'name' => $r->emiten ? $r->emiten->company_name : $r->title,
                 'sector' => $r->sector ?? 'Financials',
-                'targetPrice' => 'Rp ' . number_format((float)$r->target_price, 0, ',', '.'),
+                'targetPrice' => 'Rp ' . number_format((float) $r->target_price, 0, ',', '.'),
                 'upside' => ($upsideVal >= 0 ? '+' : '') . number_format($upsideVal, 1) . '%',
                 'rating' => $rating,
                 'date' => $r->date ? \Carbon\Carbon::parse($r->date)->format('d M Y') : ($r->created_at ? $r->created_at->format('d M Y') : now()->format('d M Y')),
@@ -73,7 +73,7 @@ class HomeController extends Controller
             ->latest()
             ->take(5)
             ->get();
-        
+
         // If news is empty, fallback to recent posts of any category
         if ($dbNews->isEmpty()) {
             $dbNews = \App\Models\Article::select(['id', 'title', 'slug', 'published_at', 'created_at', 'cover_image'])
@@ -112,11 +112,11 @@ class HomeController extends Controller
             'insightTerbaru' => $insightTerbaru,
             'headlinesPasar' => $headlinesPasar
         ])->withViewData([
-            'meta' => [
-                'title' => 'Avenir Research | Platform Riset Ekuitas Indonesia',
-                'description' => 'Akses laporan riset mendalam untuk keputusan investasi yang lebih cerdas. Disusun oleh tim analis berpengalaman.',
-            ]
-        ]);
+                    'meta' => [
+                        'title' => 'Avenir Research | Platform Riset Ekuitas Indonesia',
+                        'description' => 'Akses laporan riset mendalam untuk keputusan investasi yang lebih cerdas. Disusun oleh tim analis berpengalaman.',
+                    ]
+                ]);
     }
 
     /**
@@ -125,10 +125,28 @@ class HomeController extends Controller
     public function katalog()
     {
         $researches = Research::with(['author', 'emiten'])->select([
-            'id', 'title', 'ticker', 'sector', 'slug', 'subtitle', 'revenue', 
-            'patmi', 'sales', 'tags', 'date', 'price', 'recommendation', 
-            'target_price', 'upside', 'report_type', 'is_premium', 'pdf_path', 
-            'image', 'author_id', 'created_at', 'updated_at'
+            'id',
+            'title',
+            'ticker',
+            'sector',
+            'slug',
+            'subtitle',
+            'revenue',
+            'patmi',
+            'sales',
+            'tags',
+            'date',
+            'price',
+            'recommendation',
+            'target_price',
+            'upside',
+            'report_type',
+            'is_premium',
+            'pdf_path',
+            'image',
+            'author_id',
+            'created_at',
+            'updated_at'
         ])->orderBy('updated_at', 'desc')->orderBy('created_at', 'desc')->get()->map(function ($r) {
             $r->company_name = $r->emiten ? $r->emiten->company_name : null;
             return $r;
@@ -139,16 +157,16 @@ class HomeController extends Controller
                 ->pluck('ticker')
                 ->toArray()
             : [];
-        
+
         return Inertia::render('Dashboard', [
             'researches' => $researches,
             'unlockedTickers' => $unlockedTickers
         ])->withViewData([
-            'meta' => [
-                'title' => 'Katalog Riset | Avenir Research',
-                'description' => 'Jelajahi berbagai laporan riset saham, rekomendasi, dan target price dari Avenir Research.',
-            ]
-        ]);
+                    'meta' => [
+                        'title' => 'Katalog Riset | Avenir Research',
+                        'description' => 'Jelajahi berbagai laporan riset saham, rekomendasi, dan target price dari Avenir Research.',
+                    ]
+                ]);
     }
 
     /**
@@ -186,14 +204,14 @@ class HomeController extends Controller
 
         // Cek apakah user punya akses
         $isSubscriber = false;
-        $isUnlocked   = false;
+        $isUnlocked = false;
         if (auth()->check()) {
             $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
                 ->where('user_id', auth()->id())
                 ->first();
             if (auth()->user()->hasActivePremium() || auth()->user()->hasRole("admin")) {
                 $isSubscriber = true;
-                $isUnlocked   = true;
+                $isUnlocked = true;
             }
             if (!$isUnlocked && $research->ticker) {
                 $isUnlocked = \Illuminate\Support\Facades\DB::table('unlocked_research')
@@ -204,9 +222,9 @@ class HomeController extends Controller
 
             // Trial limit: non-subscriber only gets access to N newest research
             if (!$isSubscriber && !$isUnlocked) {
-                $trialLimit  = (int) \App\Models\Setting::getValue('trial_riset_limit', 3);
-                $allowedIds  = Research::orderByDesc('date')->take($trialLimit)->pluck('id');
-                $isUnlocked  = $allowedIds->contains($research->id);
+                $trialLimit = (int) \App\Models\Setting::getValue('trial_riset_limit', 3);
+                $allowedIds = Research::orderByDesc('date')->take($trialLimit)->pluck('id');
+                $isUnlocked = $allowedIds->contains($research->id);
             }
         }
 
@@ -228,68 +246,68 @@ class HomeController extends Controller
         if (!$alreadyViewed) {
             \App\Models\ResearchViewLog::create([
                 'research_id' => $research->id,
-                'user_id'     => $userId,
-                'ip_address'  => $userId ? null : $ip, // tidak simpan IP jika sudah ada user_id
-                'created_at'  => now(),
+                'user_id' => $userId,
+                'ip_address' => $userId ? null : $ip, // tidak simpan IP jika sudah ada user_id
+                'created_at' => now(),
             ]);
         }
 
         // ── Stats: hitung views, comments, bookmark ──────────────────────────
-        $viewsCount    = \App\Models\ResearchViewLog::where('research_id', $research->id)->count();
+        $viewsCount = \App\Models\ResearchViewLog::where('research_id', $research->id)->count();
         $commentsCount = \App\Models\Comment::where('research_id', $research->id)->count();
-        $isBookmarked  = $userId
+        $isBookmarked = $userId
             ? \App\Models\ResearchBookmark::where('research_id', $research->id)->where('user_id', $userId)->exists()
             : false;
 
-        $comments = $research->comments()->with('user:id,name')->latest()->get()->map(function($comment) {
+        $comments = $research->comments()->with('user:id,name')->latest()->get()->map(function ($comment) {
             return [
-                'id'          => $comment->id,
+                'id' => $comment->id,
                 'author_name' => $comment->user ? $comment->user->name : ($comment->guest_name ?: 'Guest'),
-                'content'     => $comment->content,
-                'date'        => $comment->created_at->diffForHumans(),
+                'content' => $comment->content,
+                'date' => $comment->created_at->diffForHumans(),
             ];
         });
 
         return Inertia::render('KatalogDetail', [
             'research' => [
-                'id'             => $research->id,
-                'title'          => $research->title,
-                'ticker'         => $research->ticker,
-                'company_name'   => $research->emiten ? $research->emiten->company_name : null,
-                'sector'         => $research->sector,
-                'slug'           => $research->slug,
-                'subtitle'       => $research->subtitle,
-                'revenue'        => $research->revenue,
-                'patmi'          => $research->patmi,
-                'sales'          => $research->sales,
-                'price'          => $research->price,
-                'date'           => $research->date,
-                'image'          => $research->image,
+                'id' => $research->id,
+                'title' => $research->title,
+                'ticker' => $research->ticker,
+                'company_name' => $research->emiten ? $research->emiten->company_name : null,
+                'sector' => $research->sector,
+                'slug' => $research->slug,
+                'subtitle' => $research->subtitle,
+                'revenue' => $research->revenue,
+                'patmi' => $research->patmi,
+                'sales' => $research->sales,
+                'price' => $research->price,
+                'date' => $research->date,
+                'image' => $research->image,
                 'recommendation' => $research->recommendation,
-                'target_price'   => $research->target_price,
-                'upside'         => $research->upside,
-                'report_type'    => $research->report_type,
-                'is_premium'     => $research->is_premium,
-                'pdf_path'       => $isUnlocked ? $research->pdf_path : null,
-                'content'        => $research->content,
-                'author'         => $research->author,
-                'created_at'     => $research->created_at,
-                'is_paid'        => $research->is_premium,
-                'is_unlocked'    => $isUnlocked,
-                'comments'       => $comments,
+                'target_price' => $research->target_price,
+                'upside' => $research->upside,
+                'report_type' => $research->report_type,
+                'is_premium' => $research->is_premium,
+                'pdf_path' => $isUnlocked ? $research->pdf_path : null,
+                'content' => $research->content,
+                'author' => $research->author,
+                'created_at' => $research->created_at,
+                'is_paid' => $research->is_premium,
+                'is_unlocked' => $isUnlocked,
+                'comments' => $comments,
                 // Stats realtime
-                'views_count'    => $viewsCount,
+                'views_count' => $viewsCount,
                 'comments_count' => $commentsCount,
-                'is_bookmarked'  => $isBookmarked,
+                'is_bookmarked' => $isBookmarked,
             ],
         ])->withViewData([
-            'meta' => [
-                'title' => ($research->ticker ? $research->ticker . ' — ' : '') . $research->title . ' | Avenir Research',
-                'description' => \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($research->subtitle ?? $research->content))), 150),
-                'image' => $research->image ? asset($research->image) : asset('favicon.png'),
-                'type' => 'article',
-            ]
-        ]);
+                    'meta' => [
+                        'title' => ($research->ticker ? $research->ticker . ' — ' : '') . $research->title . ' | Avenir Research',
+                        'description' => \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($research->subtitle ?? $research->content))), 150),
+                        'image' => $research->image ? asset($research->image) : asset('favicon.png'),
+                        'type' => 'article',
+                    ]
+                ]);
     }
 
     /**
@@ -303,18 +321,18 @@ class HomeController extends Controller
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
-            
+
         $editorPicks = Article::with('author')->select($selectColumns)->where('status', 'published')
             ->whereNotNull('badge')
             ->orderBy('updated_at', 'desc')
             ->take(3)
             ->get();
-            
+
         // Fallback for Editor Picks if there are fewer than 3
         if ($editorPicks->count() < 3) {
             $excludeIds = $editorPicks->pluck('id')->toArray();
             $fallback = Article::with('author')->select($selectColumns)->where('status', 'published')
-                ->when(count($excludeIds) > 0, function($q) use ($excludeIds) {
+                ->when(count($excludeIds) > 0, function ($q) use ($excludeIds) {
                     return $q->whereNotIn('id', $excludeIds);
                 })
                 ->inRandomOrder()
@@ -339,18 +357,18 @@ class HomeController extends Controller
             ->orderByDesc('count')
             ->take(10)
             ->get();
-        
+
         return Inertia::render('Artikel', [
             'articles' => $articles,
             'editorPicks' => $editorPicks,
             'trendingArticles' => $trendingArticles,
             'populerTopics' => $populerTopics
         ])->withViewData([
-            'meta' => [
-                'title' => 'Artikel & Insight | Avenir Research',
-                'description' => 'Baca artikel, insight, dan analisis terbaru mengenai pasar modal Indonesia.',
-            ]
-        ]);
+                    'meta' => [
+                        'title' => 'Artikel & Insight | Avenir Research',
+                        'description' => 'Baca artikel, insight, dan analisis terbaru mengenai pasar modal Indonesia.',
+                    ]
+                ]);
     }
 
     /**
@@ -361,7 +379,7 @@ class HomeController extends Controller
         $article = Article::with('author')->where('slug', $slug)
             ->where('status', 'published')
             ->first();
-            // dd($article->author());
+        // dd($article->author());
 
         // Fallback: jika slug tidak ketemu, coba cari by ID (untuk URL lama)
         if (!$article && is_numeric($slug)) {
@@ -387,8 +405,8 @@ class HomeController extends Controller
 
         $content = $this->getArticleContent($article->slug) ?? $article->content;
 
-        $isPaid   = (bool) $article->is_paid;
-        $isTrial  = false;
+        $isPaid = (bool) $article->is_paid;
+        $isTrial = false;
 
         // Trial check: logged-in non-subscribers are treated as trial users
         if ($isLoggedIn && !$isSubscriber) {
@@ -424,29 +442,29 @@ class HomeController extends Controller
 
         return Inertia::render('ArtikelDetail', [
             'article' => [
-                'id'           => $article->id,
-                'title'        => $article->title,
-                'slug'         => $article->slug,
-                'category'     => $article->category,
-                'badge'        => $article->badge,
-                'excerpt'      => $article->excerpt,
-                'cover_image'  => $article->cover_image,
+                'id' => $article->id,
+                'title' => $article->title,
+                'slug' => $article->slug,
+                'category' => $article->category,
+                'badge' => $article->badge,
+                'excerpt' => $article->excerpt,
+                'cover_image' => $article->cover_image,
                 'author' => $article->getRelation('author'),
-                'published_at' => $article->published_at 
-                    ? $article->published_at->format('d M Y') 
+                'published_at' => $article->published_at
+                    ? $article->published_at->format('d M Y')
                     : null,
-                'is_paid'      => $isPaid,
-                'is_unlocked'  => $isUnlocked,
-                'content'      => $content,
+                'is_paid' => $isPaid,
+                'is_unlocked' => $isUnlocked,
+                'content' => $content,
             ]
         ])->withViewData([
-            'meta' => [
-                'title' => $article->title . ' | Avenir Research',
-                'description' => $article->excerpt ? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($article->excerpt))), 150) : \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($content))), 150),
-                'image' => $article->cover_image ? asset($article->cover_image) : asset('favicon.png'),
-                'type' => 'article',
-            ]
-        ]);
+                    'meta' => [
+                        'title' => $article->title . ' | Avenir Research',
+                        'description' => $article->excerpt ? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($article->excerpt))), 150) : \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($content))), 150),
+                        'image' => $article->cover_image ? asset($article->cover_image) : asset('favicon.png'),
+                        'type' => 'article',
+                    ]
+                ]);
     }
 
     /**
@@ -492,7 +510,7 @@ class HomeController extends Controller
         $pos = strpos($content, $bodyToken);
         if ($pos !== false) {
             $afterBody = substr($content, $pos + strlen($bodyToken));
-            
+
             // Find the second paragraph closing tag </p>
             $pPos = -1;
             for ($i = 0; $i < 2; $i++) {
@@ -506,7 +524,7 @@ class HomeController extends Controller
             if ($pPos !== false && $pPos > 0) {
                 $truncatedBody = substr($afterBody, 0, $pPos + 4);
                 $beforeBody = substr($content, 0, $pos + strlen($bodyToken));
-                
+
                 // Add a nice fade gradient and close the art-body div
                 return $beforeBody . $truncatedBody . '</div>';
             }
@@ -538,6 +556,7 @@ class HomeController extends Controller
                     'excerpt' => $news->excerpt,
                     'published_at' => $news->published_at ? $news->published_at->format('d M Y') : null,
                     'published_time' => $news->published_at ? $news->published_at->format('H:i') : null,
+                    'created_at' => $news->created_at ? $news->created_at->format('d M Y H:i') : null,
                     'cover_image' => $news->cover_image,
                     'author' => $news->author,
                     'is_paid' => $news->is_paid,
@@ -561,11 +580,11 @@ class HomeController extends Controller
                 'trending' => array_filter(array_map('trim', explode(',', $trendingStr))),
             ]
         ])->withViewData([
-            'meta' => [
-                'title' => 'Berita Pasar | Avenir Research',
-                'description' => 'Ikuti perkembangan dan berita terbaru dari pasar modal Indonesia.',
-            ]
-        ]);
+                    'meta' => [
+                        'title' => 'Berita Pasar | Avenir Research',
+                        'description' => 'Ikuti perkembangan dan berita terbaru dari pasar modal Indonesia.',
+                    ]
+                ]);
     }
 
     /**
@@ -588,8 +607,8 @@ class HomeController extends Controller
 
         $content = $news->content;
 
-        $isPaid   = (bool) $news->is_paid;
-        $isTrial  = false;
+        $isPaid = (bool) $news->is_paid;
+        $isTrial = false;
 
         // Trial check: logged-in non-subscribers are treated as trial users
         if ($isLoggedIn && !$isSubscriber) {
@@ -637,13 +656,13 @@ class HomeController extends Controller
                 'is_unlocked' => $isUnlocked,
             ]
         ])->withViewData([
-            'meta' => [
-                'title' => $news->title . ' | Avenir Research',
-                'description' => $news->excerpt ? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($news->excerpt))), 150) : \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($content))), 150),
-                'image' => $news->cover_image ? asset($news->cover_image) : asset('favicon.png'),
-                'type' => 'article',
-            ]
-        ]);
+                    'meta' => [
+                        'title' => $news->title . ' | Avenir Research',
+                        'description' => $news->excerpt ? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($news->excerpt))), 150) : \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags($content))), 150),
+                        'image' => $news->cover_image ? asset($news->cover_image) : asset('favicon.png'),
+                        'type' => 'article',
+                    ]
+                ]);
     }
 
     /**
@@ -688,7 +707,7 @@ class HomeController extends Controller
                 'user_profiles.last_name'
             )
             ->get()
-            ->map(function($p) {
+            ->map(function ($p) {
                 return [
                     'name' => $p->name ?? (trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) ?: 'Mitra Analis'),
                     'certification' => $p->certification ?? 'Mitra Analis',
@@ -699,11 +718,11 @@ class HomeController extends Controller
         return Inertia::render('Partners', [
             'partners' => $partners
         ])->withViewData([
-            'meta' => [
-                'title' => 'Mitra Analis | Avenir Research',
-                'description' => 'Temui para mitra analis independen kami yang menyediakan riset pasar modal berkualitas.',
-            ]
-        ]);
+                    'meta' => [
+                        'title' => 'Mitra Analis | Avenir Research',
+                        'description' => 'Temui para mitra analis independen kami yang menyediakan riset pasar modal berkualitas.',
+                    ]
+                ]);
     }
 
     /**
@@ -717,7 +736,7 @@ class HomeController extends Controller
 
         if (auth()->check()) {
             $user = auth()->user();
-            
+
             // Check if user is subscriber in user_profiles
             $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
                 ->where('user_id', $user->id)
@@ -733,7 +752,7 @@ class HomeController extends Controller
                 ->where('status', 'pending')
                 ->orderBy('submitted_at', 'desc')
                 ->first();
-            
+
             if ($pendingSubmission) {
                 $status = 'pending';
             }
@@ -751,11 +770,11 @@ class HomeController extends Controller
                 'submitted_at' => $pendingSubmission->submitted_at,
             ] : null
         ])->withViewData([
-            'meta' => [
-                'title' => 'Berlangganan | Avenir Research',
-                'description' => 'Dapatkan akses penuh ke laporan riset premium, insight pasar, dan rekomendasi saham eksklusif.',
-            ]
-        ]);
+                    'meta' => [
+                        'title' => 'Berlangganan | Avenir Research',
+                        'description' => 'Dapatkan akses penuh ke laporan riset premium, insight pasar, dan rekomendasi saham eksklusif.',
+                    ]
+                ]);
     }
 
     /**
@@ -818,8 +837,10 @@ class HomeController extends Controller
      * Cleans up dark inline text colors from statically exported HTML
      * if they are not inside a light-colored background box.
      */
-    private function cleanHtmlForDarkMode($html) {
-        if (empty($html)) return $html;
+    private function cleanHtmlForDarkMode($html)
+    {
+        if (empty($html))
+            return $html;
 
         $dom = new \DOMDocument();
         @$dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
@@ -829,7 +850,7 @@ class HomeController extends Controller
 
         foreach ($elements as $el) {
             $style = $el->getAttribute('style');
-            
+
             $hasLightBg = false;
             $current = $el;
             while ($current !== null && $current->nodeType === XML_ELEMENT_NODE) {
@@ -842,7 +863,7 @@ class HomeController extends Controller
                 }
                 $current = $current->parentNode;
             }
-            
+
             if (!$hasLightBg) {
                 $style = preg_replace('/color\s*:\s*#(1f2937|0f172a|374151|475569|000000|111827|1a1a1a|080D09|4b5563|6b7280|64748b|333333|222222)\s*;?/i', '', $style);
                 if (trim($style) === '' || trim($style) === ';') {
