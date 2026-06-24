@@ -19,6 +19,22 @@ const form = useForm({
     bank_account_name: '',
 });
 
+const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        if (file.size > 2 * 1024 * 1024) { // Limit to 2MB
+            form.errors.portfolio_pdf = 'Ukuran file terlalu besar. Maksimal ukuran file adalah 2MB.';
+            event.target.value = ''; // reset input
+            form.portfolio_pdf = null;
+        } else {
+            form.clearErrors('portfolio_pdf');
+            form.portfolio_pdf = file;
+        }
+    } else {
+        form.portfolio_pdf = null;
+    }
+};
+
 const submit = () => {
     form.post(route('mitra.register.store'));
 };
@@ -104,12 +120,12 @@ const submit = () => {
               </div>
 
               <div class="form-group">
-                <label for="portfolio_pdf">Atau Upload PDF Paper Riset</label>
+                <label for="portfolio_pdf">Atau Upload PDF Paper Riset <span style="color:#64748b; font-weight:normal; font-size:11px;">(Maks: 2MB)</span></label>
                 <input 
                   id="portfolio_pdf" 
                   type="file"
                   accept=".pdf"
-                  @input="form.portfolio_pdf = $event.target.files[0]"
+                  @change="handleFileUpload"
                   class="form-input" 
                   style="padding: 11px 16px;"
                 />

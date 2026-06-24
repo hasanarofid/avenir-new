@@ -50,6 +50,14 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->setStatusCode($response->getStatusCode());
             }
 
+            // Handle PostTooLargeException globally
+            $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, Request $request) {
+                return redirect()->back()->withErrors([
+                    'portfolio_pdf' => 'Ukuran file atau data yang dikirim terlalu besar. Maksimal 2MB.',
+                    'error' => 'Ukuran file atau form data terlalu besar.'
+                ]);
+            });
+
             // Always render 404 and 403 locally too, because they are user-facing errors
             if (app()->environment(['local']) && in_array($response->getStatusCode(), [404, 403])) {
                 return \Inertia\Inertia::render('Error', ['status' => $response->getStatusCode()])
