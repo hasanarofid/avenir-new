@@ -719,23 +719,47 @@ class HomeController extends Controller
      */
     public function mitra()
     {
-        $currentMonth = now()->month;
-        $currentYear = now()->year;
-
-        $incomeService = new \App\Services\MitraIncomeService();
-        $poolBudget = $incomeService->getMonthlyPool($currentMonth, $currentYear);
-        $partners = $incomeService->getMonthlyRanking($currentMonth, $currentYear);
+        $contributors = \App\Models\Partner::with(['user' => function($q) {
+            $q->withCount([
+                'articles as articles_count' => function ($query) {
+                    $query->where('status', 'published');
+                },
+                'researches as researches_count'
+            ]);
+        }])->where('is_verified', true)->get()->map(function ($partner) {
+            $user = $partner->user;
+            $kanal = [];
+            if ($user->researches_count > 0) {
+                $kanal[] = 'Katalog';
+            }
+            if ($user->articles_count > 0) {
+                $kanal[] = 'Artikel';
+            }
+            $kanalStr = empty($kanal) ? '-' : implode(' & ', $kanal);
+            
+            $specializations = is_array($partner->specializations) 
+                                ? $partner->specializations 
+                                : (json_decode($partner->specializations, true) ?? []);
+                                
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'avatar' => $user->profile_photo_url,
+                'role' => 'Contributor Research',
+                'specializations' => $specializations,
+                'konten_terbit' => $user->articles_count + $user->researches_count,
+                'kanal' => $kanalStr,
+            ];
+        });
 
         return Inertia::render('Partners', [
-            'partners' => $partners,
-            'poolBudget' => (int) $poolBudget,
-            'currentPeriod' => now()->format('F Y')
+            'contributors' => $contributors
         ])->withViewData([
-                    'meta' => [
-                        'title' => 'Mitra Analis | Avenir Research',
-                        'description' => 'Temui para mitra analis independen kami yang menyediakan riset pasar modal berkualitas.',
-                    ]
-                ]);
+            'meta' => [
+                'title' => 'Mitra Analis Avenir Research - Bangun Reputasi Riset dan Monetisasi Insight Pasar Modal',
+                'description' => 'Bergabung sebagai Mitra Analis Avenir Research. Terbitkan riset pasar modal, bangun reputasi analis, dan berpartisipasi dalam sistem insentif berbasis kualitas riset serta kontribusi ke paid member.',
+            ]
+        ]);
     }
 
     /**
