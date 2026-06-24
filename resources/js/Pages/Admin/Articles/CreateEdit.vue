@@ -30,12 +30,6 @@ const form = useForm({
 
 const page = usePage();
 
-watch(() => page.props.flash?.preview_slug, (slug) => {
-  if (slug) {
-    window.open(`/artikel/${slug}`, '_blank');
-  }
-}, { immediate: true });
-
 const isFormValid = computed(() => {
   return form.title && form.title.trim() !== '';
 });
@@ -78,7 +72,23 @@ const handleDrop = (e) => {
 const saveAsDraftAndPreview = () => {
   form.status = 'draft';
   form.is_preview = true;
-  submit();
+  
+  // Open blank window immediately to bypass popup blockers
+  const previewWindow = window.open('', '_blank');
+  if (previewWindow) {
+    previewWindow.document.write('<div style="font-family:sans-serif;padding:2rem;text-align:center;">Menyimpan draft dan menyiapkan pratinjau...</div>');
+  }
+
+  submit((page) => {
+    const slug = page.props.flash?.preview_slug;
+    if (slug && previewWindow) {
+      previewWindow.location.href = `/artikel/${slug}`;
+    } else if (previewWindow) {
+      previewWindow.close();
+    }
+  }, () => {
+    if (previewWindow) previewWindow.close();
+  });
 };
 
 const saveAndPublish = () => {
@@ -87,16 +97,22 @@ const saveAndPublish = () => {
   submit();
 };
 
-const submit = () => {
+const submit = (onSuccessCb = null, onErrorCb = null) => {
+  const options = {
+    forceFormData: true,
+    preserveScroll: true,
+    onSuccess: (page) => {
+      if (typeof onSuccessCb === 'function') onSuccessCb(page);
+    },
+    onError: (errors) => {
+      if (typeof onErrorCb === 'function') onErrorCb(errors);
+    }
+  };
+
   if (isEdit) {
-    form.post(route('admin.articles.update', props.article.id), {
-      forceFormData: true,
-      preserveScroll: true
-    });
+    form.post(route('admin.articles.update', props.article.id), options);
   } else {
-    form.post(route('admin.articles.store'), {
-      forceFormData: true
-    });
+    form.post(route('admin.articles.store'), options);
   }
 };
 </script>
