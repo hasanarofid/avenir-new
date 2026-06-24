@@ -313,7 +313,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
     <transition name="slide-down">
       <div v-if="mobileMenuOpen" class="nav-mobile-drawer">
         <div class="nav-mobile-links">
-          <Link href="/" class="nav-mobile-link" :class="{ active: $page.component === 'Home' }" @click="mobileMenuOpen = false">Terminal</Link>
+          <Link href="/" class="nav-mobile-link" :class="{ active: $page.component === 'Home' }" @click="mobileMenuOpen = false">Beranda</Link>
           
           <div class="nav-mobile-group">
             <span class="nav-mobile-group-label">Market</span>
@@ -329,15 +329,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
             <Link href="/news" class="nav-mobile-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }" @click="mobileMenuOpen = false">Market News</Link>
           </div>
 
-          <Link v-if="user" href="/watchlist" class="nav-mobile-link" :class="{ active: $page.component === 'Watchlist/Index' }" @click="mobileMenuOpen = false">Watchlist</Link>
-
-          <div class="nav-mobile-group">
-            <span class="nav-mobile-group-label">Company</span>
-            <Link href="/tentang" class="nav-mobile-link" :class="{ active: $page.component === 'About' }" @click="mobileMenuOpen = false">Tentang Avenir</Link>
-            <Link href="/mitra" class="nav-mobile-link" :class="{ active: $page.component === 'Partners' }" @click="mobileMenuOpen = false">Mitra Analis</Link>
-          </div>
-
           <Link href="/langganan" class="nav-mobile-link" :class="{ active: $page.component === 'Subscription' }" @click="mobileMenuOpen = false">Langganan</Link>
+          <Link href="/tentang" class="nav-mobile-link" :class="{ active: $page.component === 'About' }" @click="mobileMenuOpen = false">Tentang</Link>
+          <Link href="/mitra" class="nav-mobile-link" :class="{ active: $page.component === 'Partners' }" @click="mobileMenuOpen = false">Mitra</Link>
+          <Link v-if="user" href="/watchlist" class="nav-mobile-link" :class="{ active: $page.component === 'Watchlist/Index' }" @click="mobileMenuOpen = false">Watchlist</Link>
         </div>
 
         <div class="nav-mobile-divider"></div>
