@@ -21,63 +21,15 @@ const props = defineProps({
   bankAccountInfo: {
     type: String,
     default: 'Marta Fikri 3370748356 bank BCA'
+  },
+  packages: {
+    type: Array,
+    default: () => []
   }
 });
 
 const page = usePage();
 const isLoggedIn = computed(() => !!page.props.auth?.user);
-
-// Packages Data
-const packages = [
-  {
-    id: '1bulan',
-    name: 'Bulanan',
-    price: 149000,
-    priceStr: '149.000',
-    period: '/ bulan',
-    saveText: 'Fleksibel · Bisa berhenti kapan saja',
-    durationDays: 30,
-    badge: null,
-    image: '/images/subscription/plan-bulanan.png'
-  },
-  {
-    id: '3bulan',
-    name: '3 Bulan',
-    price: 399000,
-    priceStr: '399.000',
-    period: '/ 3 bulan',
-    perMonth: '≈ Rp 133.000 / bulan',
-    saveText: 'Hemat Rp 48.000 vs bulanan',
-    durationDays: 90,
-    badge: 'Populer',
-    image: '/images/subscription/plan-3bulan.png'
-  },
-  {
-    id: '6bulan',
-    name: '6 Bulan',
-    price: 729000,
-    priceStr: '729.000',
-    period: '/ 6 bulan',
-    perMonth: '≈ Rp 121.500 / bulan',
-    saveText: 'Hemat Rp 165.000 · Diskon 18%',
-    durationDays: 180,
-    badge: 'Nilai Terbaik',
-    specialBg: true,
-    image: '/images/subscription/plan-6bulan.png'
-  },
-  {
-    id: '12bulan',
-    name: '1 Tahun',
-    price: 1289000,
-    priceStr: '1.289.000',
-    period: '/ tahun',
-    perMonth: '≈ Rp 107.500 / bulan',
-    saveText: 'Hemat Rp 499.000 · Diskon 28%',
-    durationDays: 365,
-    badge: 'Paling Hemat',
-    image: '/images/subscription/plan-12bulan.png'
-  }
-];
 
 // Payment Modal State
 const isModalOpen = ref(false);
@@ -125,7 +77,7 @@ const handleSelectPackage = (pkg) => {
   selectedPackage.value = pkg;
   form.paket = pkg.id;
   form.durasi_hari = pkg.durationDays;
-  form.nominal = pkg.price;
+  form.nominal = pkg.active_price; // use active price
   form.bukti_transfer = null;
   filePreview.value = null;
   uploadError.value = null;
@@ -294,7 +246,13 @@ const handleCloseModal = () => {
               
               <div class="price-box">
                 <span class="currency">Rp</span>
-                <span class="amount">{{ pkg.priceStr }}</span>
+                <div class="price-stack">
+                  <div v-if="pkg.has_active_discount" class="original-price">
+                    <del>Rp {{ pkg.priceStr }}</del> 
+                    <span class="discount-badge">Diskon {{ pkg.discount_percent }}%</span>
+                  </div>
+                  <span class="amount">{{ pkg.has_active_discount ? pkg.activePriceStr : pkg.priceStr }}</span>
+                </div>
                 <span class="period">{{ pkg.period }}</span>
               </div>
               
@@ -383,8 +341,8 @@ const handleCloseModal = () => {
               </div>
               <div class="detail-row highlight-row">
                 <span class="lbl">Nominal Transfer</span>
-                <span class="val price-val">Rp {{ selectedPackage?.price.toLocaleString('id-ID') }}</span>
-                <button @click="handleCopy(String(selectedPackage?.price), 'nominal')" class="copy-btn" :class="{ copied: copyBtnText.nominal.includes('✓') }">
+                <span class="val price-val">Rp {{ (selectedPackage?.active_price || selectedPackage?.price).toLocaleString('id-ID') }}</span>
+                <button @click="handleCopy(String(selectedPackage?.active_price || selectedPackage?.price), 'nominal')" class="copy-btn" :class="{ copied: copyBtnText.nominal.includes('✓') }">
                   {{ copyBtnText.nominal }}
                 </button>
               </div>
@@ -768,7 +726,7 @@ const handleCloseModal = () => {
 
 .price-box {
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;
   margin-bottom: 4px;
 }
 
@@ -776,7 +734,36 @@ const handleCloseModal = () => {
   font-size: 16px;
   font-weight: 600;
   color: #10b981;
-  margin-right: 2px;
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+
+.price-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.original-price {
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.original-price del {
+  text-decoration-color: #ef4444;
+}
+
+.discount-badge {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 .amount {
@@ -791,6 +778,7 @@ const handleCloseModal = () => {
   font-size: 13px;
   color: #64748b;
   margin-left: 4px;
+  margin-bottom: 4px;
 }
 
 .per-month-hint {

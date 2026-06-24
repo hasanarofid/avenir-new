@@ -773,9 +773,32 @@ class HomeController extends Controller
             $status = 'guest';
         }
 
+        // Fetch subscription packages from the DB
+        $packages = \App\Models\SubscriptionPackage::where('is_active', true)->get()->map(function ($pkg) {
+            return [
+                'id' => $pkg->id,
+                'name' => $pkg->name,
+                'price' => $pkg->price,
+                'active_price' => $pkg->active_price,
+                'has_active_discount' => $pkg->has_active_discount,
+                'discount_percent' => $pkg->discount_percent,
+                'discount_end_at' => $pkg->discount_end_at ? $pkg->discount_end_at->format('Y-m-d H:i:s') : null,
+                'priceStr' => number_format($pkg->price, 0, ',', '.'),
+                'activePriceStr' => number_format($pkg->active_price, 0, ',', '.'),
+                'period' => $pkg->period_text,
+                'perMonth' => $pkg->per_month_text,
+                'saveText' => $pkg->save_text,
+                'durationDays' => $pkg->duration_days,
+                'badge' => $pkg->badge,
+                'specialBg' => $pkg->special_bg,
+                'image' => $pkg->image_path,
+            ];
+        });
+
         return Inertia::render('Subscription', [
             'status' => $status,
             'isSubscriber' => $isSubscriber,
+            'packages' => $packages,
             'bankAccountInfo' => \App\Models\Setting::getValue('bank_account_info', 'Marta Fikri 3370748356 bank BCA'),
             'pendingSubmission' => $pendingSubmission ? [
                 'paket' => $pendingSubmission->paket,
@@ -783,11 +806,11 @@ class HomeController extends Controller
                 'submitted_at' => $pendingSubmission->submitted_at,
             ] : null
         ])->withViewData([
-                    'meta' => [
-                        'title' => 'Berlangganan | Avenir Research',
-                        'description' => 'Dapatkan akses penuh ke laporan riset premium, insight pasar, dan rekomendasi saham eksklusif.',
-                    ]
-                ]);
+            'meta' => [
+                'title' => 'Berlangganan | Avenir Research',
+                'description' => 'Dapatkan akses penuh ke laporan riset premium, insight pasar, dan rekomendasi saham eksklusif.',
+            ]
+        ]);
     }
 
     /**
@@ -796,9 +819,7 @@ class HomeController extends Controller
     public function kirimPembayaran(Request $request)
     {
         $request->validate([
-            'paket' => 'required|string|in:1bulan,3bulan,6bulan,12bulan',
-            'durasi_hari' => 'required|integer',
-            'nominal' => 'required|integer',
+            'paket' => 'required|string',
             'bukti_transfer' => 'required|image|mimes:jpeg,png,jpg,webp|max:3072',
         ]);
 
@@ -813,6 +834,15 @@ class HomeController extends Controller
         if ($existingPending) {
             return back()->withErrors(['error' => 'Anda masih memiliki submission yang sedang diverifikasi.']);
         }
+
+        // Fetch package from database
+        $package = \App\Models\SubscriptionPackage::find($request->input('paket'));
+        if (!$package || !$package->is_active) {
+            return back()->withErrors(['error' => 'Paket langganan tidak valid atau tidak tersedia.']);
+        }
+
+        $durasiHari = $package->duration_days;
+        $nominal = $package->active_price; // DB calculated active price with discount
 
         // Store file
         $file = $request->file('bukti_transfer');
@@ -830,9 +860,9 @@ class HomeController extends Controller
         \Illuminate\Support\Facades\DB::table('payment_submissions')->insert([
             'id' => \Illuminate\Support\Str::uuid()->toString(),
             'user_id' => $user->id,
-            'paket' => $request->input('paket'),
-            'durasi_hari' => $request->input('durasi_hari'),
-            'nominal' => $request->input('nominal'),
+            'paket' => $package->id,
+            'durasi_hari' => $durasiHari,
+            'nominal' => $nominal,
             'bukti_url' => $url,
             'bukti_path' => $path,
             'status' => 'pending',
