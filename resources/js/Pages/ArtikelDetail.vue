@@ -152,6 +152,18 @@ const submitComment = () => {
         <a href="/artikel" class="back-link">
           <span class="arrow">←</span> Kembali ke Artikel
         </a>
+
+        <!-- Draft Notice -->
+        <div v-if="article.status === 'draft'" class="mb-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-4 relative overflow-hidden">
+          <div class="absolute inset-0 bg-amber-500/5 backdrop-blur-sm"></div>
+          <div class="relative z-10 flex-shrink-0 w-10 h-10 flex items-center justify-center bg-amber-500/20 rounded-lg text-amber-400 border border-amber-500/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+          <div class="relative z-10">
+            <h4 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-0.5">Mode Preview (Draft)</h4>
+            <p class="text-[13px] text-amber-500/80 leading-relaxed">Halaman ini adalah pratinjau. Artikel ini masih berstatus <strong class="text-amber-400">Draft</strong> dan belum dipublikasikan ke publik.</p>
+          </div>
+        </div>
       <div 
         class="guest-lock-wrap" 
         :class="{ 'is-guest': isLocked }"

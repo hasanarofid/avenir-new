@@ -395,7 +395,6 @@ class HomeController extends Controller
     public function artikelDetail($slug)
     {
         $article = Article::with('author')->where('slug', $slug)
-            ->where('status', 'published')
             ->first();
         // dd($article->author());
 
@@ -410,6 +409,13 @@ class HomeController extends Controller
 
         if (!$article) {
             abort(404);
+        }
+
+        // Cek draft vs published
+        if ($article->status !== 'published') {
+            if (!auth()->check() || (!auth()->user()->hasRole('admin') && auth()->id() !== $article->user_id)) {
+                abort(404);
+            }
         }
 
         $isLoggedIn = auth()->check();
@@ -483,6 +489,7 @@ class HomeController extends Controller
                 'id' => $article->id,
                 'title' => $article->title,
                 'slug' => $article->slug,
+                'status' => $article->status,
                 'category' => $article->category,
                 'badge' => $article->badge,
                 'excerpt' => $article->excerpt,
