@@ -1,0 +1,1810 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  .av-rans{--bg:#06130d;--line:rgba(128,229,157,.22);--text:#e9f0ec;--muted:#9eaaa3;--green:#80e59d;--blue:#86a9ff;--gold:#f0c765;--red:#ff747b;--purple:#b98cff;max-width:1200px;margin:0 auto;padding:0 8px 48px;background:var(--bg);color:var(--text);font-family:Avenir,Inter,Arial,sans-serif;font-size:17px;line-height:1.8}.av-rans *{box-sizing:border-box}.av-rans p{margin:0 0 21px}.av-rans strong,.av-rans b{color:#fff}.av-rans h2{margin:42px 0 15px;color:var(--green);font-size:29px;line-height:1.22;letter-spacing:-.025em}.av-rans-hero{margin:0 0 38px;padding:30px;border:1px solid var(--line);border-radius:24px;background:radial-gradient(circle at 0% 0%,rgba(185,140,255,.14),transparent 34%),radial-gradient(circle at 100% 0%,rgba(128,229,157,.16),transparent 31%),linear-gradient(135deg,#10130c 0%,#07100d 57%,#030706 100%);box-shadow:0 24px 70px rgba(0,0,0,.35)}.av-rans-kicker{margin-bottom:13px;color:var(--green);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.av-rans-summary{max-width:1040px;margin:0;color:#cbd6d0;font-size:17px;line-height:1.66}.av-rans-metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin-top:24px}.av-rans-metric,.av-rans-card,.av-rans-scenario{border:1px solid rgba(255,255,255,.10);border-radius:17px;background:linear-gradient(180deg,rgba(255,255,255,.067),rgba(255,255,255,.022))}.av-rans-metric{min-height:110px;padding:16px}.av-rans-metric small,.av-rans-card small,.av-rans-scenario small{display:block;margin-bottom:6px;color:var(--muted);font-size:10px;letter-spacing:.09em;text-transform:uppercase}.av-rans-metric strong{display:block;color:#fff;font-size:22px;line-height:1.2;letter-spacing:-.025em}.av-green{color:var(--green)!important}.av-blue{color:var(--blue)!important}.av-gold{color:var(--gold)!important}.av-red{color:var(--red)!important}.av-purple{color:var(--purple)!important}.av-rans-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:24px 0}.av-rans-grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:24px 0}.av-rans-card,.av-rans-scenario{padding:18px}.av-rans-card strong,.av-rans-scenario strong{display:block;margin-bottom:7px;font-size:21px;line-height:1.25}.av-rans-card span,.av-rans-scenario span{color:#cbd5cf;font-size:13px;line-height:1.55}.av-rans-callout{margin:26px 0;padding:21px 23px;border-left:4px solid var(--gold);border-radius:0 17px 17px 0;background:linear-gradient(135deg,rgba(240,199,101,.12),rgba(255,255,255,.024))}.av-rans-callout p:last-child{margin-bottom:0}.av-rans-danger{border-left-color:var(--red);background:linear-gradient(135deg,rgba(255,116,123,.12),rgba(255,255,255,.024))}.av-rans-info{border-left-color:var(--blue);background:linear-gradient(135deg,rgba(134,169,255,.12),rgba(255,255,255,.024))}.av-rans-shadow{margin:28px 0;padding:22px 24px;border-radius:22px;border:1px solid rgba(185,140,255,.28);background:radial-gradient(circle at 0% 0%,rgba(185,140,255,.12),transparent 34%),linear-gradient(135deg,rgba(20,12,28,.96),rgba(6,17,12,.98));box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 18px 45px rgba(0,0,0,.25)}.av-rans-shadow-label{margin-bottom:13px;color:var(--purple);font-size:11px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.av-rans-shadow p{margin:0 0 17px;color:#e9f0ec;font-size:16px;line-height:1.8}.av-rans-chart{margin:28px 0;padding:22px;border:1px solid var(--line);border-radius:22px;background:radial-gradient(circle at 0% 0%,rgba(66,139,210,.10),transparent 34%),radial-gradient(circle at 100% 100%,rgba(128,229,157,.08),transparent 34%),linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.018))}.av-rans-chart-title{margin-bottom:6px;color:#fff;font-size:21px;font-weight:760}.av-rans-chart-copy{margin:0 0 18px!important;color:#aeb8b2;font-size:13px;line-height:1.56}.av-rans-bars{display:grid;gap:14px}.av-rans-bar-row{display:grid;grid-template-columns:220px 1fr 140px;gap:12px;align-items:center}.av-rans-bar-label{color:#dce4df;font-size:13px;font-weight:700}.av-rans-bar-track{height:16px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.08)}.av-rans-bar-fill{width:var(--w);height:100%;min-width:4px;border-radius:inherit;background:linear-gradient(90deg,#2d80b6,var(--blue))}.av-rans-bar-fill.green{background:linear-gradient(90deg,#28955e,var(--green))}.av-rans-bar-fill.gold{background:linear-gradient(90deg,#b47d27,var(--gold))}.av-rans-bar-fill.red{background:linear-gradient(90deg,#b9364d,var(--red))}.av-rans-bar-value{color:#fff;font-size:13px;font-weight:800;text-align:right}.av-rans-table-wrap{margin:24px 0;overflow-x:auto;border:1px solid rgba(255,255,255,.10);border-radius:17px;-webkit-overflow-scrolling:touch}.av-rans-table{width:100%;min-width:900px;border-collapse:collapse;background:#09110f}.av-rans-table th,.av-rans-table td{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.08);text-align:right;vertical-align:top}.av-rans-table th:first-child,.av-rans-table td:first-child{text-align:left}.av-rans-table th{color:var(--green);background:rgba(128,229,157,.08);font-size:11px;letter-spacing:.07em;text-transform:uppercase}.av-rans-table td{color:#e4ebe7;font-size:14px}.av-rans-scenarios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:25px 0}.av-rans-details{margin:16px 0;overflow:hidden;border:1px solid rgba(128,229,157,.20);border-radius:17px;background:rgba(255,255,255,.035)}.av-rans-details summary{position:relative;padding:17px 50px 17px 18px;color:#fff;font-weight:750;cursor:pointer;list-style:none}.av-rans-details summary::-webkit-details-marker{display:none}.av-rans-details-body{padding:0 18px 18px;color:#c9d3cd;font-size:15px}.av-rans-take-title{margin:43px 0 14px;color:var(--green);font-size:26px;font-weight:600}.av-rans-take{margin:0 0 30px;padding:27px 29px;border:1px solid rgba(128,229,157,.26);border-radius:19px;background:radial-gradient(circle at 0% 0%,rgba(88,216,137,.15),transparent 32%),linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.025));box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}.av-rans-take p{margin:0 0 18px}.av-rans-source{margin-top:30px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:var(--muted);font-size:13px}.av-rans-disclaimer{margin-top:14px;color:#87938c;font-size:12px}@media(max-width:1080px){.av-rans-metrics,.av-rans-grid4{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:820px){.av-rans-grid3,.av-rans-scenarios{grid-template-columns:1fr}}@media(max-width:700px){.av-rans{padding:0 2px 40px;font-size:16px}.av-rans-hero,.av-rans-chart{padding:18px}.av-rans-metrics,.av-rans-grid4{grid-template-columns:repeat(2,minmax(0,1fr))}.av-rans-bar-row{grid-template-columns:130px 1fr 98px}}@media(max-width:480px){.av-rans-metrics,.av-rans-grid4{grid-template-columns:1fr}.av-rans-bar-row{grid-template-columns:1fr;gap:5px}.av-rans-bar-value{text-align:left}}
+
+/* === RANS ownership diagram fixed v2: HTML/CSS, no SVG overlap === */
+.av-rans-owner{
+  margin:28px 0;
+  padding:22px;
+  border:1px solid rgba(128,229,157,.22);
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(128,229,157,.10),transparent 32%),
+    radial-gradient(circle at 100% 0%,rgba(185,140,255,.10),transparent 34%),
+    linear-gradient(135deg,rgba(255,255,255,.052),rgba(255,255,255,.018));
+  overflow:hidden;
+}
+.av-owner-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+  padding-bottom:14px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.av-owner-head-title{
+  color:#fff;
+  font-size:23px;
+  font-weight:850;
+  line-height:1.18;
+  letter-spacing:-.02em;
+}
+.av-owner-head-sub{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+.av-owner-chip{
+  flex:0 0 auto;
+  padding:8px 12px;
+  border:1px solid rgba(128,229,157,.34);
+  border-radius:999px;
+  color:var(--green);
+  background:rgba(128,229,157,.08);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.av-owner-section-title{
+  margin:22px 0 12px;
+  color:var(--green);
+  font-size:12px;
+  font-weight:850;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.av-owner-shareholders{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+.av-owner-card{
+  position:relative;
+  min-height:118px;
+  padding:14px 14px 13px;
+  border:1px solid rgba(128,229,157,.24);
+  border-radius:17px;
+  background:linear-gradient(180deg,rgba(255,255,255,.062),rgba(255,255,255,.018));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.av-owner-card.main{
+  border-color:rgba(128,229,157,.58);
+  background:
+    radial-gradient(circle at 0% 0%,rgba(128,229,157,.16),transparent 40%),
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+}
+.av-owner-card.assoc{
+  border-color:rgba(240,199,101,.42);
+  background:
+    radial-gradient(circle at 0% 0%,rgba(240,199,101,.12),transparent 42%),
+    linear-gradient(180deg,rgba(255,255,255,.062),rgba(255,255,255,.018));
+}
+.av-owner-card.indirect{
+  border-style:dashed;
+  border-color:rgba(134,169,255,.46);
+}
+.av-owner-card.inactive{
+  border-color:rgba(158,170,163,.38);
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+}
+.av-owner-name{
+  color:#fff;
+  font-size:15px;
+  font-weight:850;
+  line-height:1.22;
+}
+.av-owner-pct{
+  margin-top:7px;
+  color:var(--green);
+  font-size:20px;
+  font-weight:900;
+  line-height:1;
+}
+.av-owner-card.assoc .av-owner-pct{color:var(--gold)}
+.av-owner-card.indirect .av-owner-pct{color:var(--blue)}
+.av-owner-desc{
+  margin-top:9px;
+  color:#cbd5cf;
+  font-size:12px;
+  line-height:1.42;
+}
+.av-owner-tag{
+  display:inline-flex;
+  align-items:center;
+  margin-top:10px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:800;
+  line-height:1;
+}
+.av-owner-tag.op{
+  color:#dcffe5;
+  background:rgba(128,229,157,.16);
+  border:1px solid rgba(128,229,157,.28);
+}
+.av-owner-tag.noop{
+  color:#d9dfdc;
+  background:rgba(158,170,163,.11);
+  border:1px solid rgba(158,170,163,.25);
+}
+.av-owner-emiten{
+  width:min(680px,100%);
+  margin:0 auto;
+  padding:22px;
+  border:1px solid rgba(128,229,157,.48);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(128,229,157,.15),transparent 34%),
+    linear-gradient(135deg,rgba(6,24,16,.96),rgba(3,9,7,.98));
+  text-align:center;
+  box-shadow:0 18px 48px rgba(0,0,0,.26);
+}
+.av-owner-emiten-logo{
+  display:inline-block;
+  margin-bottom:7px;
+  color:#b98cff;
+  font-size:26px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.av-owner-emiten-name{
+  color:#fff;
+  font-size:22px;
+  font-weight:900;
+  line-height:1.25;
+}
+.av-owner-emiten-sub{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:13px;
+}
+.av-flow-arrow{
+  position:relative;
+  width:2px;
+  height:34px;
+  margin:14px auto;
+  background:rgba(128,229,157,.52);
+}
+.av-flow-arrow::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-1px;
+  width:12px;
+  height:12px;
+  border-right:2px solid rgba(128,229,157,.74);
+  border-bottom:2px solid rgba(128,229,157,.74);
+  transform:translateX(-50%) rotate(45deg);
+}
+.av-flow-label{
+  width:max-content;
+  max-width:100%;
+  margin:-5px auto 12px;
+  padding:5px 10px;
+  border-radius:999px;
+  color:var(--green);
+  background:rgba(128,229,157,.08);
+  border:1px solid rgba(128,229,157,.20);
+  font-size:11px;
+  font-weight:800;
+}
+.av-owner-subs{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.av-owner-indirect{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin-top:12px;
+}
+.av-owner-chain{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+}
+.av-owner-chain-arrow{
+  position:relative;
+  height:2px;
+  background:rgba(134,169,255,.55);
+}
+.av-owner-chain-arrow::after{
+  content:"";
+  position:absolute;
+  right:-1px;
+  top:50%;
+  width:10px;
+  height:10px;
+  border-top:2px solid rgba(134,169,255,.75);
+  border-right:2px solid rgba(134,169,255,.75);
+  transform:translateY(-50%) rotate(45deg);
+}
+.av-owner-assoc{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+.av-owner-legend{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-top:18px;
+}
+.av-owner-legend-item{
+  padding:11px 12px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+  color:#cbd5cf;
+  font-size:12px;
+  line-height:1.45;
+}
+.av-owner-legend-item b{display:block;margin-bottom:3px;color:#fff}
+.av-owner-abbrev{
+  margin-top:18px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:17px;
+  overflow:hidden;
+  background:#09110f;
+}
+.av-owner-abbrev-head{
+  padding:14px 16px;
+  color:var(--green);
+  background:rgba(128,229,157,.08);
+  font-size:12px;
+  font-weight:850;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.av-owner-abbrev-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.av-owner-abbrev-item{
+  min-height:92px;
+  padding:13px 14px;
+  border-top:1px solid rgba(255,255,255,.08);
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.av-owner-abbrev-item:nth-child(3n){border-right:none}
+.av-owner-abbrev-item b{
+  display:block;
+  margin-bottom:5px;
+  color:#fff;
+  font-size:14px;
+}
+.av-owner-abbrev-item span{
+  display:block;
+  color:#cbd5cf;
+  font-size:12px;
+  line-height:1.45;
+}
+.av-owner-note{
+  margin-top:13px;
+  color:#87938c;
+  font-size:11px;
+  line-height:1.55;
+}
+@media(max-width:980px){
+  .av-owner-shareholders{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .av-owner-subs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .av-owner-assoc{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .av-owner-indirect{grid-template-columns:1fr}
+  .av-owner-abbrev-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .av-owner-abbrev-item:nth-child(3n){border-right:1px solid rgba(255,255,255,.08)}
+  .av-owner-abbrev-item:nth-child(2n){border-right:none}
+}
+@media(max-width:560px){
+  .av-rans-owner{padding:16px}
+  .av-owner-head{display:block}
+  .av-owner-chip{display:inline-flex;margin-top:12px}
+  .av-owner-shareholders,.av-owner-subs,.av-owner-assoc,.av-owner-abbrev-grid{grid-template-columns:1fr}
+  .av-owner-abbrev-item,.av-owner-abbrev-item:nth-child(3n),.av-owner-abbrev-item:nth-child(2n){border-right:none}
+  .av-owner-chain{grid-template-columns:1fr;gap:8px}
+  .av-owner-chain-arrow{width:2px;height:28px;margin:0 auto;background:rgba(134,169,255,.55)}
+  .av-owner-chain-arrow::after{right:auto;left:50%;top:auto;bottom:-1px;transform:translateX(-50%) rotate(135deg)}
+  .av-owner-legend{grid-template-columns:1fr}
+}
+
+/* === RANS ownership diagram prospectus replica v3 === */
+.av-rans-owner-prospectus{
+  margin:30px 0;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  overflow:hidden;
+  background:#fff;
+  color:#17212b;
+  box-shadow:0 24px 60px rgba(0,0,0,.30);
+}
+.av-rans-owner-prospectus *{box-sizing:border-box}
+.av-doc-owner-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  padding:18px 20px 14px;
+  border-bottom:1px solid #e4e8ed;
+  background:#fff;
+}
+.av-doc-owner-title{
+  color:#0b2034;
+  font-size:19px;
+  font-weight:900;
+  line-height:1.25;
+}
+.av-doc-owner-sub{
+  margin-top:5px;
+  color:#596674;
+  font-size:12px;
+  line-height:1.5;
+}
+.av-doc-owner-legend{
+  display:grid;
+  grid-template-columns:auto auto;
+  gap:7px 12px;
+  min-width:260px;
+  color:#52606f;
+  font-size:11px;
+  line-height:1.2;
+}
+.av-doc-owner-legend span{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  white-space:nowrap;
+}
+.av-doc-swatch{
+  width:12px;
+  height:12px;
+  border-radius:2px;
+  display:inline-block;
+}
+.av-doc-swatch.share{background:#e7eaee;border:1px solid #cbd2da}
+.av-doc-swatch.sub{background:#1397cf}
+.av-doc-swatch.assoc{background:#9a168c}
+.av-doc-swatch.inactive{background:#9b4d18}
+.av-doc-owner-scroll{
+  overflow-x:auto;
+  background:#fff;
+  -webkit-overflow-scrolling:touch;
+}
+.av-doc-owner-canvas{
+  min-width:1120px;
+  padding:24px 26px 30px;
+  background:#fff;
+}
+.av-doc-owner-section{
+  margin:0 0 10px;
+  color:#314050;
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.av-doc-owner-share-row{
+  display:grid;
+  grid-template-columns:repeat(10,minmax(0,1fr));
+  gap:8px;
+}
+.av-doc-owner-box{
+  min-height:76px;
+  border:1px solid #c9d1d9;
+  background:#f3f5f7;
+  color:#1b2937;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:7px 5px;
+  font-size:10px;
+  font-weight:800;
+  line-height:1.18;
+}
+.av-doc-owner-box .pct{
+  display:block;
+  margin-bottom:5px;
+  color:#0b2034;
+  font-size:12px;
+  font-weight:950;
+}
+.av-doc-owner-box.controller{
+  border-color:#9da9b5;
+  background:#e6eaef;
+}
+.av-doc-owner-box.public{
+  border-color:#b5bac0;
+  background:#f7f1ed;
+}
+.av-doc-connector{
+  position:relative;
+  height:44px;
+}
+.av-doc-connector::before{
+  content:"";
+  position:absolute;
+  left:5.2%;
+  right:5.2%;
+  top:19px;
+  border-top:1px solid #9aa6b2;
+}
+.av-doc-connector::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:19px;
+  height:25px;
+  border-left:1px solid #9aa6b2;
+}
+.av-doc-owner-emiten{
+  width:390px;
+  margin:0 auto;
+  padding:18px 16px 16px;
+  text-align:center;
+  color:#111827;
+  background:#fff;
+}
+.av-doc-owner-logo{
+  font-size:54px;
+  font-weight:950;
+  line-height:.9;
+  background:linear-gradient(90deg,#8d168a 0%,#1f99d0 52%,#34ad52 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.av-doc-owner-emiten-name{
+  margin-top:5px;
+  color:#1c232d;
+  font-size:15px;
+  font-weight:950;
+  letter-spacing:.02em;
+}
+.av-doc-downline{
+  position:relative;
+  height:52px;
+}
+.av-doc-downline::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:0;
+  height:28px;
+  border-left:1px solid #9aa6b2;
+}
+.av-doc-downline::after{
+  content:"";
+  position:absolute;
+  left:5%;
+  right:5%;
+  top:28px;
+  border-top:1px solid #9aa6b2;
+}
+.av-doc-owner-entity-row{
+  display:grid;
+  grid-template-columns:repeat(9,minmax(0,1fr));
+  gap:8px;
+}
+.av-doc-owner-lower-row{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:8px;
+  margin-top:20px;
+}
+.av-doc-entity{
+  min-height:86px;
+  border:1px solid #c6d6e0;
+  background:#eef7fc;
+  text-align:center;
+  color:#173142;
+  display:flex;
+  flex-direction:column;
+}
+.av-doc-entity .pct{
+  display:flex;
+  min-height:27px;
+  align-items:center;
+  justify-content:center;
+  padding:4px 5px;
+  background:#1397cf;
+  color:#fff;
+  font-size:11px;
+  font-weight:950;
+}
+.av-doc-entity .name{
+  display:flex;
+  flex:1;
+  align-items:center;
+  justify-content:center;
+  padding:8px 6px;
+  font-size:10px;
+  font-weight:850;
+  line-height:1.18;
+}
+.av-doc-entity.assoc{
+  border-color:#d2b3df;
+  background:#f1e6f8;
+  color:#341d3f;
+}
+.av-doc-entity.assoc .pct{background:#9a168c}
+.av-doc-entity.inactive{
+  border-color:#d7b99f;
+  background:#f5e8dc;
+  color:#3d2516;
+}
+.av-doc-entity.inactive .pct{background:#9b4d18}
+.av-doc-entity.indirect{
+  border-style:dashed;
+}
+.av-doc-owner-note{
+  padding:12px 18px 16px;
+  border-top:1px solid #e4e8ed;
+  color:#5d6a78;
+  background:#fbfcfd;
+  font-size:12px;
+  line-height:1.55;
+}
+@media(max-width:760px){
+  .av-doc-owner-head{display:block}
+  .av-doc-owner-legend{margin-top:12px;grid-template-columns:1fr}
+  .av-doc-owner-title{font-size:17px}
+}
+
+/* === RANS ownership diagram interactive v4: dark SVG, CSS-only click/zoom === */
+.av-rans-owner-prospectus{
+  border-color:rgba(126,225,208,.28);
+  background:radial-gradient(circle at 0% 0%,rgba(69,154,255,.16),transparent 34%),radial-gradient(circle at 100% 0%,rgba(126,225,208,.15),transparent 34%),linear-gradient(135deg,#081410 0%,#06100d 58%,#030706 100%);
+  color:#e8f4f2;
+}
+.av-rans-owner-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  padding:18px 20px 14px;
+  border-bottom:1px solid rgba(126,225,208,.18);
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+}
+.av-rans-owner-title{
+  color:#fff;
+  font-size:19px;
+  font-weight:900;
+  line-height:1.25;
+}
+.av-rans-owner-sub{
+  margin-top:5px;
+  color:#aec3bd;
+  font-size:12px;
+  line-height:1.5;
+}
+.av-rans-owner-chip{
+  display:inline-flex;
+  align-items:center;
+  min-height:30px;
+  padding:0 11px;
+  border:1px solid rgba(126,225,208,.28);
+  border-radius:999px;
+  color:#7ee1d0;
+  background:rgba(126,225,208,.08);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.av-rans-owner-toggle{
+  position:absolute;
+  inline-size:1px;
+  block-size:1px;
+  opacity:0;
+  pointer-events:none;
+}
+.av-rans-owner-zoom{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  padding:12px 18px;
+  border-bottom:1px solid rgba(126,225,208,.14);
+  background:rgba(255,255,255,.025);
+}
+.av-rans-owner-zoom span{
+  margin-right:4px;
+  color:#aec3bd;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.av-rans-owner-zoom label{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding:0 10px;
+  border:1px solid rgba(126,225,208,.24);
+  border-radius:999px;
+  color:#dfe8e3;
+  background:rgba(255,255,255,.04);
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+}
+.av-rans-owner-zoom label:hover,
+.av-rans-owner-zoom label:focus{
+  border-color:#7ee1d0;
+  background:rgba(126,225,208,.10);
+}
+#rans-owner-zoom-100:checked ~ .av-rans-owner-zoom label[for="rans-owner-zoom-100"],
+#rans-owner-zoom-125:checked ~ .av-rans-owner-zoom label[for="rans-owner-zoom-125"],
+#rans-owner-zoom-150:checked ~ .av-rans-owner-zoom label[for="rans-owner-zoom-150"],
+#rans-owner-zoom-175:checked ~ .av-rans-owner-zoom label[for="rans-owner-zoom-175"]{
+  border-color:#7ee1d0;
+  color:#06100d;
+  background:#7ee1d0;
+}
+.av-rans-owner-scroll-v2{
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+.av-rans-owner-stage{
+  min-width:1500px;
+  width:max-content;
+  padding:18px 18px 20px;
+  background:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(180deg,rgba(7,18,14,.90),rgba(3,7,6,.98));
+  background-size:28px 28px,28px 28px,100% 100%;
+}
+.av-rans-owner-map{
+  position:relative;
+  width:1500px;
+  max-width:none;
+}
+#rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:1500px}
+#rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:1875px}
+#rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:2250px}
+#rans-owner-zoom-175:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:2625px}
+.av-rans-owner-svg{
+  display:block;
+  width:100%;
+  height:auto;
+}
+.av-rans-owner-svg text{
+  fill:#e9f0ec;
+  font-family:Avenir,Inter,Arial,sans-serif;
+}
+.av-rans-owner-svg .node{
+  fill:#09110f;
+  stroke:#86a9ff;
+  stroke-width:1.7;
+  rx:3;
+  vector-effect:non-scaling-stroke;
+}
+.av-rans-owner-svg .node-key{fill:#0d281d;stroke:#80e59d}
+.av-rans-owner-svg .node-public{fill:#151a1f;stroke:#a9b2ad}
+.av-rans-owner-svg .node-company{fill:#0c1b2a;stroke:#86a9ff}
+.av-rans-owner-svg .node-child{fill:#0c1b2a;stroke:#86a9ff}
+.av-rans-owner-svg .node-assoc{fill:#24182c;stroke:#d58cff}
+.av-rans-owner-svg .node-muted{fill:#111619;stroke:#667586;stroke-dasharray:6 4}
+.av-rans-owner-svg .node-emiten{fill:#081c15;stroke:#7ee1d0;stroke-width:2}
+.av-rans-owner-svg .line{
+  fill:none;
+  stroke:#86a9ff;
+  stroke-width:1.7;
+  stroke-linecap:square;
+  stroke-linejoin:miter;
+  vector-effect:non-scaling-stroke;
+}
+.av-rans-owner-svg .line-green{stroke:#80e59d}
+.av-rans-owner-svg .line-gold{stroke:#f0c765}
+.av-rans-owner-svg .line-muted{stroke:#667586;stroke-dasharray:6 4}
+.av-rans-owner-svg .label{font-size:12px;font-weight:950}
+.av-rans-owner-svg .small{fill:#aec3bd;font-size:10px;font-weight:750}
+.av-rans-owner-svg .section{fill:#7ee1d0;font-size:12px;font-weight:950;text-transform:uppercase}
+.av-rans-owner-svg .legend-box{fill:rgba(7,18,14,.90);stroke:rgba(126,225,208,.32);stroke-width:1.4}
+.av-rans-owner-svg .legend-title{fill:#fff;font-size:12px;font-weight:950}
+.av-rans-owner-svg .legend-text{fill:#aec3bd;font-size:10px;font-weight:820}
+.av-rans-owner-svg .pct{fill:#80e59d;font-size:10px;font-weight:950}
+.av-rans-owner-svg .pct-blue{fill:#86a9ff;font-size:10px;font-weight:950}
+.av-rans-owner-svg .pct-gold{fill:#f0c765;font-size:10px;font-weight:950}
+.av-rans-owner-svg .pct-muted{fill:#b5c1bc;font-size:10px;font-weight:950}
+.av-rans-owner-svg .pct,
+.av-rans-owner-svg .pct-blue,
+.av-rans-owner-svg .pct-gold,
+.av-rans-owner-svg .pct-muted{
+  paint-order:stroke;
+  stroke:#06100d;
+  stroke-width:3px;
+  stroke-linejoin:round;
+}
+.av-rans-owner-svg .logo{
+  font-size:42px;
+  font-weight:950;
+}
+.av-rans-owner-hotspots{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.av-rans-owner-hotspot{
+  position:absolute;
+  border:1px solid transparent;
+  background:rgba(255,255,255,0);
+  cursor:pointer;
+  pointer-events:auto;
+}
+.av-rans-owner-hotspot:hover,
+.av-rans-owner-hotspot:focus{
+  border-color:#fff;
+  background:rgba(255,255,255,.06);
+}
+.av-rans-owner-hotspot:active{
+  border-color:#7ee1d0;
+  background:rgba(126,225,208,.14);
+}
+.av-rans-owner-info{
+  display:none;
+  margin:0 18px 14px;
+  padding:14px 16px;
+  border:1px solid rgba(126,225,208,.32);
+  border-radius:12px;
+  background:linear-gradient(135deg,rgba(126,225,208,.10),rgba(134,169,255,.055));
+  color:#dfe8e3;
+  scroll-margin-top:24px;
+}
+#rans-owner-ns:checked ~ .panel-ns,
+#rans-owner-rfa:checked ~ .panel-rfa,
+#rans-owner-ieg:checked ~ .panel-ieg,
+#rans-owner-sar:checked ~ .panel-sar,
+#rans-owner-do:checked ~ .panel-do,
+#rans-owner-sh:checked ~ .panel-sh,
+#rans-owner-kp:checked ~ .panel-kp,
+#rans-owner-hj:checked ~ .panel-hj,
+#rans-owner-ebit:checked ~ .panel-ebit,
+#rans-owner-public:checked ~ .panel-public,
+#rans-owner-perseroan:checked ~ .panel-perseroan,
+#rans-owner-rai:checked ~ .panel-rai,
+#rans-owner-raki:checked ~ .panel-raki,
+#rans-owner-rkb:checked ~ .panel-rkb,
+#rans-owner-rpi:checked ~ .panel-rpi,
+#rans-owner-rmi:checked ~ .panel-rmi,
+#rans-owner-rns:checked ~ .panel-rns,
+#rans-owner-rsb:checked ~ .panel-rsb,
+#rans-owner-rod:checked ~ .panel-rod,
+#rans-owner-rkinter:checked ~ .panel-rkinter,
+#rans-owner-rbi:checked ~ .panel-rbi,
+#rans-owner-rkindo:checked ~ .panel-rkindo,
+#rans-owner-raf:checked ~ .panel-raf,
+#rans-owner-mmd:checked ~ .panel-mmd,
+#rans-owner-rpc:checked ~ .panel-rpc,
+#rans-owner-rsa:checked ~ .panel-rsa{
+  display:block;
+}
+.av-rans-owner-info small{
+  display:block;
+  margin-bottom:4px;
+  color:#7ee1d0;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.av-rans-owner-info strong{
+  display:block;
+  color:#fff;
+  font-size:17px;
+  line-height:1.3;
+}
+.av-rans-owner-info span{
+  display:block;
+  margin-top:5px;
+  color:#aec3bd;
+  font-size:12px;
+  line-height:1.5;
+}
+.av-rans-owner-note{
+  padding:12px 18px 16px;
+  border-top:1px solid rgba(126,225,208,.16);
+  color:#aec3bd;
+  background:rgba(255,255,255,.025);
+  font-size:12px;
+  line-height:1.55;
+}
+@media(max-width:760px){
+  .av-rans-owner-head{
+    display:block;
+    padding:14px 12px;
+  }
+  .av-rans-owner-title{
+    font-size:16px;
+    line-height:1.28;
+  }
+  .av-rans-owner-sub{
+    margin-top:5px;
+    font-size:11px;
+    line-height:1.45;
+  }
+  .av-rans-owner-chip{
+    margin-top:10px;
+  }
+  .av-rans-owner-zoom{
+    justify-content:flex-start;
+    gap:6px;
+    padding:10px 12px;
+  }
+  .av-rans-owner-zoom span{
+    width:100%;
+    margin:0;
+  }
+  .av-rans-owner-zoom label{
+    min-height:30px;
+    padding:0 9px;
+    font-size:10px;
+  }
+  .av-rans-owner-stage{
+    min-width:820px;
+    padding:10px;
+    background-size:20px 20px,20px 20px,100% 100%;
+  }
+  .av-rans-owner-scroll-v2{
+    max-height:64vh;
+    overflow:auto;
+    overscroll-behavior:contain;
+  }
+  #rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:820px}
+  #rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:1040px}
+  #rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:1260px}
+  #rans-owner-zoom-175:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:1480px}
+  .av-rans-owner-info{
+    margin:0 12px 12px;
+    padding:12px 13px;
+  }
+  .av-rans-owner-info strong{
+    font-size:15px;
+  }
+}
+
+.av-rans-owner-prospectus[data-zoom="60"]{--rans-owner-width:960px}
+.av-rans-owner-prospectus[data-zoom="75"]{--rans-owner-width:1200px}
+.av-rans-owner-prospectus[data-zoom="100"]{--rans-owner-width:1600px}
+.av-rans-owner-prospectus[data-zoom="125"]{--rans-owner-width:2000px}
+.av-rans-owner-prospectus[data-zoom="150"]{--rans-owner-width:2400px}
+.av-rans-owner-stage{
+  min-width:var(--rans-owner-width,1200px) !important;
+}
+.av-rans-owner-map{
+  width:var(--rans-owner-width,1200px) !important;
+}
+#rans-owner-zoom-60:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:960px !important}
+#rans-owner-zoom-75:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:1200px !important}
+#rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:1600px !important}
+#rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:2000px !important}
+#rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:2400px !important}
+#rans-owner-zoom-60:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:960px !important}
+#rans-owner-zoom-75:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:1200px !important}
+#rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:1600px !important}
+#rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:2000px !important}
+#rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:2400px !important}
+.av-rans-owner-zoom button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:0 10px;
+  border:1px solid rgba(126,225,208,.24);
+  border-radius:999px;
+  color:#dfe8e3;
+  background:rgba(255,255,255,.04);
+  font:900 11px/1 Avenir,Inter,Arial,sans-serif;
+  cursor:pointer;
+}
+.av-rans-owner-zoom button:hover,
+.av-rans-owner-zoom button:focus{
+  border-color:#7ee1d0;
+  background:rgba(126,225,208,.10);
+  outline:none;
+}
+.av-rans-owner-zoom button.is-active{
+  border-color:#7ee1d0;
+  color:#06100d;
+  background:#7ee1d0;
+}
+.av-rans-owner-zoom .av-rans-owner-zoom-btn{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  min-width:34px;
+  min-height:34px;
+  padding:0;
+  border-radius:999px;
+}
+.av-rans-owner-zoom .av-rans-owner-zoom-btn svg{
+  width:17px;
+  height:17px;
+  stroke:currentColor;
+  stroke-width:2.4;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+#rans-owner-zoom-60:checked ~ .av-rans-owner-zoom .av-rans-owner-zoom-in-60,
+#rans-owner-zoom-75:checked ~ .av-rans-owner-zoom .av-rans-owner-zoom-out-75,
+#rans-owner-zoom-75:checked ~ .av-rans-owner-zoom .av-rans-owner-zoom-in-75,
+#rans-owner-zoom-100:checked ~ .av-rans-owner-zoom .av-rans-owner-zoom-out-100,
+#rans-owner-zoom-100:checked ~ .av-rans-owner-zoom .av-rans-owner-zoom-in-100,
+#rans-owner-zoom-125:checked ~ .av-rans-owner-zoom .av-rans-owner-zoom-out-125,
+#rans-owner-zoom-125:checked ~ .av-rans-owner-zoom .av-rans-owner-zoom-in-125,
+#rans-owner-zoom-150:checked ~ .av-rans-owner-zoom .av-rans-owner-zoom-out-150{
+  display:inline-flex;
+}
+.av-rans-owner-sr{
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+}
+@media(max-width:760px){
+  .av-rans-owner-prospectus[data-zoom="60"]{--rans-owner-width:min(620px, calc(100vw - 24px))}
+  .av-rans-owner-prospectus[data-zoom="75"]{--rans-owner-width:min(760px, calc(100vw - 24px))}
+  .av-rans-owner-prospectus[data-zoom="100"]{--rans-owner-width:920px}
+  .av-rans-owner-prospectus[data-zoom="125"]{--rans-owner-width:1150px}
+  .av-rans-owner-prospectus[data-zoom="150"]{--rans-owner-width:1380px}
+  .av-rans-owner-zoom button{
+    min-height:30px;
+    padding:0 9px;
+    font-size:10px;
+  }
+  #rans-owner-zoom-60:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:min(620px, calc(100vw - 24px)) !important}
+  #rans-owner-zoom-75:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:min(760px, calc(100vw - 24px)) !important}
+  #rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:920px !important}
+  #rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:1150px !important}
+  #rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{width:1380px !important}
+  #rans-owner-zoom-60:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:min(620px, calc(100vw - 24px)) !important}
+  #rans-owner-zoom-75:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:min(760px, calc(100vw - 24px)) !important}
+  #rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:920px !important}
+  #rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:1150px !important}
+  #rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{min-width:1380px !important}
+}
+
+/* Keep the ownership card fixed; zoom only the diagram canvas inside the scroll area. */
+.av-rans-owner-prospectus{
+  width:100%;
+  max-width:100%;
+}
+.av-rans-owner-scroll-v2{
+  width:100%;
+  max-width:100%;
+  height:clamp(520px,62vh,720px);
+  overflow:auto !important;
+  overscroll-behavior:contain;
+}
+.av-rans-owner-stage{
+  --rans-owner-scale:.75;
+  --rans-owner-canvas-width:1200px;
+  --rans-owner-canvas-height:690px;
+  width:calc(var(--rans-owner-canvas-width) + 36px) !important;
+  min-width:calc(var(--rans-owner-canvas-width) + 36px) !important;
+  height:calc(var(--rans-owner-canvas-height) + 38px) !important;
+  padding:18px !important;
+}
+.av-rans-owner-map{
+  width:1600px !important;
+  height:920px;
+  max-width:none !important;
+  transform:scale(var(--rans-owner-scale));
+  transform-origin:left top;
+}
+#rans-owner-zoom-60:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+  --rans-owner-scale:.6;
+  --rans-owner-canvas-width:960px;
+  --rans-owner-canvas-height:552px;
+}
+#rans-owner-zoom-75:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+  --rans-owner-scale:.75;
+  --rans-owner-canvas-width:1200px;
+  --rans-owner-canvas-height:690px;
+}
+#rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+  --rans-owner-scale:1;
+  --rans-owner-canvas-width:1600px;
+  --rans-owner-canvas-height:920px;
+}
+#rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+  --rans-owner-scale:1.25;
+  --rans-owner-canvas-width:2000px;
+  --rans-owner-canvas-height:1150px;
+}
+#rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+  --rans-owner-scale:1.5;
+  --rans-owner-canvas-width:2400px;
+  --rans-owner-canvas-height:1380px;
+}
+#rans-owner-zoom-60:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map,
+#rans-owner-zoom-75:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map,
+#rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map,
+#rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map,
+#rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{
+  width:1600px !important;
+}
+@media(max-width:760px){
+  .av-rans-owner-scroll-v2{
+    height:min(64vh,520px);
+    min-height:360px;
+  }
+  .av-rans-owner-stage{
+    padding:10px !important;
+    width:calc(var(--rans-owner-canvas-width) + 20px) !important;
+    min-width:calc(var(--rans-owner-canvas-width) + 20px) !important;
+    height:calc(var(--rans-owner-canvas-height) + 20px) !important;
+  }
+}
+
+/* Mobile containment: keep the outer card stable and zoom/scroll only the diagram canvas. */
+@media(max-width:760px){
+  .av-rans-owner-scroll-v2{
+    height:clamp(320px,46vh,420px) !important;
+    min-height:320px !important;
+    max-height:420px !important;
+    overflow:auto !important;
+  }
+  .av-rans-owner-stage{
+    width:calc(var(--rans-owner-canvas-width,1200px) + 20px) !important;
+    min-width:calc(var(--rans-owner-canvas-width,1200px) + 20px) !important;
+    height:calc(var(--rans-owner-canvas-height,690px) + 20px) !important;
+    min-height:calc(var(--rans-owner-canvas-height,690px) + 20px) !important;
+    max-width:none !important;
+    overflow:hidden !important;
+  }
+  .av-rans-owner-map{
+    width:1600px !important;
+    min-width:1600px !important;
+    max-width:none !important;
+    height:920px !important;
+    transform-origin:left top !important;
+  }
+  .av-rans-owner-svg{
+    width:1600px !important;
+    height:920px !important;
+    max-width:none !important;
+  }
+  #rans-owner-zoom-60:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+    --rans-owner-scale:.6;
+    --rans-owner-canvas-width:960px;
+    --rans-owner-canvas-height:552px;
+  }
+  #rans-owner-zoom-75:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+    --rans-owner-scale:.75;
+    --rans-owner-canvas-width:1200px;
+    --rans-owner-canvas-height:690px;
+  }
+  #rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+    --rans-owner-scale:1;
+    --rans-owner-canvas-width:1600px;
+    --rans-owner-canvas-height:920px;
+  }
+  #rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+    --rans-owner-scale:1.25;
+    --rans-owner-canvas-width:2000px;
+    --rans-owner-canvas-height:1150px;
+  }
+  #rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-stage{
+    --rans-owner-scale:1.5;
+    --rans-owner-canvas-width:2400px;
+    --rans-owner-canvas-height:1380px;
+  }
+  #rans-owner-zoom-60:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{transform:scale(.6) !important}
+  #rans-owner-zoom-75:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{transform:scale(.75) !important}
+  #rans-owner-zoom-100:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{transform:scale(1) !important}
+  #rans-owner-zoom-125:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{transform:scale(1.25) !important}
+  #rans-owner-zoom-150:checked ~ .av-rans-owner-scroll-v2 .av-rans-owner-map{transform:scale(1.5) !important}
+}
+
+</style>
+
+<div class="av-rans">
+
+  <section class="av-rans-hero">
+    <div class="av-rans-kicker">Avenir Artikel Premium · Bedah Prospektus RANS</div>
+    <p class="av-rans-summary">IPO PT Rans Entertainmen Indonesia Tbk membawa cerita yang kuat secara brand, tetapi kompleks secara investasi. Perseroan menjual narasi media, IP, talent, event, taman hiburan, AI, kosmetik, dan anak usaha. Namun prospektus juga memperlihatkan pendapatan yang turun, laba 2025 melemah, ketergantungan tinggi pada Raffi Ahmad dan Nagita Slavina, serta penggunaan dana IPO yang lebih menyerupai portofolio ekspansi lintas sektor daripada satu strategi tunggal. Bedah ini membaca bukan hanya angka resmi, tetapi juga shadow story di balik IPO RANS.</p>
+    <div class="av-rans-metrics">
+      <div class="av-rans-metric"><small>Saham IPO</small><strong>2,525 M</strong></div>
+      <div class="av-rans-metric"><small>Free Float</small><strong class="av-blue">20,02%</strong></div>
+      <div class="av-rans-metric"><small>Harga IPO</small><strong>Rp135-170</strong></div>
+      <div class="av-rans-metric"><small>Dana Maksimum</small><strong class="av-green">Rp429,25 M</strong></div>
+      <div class="av-rans-metric"><small>Market Cap</small><strong class="av-gold">Rp1,70-2,14 T</strong></div>
+      <div class="av-rans-metric"><small>P/E 2025</small><strong class="av-red">30,0-37,8x</strong></div>
+      <div class="av-rans-metric"><small>Pendapatan 2025</small><strong>Rp353,4 M</strong></div>
+      <div class="av-rans-metric"><small>Laba 2025</small><strong class="av-red">Rp56,7 M</strong></div>
+      <div class="av-rans-metric"><small>Pengendali</small><strong>Raffi 62,93%</strong></div>
+      <div class="av-rans-metric"><small>P/B 2025 (est)</small><strong class="av-red">~5-6x</strong></div>
+      <div class="av-rans-metric"><small>Dividen pra-IPO</small><strong class="av-red">Rp167 M</strong></div>
+      <div class="av-rans-metric"><small>Risiko Utama</small><strong class="av-red">Talent Risk</strong></div>
+    </div>
+  </section>
+
+  <p>PT Rans Entertainmen Indonesia Tbk adalah perusahaan media dan hiburan yang bergerak di produksi dan distribusi konten, pengelolaan intellectual property, penyelenggaraan event dan seni pertunjukan, periklanan, aktivitas taman bertema dan taman hiburan, arena permainan, serta aktivitas perusahaan holding. Di atas kertas, ini adalah emiten entertainment-IP. Namun secara ekonomi, RANS lebih tepat dibaca sebagai <strong>celebrity-driven holding company</strong> yang mencoba mengubah popularitas keluarga pendiri menjadi mesin bisnis lintas sektor.</p>
+
+  <p>Dalam IPO ini, Perseroan menawarkan sebanyak-banyaknya 2,525 miliar saham baru atau 20,02% dari modal ditempatkan dan disetor penuh setelah IPO. Harga penawaran berada di kisaran Rp135 sampai Rp170 per saham, sehingga dana maksimum yang dapat dihimpun mencapai Rp429,25 miliar. Seluruh saham yang ditawarkan merupakan saham baru, sehingga dana masuk ke Perseroan.</p>
+
+  <div class="av-rans-callout av-rans-info"><p><strong>Inti tesis:</strong> IPO RANS bukan hanya soal perusahaan entertainment. Ini adalah ujian apakah personal brand Raffi Ahmad, Nagita Slavina, dan keluarga dapat diubah menjadi public company platform yang menghasilkan pendapatan berulang, bukan sekadar monetisasi episodik dari talent, event, dan endorsement.</p></div>
+
+  <h2>Struktur IPO dan valuasi: brand premium, growth belum terbukti</h2>
+
+  <p>Dengan total saham pasca-IPO sebanyak 12,609 miliar saham, rentang harga Rp135-Rp170 mencerminkan kapitalisasi pasar sekitar Rp1,70 triliun sampai Rp2,14 triliun. Bila menggunakan laba 2025 sebesar Rp56,69 miliar, implied P/E berada di kisaran 30,0-37,8 kali. Bila menggunakan pendapatan 2025 sebesar Rp353,38 miliar, implied price-to-sales berada di kisaran 4,8-6,1 kali.</p>
+
+  <div class="av-rans-table-wrap"><table class="av-rans-table"><thead><tr><th>Valuation Snapshot</th><th>Harga Rp135</th><th>Harga Rp170</th><th>Pembacaan Avenir</th></tr></thead><tbody><tr><td>Market cap pasca-IPO</td><td>Rp1,70 T</td><td>Rp2,14 T</td><td>Valuasi sudah memberi premium besar untuk brand dan optionality.</td></tr><tr><td>EPS 2025 proforma</td><td>Rp4,49</td><td>Rp4,49</td><td>Basis EPS memakai laba 2025 dan saham pasca-IPO.</td></tr><tr><td>P/E 2025</td><td>30,0x</td><td>37,8x</td><td class="av-red">Mahal untuk emiten dengan pendapatan dan laba yang turun.</td></tr><tr><td>P/S 2025</td><td>4,8x</td><td>6,1x</td><td>Menuntut monetisasi IP yang lebih scalable.</td></tr></tbody></table></div>
+
+  <p>Valuasi ini tidak dapat dibaca seperti emiten media konvensional. RANS punya brand power, distribusi digital, celebrity moat, dan IP yang dapat diperluas ke banyak format. Namun angka historisnya belum memperlihatkan akselerasi. Justru pendapatan turun dari Rp437,81 miliar pada 2023 menjadi Rp410,50 miliar pada 2024, lalu kembali turun menjadi Rp353,38 miliar pada 2025.</p>
+
+  <section class="av-rans-chart"><div class="av-rans-chart-title">Revenue Turun, Margin Naik, Laba Tetap Turun</div><p class="av-rans-chart-copy">Angka 2025 menunjukkan efisiensi pada gross margin, tetapi belum cukup menahan penurunan laba bersih.</p><div class="av-rans-bars"><div class="av-rans-bar-row"><div class="av-rans-bar-label">Pendapatan 2023</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill green" style="--w:100%"></div></div><div class="av-rans-bar-value">Rp437,8 M</div></div><div class="av-rans-bar-row"><div class="av-rans-bar-label">Pendapatan 2024</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill gold" style="--w:93.8%"></div></div><div class="av-rans-bar-value">Rp410,5 M</div></div><div class="av-rans-bar-row"><div class="av-rans-bar-label">Pendapatan 2025</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill red" style="--w:80.7%"></div></div><div class="av-rans-bar-value">Rp353,4 M</div></div><div class="av-rans-bar-row"><div class="av-rans-bar-label">Laba 2025</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill red" style="--w:58.4%"></div></div><div class="av-rans-bar-value">Rp56,7 M</div></div></div></section>
+
+  <div class="av-rans-shadow"><div class="av-rans-shadow-label">Shadow Read #1 · Valuasi</div><p><strong>RANS tidak IPO dalam kondisi growth acceleration.</strong> IPO ini terjadi saat pendapatan turun 13,91% dan laba tahun berjalan turun 41,60% pada 2025. Valuasi P/E 30-38x baru masuk akal jika dana IPO benar-benar mengubah profil pertumbuhan setelah 2026.</p><p>Dengan kata lain, investor bukan membeli laba hari ini. Investor membeli opsi bahwa RANS bisa menjadi platform IP, event, beauty, theme park, dan AI yang lebih besar daripada bisnis endorsement Raffi-Nagita.</p></div>
+
+  <h2>Valuasi vs peer: termahal di papan hiburan IDX</h2>
+
+  <p>Premium RANS menjadi makin jelas ketika disandingkan dengan emiten media dan hiburan lain di Bursa. Pada P/E sekitar 30-38x, RANS dihargai jauh di atas hampir seluruh pembanding, padahal pendapatannya justru menurun sementara sebagian peer membukukan pertumbuhan laba. Satu-satunya nama bervaluasi tinggi, FILM, bahkan telah ambruk sekitar 88% dari puncaknya.</p>
+
+  <div class="av-rans-table-wrap"><table class="av-rans-table"><thead><tr><th>Emiten</th><th>P/E (â‰ˆ)</th><th>Catatan kinerja & valuasi</th><th>Pembacaan Avenir</th></tr></thead><tbody>
+  <tr><td class="av-gold">RANS (IPO)</td><td class="av-red">30-38x</td><td>Pendapatan turun 3 tahun; laba 2025 -41,6%; P/B ~5-6x; yield ~0%</td><td>Premium tanpa pertumbuhan.</td></tr>
+  <tr><td>SCMA (Emtek)</td><td>~16x</td><td>Laba 2025 Rp771 M (+29,6%); yield ~5,4%; harga jatuh dari Rp450 ke ~Rp200</td><td>Lebih murah, tumbuh, bagi dividen.</td></tr>
+  <tr><td>MNCN</td><td>~3,8x</td><td>Broadcaster legacy, kapitalisasi ~Rp3,5 T</td><td>P/E satu digit.</td></tr>
+  <tr><td>BMTR</td><td>~3x</td><td>P/B ~0,14x, diperdagangkan jauh di bawah nilai buku</td><td>Sangat murah, tanpa katalis.</td></tr>
+  <tr><td>FILM (MD)</td><td>&gt;40x</td><td>ATH Rp14.750 (Des 2025) lalu ambruk ~88% ke ~Rp1.780</td><td class="av-red">Bukti risiko saham hiburan spekulatif.</td></tr>
+  <tr><td>RAAM</td><td>rugi</td><td>Rugi 2025 -Rp54,3 M; P/B ~1,3x</td><td>Belum profitabel.</td></tr>
+  </tbody></table></div>
+
+  <section class="av-rans-chart"><div class="av-rans-chart-title">Perbandingan P/E: RANS vs Peer Hiburan IDX</div><p class="av-rans-chart-copy">RANS pada rentang IPO berada di kelompok valuasi tertinggi, sejajar kategori "premium" seperti IPO JELI (31-38x) dan FILM, jauh di atas broadcaster legacy.</p><div class="av-rans-bars">
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">RANS (harga atas)</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill red" style="--w:100%"></div></div><div class="av-rans-bar-value">37,8x</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">RANS (harga bawah)</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill red" style="--w:79.4%"></div></div><div class="av-rans-bar-value">30,0x</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">SCMA</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill gold" style="--w:42.3%"></div></div><div class="av-rans-bar-value">~16x</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">MNCN</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill green" style="--w:10.1%"></div></div><div class="av-rans-bar-value">~3,8x</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">BMTR</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill green" style="--w:7.9%"></div></div><div class="av-rans-bar-value">~3x</div></div>
+  </div></section>
+
+  <h2>Konteks pasar: IPO di tengah badai 2026</h2>
+
+  <p>Waktu IPO RANS bukan waktu yang ramah. Sepanjang 2026, IHSG terkoreksi tajam, sempat ditutup di kisaran 5.594 pada awal Juni 2026 atau sekitar 38% di bawah puncaknya, koreksi yang lebih dalam dibanding masa pandemi. Rupiah menembus Rp18.000 per dolar AS untuk pertama kalinya, dan arus dana asing keluar mencapai puluhan triliun rupiah dalam setahun. Sejumlah indeks acuan global bahkan mencatat Indonesia sebagai salah satu pasar dengan kinerja terburuk.</p>
+
+  <p>Bagi IPO, iklim ini berbahaya. Berdasarkan data yang dihimpun media keuangan pada pertengahan 2025, sekitar 40,91% emiten baru tahun itu diperdagangkan di bawah harga penawaran dengan rata-rata koreksi sekitar 37%. Polanya berulang: auto-reject atas (ARA) di hari pertama karena euforia ritel, lalu meluncur turun dalam pekan-pekan berikutnya. Dengan free float hanya 20,02% dan basis penggemar yang besar, RANS sangat mungkin mengalami pola serupa, terutama menjelang berakhirnya lock-up 8 bulan.</p>
+
+  <div class="av-rans-shadow"><div class="av-rans-shadow-label">Shadow Read · Likuiditas & Pasar</div><p><strong>Float tipis adalah pisau bermata dua.</strong> Dengan hanya 20,02% saham beredar di publik dan Raffi menggenggam 62,93%, sedikit permintaan ritel bisa mendorong harga naik cepat saat listing. Tetapi hal yang sama membuat harga rapuh: ketika sentimen berbalik atau lock-up berakhir, likuiditas tipis memperbesar volatilitas dan risiko penurunan tajam.</p><p>Saham bervaluasi tinggi dengan likuiditas terbatas adalah yang paling rentan di pasar bearish. Di sinilah valuasi premium RANS bertemu dengan kondisi pasar yang paling tidak memaafkan.</p></div>
+
+  <h2>Struktur kepemilikan: Raffi tetap pengendali mutlak</h2>
+
+  <p>Sebelum IPO, Raffi Farid Ahmad memegang 78,68% saham Perseroan. Setelah IPO, kepemilikannya terdilusi menjadi 62,93%, tetapi tetap menjadi pemegang saham pengendali utama. PT Indonesia Entertainment Group berada di 7,23%, Soultan Ariq Rachman dan Dony Oskaria masing-masing 2,74%, sementara publik masuk sebesar 20,02%. Prospektus juga mencantumkan Hikmat Janika 0,68% dan PT Ekonomi Baru Investasi Teknologi 0,61%, dua nama kecil yang tetap penting agar total cap table terbaca lengkap.</p>
+
+  <div class="av-rans-table-wrap"><table class="av-rans-table"><thead><tr><th>Pemegang Saham</th><th>Sebelum IPO</th><th>Setelah IPO</th><th>Pembacaan Avenir</th></tr></thead><tbody><tr><td>Raffi Farid Ahmad</td><td>78,68%</td><td class="av-green">62,93%</td><td>Pengendali mutlak tetap berada di Raffi.</td></tr><tr><td>PT Indonesia Entertainment Group</td><td>9,04%</td><td>7,23%</td><td>Pemegang saham strategis non-publik.</td></tr><tr><td>Soultan Ariq Rachman</td><td>3,43%</td><td>2,74%</td><td>Minority strategic shareholder.</td></tr><tr><td>Dony Oskaria</td><td>3,42%</td><td>2,74%</td><td>Nama strategis di cap table, memberi sinyal jaringan bisnis dan institusional.</td></tr><tr><td>Sutanto Hartono</td><td>1,43%</td><td>1,14%</td><td>Minority holder dengan nama besar, tetapi bukan pengendali.</td></tr><tr><td>Nagita Slavina Mariana Tengker</td><td>1,24%</td><td>0,99%</td><td>Co-talent utama tetapi porsi ekonomi relatif kecil.</td></tr><tr><td>Kaesang Pangarep</td><td>1,14%</td><td>0,91%</td><td>Strategic/public attention shareholder.</td></tr><tr><td>Hikmat Janika</td><td>0,86%</td><td>0,68%</td><td>Pemegang saham minoritas; ikut terkena lock-up pra-IPO.</td></tr><tr><td>PT Ekonomi Baru Investasi Teknologi</td><td>0,76%</td><td>0,61%</td><td>Pemegang saham badan hukum minoritas.</td></tr><tr><td>Masyarakat</td><td>-</td><td class="av-blue">20,02%</td><td>Free float cukup besar, tetapi kontrol tetap terpusat.</td></tr></tbody></table></div>
+
+  <p>Prospektus menyebut seluruh pemegang saham lama dilarang mengalihkan sahamnya selama 8 bulan setelah Pernyataan Pendaftaran efektif. Selain itu, Raffi Ahmad sebagai pengendali menyatakan tidak akan mengalihkan pengendaliannya atas Perseroan dalam jangka waktu 3 tahun setelah pencatatan perdana, kecuali untuk memenuhi peraturan atau putusan otoritas berwenang.</p>
+
+  <p>Prospektus juga menegaskan Raffi Farid Ahmad sebagai pihak yang memenuhi kriteria pengendali perusahaan terbuka sekaligus pemilik manfaat Perseroan. Ini penting untuk investor minoritas: setelah IPO, publik memang memiliki 20,02% saham, tetapi arah strategis, keputusan korporasi besar, dan pengaruh ekonomi grup tetap sangat terkonsentrasi pada satu figur pengendali.</p>
+
+  <p>Untuk melihat keseluruhan struktur, berikut bagan kepemilikan dan grup RANS pasca-IPO: dari para pemegang saham di puncak, ke Perseroan sebagai induk operasional, hingga 11 entitas anak dan 4 entitas asosiasi di bawahnya.</p>
+
+  <div class="av-rans-owner-prospectus" data-rans-owner-diagram>
+    <div class="av-rans-owner-head">
+      <div>
+        <div class="av-rans-owner-title">Struktur Kepemilikan Saham Kelompok Usaha RANS</div>
+        <div class="av-rans-owner-sub"></div>
+      </div>
+      <div class="av-rans-owner-chip">RANS ownership map</div>
+    </div>
+
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-zoom" id="rans-owner-zoom-60">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-zoom" id="rans-owner-zoom-75" checked>
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-zoom" id="rans-owner-zoom-100">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-zoom" id="rans-owner-zoom-125">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-zoom" id="rans-owner-zoom-150">
+    <div class="av-rans-owner-zoom" aria-label="Kontrol zoom diagram">
+      <span>Zoom diagram</span>
+      <label class="av-rans-owner-zoom-btn av-rans-owner-zoom-out-75" for="rans-owner-zoom-60" title="Zoom out" aria-label="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5 21 21"></path><path d="M7.5 10.5h6"></path></svg><span class="av-rans-owner-sr">Zoom out</span></label>
+      <label class="av-rans-owner-zoom-btn av-rans-owner-zoom-out-100" for="rans-owner-zoom-75" title="Zoom out" aria-label="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5 21 21"></path><path d="M7.5 10.5h6"></path></svg><span class="av-rans-owner-sr">Zoom out</span></label>
+      <label class="av-rans-owner-zoom-btn av-rans-owner-zoom-out-125" for="rans-owner-zoom-100" title="Zoom out" aria-label="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5 21 21"></path><path d="M7.5 10.5h6"></path></svg><span class="av-rans-owner-sr">Zoom out</span></label>
+      <label class="av-rans-owner-zoom-btn av-rans-owner-zoom-out-150" for="rans-owner-zoom-125" title="Zoom out" aria-label="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5 21 21"></path><path d="M7.5 10.5h6"></path></svg><span class="av-rans-owner-sr">Zoom out</span></label>
+      <label class="av-rans-owner-zoom-btn av-rans-owner-zoom-in-60" for="rans-owner-zoom-75" title="Zoom in" aria-label="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5 21 21"></path><path d="M7.5 10.5h6"></path><path d="M10.5 7.5v6"></path></svg><span class="av-rans-owner-sr">Zoom in</span></label>
+      <label class="av-rans-owner-zoom-btn av-rans-owner-zoom-in-75" for="rans-owner-zoom-100" title="Zoom in" aria-label="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5 21 21"></path><path d="M7.5 10.5h6"></path><path d="M10.5 7.5v6"></path></svg><span class="av-rans-owner-sr">Zoom in</span></label>
+      <label class="av-rans-owner-zoom-btn av-rans-owner-zoom-in-100" for="rans-owner-zoom-125" title="Zoom in" aria-label="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5 21 21"></path><path d="M7.5 10.5h6"></path><path d="M10.5 7.5v6"></path></svg><span class="av-rans-owner-sr">Zoom in</span></label>
+      <label class="av-rans-owner-zoom-btn av-rans-owner-zoom-in-125" for="rans-owner-zoom-150" title="Zoom in" aria-label="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5 21 21"></path><path d="M7.5 10.5h6"></path><path d="M10.5 7.5v6"></path></svg><span class="av-rans-owner-sr">Zoom in</span></label>
+    </div>
+
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-ns">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rfa">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-ieg">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-sar">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-do">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-sh">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-kp">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-hj">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-ebit">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-public">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-perseroan">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rai">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-raki">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rkb">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rpi">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rmi">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rns">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rsb">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rod">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rkinter">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rbi">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rkindo">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-raf">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-mmd">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rpc">
+    <input class="av-rans-owner-toggle" type="radio" name="rans-owner-entity" id="rans-owner-rsa">
+
+    <div class="av-rans-owner-scroll-v2" role="img" aria-label="Diagram struktur kepemilikan saham RANS berdasarkan prospektus">
+      <div class="av-rans-owner-stage">
+        <div class="av-rans-owner-map">
+          <svg class="av-rans-owner-svg" viewBox="0 0 1600 920" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path class="line line-green" d="M100 124 V162 M255 104 V162 M410 124 V162 M565 124 V162 M720 124 V162 M875 124 V162 M1030 124 V162 M1185 124 V162 M1340 124 V162 M1500 124 V162 M100 162 H1500 M800 162 V218"/>
+            <rect class="node node-company" x="40" y="78" width="120" height="46"/>
+            <text class="label" x="100" y="107" text-anchor="middle">NS</text>
+            <text class="pct" x="112" y="151">0,99%</text>
+            <rect class="node node-key" x="190" y="50" width="130" height="54"/>
+            <text class="label" x="255" y="82" text-anchor="middle">RFA</text>
+            <text class="pct" x="267" y="151">62,93%</text>
+            <rect class="node node-company" x="350" y="78" width="120" height="46"/>
+            <text class="label" x="410" y="107" text-anchor="middle">IEG</text>
+            <text class="pct-blue" x="422" y="151">7,23%</text>
+            <rect class="node node-company" x="505" y="78" width="120" height="46"/>
+            <text class="label" x="565" y="107" text-anchor="middle">SAR</text>
+            <text class="pct-blue" x="577" y="151">2,74%</text>
+            <rect class="node node-company" x="660" y="78" width="120" height="46"/>
+            <text class="label" x="720" y="107" text-anchor="middle">DO</text>
+            <text class="pct-blue" x="732" y="151">2,74%</text>
+            <rect class="node node-company" x="815" y="78" width="120" height="46"/>
+            <text class="label" x="875" y="107" text-anchor="middle">SH</text>
+            <text class="pct-blue" x="887" y="151">1,14%</text>
+            <rect class="node node-company" x="970" y="78" width="120" height="46"/>
+            <text class="label" x="1030" y="107" text-anchor="middle">KP</text>
+            <text class="pct-blue" x="1042" y="151">0,91%</text>
+            <rect class="node node-company" x="1125" y="78" width="120" height="46"/>
+            <text class="label" x="1185" y="107" text-anchor="middle">HJ</text>
+            <text class="pct-blue" x="1197" y="151">0,68%</text>
+            <rect class="node node-company" x="1280" y="78" width="120" height="46"/>
+            <text class="label" x="1340" y="107" text-anchor="middle">EBIT</text>
+            <text class="pct-blue" x="1352" y="151">0,61%</text>
+            <rect class="node node-public" x="1435" y="78" width="130" height="46"/>
+            <text class="label" x="1500" y="107" text-anchor="middle">Publik</text>
+            <text class="pct-muted" x="1488" y="151" text-anchor="end">20,02%</text>
+
+            <rect class="node node-emiten" x="600" y="218" width="400" height="126"/>
+            <rect x="668" y="232" width="264" height="84" fill="#fff" rx="8"/>
+            <image href="data:image/png;base64,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I+jK76cr81vuF9I7/1ZAgMKiouLS4v7D+3Wb9Gr3Iu888shjB4LyQ5BHHnnyziOPPPLknUceeeTJO4888siTdx555JEn7zzyyCNP3nnkkSfvPPLII0/eeeSRR56888gjjzx555FHHnnyziOPPPLknUce/3+D03fxhux5W63CSUSRLgtct7W1Pffcc4g4cODAY445posrM5mMjYpTSrmuu7XLjDG+73fd52g02kXGYt/3jdlqUYtIJELU1WLaqQOI6DhOz8sAdz2etsFoNNrDsMonn3zS931EPOuss3p4VwjP85iDkMxYd4H6a9asmTNnjohMnTp10qRJ3bbZ86eorq5+/fXXEXHy5Ml77bXXFq9ZsWLFvHnzmPmwww4bOXIkdJ8NXmutt55M2nGcrgiqsrLyrbfeIqKJEydOnTq1J6/Sdd0u5kDX/enLgNCXXnrphz/84dZm/N577/3EE090QQ/Lli0bP368JblZs2YdeOCBW7wsmUwedthhbW1tAHDeeef9+te/3lqDTz755DXXXNN1vvGXX355zJgxW/v2mmuuefLJJ7fYAjPffffdxx13XBeN//Wvf73tttvC2xExFouNGjXqxz/+cdfrl8WHH354wQUXdPE2+/Xr984773S9aFqsXLly7Nix9njWrFmHH354r97sd7/73TfffNPS9ocfftg1NT744IMXX3wxAEyePHnBggVbu+yyyy57++23AWDkyJGvvfZaT7rxz3/+8/zzzweA6dOnP/bYY1u85vLLL7/77rsB4Le//e1Pf/rTbtu8/fbb//KXv2zxFYvIlVde+f3vf7+L259++umzzz4bAEaPHr148eKtvYtXXnnlhz/8oW3zf/7nf+xTbBE33XTTQw89tDvu3q2tratWrdrat0VF3ZRWDyk/k8mccsopL7300hYpnJlXrlzZ2toKAFVVVV002NzcvHLlym73pS6+raqq6qIFu8R0gYaGhs1v/+yzz1566aWpU6fecMMNp512Whe3p1KpFStWdEHezc3NPVzKn3/++fD4hRde6C15b9y4ccWKFZa8w228ix3PHnz66ae33377VVdd1XWbXXNAufjiiy/swVtvvdXe3l5QULD523zjjTfs8dq1a3vSZm1tbRevuL6+vuvbw3141apVRxxxxFNPPTVkyJAtThX7sPatddFgTU1NeOXuJXvnLoGO4xRuis1fRheor68/55xzNm7c2PVC0PXO7LpuQUFBYWFhUVFR7oYTjUbDXnU9t3K/TSQSnR6na7at0+39+/cfOXKkXeN83583b96555778ccfdz11bP8LCwtz+x+Px8M+9KQWiu/799xzT+7u2vUM6+LN9pwULa699tobb7yxaxGp5+VcwuGqq6t74oknNr/g5ptvDmlj6dKlPdJU5cylcLTD4e0JZxTigw8+mD59ejqd7voZu37e3MmZy8OH02+3UK0df/zxi3OwaNGixx9/vFeTY/369TfccMP29OHss89etGiR7cDPfvaz8PyVV14Z9mr06NE9bO2BBx7IfaKFCxcee+yxPe/ML37xiy+++GLp0qXf/OY3Qybl4Ycf7uKW/fffP/y5X/ziF+H5v//97/bk7Nmzu1A95G7dCxcuzBUXLfu6C+D7/k033fT444/vkNZyN+Snn356c17pD3/4Q/jnhg0belmzyXn11VcXb4orrriiV428995799133/Y84/XXXx9O2oMOOig8/8wzz9iTu0UB4Hg8PmzYsO1s5MEHH5wwYcKPf/zj3m4aFgUFBSHLUF7ekSesrKxsG/o2YMCA7XkiKwUMHjz4T3/60yuvvFJTU2MZ9a4X8vAXc/vfq54kk0m7NCAiIlrW+ve///23v/3tfv12UUr2n/3sZ8cee+zAgQO3c6XIJe+33367qqpq0KCOGqyvv/56MpnMJW/f93uy/IUYOnTo9k/am2++efLkyYcddti23V5aWlpaWrq5FnPgwIG2b7vF7r2d6r3CwsJYLJZOp6+66qrvfe97sCO0+ls83mVPFKK4uHjcuKAialNT0zb0v1c9efzxx+3WPWLEiEceecQKFFVVVY888sguENYKCwvtrjtjxoyWlpbtaW3u3LnV1dW5e/Ull1ySq2T+29/+lnt9U1PTunXrevUTXVhJergBKKWqqqqOPPLIHTK8m+Rdzx7vFuTdrVzaNfbaa69vfOMb9viee+6ZNWtWnz9Rzw1a3aKhoSEk9Z3d7WeeecYeTJkyZcaMGaGZ4IUXXtgFS3you37nnXemT5++PUvknDlzOq3Lr7766qJFi0Ld1ezZszv9em/580QisT3Pe9VVVx155JF2Lb7yyiu71tp++ezendbaiy++OPd1Tp8+/cwzz+zh7e3t7dddd92zzz5rKeGGG2547rnneqWc2+H45S9/OWDAgNwzt912Wy5z2MPVYd68eaGqdmvG2x2FdDr9/vvv2+Np06YBwCGHHGJ1TvPmzdui8nnH4sQTT6yurr7rrruY+bXXXrvrrrt6K81Cjpkw3CQHDx786aefAsCbb745efJk+ziWM58yZcrSpUutfit3t+/J1n3FFVcUFRWFkxYRb7311sGDB/ewhUwmc911182aNUtrXVVVNXPmzGuuuWanrJp9gkcffbSLXv3mN7/p+vbly5dDjpFca/3iiy+GGuPx48dbK1Fra2tJSYk9+e1vf7uHfctVunTbkxCXXHJJF0+0fPnyrm//zW9+E1584IEHnn/++dOmTQsFqtLS0lWrVvWwJ3/6059yhcwe3vWvf/0r1A8vXLhQRKz5OlQW9rCd008/Pdzfkslk1xf/4x//gBxlsohcf/31oTA5a9Yse9mpp54avtluO9Dc3FxWFlSDO/bYY0P11d57722MEZELL7zQnnnsscfCVfjmm2/utuVrr70Wtm55Wbp0ade3P/vss7laMRG57bbbwgX9wgsvbGpqEpFcPf9dd93Vw2E/+uijw7sWLFiQLX24W2IbeJVTTjnl3nvvhaydY2sWVOg7L72eXzxv3rxHHnnk/fffDw0nv/zlL0eNGrVTe/jUU0/ZgyFDhkycONHu3uHiGPLtOxu/+MUv7JOm0+kf/ehH29BCZWVlY2MjZA0Kxx13nDUvff755ytWrMhkMv/+97/t6nP88ceHOrxuvR66VeZtg5rm6quvnjFjhmUHHn744ZkzZ34FmfNp06ZdeeWVOaVVZcqUKdvQzgUXXLBmzZr//u//BoDnn3/++eefP+GEE/rkiW6++WbrVBdiiw4MXTDnoebm+9///kUXXXTwwQfv1A7X1dWFPh5HHHGEpYdoNHrMMcdYq9Lbb79dU1NTUVGxCxQxd9xxx/Tp0z3P++STT4488sj777+/5+buTiax/ffff9iwYaFL3H333TdixAjLh1999dWlpaUDBw78/PPPoZe2Mcdx7rzzzrKysg4lFtHQoUO34Xnvv//+lpaWl19+GQBmzpw5Y8aMbTP97L7kPWjQoPPOO2+HNHXttdeuWrXqb3/7mzHmkksu+dOf/rQDB6vnOPLII4866qhtvv2KK664//77rbPd6tWrDzzwwJ36FMaYSy+91Jrf7D72rW99yxa+Cyd9XV3dt7/97aeffno79aA9wemnnz537twzzzxz7dq1s2bN+vrXv26V6j1EaEFMJBLHHHMMIl588cWWm7vzzjstQY4bN+66664DgJAnWrFiBTP3cJwR8fjjj++5H0QXiMViDz/88LRp05YvX97U1HTeeedddtllRLRtJhv4ykeM/fa3vx0+fLjVOV9wwQU9tyftPhg7duzXv/51e/ziiy/mutnsDCxcuDDXEfWDDz64//77H3jggfvvv/+DDz6AHAfVt956a9eMwNSpU8MAgXnz5uVqAbrFsmXL7EFFRYUVrUMmrrW11XoHH3fccdbJzE4VAKiqqgpZ+l2M8vLy3/3ud+G7+MlPfrKjDKtfQfIuKyt75513JkyYsGNN0LsSvu9fffXV/fv3t3/+/ve/f/LJJ3fez9111109vHKndqMTZsyY0XUQztawevVqyHqeWK5+4sSJuZonADjjjDPswYgRI0LDQahv3/X42te+9sQTT4T+SDtq0u4WzHlzc/PcuXNzH6mgoGCfffbZ5gZHjhz5zDPPHHLIIaHReBdj6dKluY7fIjJhwoRQndsTjB8/fs6cOUcfffSGDRtE5PLLLz/ooIO2301qczQ2NoburmPHjn300Uc7Ge211uecc86aNWsA4F//+tett97abcDPDoHruo888sgll1zy8ssv93y6i0joQB7a7R3H+dvf/jZ16lS7de+xxx7hwhHGgYrIq6++etJJJ/XwVxYuXFhbW5vbseHDh2+b+G1F93POOScej59xxhldx3h++cj7zTfftIbWEJMmTfrss8+2R+AcN27cVVddZeWrXY/LL7+805knnnjinHPO6VUje+655xVXXGG9ROvq6m655ZY777xzh3f17bffDl3ETjvttH333Xfza4477jhrlWhoaHj33XdPPvnkXTOMAwYMePHFF08++eRXXnml51tFGFyUa2sYM2bMgQceaJn8o48+OvQ/zfV+tZa5nqjxtNbh/g85tq6bbrppe573lFNOOeuss3aU1/3uy5xvp0uQxY9+9KPQmw2+nJ55l19+eaisfuCBB3YGb5wbbrG1BSjXxei5557bxUM3c+bM0LO6W6xbty7c/TplaAhXpVzKHDhwYDjZFi1a1G3cbhfoVcRYF5qjLtJafGl27379+h1xxBFb3J9FZMyYMV0vorFY7Mgjj0REERk+fPgWLy4qKnrkkUeGDRtmN72eBwwMHjw4bLznBq0xY8bYu2BLRu9uOfMhQ4Zs/qMDBgz485//fMcdd9iBmjlz5vDhw7eWuwJyLBFhU6HhGrZiD9u4caNV8g8ePPiII47Y4mUnn3zyqaee2t7ebuknlUrF4/GttTlx4kTLDjiO0y3/1b9//7CrW1OPT5gw4f7777/44os9z+s2VUtDQ4M17G1uXj3//PNnzpw5atSo0EnGampmzJixatUqG0JTW1vbhegxfPjwrb1iEemWMy8rK7Nz3k7aLV4zatSojz76aPr06dZO2XPv5kmTJjGzffBwwcIvo+YpjzzyyKdSzCOPPHnnkUceefLOI4888uSdRx555Mk7jzzyyJN3HnnkkSfvPPLII0/eeeSRJ+888sgjT9555JHH7oX/D0N9WDeIeygWAAAAAElFTkSuQmCC" x="682" y="240" width="236" height="68" preserveAspectRatio="xMidYMid meet"/>
+            <text class="small" x="800" y="330" text-anchor="middle">PT RANS ENTERTAINMEN INDONESIA TBK</text>
+
+            <path class="line" d="M800 344 V420 M108 420 H1440 M108 420 V460 M273 420 V460 M438 420 V460 M603 420 V460 M768 420 V460 M933 420 V460 M1098 420 V460 M1263 420 V460 M1440 420 V460"/>
+            <rect class="node node-child" x="40" y="460" width="136" height="62"/>
+            <text class="label" x="108" y="489" text-anchor="middle">RAI</text>
+            <text class="small" x="108" y="506" text-anchor="middle">Animasi</text>
+            <text class="pct-blue" x="120" y="446">99,91%</text>
+            <rect class="node node-child" x="205" y="460" width="136" height="62"/>
+            <text class="label" x="273" y="489" text-anchor="middle">RAKI</text>
+            <text class="small" x="273" y="506" text-anchor="middle">Periklanan</text>
+            <text class="pct-blue" x="285" y="446">99,00%</text>
+            <rect class="node node-muted" x="370" y="460" width="136" height="62"/>
+            <text class="label" x="438" y="489" text-anchor="middle">RKB</text>
+            <text class="small" x="438" y="506" text-anchor="middle">Restoran</text>
+            <text class="pct-muted" x="450" y="446">99,88%</text>
+            <rect class="node node-child" x="535" y="460" width="136" height="62"/>
+            <text class="label" x="603" y="489" text-anchor="middle">RPI</text>
+            <text class="small" x="603" y="506" text-anchor="middle">Kosmetik</text>
+            <text class="pct-blue" x="615" y="446">51,00%</text>
+            <rect class="node node-child" x="700" y="460" width="136" height="62"/>
+            <text class="label" x="768" y="489" text-anchor="middle">RMI</text>
+            <text class="small" x="768" y="506" text-anchor="middle">Media</text>
+            <text class="pct-blue" x="780" y="446">99,38%</text>
+            <rect class="node node-child" x="865" y="460" width="136" height="62"/>
+            <text class="label" x="933" y="489" text-anchor="middle">RNS</text>
+            <text class="small" x="933" y="506" text-anchor="middle">F&amp;B</text>
+            <text class="pct-blue" x="945" y="446">99,56%</text>
+            <rect class="node node-child" x="1030" y="460" width="136" height="62"/>
+            <text class="label" x="1098" y="489" text-anchor="middle">RSB</text>
+            <text class="small" x="1098" y="506" text-anchor="middle">Event</text>
+            <text class="pct-blue" x="1110" y="446">99,99%</text>
+            <rect class="node node-muted" x="1195" y="460" width="136" height="62"/>
+            <text class="label" x="1263" y="489" text-anchor="middle">ROD</text>
+            <text class="small" x="1263" y="506" text-anchor="middle">Olahraga</text>
+            <text class="pct-muted" x="1275" y="446">99,80%</text>
+            <rect class="node node-muted" x="1360" y="460" width="160" height="62"/>
+            <text class="label" x="1440" y="489" text-anchor="middle">RKInter</text>
+            <text class="small" x="1440" y="506" text-anchor="middle">Karnaval</text>
+            <text class="pct-muted" x="1452" y="446">89,07%</text>
+
+            <path class="line line-muted" d="M438 522 V630 M768 522 V630"/>
+            <text class="pct-muted" x="450" y="584">92,00%</text>
+            <text class="pct-muted" x="780" y="584">94,52%</text>
+            <rect class="node node-muted" x="365" y="630" width="146" height="62"/>
+            <text class="label" x="438" y="660" text-anchor="middle">RBI</text>
+            <text class="small" x="438" y="677" text-anchor="middle">via RKB</text>
+            <rect class="node node-muted" x="695" y="630" width="146" height="62"/>
+            <text class="label" x="768" y="660" text-anchor="middle">RKIndo</text>
+            <text class="small" x="768" y="677" text-anchor="middle">via RMI</text>
+
+            <path class="line line-gold" d="M1000 281 H1530 V775 H515 M515 775 V812 M675 775 V812 M835 775 V812 M995 775 V812"/>
+            <text class="pct-gold" x="527" y="804">40,00%</text>
+            <text class="pct-gold" x="687" y="804">50,00%</text>
+            <text class="pct-gold" x="847" y="804">44,00%</text>
+            <text class="pct-gold" x="1007" y="804">49,00%</text>
+            <rect class="node node-assoc" x="447" y="812" width="136" height="62"/>
+            <text class="label" x="515" y="842" text-anchor="middle">RAF</text>
+            <text class="small" x="515" y="859" text-anchor="middle">Kosmetik</text>
+            <rect class="node node-muted" x="607" y="812" width="136" height="62"/>
+            <text class="label" x="675" y="842" text-anchor="middle">MMD</text>
+            <text class="small" x="675" y="859" text-anchor="middle">Jasa</text>
+            <rect class="node node-assoc" x="767" y="812" width="136" height="62"/>
+            <text class="label" x="835" y="842" text-anchor="middle">RPC</text>
+            <text class="small" x="835" y="859" text-anchor="middle">Klub</text>
+            <rect class="node node-muted" x="927" y="812" width="136" height="62"/>
+            <text class="label" x="995" y="842" text-anchor="middle">RSA</text>
+            <text class="small" x="995" y="859" text-anchor="middle">Event</text>
+            <g transform="translate(40 724)">
+              <rect class="legend-box" x="0" y="0" width="340" height="150" rx="8"/>
+              <text class="legend-title" x="16" y="24">Keterangan</text>
+              <path class="line line-green" d="M18 48 H58"/>
+              <text class="legend-text" x="70" y="52">Pemegang saham ke Perseroan</text>
+              <path class="line" d="M18 76 H58"/>
+              <text class="legend-text" x="70" y="80">Entitas anak langsung</text>
+              <path class="line line-muted" d="M18 104 H58"/>
+              <text class="legend-text" x="70" y="108">Anak tidak langsung / tidak operasional</text>
+              <path class="line line-gold" d="M18 132 H58"/>
+              <text class="legend-text" x="70" y="136">Entitas asosiasi non-pengendali</text>
+            </g>
+          </svg>
+
+          <div class="av-rans-owner-hotspots" aria-label="Klik entitas untuk melihat nama lengkap">
+            <label class="av-rans-owner-hotspot" for="rans-owner-ns" title="NS - Nagita Slavina Mariana Tengker" aria-label="NS - Nagita Slavina Mariana Tengker" style="left:2.5%;top:8.48%;width:7.5%;height:5%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rfa" title="RFA - Raffi Farid Ahmad" aria-label="RFA - Raffi Farid Ahmad" style="left:11.88%;top:5.43%;width:8.13%;height:5.87%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-ieg" title="IEG - PT Indonesia Entertainment Group" aria-label="IEG - PT Indonesia Entertainment Group" style="left:21.88%;top:8.48%;width:7.5%;height:5%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-sar" title="SAR - Soultan Ariq Rachman" aria-label="SAR - Soultan Ariq Rachman" style="left:31.56%;top:8.48%;width:7.5%;height:5%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-do" title="DO - Dony Oskaria" aria-label="DO - Dony Oskaria" style="left:41.25%;top:8.48%;width:7.5%;height:5%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-sh" title="SH - Sutanto Hartono" aria-label="SH - Sutanto Hartono" style="left:50.94%;top:8.48%;width:7.5%;height:5%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-kp" title="KP - Kaesang Pangarep" aria-label="KP - Kaesang Pangarep" style="left:60.63%;top:8.48%;width:7.5%;height:5%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-hj" title="HJ - Hikmat Janika" aria-label="HJ - Hikmat Janika" style="left:70.31%;top:8.48%;width:7.5%;height:5%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-ebit" title="EBIT - PT Ekonomi Baru Investasi Teknologi" aria-label="EBIT - PT Ekonomi Baru Investasi Teknologi" style="left:80%;top:8.48%;width:7.5%;height:5%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-public" title="Masyarakat - pemegang saham publik" aria-label="Masyarakat - pemegang saham publik" style="left:89.69%;top:8.48%;width:8.13%;height:5%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-perseroan" title="Perseroan - PT Rans Entertainmen Indonesia Tbk" aria-label="Perseroan - PT Rans Entertainmen Indonesia Tbk" style="left:37.5%;top:23.7%;width:25%;height:13.7%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rai" title="RAI - PT Rans Animasi Indonesia" aria-label="RAI - PT Rans Animasi Indonesia" style="left:2.5%;top:50%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-raki" title="RAKI - PT Rans Kekinian Indonesia" aria-label="RAKI - PT Rans Kekinian Indonesia" style="left:12.81%;top:50%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rkb" title="RKB - PT Rans Keluarga Bersama" aria-label="RKB - PT Rans Keluarga Bersama" style="left:23.13%;top:50%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rpi" title="RPI - PT Rans Pesona Indonesia" aria-label="RPI - PT Rans Pesona Indonesia" style="left:33.44%;top:50%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rmi" title="RMI - PT Rans Media Indonesia" aria-label="RMI - PT Rans Media Indonesia" style="left:43.75%;top:50%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rns" title="RNS - PT Rans Nikmat Sejahtera" aria-label="RNS - PT Rans Nikmat Sejahtera" style="left:54.06%;top:50%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rsb" title="RSB - PT Rans Satu Bunda" aria-label="RSB - PT Rans Satu Bunda" style="left:64.38%;top:50%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rod" title="ROD - PT Rans Olahraga Digital" aria-label="ROD - PT Rans Olahraga Digital" style="left:74.69%;top:50%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rkinter" title="RKInter - PT Rans Karnaval Internasional" aria-label="RKInter - PT Rans Karnaval Internasional" style="left:85%;top:50%;width:10%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rbi" title="RBI - PT Rans Boga Indonesia" aria-label="RBI - PT Rans Boga Indonesia" style="left:22.81%;top:68.48%;width:9.13%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rkindo" title="RKIndo - PT Rans Karnaval Indonesia" aria-label="RKIndo - PT Rans Karnaval Indonesia" style="left:43.44%;top:68.48%;width:9.13%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-raf" title="RAF - PT Rans Aura Fantastis" aria-label="RAF - PT Rans Aura Fantastis" style="left:27.94%;top:88.26%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-mmd" title="MMD - PT Manusia Masa Depan" aria-label="MMD - PT Manusia Masa Depan" style="left:37.94%;top:88.26%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rpc" title="RPC - PT Rans Prestisius Cakrawala" aria-label="RPC - PT Rans Prestisius Cakrawala" style="left:47.94%;top:88.26%;width:8.5%;height:6.74%"></label>
+            <label class="av-rans-owner-hotspot" for="rans-owner-rsa" title="RSA - PT Rans Surya Aktivasi" aria-label="RSA - PT Rans Surya Aktivasi" style="left:57.94%;top:88.26%;width:8.5%;height:6.74%"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="av-rans-owner-info panel-ns"><small>Pemegang saham</small><strong>Nagita Slavina Mariana Tengker</strong><span>Kepemilikan pasca-IPO 0,99%. Direktur Utama dan talent utama; porsi ekonominya kecil, tetapi perannya besar dalam tesis brand dan operasional RANS.</span></div>
+    <div class="av-rans-owner-info panel-rfa"><small>Pengendali</small><strong>Raffi Farid Ahmad</strong><span>Kepemilikan pasca-IPO 62,93%. Prospektus menempatkannya sebagai pengendali sekaligus pemilik manfaat Perseroan.</span></div>
+    <div class="av-rans-owner-info panel-ieg"><small>Pemegang saham</small><strong>PT Indonesia Entertainment Group</strong><span>Kepemilikan pasca-IPO 7,23%. Pemegang saham strategis non-publik di cap table RANS.</span></div>
+    <div class="av-rans-owner-info panel-sar"><small>Pemegang saham</small><strong>Soultan Ariq Rachman</strong><span>Kepemilikan pasca-IPO 2,74%. Pemegang saham minoritas individual.</span></div>
+    <div class="av-rans-owner-info panel-do"><small>Pemegang saham</small><strong>Dony Oskaria</strong><span>Kepemilikan pasca-IPO 2,74%. Nama strategis dalam cap table, tetapi bukan pengendali ekonomi Perseroan.</span></div>
+    <div class="av-rans-owner-info panel-sh"><small>Pemegang saham</small><strong>Sutanto Hartono</strong><span>Kepemilikan pasca-IPO 1,14%. Figur media yang juga memberi konteks kredibilitas jaringan bisnis di sekitar RANS.</span></div>
+    <div class="av-rans-owner-info panel-kp"><small>Pemegang saham</small><strong>Kaesang Pangarep</strong><span>Kepemilikan pasca-IPO 0,91%. Pemegang saham individual sekaligus figur publik di struktur Perseroan.</span></div>
+    <div class="av-rans-owner-info panel-hj"><small>Pemegang saham</small><strong>Hikmat Janika</strong><span>Kepemilikan pasca-IPO 0,68%. Pemegang saham minoritas lama yang ikut terdilusi oleh IPO.</span></div>
+    <div class="av-rans-owner-info panel-ebit"><small>Pemegang saham</small><strong>PT Ekonomi Baru Investasi Teknologi</strong><span>Kepemilikan pasca-IPO 0,61%. Pemegang saham badan hukum minoritas.</span></div>
+    <div class="av-rans-owner-info panel-public"><small>Free float</small><strong>Masyarakat</strong><span>Kepemilikan pasca-IPO 20,02%. Publik masuk sebagai pemegang saham baru, tetapi kontrol tetap terkonsentrasi pada Raffi Farid Ahmad.</span></div>
+    <div class="av-rans-owner-info panel-perseroan"><small>Emiten</small><strong>PT Rans Entertainmen Indonesia Tbk</strong><span>Induk usaha/emiten publik yang mengonsolidasikan entitas anak langsung, entitas anak tidak langsung, dan penyertaan asosiasi kelompok usaha RANS.</span></div>
+    <div class="av-rans-owner-info panel-rai"><small>Entitas anak langsung</small><strong>PT Rans Animasi Indonesia</strong><span>Kode RAI. Kepemilikan langsung Perseroan 99,91%; unit produksi film animasi dan berstatus operasional.</span></div>
+    <div class="av-rans-owner-info panel-raki"><small>Entitas anak langsung</small><strong>PT Rans Kekinian Indonesia</strong><span>Kode RAKI. Kepemilikan langsung 99,00%; unit jasa/periklanan dan berstatus operasional.</span></div>
+    <div class="av-rans-owner-info panel-rkb"><small>Entitas anak langsung</small><strong>PT Rans Keluarga Bersama</strong><span>Kode RKB. Kepemilikan langsung 99,88%; unit restoran, ditandai tidak operasional, dan menjadi jalur kepemilikan ke RBI.</span></div>
+    <div class="av-rans-owner-info panel-rpi"><small>Entitas anak langsung</small><strong>PT Rans Pesona Indonesia</strong><span>Kode RPI. Kepemilikan langsung 51,00%; unit perdagangan besar kosmetik/personal care dan berstatus operasional.</span></div>
+    <div class="av-rans-owner-info panel-rmi"><small>Entitas anak langsung</small><strong>PT Rans Media Indonesia</strong><span>Kode RMI. Kepemilikan langsung 99,38%; unit media rekaman/software, berstatus operasional, dan menjadi jalur kepemilikan ke RKIndo.</span></div>
+    <div class="av-rans-owner-info panel-rns"><small>Entitas anak langsung</small><strong>PT Rans Nikmat Sejahtera</strong><span>Kode RNS. Kepemilikan langsung 99,56%; unit perdagangan besar makanan dan minuman, berstatus operasional.</span></div>
+    <div class="av-rans-owner-info panel-rsb"><small>Entitas anak langsung</small><strong>PT Rans Satu Bunda</strong><span>Kode RSB. Kepemilikan langsung 99,99%; unit jasa penyelenggara event dan periklanan, berstatus operasional.</span></div>
+    <div class="av-rans-owner-info panel-rod"><small>Entitas anak langsung</small><strong>PT Rans Olahraga Digital</strong><span>Kode ROD. Kepemilikan langsung 99,80%; unit klub olahraga digital dan ditandai tidak operasional.</span></div>
+    <div class="av-rans-owner-info panel-rkinter"><small>Entitas anak langsung</small><strong>PT Rans Karnaval Internasional</strong><span>Kode RKInter. Kepemilikan langsung 89,07%; unit taman konservasi/rekreasi/event dan ditandai tidak operasional.</span></div>
+    <div class="av-rans-owner-info panel-rbi"><small>Entitas anak tidak langsung</small><strong>PT Rans Boga Indonesia</strong><span>Kode RBI. Kepemilikan tidak langsung 92,00% melalui RKB; unit restoran dan ditandai tidak operasional.</span></div>
+    <div class="av-rans-owner-info panel-rkindo"><small>Entitas anak tidak langsung</small><strong>PT Rans Karnaval Indonesia</strong><span>Kode RKIndo. Kepemilikan tidak langsung 94,52% melalui RMI; unit penyelenggara event khusus dan ditandai tidak operasional.</span></div>
+    <div class="av-rans-owner-info panel-raf"><small>Entitas asosiasi</small><strong>PT Rans Aura Fantastis</strong><span>Kode RAF. Penyertaan 40,00%; entitas asosiasi perdagangan eceran kosmetik dan berstatus operasional.</span></div>
+    <div class="av-rans-owner-info panel-mmd"><small>Entitas asosiasi</small><strong>PT Manusia Masa Depan</strong><span>Kode MMD. Penyertaan 50,00%; entitas asosiasi jasa/perdagangan dan ditandai tidak operasional.</span></div>
+    <div class="av-rans-owner-info panel-rpc"><small>Entitas asosiasi</small><strong>PT Rans Prestisius Cakrawala</strong><span>Kode RPC. Penyertaan 44,00%; entitas asosiasi klub olahraga, jasa, dan perdagangan, berstatus operasional.</span></div>
+    <div class="av-rans-owner-info panel-rsa"><small>Entitas asosiasi</small><strong>PT Rans Surya Aktivasi</strong><span>Kode RSA. Penyertaan 49,00%; entitas asosiasi penyelenggara event khusus dan ditandai tidak operasional.</span></div>
+
+    <div class="av-rans-owner-note">Catatan: bagan menggunakan angka pasca-IPO dan struktur entitas dalam prospektus. Garis hijau menunjukkan kepemilikan ke emiten/pengendalian utama, garis biru menunjukkan entitas anak, garis emas menunjukkan entitas asosiasi, sedangkan kotak dashed menandai entitas yang dicantumkan tidak operasional. Seluruh persentase ditampilkan dua digit di belakang koma.</div>
+  </div>
+
+  <div class="av-rans-owner" hidden aria-hidden="true">
+    <div class="av-owner-head">
+      <div>
+        <div class="av-owner-head-title">Struktur Kepemilikan dan Grup RANS Pasca-IPO</div>
+        <div class="av-owner-head-sub">Prospektus ringkas menampilkan nama entitas anak dalam bentuk kode/singkatan. Supaya pembaca awam paham, bagan ini memakai label deskriptif berdasarkan kegiatan usaha resmi, domisili, status operasional, dan persentase kepemilikan yang dicantumkan di prospektus.</div>
+      </div>
+      <div class="av-owner-chip">HTML diagram Â· responsive</div>
+    </div>
+
+    <div class="av-owner-section-title">Pemegang Saham Utama Pasca-IPO</div>
+    <div class="av-owner-shareholders">
+      <div class="av-owner-card main">
+        <div class="av-owner-name">Raffi Farid Ahmad</div>
+        <div class="av-owner-pct">62,93%</div>
+        <div class="av-owner-desc">Pemegang saham pengendali utama.</div>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">PT Indonesia Entertainmen Grup</div>
+        <div class="av-owner-pct">7,23%</div>
+        <div class="av-owner-desc">Pemegang saham strategis non-publik.</div>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">Dony Oskaria</div>
+        <div class="av-owner-pct">2,74%</div>
+        <div class="av-owner-desc">Pemegang saham individual strategis.</div>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">Soultan Ariq Rachman</div>
+        <div class="av-owner-pct">2,74%</div>
+        <div class="av-owner-desc">Pemegang saham individual.</div>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">Sutanto Hartono</div>
+        <div class="av-owner-pct">1,14%</div>
+        <div class="av-owner-desc">Figur strategis media dan komisaris.</div>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">Nagita Slavina Mariana Tengker</div>
+        <div class="av-owner-pct">0,99%</div>
+        <div class="av-owner-desc">Direktur Utama dan talent utama.</div>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">Kaesang Pangarep</div>
+        <div class="av-owner-pct">0,91%</div>
+        <div class="av-owner-desc">Pemegang saham individual dan komisaris.</div>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">Masyarakat / Publik</div>
+        <div class="av-owner-pct">20,02%</div>
+        <div class="av-owner-desc">Free float hasil IPO.</div>
+      </div>
+    </div>
+
+    <div class="av-flow-arrow"></div>
+    <div class="av-flow-label">Kepemilikan masuk ke emiten</div>
+
+    <div class="av-owner-emiten">
+      <div class="av-owner-emiten-logo">RANS</div>
+      <div class="av-owner-emiten-name">PT Rans Entertainmen Indonesia Tbk</div>
+      <div class="av-owner-emiten-sub">Induk usaha / emiten publik</div>
+    </div>
+
+    <div class="av-flow-arrow"></div>
+    <div class="av-flow-label">Konsolidasi dan penyertaan usaha</div>
+
+    <div class="av-owner-section-title">Entitas Anak Langsung â€” Label Deskriptif agar Tidak Cuma Singkatan</div>
+    <div class="av-owner-subs">
+      <div class="av-owner-card">
+        <div class="av-owner-name">RAI â€” Unit Produksi Film Animasi</div>
+        <div class="av-owner-pct">99,91%</div>
+        <div class="av-owner-desc">Kegiatan usaha: produksi film animasi. Domisili: Banten.</div>
+        <span class="av-owner-tag op">Operasional</span>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">RAKI â€” Unit Periklanan</div>
+        <div class="av-owner-pct">99,00%</div>
+        <div class="av-owner-desc">Kegiatan usaha: periklanan. Domisili: Banten.</div>
+        <span class="av-owner-tag op">Operasional</span>
+      </div>
+      <div class="av-owner-card inactive">
+        <div class="av-owner-name">RKB â€” Unit Restoran</div>
+        <div class="av-owner-pct">99,88%</div>
+        <div class="av-owner-desc">Kegiatan usaha: restoran. Domisili: Banten. Menjadi jalur kepemilikan tidak langsung ke RBI.</div>
+        <span class="av-owner-tag noop">Tidak operasional</span>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">RPI â€” Unit Perdagangan Kosmetik</div>
+        <div class="av-owner-pct">51,00%</div>
+        <div class="av-owner-desc">Kegiatan usaha: perdagangan besar kosmetik. Domisili: Jakarta.</div>
+        <span class="av-owner-tag op">Operasional</span>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">RMI â€” Unit Media Rekaman & Software</div>
+        <div class="av-owner-pct">99,38%</div>
+        <div class="av-owner-desc">Kegiatan usaha: reproduksi media rekaman suara dan piranti lunak. Domisili: Banten. Menjadi jalur kepemilikan tidak langsung ke RKIndo.</div>
+        <span class="av-owner-tag op">Operasional</span>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">RNS â€” Unit F&B Trading</div>
+        <div class="av-owner-pct">99,56%</div>
+        <div class="av-owner-desc">Kegiatan usaha: perdagangan besar makanan dan minuman lainnya. Domisili: Banten.</div>
+        <span class="av-owner-tag op">Operasional</span>
+      </div>
+      <div class="av-owner-card">
+        <div class="av-owner-name">RSB â€” Unit Event & Advertising</div>
+        <div class="av-owner-pct">99,99%</div>
+        <div class="av-owner-desc">Kegiatan usaha: jasa penyelenggara event dan periklanan. Domisili: Banten.</div>
+        <span class="av-owner-tag op">Operasional</span>
+      </div>
+      <div class="av-owner-card inactive">
+        <div class="av-owner-name">ROD â€” Unit Klub Olahraga Digital</div>
+        <div class="av-owner-pct">99,80%</div>
+        <div class="av-owner-desc">Kegiatan usaha: klub olahraga digital. Domisili: Jakarta.</div>
+        <span class="av-owner-tag noop">Tidak operasional</span>
+      </div>
+      <div class="av-owner-card inactive">
+        <div class="av-owner-name">RKInter â€” Unit Konservasi, Rekreasi & Event</div>
+        <div class="av-owner-pct">89,07%</div>
+        <div class="av-owner-desc">Kegiatan usaha: taman konservasi alam, perdagangan eceran cinderamata, jasa reservasi, event, dan taman rekreasi. Domisili: Jakarta.</div>
+        <span class="av-owner-tag noop">Tidak operasional</span>
+      </div>
+    </div>
+
+    <div class="av-owner-section-title">Entitas Anak Tidak Langsung</div>
+    <div class="av-owner-indirect">
+      <div class="av-owner-chain">
+        <div class="av-owner-card">
+          <div class="av-owner-name">RMI â€” Unit Media Rekaman & Software</div>
+          <div class="av-owner-pct">99,38%</div>
+          <div class="av-owner-desc">Entitas anak langsung yang menjadi jalur kepemilikan.</div>
+        </div>
+        <div class="av-owner-chain-arrow" aria-hidden="true"></div>
+        <div class="av-owner-card indirect inactive">
+          <div class="av-owner-name">RKIndo â€” Unit Event Khusus</div>
+          <div class="av-owner-pct">94,52%</div>
+          <div class="av-owner-desc">Kegiatan usaha: penyelenggara event khusus. Domisili: Jawa Barat. Dimiliki secara tidak langsung melalui RMI.</div>
+          <span class="av-owner-tag noop">Tidak operasional</span>
+        </div>
+      </div>
+
+      <div class="av-owner-chain">
+        <div class="av-owner-card inactive">
+          <div class="av-owner-name">RKB â€” Unit Restoran</div>
+          <div class="av-owner-pct">99,88%</div>
+          <div class="av-owner-desc">Entitas anak langsung yang menjadi jalur kepemilikan.</div>
+        </div>
+        <div class="av-owner-chain-arrow" aria-hidden="true"></div>
+        <div class="av-owner-card indirect inactive">
+          <div class="av-owner-name">RBI â€” Unit Restoran</div>
+          <div class="av-owner-pct">92,00%</div>
+          <div class="av-owner-desc">Kegiatan usaha: restoran. Domisili: Banten. Dimiliki secara tidak langsung melalui RKB.</div>
+          <span class="av-owner-tag noop">Tidak operasional</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="av-owner-section-title">Entitas Asosiasi Non-Pengendali</div>
+    <div class="av-owner-assoc">
+      <div class="av-owner-card assoc">
+        <div class="av-owner-name">RAF â€” Unit Ritel Kosmetik</div>
+        <div class="av-owner-pct">40,00%</div>
+        <div class="av-owner-desc">Kegiatan usaha: perdagangan eceran kosmetik. Domisili: Jakarta.</div>
+        <span class="av-owner-tag op">Operasional</span>
+      </div>
+      <div class="av-owner-card assoc inactive">
+        <div class="av-owner-name">MMD â€” Unit Jasa & Perdagangan</div>
+        <div class="av-owner-pct">50,00%</div>
+        <div class="av-owner-desc">Kegiatan usaha: jasa dan perdagangan. Domisili: Jakarta.</div>
+        <span class="av-owner-tag noop">Tidak operasional</span>
+      </div>
+      <div class="av-owner-card assoc">
+        <div class="av-owner-name">RPC â€” Unit Klub Olahraga & Perdagangan</div>
+        <div class="av-owner-pct">44,00%</div>
+        <div class="av-owner-desc">Kegiatan usaha: klub olahraga, jasa, dan perdagangan. Domisili: Jakarta.</div>
+        <span class="av-owner-tag op">Operasional</span>
+      </div>
+      <div class="av-owner-card assoc inactive">
+        <div class="av-owner-name">RSA â€” Unit Event Khusus</div>
+        <div class="av-owner-pct">49,00%</div>
+        <div class="av-owner-desc">Kegiatan usaha: penyelenggara event khusus. Domisili: Jakarta.</div>
+        <span class="av-owner-tag noop">Tidak operasional</span>
+      </div>
+    </div>
+
+    <div class="av-owner-legend">
+      <div class="av-owner-legend-item"><b>Hijau</b>Entitas operasional menurut prospektus.</div>
+      <div class="av-owner-legend-item"><b>Abu-abu / dashed</b>Entitas tidak operasional atau kepemilikan tidak langsung.</div>
+      <div class="av-owner-legend-item"><b>Emas</b>Entitas asosiasi, penyertaan 40-50%, bukan pengendalian penuh.</div>
+    </div>
+
+    <div class="av-owner-abbrev">
+      <div class="av-owner-abbrev-head">Keterangan Kode Entitas dalam Prospektus</div>
+      <div class="av-owner-abbrev-grid">
+        <div class="av-owner-abbrev-item"><b>RAI</b><span>Unit produksi film animasi. Kepemilikan langsung 99,91%, domisili Banten, operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RAKI</b><span>Unit periklanan. Kepemilikan langsung 99,00%, domisili Banten, operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RKB</b><span>Unit restoran. Kepemilikan langsung 99,88%, domisili Banten, tidak operasional. Menjadi jalur kepemilikan RBI.</span></div>
+        <div class="av-owner-abbrev-item"><b>RPI</b><span>Unit perdagangan besar kosmetik. Kepemilikan langsung 51,00%, domisili Jakarta, operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RMI</b><span>Unit reproduksi media rekaman suara dan piranti lunak. Kepemilikan langsung 99,38%, domisili Banten, operasional. Menjadi jalur kepemilikan RKIndo.</span></div>
+        <div class="av-owner-abbrev-item"><b>RNS</b><span>Unit perdagangan besar makanan dan minuman lainnya. Kepemilikan langsung 99,56%, domisili Banten, operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RSB</b><span>Unit jasa penyelenggara event dan periklanan. Kepemilikan langsung 99,99%, domisili Banten, operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>ROD</b><span>Unit klub olahraga digital. Kepemilikan langsung 99,80%, domisili Jakarta, tidak operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RKInter</b><span>Unit taman konservasi alam, cinderamata, reservasi, event, dan taman rekreasi. Kepemilikan langsung 89,07%, domisili Jakarta, tidak operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RKIndo</b><span>Unit penyelenggara event khusus. Kepemilikan tidak langsung 94,52% melalui RMI, domisili Jawa Barat, tidak operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RBI</b><span>Unit restoran. Kepemilikan tidak langsung 92,00% melalui RKB, domisili Banten, tidak operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RAF</b><span>Entitas asosiasi perdagangan eceran kosmetik. Penyertaan 40,00%, domisili Jakarta, operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>MMD</b><span>Entitas asosiasi jasa dan perdagangan. Penyertaan 50,00%, domisili Jakarta, tidak operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RPC</b><span>Entitas asosiasi klub olahraga, jasa, dan perdagangan. Penyertaan 44,00%, domisili Jakarta, operasional.</span></div>
+        <div class="av-owner-abbrev-item"><b>RSA</b><span>Entitas asosiasi penyelenggara event khusus. Penyertaan 49,00%, domisili Jakarta, tidak operasional.</span></div>
+      </div>
+    </div>
+
+    <div class="av-owner-note">
+      Catatan penting: prospektus ringkas yang tersedia mencantumkan nama entitas sebagai kode/singkatan seperti RAI, RAKI, RKB, dan seterusnya; bukan nama hukum lengkap berbentuk PT untuk masing-masing entitas. Karena itu, label di atas dibuat sebagai <b>label deskriptif berbasis kegiatan usaha resmi</b>, bukan klaim nama legal lengkap yang tidak muncul di dokumen ringkas.
+    </div>
+  </div>
+
+  <h2>Siapa di balik cap table: nama-nama strategis</h2>
+
+  <p>Daftar pemegang saham RANS tidak biasa untuk emiten hiburan. Di luar keluarga inti, ada deretan nama dengan bobot korporat dan publik yang besar. Komposisi ini memberi RANS jaringan dan kredibilitas, tetapi juga membawa dimensi tata kelola dan kedekatan yang perlu dibaca jernih.</p>
+
+  <div class="av-rans-grid3">
+    <div class="av-rans-card"><small>Komisaris Â· 1,14%</small><strong class="av-blue">Sutanto Hartono</strong><span>Veteran media: Managing Director Emtek, CEO SCMA/SCTV/Vidio, eks-CEO RCTI. Juga Dirut PT Indonesia Entertainmen Grup, pemegang 7,23% RANS. Membawa kredibilitas operasional media paling tinggi di cap table.</span></div>
+    <div class="av-rans-card"><small>Pemegang Saham Â· 2,74%</small><strong class="av-gold">Dony Oskaria</strong><span>Wakil Menteri BUMN, COO Danantara, Kepala BP BUMN; co-founder RANS dan paman Nagita. Membawa jaringan institusional kuat, sekaligus dimensi potensi konflik kepentingan yang wajib dipantau publik.</span></div>
+    <div class="av-rans-card"><small>Komisaris Â· 0,91%</small><strong class="av-purple">Kaesang Pangarep</strong><span>Putra bungsu eks-Presiden Joko Widodo dan Ketua Umum PSI. Kehadirannya menambah atensi publik dan dimensi kedekatan politik, yang di sini disampaikan sebagai fakta, tanpa klaim apa pun.</span></div>
+  </div>
+
+  <div class="av-rans-callout av-rans-info"><p><strong>Cara membaca cap table ini:</strong> kehadiran figur sekelas Sutanto Hartono dan Dony Oskaria memberi sinyal jaringan, akses, dan kredibilitas yang jarang dimiliki emiten hiburan. Namun porsi ekonomi mereka kecil; pengendalian tetap mutlak di Raffi (62,93%). Bagi investor publik, nilai tambah nama besar hanya nyata jika diterjemahkan menjadi tata kelola yang kuat dan kinerja, bukan sekadar legitimasi saat IPO.</p></div>
+
+  <h2>Risiko utama: talent dependency bukan catatan kecil, tapi inti thesis</h2>
+
+  <p>Prospektus secara eksplisit menyebut risiko utama Perseroan adalah ketergantungan terhadap talent utama, yaitu Raffi Ahmad dan Nagita Slavina beserta keluarga. Risiko ini dapat berdampak negatif terhadap kinerja usaha dan keuangan Perseroan jika terjadi penurunan keterlibatan, perubahan persepsi publik, atau isu reputasi.</p>
+
+  <p>Detail risikonya lebih tajam: prospektus menyebut Perseroan juga bergantung pada keberlangsungan hubungan kontraktual dengan Raffi dan Nagita terkait pengelolaan akun dan penayangan materi iklan. Masing-masing pihak dapat mengakhiri perjanjian dengan pemberitahuan tertulis paling lambat 90 hari kalender sebelum tanggal efektif pengakhiran. Jadi, risiko utama RANS bukan hanya apakah publik masih menyukai talent utama, tetapi juga apakah akses komersial ke kanal, akun, materi iklan, dan engagement keluarga inti tetap terjaga.</p>
+
+  <p>Dalam bisnis entertainment tradisional, key person risk biasanya terkait artis atau presenter. Dalam kasus RANS, key person risk lebih besar karena nama Raffi, Nagita, dan keluarga bukan hanya wajah pemasaran, tetapi sumber trafik, trust, brand equity, distribusi perhatian, dan legitimasi untuk menjual produk lintas sektor.</p>
+
+  <div class="av-rans-shadow"><div class="av-rans-shadow-label">Shadow Read #2 Â· Talent Risk</div><p><strong>RANS bukan hanya memiliki risiko reputasi; RANS adalah reputasi itu sendiri.</strong> Jika keterlibatan keluarga inti menurun, monetisasi konten, brand activation, event, IP product, bahkan Cipungland dan Slavina dapat kehilangan emotional traffic.</p><p>Ini bukan risiko yang bisa sepenuhnya diasuransikan dengan kontrak. Brand celebrity bergerak mengikuti sentimen publik, algoritma platform, isu personal, dan relevansi generasi.</p></div>
+
+  <h2>Susunan manajemen: kredibilitas pasar modal bertemu keluarga selebriti</h2>
+
+  <p>Salah satu hal yang paling menentukan kualitas tata kelola pasca-IPO adalah komposisi dewan. Di sini RANS memadukan dua dunia: figur pasar modal yang sangat kredibel di kursi pengawas, dan keluarga selebriti pendiri di kursi eksekutif. Kombinasi ini bisa menjadi kekuatan penyeimbang, atau justru menegaskan ketergantungan pada talent utama.</p>
+
+  <div class="av-rans-table-wrap"><table class="av-rans-table"><thead><tr><th>Jabatan</th><th>Nama</th><th>Latar & Pembacaan Avenir</th></tr></thead><tbody>
+  <tr><td>Komisaris Utama</td><td class="av-green">Darwin Cyril Noerhadi</td><td>Eks-Dirut Bursa Efek Jakarta (1996-1999), eks-CFO/Managing Director Medco Energi, pendiri Creador Indonesia, anggota dewan pengawas lembaga investasi negara. Kredibilitas pasar modal kelas atas, anchor governance terkuat di RANS.</td></tr>
+  <tr><td>Komisaris Independen</td><td>Ambono Janurianto</td><td>Profesional dengan pengalaman korporasi dan pengawasan. Sebagai satu-satunya komisaris independen, perannya krusial menjaga kepentingan pemegang saham minoritas.</td></tr>
+  <tr><td>Direktur Utama</td><td class="av-gold">Nagita Slavina Mariana Tengker</td><td>Talent utama sekaligus Dirut. Berkomitmen tetap menjabat 3 tahun setelah pencatatan. Menyatukan wajah brand dengan kepemimpinan eksekutif, sekaligus mengonsentrasikan key-person risk di satu orang.</td></tr>
+  <tr><td>Direktur</td><td>Grandy Prajayakti</td><td>Eksekutif operasional Perseroan.</td></tr>
+  <tr><td>Direktur</td><td>Abrar</td><td>Eksekutif operasional Perseroan.</td></tr>
+  <tr><td>Direktur</td><td>Rumunggu Yokonapita</td><td>Eksekutif operasional Perseroan.</td></tr>
+  </tbody></table></div>
+
+  <p>Pembacaannya berlapis. Di sisi pengawasan, kehadiran Darwin Cyril Noerhadi sebagai Komisaris Utama adalah sinyal positif yang kuat; sosok ini memahami disiplin emiten publik, keterbukaan, dan kepentingan investor minoritas, sesuatu yang sering kurang pada emiten yang dikendalikan figur tunggal. Komisaris independen Ambono Janurianto melengkapi fungsi check and balance, meski hanya ada satu komisaris independen.</p>
+
+  <p>Di sisi eksekutif, penunjukan Nagita Slavina sebagai Direktur Utama, dengan komitmen menjabat tiga tahun, memberi kepastian keterlibatan talent inti, dan itu penting karena seluruh tesis bisnis bertumpu padanya dan Raffi. Namun ini juga memperkuat kritik utama: ketika wajah brand sekaligus pemimpin eksekutif, perusahaan dan pribadi menjadi nyaris tidak terpisahkan. Investor perlu menilai apakah ada lapisan manajemen profesional yang cukup dalam di bawah direksi untuk menjalankan operasional ketika fokus talent terbagi ke aktivitas hiburan lain.</p>
+
+  <div class="av-rans-shadow"><div class="av-rans-shadow-label">Shadow Read Â· Tata Kelola</div><p><strong>Dewan RANS adalah perpaduan yang menarik: governance kelas pasar modal di atas, brand selebriti di bawah.</strong> Noerhadi memberi kredibilitas; Nagita memberi relevansi. Pertanyaannya, ketika kepentingan pengendali (62,93%) dan publik (20,02%) berbeda, seberapa kuat satu komisaris independen menyeimbangkannya.</p><p>Kualitas tata kelola RANS pasca-IPO akan diuji bukan saat semuanya berjalan baik, melainkan saat ada keputusan sulit: transaksi afiliasi, kebijakan dividen, valuasi akuisisi Slavina, dan alokasi dana. Di titik itulah independensi dewan diuji.</p></div>
+
+  <h2>Penggunaan dana: bukan satu strategi, tapi enam taruhan sekaligus</h2>
+
+  <p>Rencana penggunaan dana IPO memperlihatkan bahwa RANS ingin bergerak sebagai holding IP dan entertainment. Dana tidak hanya dipakai untuk membayar utang, tetapi juga konser, Cipungland, AI, akuisisi Slavina, dan penyetoran modal ke RNS. Pada skenario dana maksimum Rp429,25 miliar, alokasi indikatifnya dapat dibaca sebagai berikut.</p>
+
+  <div class="av-rans-table-wrap"><table class="av-rans-table"><thead><tr><th>Penggunaan Dana</th><th>Porsi</th><th>Estimasi Nilai Maksimum</th><th>Pembacaan Avenir</th></tr></thead><tbody><tr><td>Pelunasan utang BNI</td><td>6,98%</td><td>Â±Rp30,0 M</td><td>Balance sheet repair kecil.</td></tr><tr><td>Capex Cipungland</td><td>18,64%</td><td>Â±Rp80,0 M</td><td>Masuk ke physical experience, bukan murni digital media.</td></tr><tr><td>Opex konser lokal/internasional</td><td>37,61%</td><td>Â±Rp161,4 M</td><td class="av-gold">Alokasi terbesar; event punya upside sponsor/ticketing tetapi risiko execution tinggi.</td></tr><tr><td>JV AI dengan Feedloop Global Teknologi</td><td>8,15%</td><td>Â±Rp35,0 M</td><td>Optionality AI; perlu bukti use case komersial.</td></tr><tr><td>Akuisisi PT Rans Kosmetika Indonesia / Slavina</td><td>19,80%</td><td>Â±Rp85,0 M</td><td>Ekspansi beauty berbasis IP; kompetitif dan inventory-driven.</td></tr><tr><td>Setoran modal ke RNS</td><td>Sisa dana</td><td>Â±Rp37,8 M</td><td>Pengembangan usaha utama dan ekspansi jaringan anak usaha.</td></tr></tbody></table></div>
+
+  <p>Prospektus membuat rencana dana ini lebih konkret daripada sekadar headline alokasi. Pelunasan BNI harus diprioritaskan lebih dahulu sebelum transaksi lain. Cipungland bukan satu wahana, melainkan rencana 9 titik dengan total kebutuhan sekitar Rp94,43 miliar; Rp80 miliar dari IPO dan sisanya dari kas internal. Konser dirancang sebagai program sampai 16 konser pada 2026-2028, sementara AI dan Slavina masing-masing memakai struktur transaksi yang sudah punya rencana kepemilikan.</p>
+
+  <div class="av-rans-grid4">
+    <div class="av-rans-card"><small>Cipungland</small><strong class="av-blue">9 titik</strong><span>2 titik Jakarta, lalu Tangerang, Bekasi, Depok, Bogor, Karawang, Cirebon, dan Bandung. Target selesai bertahap dari Semester II 2026 sampai 2027; sebagian Cirebon/Bandung selesai awal 2028.</span></div>
+    <div class="av-rans-card"><small>Konser</small><strong class="av-gold">16 event</strong><span>Rencana 9 konser pada 2026, 6 konser pada 2027, dan 1 konser pada 2028. Perseroan bertindak sebagai co-promotor bersama promotor pihak ketiga.</span></div>
+    <div class="av-rans-card"><small>Feedloop AI</small><strong class="av-purple">70:30</strong><span>Entitas baru direncanakan 70% dimiliki RANS dan 30% Feedloop, fokus pada AI content production, digital twin/avatar, media monitoring, dan narrative intelligence.</span></div>
+    <div class="av-rans-card"><small>Slavina &amp; RNS</small><strong class="av-green">51% + produk</strong><span>RANS akan membeli 1.020 saham Slavina dari Andy Lesmana senilai sekitar Rp85 miliar. Sisa dana ke RNS diarahkan untuk produk snack rumput laut dan kategori makanan ringan baru.</span></div>
+  </div>
+
+  <section class="av-rans-chart"><div class="av-rans-chart-title">Alokasi Dana IPO: Konser Mendominasi</div><p class="av-rans-chart-copy">Porsi terbesar mengalir ke belanja operasional konser, bukan ke aset atau mesin konten pembentuk pendapatan berulang.</p><div class="av-rans-bars"><div class="av-rans-bar-row"><div class="av-rans-bar-label">Opex konser</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill gold" style="--w:100%"></div></div><div class="av-rans-bar-value">37,61%</div></div><div class="av-rans-bar-row"><div class="av-rans-bar-label">Akuisisi Slavina</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill" style="--w:52.6%"></div></div><div class="av-rans-bar-value">19,80%</div></div><div class="av-rans-bar-row"><div class="av-rans-bar-label">Capex Cipungland</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill" style="--w:49.6%"></div></div><div class="av-rans-bar-value">18,64%</div></div><div class="av-rans-bar-row"><div class="av-rans-bar-label">JV AI Feedloop</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill" style="--w:21.7%"></div></div><div class="av-rans-bar-value">8,15%</div></div><div class="av-rans-bar-row"><div class="av-rans-bar-label">Setoran modal ke RNS</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill" style="--w:23.5%"></div></div><div class="av-rans-bar-value">Â±8,82%</div></div><div class="av-rans-bar-row"><div class="av-rans-bar-label">Pelunasan utang BNI</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill red" style="--w:18.6%"></div></div><div class="av-rans-bar-value">6,98%</div></div></div></section>
+
+  <div class="av-rans-shadow"><div class="av-rans-shadow-label">Shadow Read #3 Â· Use of Proceeds</div><p><strong>Alokasi terbesar bukan untuk memperkuat mesin konten digital, tetapi untuk konser.</strong> Event bisa memberi revenue besar, tetapi sifatnya episodik: biaya dibayar lebih dulu, revenue tergantung sponsor, ticketing, izin, lineup, venue, dan eksekusi.</p><p>Cipungland dan Slavina juga bukan bisnis ringan. Cipungland membutuhkan capex, lokasi, foot traffic, maintenance, dan keamanan. Slavina membutuhkan inventory, distribusi, BPOM, halal, repeat purchase, dan diferensiasi di pasar beauty yang sangat ramai.</p></div>
+
+  <h2>Kinerja 2025: revenue turun, margin membaik, laba turun tajam</h2>
+
+  <p>Pendapatan RANS turun 13,91% dari Rp410,50 miliar pada 2024 menjadi Rp353,38 miliar pada 2025. Penurunan utama berasal dari segmen duta merek dan talent management yang turun 51,55% dari Rp107,18 miliar menjadi Rp51,93 miliar. Penjualan produk makanan, minuman, dan kecantikan berbasis IP juga turun 12,69% dari Rp122,56 miliar menjadi Rp107,01 miliar.</p>
+
+  <p>Laba kotor hanya turun 4,08% menjadi Rp152,72 miliar karena beban pokok pendapatan turun lebih besar. Gross margin naik dari 38,79% pada 2024 menjadi 43,21% pada 2025. Ini positif. Namun laba operasi tetap turun 14,21% menjadi Rp75,55 miliar karena beban promosi, pemasaran, dan karyawan meningkat, terutama dari PT Rans Pesona Indonesia yang diakuisisi pada Februari 2025.</p>
+
+  <div class="av-rans-table-wrap"><table class="av-rans-table"><thead><tr><th>Laporan Laba Rugi</th><th>2023</th><th>2024</th><th>2025</th><th>Pembacaan</th></tr></thead><tbody><tr><td>Pendapatan</td><td>Rp437,8 M</td><td>Rp410,5 M</td><td class="av-red">Rp353,4 M</td><td>Turun dua tahun berturut-turut.</td></tr><tr><td>Laba kotor</td><td>Rp176,3 M</td><td>Rp159,2 M</td><td>Rp152,7 M</td><td>Turun, tetapi margin membaik.</td></tr><tr><td>Laba operasi</td><td>Rp116,3 M</td><td>Rp88,1 M</td><td class="av-red">Rp75,6 M</td><td>Tekanan opex masih terasa.</td></tr><tr><td>Laba tahun berjalan</td><td>Rp84,4 M</td><td>Rp97,1 M</td><td class="av-red">Rp56,7 M</td><td>Turun 41,60% pada 2025.</td></tr><tr><td>Gross margin</td><td>40,27%</td><td>38,79%</td><td class="av-green">43,21%</td><td>Efisiensi beban pokok membaik.</td></tr></tbody></table></div>
+
+  <p>Perlu dicatat, laba tahun berjalan 2024 ditopang oleh laba pelepasan entitas anak RPKSB sebesar Rp44,94 miliar, yang merupakan transaksi tidak berulang. Di sisi lain, 2024 juga mencatat rugi operasi yang dihentikan sebesar Rp10,46 miliar. Jika kedua faktor ini dinormalisasi, perbandingan antar tahun menjadi lebih rumit.</p>
+
+  <section class="av-rans-chart"><div class="av-rans-chart-title">Kualitas Laba: Sekali Jalan vs Laba Inti</div><p class="av-rans-chart-copy">Laba 2024 yang terlihat tinggi banyak ditopang untung sekali jalan dari pelepasan klub bola; tanpa itu, tren laba inti sebenarnya lebih lemah.</p><div class="av-rans-bars">
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">Laba 2023</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill gold" style="--w:86.9%"></div></div><div class="av-rans-bar-value">Rp84,4 M</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">Laba 2024 (dilaporkan)</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill green" style="--w:100%"></div></div><div class="av-rans-bar-value">Rp97,1 M</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">Laba 2024 (tanpa one-off)</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill" style="--w:53.7%"></div></div><div class="av-rans-bar-value">Â±Rp52,1 M</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">Laba 2025</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill red" style="--w:58.4%"></div></div><div class="av-rans-bar-value">Rp56,7 M</div></div>
+  </div></section>
+
+  <p>Sisi arus kas memberi gambaran yang lebih tajam lagi. Arus kas operasi 2025 turun 37,75% menjadi Rp37,68 miliar karena penjualan kredit di akhir tahun. Yang mencolok, arus kas investasi melonjak menjadi positif Rp154,21 miliar, bukan dari operasi, melainkan dari pelunasan piutang pihak berelasi dan pengembalian uang muka pembelian aset. Dana itu lalu mengalir keluar lewat aktivitas pendanaan sebesar Rp182,83 miliar, terutama untuk dividen dan pelunasan utang OCBC.</p>
+
+  <div class="av-rans-table-wrap"><table class="av-rans-table"><thead><tr><th>Arus Kas (Rp miliar)</th><th>2023</th><th>2024</th><th>2025</th><th>Pembacaan</th></tr></thead><tbody>
+  <tr><td>Operasi</td><td>59,27</td><td>60,54</td><td class="av-red">37,68</td><td>Turun 37,75%; kualitas penerimaan melemah.</td></tr>
+  <tr><td>Investasi</td><td>-25,38</td><td>-6,19</td><td class="av-gold">+154,21</td><td>Positif dari settlement berelasi, bukan operasi.</td></tr>
+  <tr><td>Pendanaan</td><td>-7,11</td><td>-25,12</td><td class="av-red">-182,83</td><td>Dividen besar + pelunasan utang.</td></tr>
+  </tbody></table></div>
+
+  <div class="av-rans-shadow"><div class="av-rans-shadow-label">Shadow Read Â· Dividen Pra-IPO</div><p><strong>Tepat sebelum go public, RANS membagikan dividen Rp167,48 miliar, jumlah yang melebihi laba bersih 2025.</strong> Pembagian ini diakui prospektus tidak semata dari laba tahun berjalan, melainkan juga dari akumulasi saldo laba tahun-tahun sebelumnya, dan membuat total ekuitas turun 21,52%.</p><p>Urutannya patut dicermati: piutang pihak berelasi jumbo diselesaikan menjadi kas, kas keluar sebagai dividen ke pemegang saham lama, lalu Perseroan menggalang dana publik lewat IPO. Secara hukum sah dan diungkapkan. Namun bagi investor publik, ini berarti sebagian likuiditas yang baru saja masuk telah lebih dulu mengalir ke pemegang saham pengendali sebelum mereka ikut masuk.</p></div>
+
+  <h2>Neraca: likuid, rendah utang, tetapi aset menyusut</h2>
+
+  <p>Dari sisi neraca, kondisi RANS relatif sehat. Current ratio 2025 berada di 2,63x, debt to equity ratio 0,35x, interest coverage ratio 19,96x, dan DSCR 4,79x. Total liabilitas turun dari Rp156,53 miliar pada 2024 menjadi Rp120,23 miliar pada 2025. Namun total aset juga turun dari Rp590,80 miliar menjadi Rp461,03 miliar, terutama karena penurunan aset tidak lancar.</p>
+
+  <div class="av-rans-grid4"><div class="av-rans-card"><small>Current Ratio</small><strong class="av-green">2,63x</strong><span>Likuiditas jangka pendek relatif aman.</span></div><div class="av-rans-card"><small>DER</small><strong class="av-green">0,35x</strong><span>Leverage rendah, memberi ruang ekspansi.</span></div><div class="av-rans-card"><small>ICR</small><strong class="av-green">19,96x</strong><span>Beban bunga masih manageable.</span></div><div class="av-rans-card"><small>Total Aset</small><strong class="av-red">-21,96%</strong><span>Aset turun cukup besar pada 2025.</span></div></div>
+
+  <h2>Segmen bisnis: brand activation melemah, produk IP turun</h2>
+
+  <p>Prospektus menunjukkan titik lemah yang harus diperhatikan investor: segmen duta merek dan talent management turun lebih dari separuh pada 2025. Ini penting karena segmen tersebut adalah monetisasi langsung dari personal brand. Ketika segmen ini turun, pertanyaan strategisnya adalah apakah RANS benar-benar sudah mampu berdiri sebagai IP platform, atau masih sangat bergantung pada engagement talent utama.</p>
+
+  <p>Penjualan produk makanan, minuman, dan kecantikan berbasis IP juga turun 12,69%. Padahal salah satu rencana penggunaan dana IPO adalah mengakuisisi Rans Kosmetika Indonesia atau Slavina. Artinya, perusahaan justru menambah eksposur ke kategori yang sebelumnya mengalami penurunan pendapatan.</p>
+
+  <p>Jika dibedah per segmen operasi, Hiburan dan Lifestyle masih menjadi mesin utama dengan pendapatan Rp246,37 miliar atau 69,73% dari total pendapatan 2025, serta hasil segmen Rp85,70 miliar. Segmen Penjualan Produk menyumbang Rp107,01 miliar atau 30,27%, tetapi mencatat rugi segmen Rp11,99 miliar setelah pada 2024 masih membukukan laba segmen Rp2,33 miliar. Dengan kata lain, diversifikasi produk sudah cukup besar secara revenue mix, tetapi belum membuktikan daya laba.</p>
+
+  <p>Prospektus tetap memberi bukti traksi yang menarik. Cipungland format offline mencatat 42.298 pengunjung di dua lokasi pada 2025, produk rumput laut tercatat terjual 229,2 juta pcs sepanjang 2022-2025 dan menjangkau lebih dari 300 kota, sementara Toko Mama Gigi membukukan GMV lebih dari Rp7,4 miliar. Problemnya bukan tidak ada demand; problemnya adalah apakah demand itu bisa diterjemahkan menjadi margin positif, bukan hanya volume dan awareness.</p>
+
+  <div class="av-rans-callout av-rans-danger"><p><strong>Red flag segmental:</strong> kalau produk berbasis IP sudah turun sebelum IPO, akuisisi Slavina harus membuktikan bahwa masalahnya bukan demand brand, tetapi distribusi, modal, atau execution. Jika masalahnya adalah brand fatigue, dana IPO tidak otomatis menyelesaikan masalah.</p></div>
+
+  <section class="av-rans-chart"><div class="av-rans-chart-title">Mesin Monetisasi Brand Melemah (2024 â†’ 2025)</div><p class="av-rans-chart-copy">Dua segmen yang paling langsung memonetisasi personal brand justru turun pada 2025, persis sebelum IPO yang menambah eksposur ke kategori serupa.</p><div class="av-rans-bars">
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">Duta merek &amp; talent 2024</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill gold" style="--w:87.4%"></div></div><div class="av-rans-bar-value">Rp107,2 M</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">Duta merek &amp; talent 2025</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill red" style="--w:42.3%"></div></div><div class="av-rans-bar-value">Rp51,9 M</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">Penjualan produk IP 2024</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill gold" style="--w:100%"></div></div><div class="av-rans-bar-value">Rp122,6 M</div></div>
+  <div class="av-rans-bar-row"><div class="av-rans-bar-label">Penjualan produk IP 2025</div><div class="av-rans-bar-track"><div class="av-rans-bar-fill red" style="--w:87.3%"></div></div><div class="av-rans-bar-value">Rp107,0 M</div></div>
+  </div></section>
+
+  <h2>External lens: entertainment tumbuh, tetapi kompetisi makin brutal</h2>
+
+  <p>Secara eksternal, sektor media dan entertainment masih punya pertumbuhan jangka panjang. PwC Global Entertainment & Media Outlook 2025-2029 memperkirakan pendapatan global entertainment dan media mencapai US$3,5 triliun pada 2029, dengan advertising menjadi pendorong utama dan format digital seperti mobile, social, retail media, serta connected TV semakin dominan.</p>
+
+  <p>Namun bagi RANS, pasar besar tidak otomatis menjadi market share. Creator economy dan social advertising makin kompetitif. Algoritma platform berubah cepat, biaya produksi konten naik, brand makin menuntut ROI kampanye, dan regulasi terhadap akses anak di media sosial juga menguat. Reuters melaporkan Indonesia mulai menerapkan pembatasan akses media sosial untuk anak di bawah 16 tahun pada 2026, menargetkan platform seperti TikTok, YouTube, Instagram, Facebook, dan Roblox. Ini relevan karena sebagian IP keluarga/anak perlu lebih hati-hati terhadap perubahan regulasi dan platform.</p>
+
+  <p>Untuk beauty, tren global menunjukkan brand lokal digital-first semakin menarik perhatian pemain besar. Akuisisi L'OrÃ©al terhadap mayoritas saham Innovist di India menjadi sinyal bahwa pasar beauty Asia dipandang menarik ketika brand punya positioning digital, komunitas, dan produk yang jelas. Namun ini juga menegaskan bahwa kategori beauty sangat kompetitif: butuh R&D, distribusi, margin channel, repeat purchase, dan trust.</p>
+
+  <h2>Cipungland, konser, AI, dan Slavina: empat mesin opsional</h2>
+
+  <p>Cipungland menjadi salah satu proyek paling menarik sekaligus paling berisiko. Secara branding, Cipung adalah IP yang kuat karena melekat pada keluarga Raffi-Nagita dan memiliki fanbase organik. Mengubah IP anak menjadi wahana bermain dan belajar edukatif secara teori bisa menciptakan recurring traffic, tiket, merchandise, sponsor, dan partnership.</p>
+
+  <p>Rencana prospektusnya cukup spesifik: Cipungland akan dibangun di 9 titik, yaitu 2 titik Jakarta serta masing-masing 1 titik di Tangerang, Bekasi, Depok, Bogor, Karawang, Cirebon, dan Bandung. Total biaya pembangunan dan pembukaan diperkirakan Rp94,43 miliar; dana IPO menanggung sekitar Rp80 miliar, sedangkan sisanya sekitar Rp14,43 miliar memakai kas internal. Dari alokasi IPO untuk Cipungland, sekitar 45,18% untuk pembangunan wahana dan 54,82% untuk sewa lokasi 7 titik selama 3 tahun.</p>
+
+  <p>Namun bisnis taman bermain bukan bisnis konten digital. Ia membutuhkan lokasi, desain, keselamatan, operasional harian, maintenance, pekerja, perizinan, asuransi, dan traffic. Payback period akan tergantung pada volume pengunjung, harga tiket, okupansi hari kerja, dan kemampuan menjual merchandise/food & beverage.</p>
+
+  <p>Alokasi dana terbesar, sekitar 37,61%, digunakan untuk belanja operasional penyelenggaraan konser lokal dan internasional di berbagai kota. Event yang sukses bisa menghasilkan brand halo dan kas besar. Event yang gagal bisa menggerus margin dengan cepat. Karena itu, konser harus dibaca sebagai venture berisiko, bukan recurring revenue otomatis.</p>
+
+  <p>Prospektus menyebut sebanyak-banyaknya 16 konser akan diselenggarakan bertahap sejak Semester II 2026 sampai 2028. Rinciannya: 9 konser pada 2026, 6 konser pada 2027, dan 1 konser pada 2028. Untuk 2026, lokasi yang disebut mencakup Kuala Lumpur, Jakarta, Taipei, Hong Kong, dan Singapura. Karena RANS bertindak sebagai co-promotor, kualitas kontrak dengan promotor, talent, venue, izin keramaian, dan sponsor akan menentukan apakah alokasi terbesar ini menjadi mesin margin atau hanya belanja promosi mahal.</p>
+
+  <p>RANS juga mengalokasikan sekitar 8,15% dana IPO untuk membentuk entitas usaha baru bersama PT Feedloop Global Teknologi dalam rangka pengembangan bisnis teknologi berbasis AI. Secara narasi, ini menarik, tetapi investor tidak boleh memberi premium hanya karena kata AI. Yang perlu dibuktikan adalah pelanggan berbayar, margin software, recurring subscription, atau fungsi internal yang benar-benar menurunkan biaya pemasaran dan produksi.</p>
+
+  <p>Strukturnya: RANS direncanakan memiliki 70% entitas baru dan Feedloop 30%. Fokusnya bukan AI generik, melainkan AI content production, digital twin/avatar, media and social monitoring, campaign intelligence, narrative analysis, dan pengelolaan reputasi berbasis data. Ini bisa menjadi alat defensif yang berguna untuk perusahaan yang hidup dari persepsi publik, tetapi pendapatan komersialnya masih harus dibuktikan.</p>
+
+  <p>Rencana akuisisi PT Rans Kosmetika Indonesia atau Slavina menyerap sekitar 19,80% dana IPO. Secara strategis, ini masuk akal karena beauty bisa menjadi kategori IP-commerce yang lebih berulang dibanding event. Namun beauty adalah kategori yang sangat padat dan sangat bergantung pada repeat purchase, formula, distribusi, harga, influencer performance, dan channel economics.</p>
+
+  <p>Akuisisi Slavina juga menarik secara historis. Perseroan pernah melepas kepemilikan Slavina pada 2023 karena beauty belum menjadi fokus, lalu kini berencana membeli kembali 51% saham dari Andy Lesmana senilai sekitar Rp85 miliar berdasarkan penilaian independen KJPP. Setelah transaksi, RANS menjadi pengendali Slavina, sedangkan Andy Lesmana masih 24% dan PT RFA Maju Internasional 25%. Ini bukan sekadar ekspansi; ini pembalikan strategi dari non-core menjadi salah satu taruhan utama dana publik.</p>
+
+  <div class="av-rans-grid3">
+    <div class="av-rans-card"><small>Mitra AI Â· 8,15% dana</small><strong class="av-blue">Feedloop</strong><span>Startup GenAI/low-code (produk Qore, CXP) yang didukung East Ventures dan Telkomsel Ventures, dengan klien korporasi besar. Memberi RANS akses teknologi nyata, tetapi nilainya bergantung pada use case komersial, bukan sekadar label AI.</span></div>
+    <div class="av-rans-card"><small>Target Akuisisi Â· 19,80% dana</small><strong class="av-gold">Slavina</strong><span>Lini kosmetik dan personal care Nagita (merek RANS Beauty, SLAVINA, Wondermis) dengan model maklon dan kanal live-commerce TikTok/Shopee. Slavina mencatat lebih dari 3 juta pcs terjual pada 2025, tetapi bersaing di pasar yang sangat ramai.</span></div>
+    <div class="av-rans-card"><small>Pasar Konser Â· 37,61% dana</small><strong class="av-green">Ekonomi Event</strong><span>Pasar konser Indonesia tumbuh pesat; sebagai gambaran, dampak ekonomi satu konser Coldplay di Jakarta ditaksir hingga ~Rp1,16 triliun. Upside besar, tetapi episodik dan padat modal di muka.</span></div>
+  </div>
+
+  <h2>Related-party cost dan monetisasi talent</h2>
+
+  <p>Prospektus menyebut beban pokok pendapatan yang berasal dari transaksi pihak berelasi sebesar Rp39,21 miliar pada 2025, Rp58,93 miliar pada 2024, dan Rp52,94 miliar pada 2023, setara 19,54%, 23,45%, dan 20,24% dari jumlah beban pokok pendapatan. Manajemen menyatakan transaksi dilakukan berdasarkan syarat dan kondisi wajar.</p>
+
+  <p>Ini penting karena model RANS terkait erat dengan talent, produksi, dan jaringan pihak berelasi. Selama transaksi transparan dan arm's length, ini bukan masalah. Namun investor publik perlu memantau apakah biaya talent, produksi, dan transaksi berelasi tetap proporsional setelah perusahaan menjadi terbuka.</p>
+
+  <h2>Tiga skenario 12-24 bulan setelah IPO</h2>
+
+  <div class="av-rans-scenarios"><div class="av-rans-scenario"><small>Bull Case</small><strong class="av-green">IP Platform Berhasil</strong><span>Cipungland menarik traffic, konser sukses, Slavina tumbuh, AI menghasilkan produk komersial, dan RNS memperluas jaringan pendapatan berulang.</span></div><div class="av-rans-scenario"><small>Base Case</small><strong class="av-gold">Brand Kuat, Eksekusi Bertahap</strong><span>Pendapatan pulih pelan, event memberi kontribusi musiman, tetapi margin masih tertekan oleh promosi dan biaya ekspansi.</span></div><div class="av-rans-scenario"><small>Stress Case</small><strong class="av-red">Brand Fatigue dan Opex Membengkak</strong><span>Event tidak memenuhi target, produk IP lambat, Cipungland butuh waktu panjang, dan ketergantungan pada talent utama makin terlihat.</span></div></div>
+
+  <h2>Checklist investor setelah listing</h2>
+
+  <details class="av-rans-details" open><summary>Sepuluh data yang harus dipantau</summary><div class="av-rans-details-body"><p>1. Apakah pendapatan 2026 kembali tumbuh setelah dua tahun turun.</p><p>2. Berapa kontribusi konser terhadap revenue dan margin bersih.</p><p>3. Apakah Cipungland menghasilkan traffic dan cash payback yang jelas.</p><p>4. Apakah Slavina memberi repeat purchase atau hanya initial hype.</p><p>5. Apakah AI venture memiliki pelanggan dan revenue berulang.</p><p>6. Berapa porsi pendapatan yang tetap bergantung pada Raffi-Nagita.</p><p>7. Berapa beban transaksi pihak berelasi setelah IPO.</p><p>8. Apakah gross margin 43% dapat dipertahankan.</p><p>9. Apakah laba operasi tumbuh tanpa bantuan non-recurring gain.</p><p>10. Apakah saham likuid setelah free float 20,02% masuk pasar.</p></div></details>
+
+  <div class="av-rans-take-title">Avenir Take</div>
+
+  <div class="av-rans-take"><p><b>View Avenir:</b> RANS adalah IPO dengan brand equity yang sangat kuat, tetapi bukan IPO yang sederhana. Kekuatan utamanya adalah popularitas dan distribusi perhatian lebih dari 155 juta pengikut. Tantangan utamanya adalah mengubah perhatian menjadi laba yang berulang, bukan hanya pendapatan episodik dari talent dan event.</p><p>Pada rentang Rp135-Rp170, RANS dihargai P/E ~30-38x dan P/B ~5-6x, menjadikannya salah satu saham hiburan termahal di Bursa, sekitar dua kali lipat SCMA (~16x) yang justru tumbuh dan membagi dividen, dan delapan hingga sepuluh kali lipat broadcaster legacy seperti MNCN dan BMTR. Premium itu dijual saat pendapatan turun tiga tahun beruntun, laba 2025 anjlok 41,6%, di tengah IHSG yang terkoreksi ~38% dan rupiah menembus Rp18.000. Margin of safety praktis tidak ada.</p><p>Kami menyukai neraca yang relatif sehat dan kehadiran governance kredibel seperti Darwin Cyril Noerhadi di kursi komisaris utama. Namun kami memberi diskon untuk kualitas laba (one-off 2024, arus kas operasi melemah, dividen pra-IPO Rp167 miliar yang menggerus ekuitas), konsentrasi talent yang kini juga memimpin sebagai Dirut, free float tipis 20,02% yang rawan volatilitas, segmen produk yang sudah besar tetapi masih rugi, serta alokasi dana yang tersebar ke enam taruhan sekaligus.</p><p><b>Kesimpulan Avenir:</b> bagi investor fundamental jangka panjang, pada harga ini RANS lebih bijak dilewati sampai ada bukti pemulihan pendapatan atau penyesuaian harga; benchmark yang mengubah pandangan adalah valuasi yang turun mendekati P/E peer yang tumbuh, atau dua kuartal pertumbuhan pendapatan pasca-IPO. Bagi trader, ini saham tema dan momentum, perlakukan sebagai posisi spekulatif kecil dengan disiplin keluar, bukan investasi nilai. Thesis-nya hanya kuat jika RANS membuktikan tiga hal: pendapatan kembali tumbuh, pendapatan lebih recurring, dan ketergantungan pada Raffi-Nagita berkurang tanpa menghilangkan brand power.</p></div>
+
+  <div class="av-rans-source"><b>Sumber utama:</b> Prospektus Ringkas PT Rans Entertainmen Indonesia Tbk (terbit 23 Juni 2026), mencakup struktur IPO, struktur pemegang saham, susunan Dewan Komisaris dan Direksi, daftar entitas anak dan asosiasi, penggunaan dana, faktor risiko, laporan keuangan audit 2023-2025, dan analisis manajemen. <b>Referensi eksternal:</b> data valuasi dan harga peer (SCMA, MNCN, BMTR, FILM, RAAM) dari Bareksa, Bisnis Indonesia, TradingView, Stockbit, dan StockWatch; kondisi pasar IHSG dan rupiah 2026 serta kinerja IPO 2025 dari Kompas, Liputan6, Investor.id, dan Bisnis; profil pemegang saham (Dony Oskaria, Kaesang Pangarep, Sutanto Hartono, Darwin Cyril Noerhadi) dari IDN Times, InvestorTrust, dan Lembarsaham; profil Feedloop dari Telkomsel, SWA, dan DigiNation; konteks ekonomi kreatif dan konser dari Kumparan dan CNBC Indonesia. Bagan kepemilikan disusun ulang oleh Avenir dalam format HTML/CSS responsive mengikuti halaman diagram prospektus; nama entitas memakai daftar singkatan legal dan persentase kepemilikan yang dicantumkan prospektus. Rasio valuasi, perbandingan peer, dan skenario merupakan olahan Avenir Research per 23 Juni 2026.</div>
+
+  <div class="av-rans-disclaimer">Artikel ini bersifat edukasi dan analisis, bukan rekomendasi membeli, menjual, atau menahan saham. Prospektus yang digunakan merupakan prospektus ringkas/awal sehingga angka dan informasi dapat berubah pada prospektus final. Rasio P/E, P/S, dan P/B RANS adalah inferensi dari fakta prospektus dan rentang harga, bukan angka resmi; ekuitas implied diperkirakan dari ROE. Harga dan valuasi peer bergerak cepat sesuai tanggal sumber. Dimensi jabatan publik dan kedekatan politik sebagian pemegang saham disampaikan secara faktual tanpa klaim pelanggaran apa pun. Investor wajib membaca prospektus final dan menyesuaikan keputusan dengan profil risiko masing-masing.</div>
+
+</div>
