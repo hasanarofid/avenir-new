@@ -151,6 +151,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/payments/{id}/verify', [\App\Http\Controllers\Admin\PaymentController::class, 'verify'])->name('payments.verify');
         Route::post('/payments/{id}/reject', [\App\Http\Controllers\Admin\PaymentController::class, 'reject'])->name('payments.reject');
 
+        // Subscription Packages
+        Route::get('/packages', [\App\Http\Controllers\Admin\SubscriptionPackageController::class, 'index'])->name('packages.index');
+        Route::put('/packages/{id}', [\App\Http\Controllers\Admin\SubscriptionPackageController::class, 'update'])->name('packages.update');
+
         // Mitra Analis
         Route::get('/mitra', [\App\Http\Controllers\Admin\MitraController::class, 'index'])->name('mitra.index');
         Route::post('/mitra/{id}/approve', [\App\Http\Controllers\Admin\MitraController::class, 'approve'])->name('mitra.approve');

@@ -90,13 +90,14 @@ const navigationGroups = [
       { name: 'Research AI', href: route('admin.research-generator.index'), icon: BrainCircuit, current: route().current('admin.research-generator.*') },
       { name: 'News AI Generator', href: route('admin.news-generator.index'), icon: Globe, current: route().current('admin.news-generator.*') },
       { name: 'AI Logs (Audit)', href: route('admin.ai-logs.index'), icon: Activity, current: route().current('admin.ai-logs.*'), roles: ['admin'] },
-    { name: 'Activity Logs', href: route('admin.activity-logs.index'), icon: ShieldAlert, current: route().current('admin.activity-logs.*'), roles: ['admin'] },
+      { name: 'Activity Logs', href: route('admin.activity-logs.index'), icon: ShieldAlert, current: route().current('admin.activity-logs.*'), roles: ['admin'] },
     ]
   },
   {
     title: 'COMMUNITY & FINANCE',
     roles: ['admin'],
     items: [
+      { name: 'Paket Langganan', href: route('admin.packages.index'), icon: CreditCard, current: route().current('admin.packages.*') },
       { name: 'Pembayaran', href: route('admin.payments.index'), icon: CreditCard, current: route().current('admin.payments.*') },
       { name: 'Pool Mitra', href: route('admin.pool.index'), icon: Coins, current: route().current('admin.pool.*') },
       { name: 'Mitra Analis', href: route('admin.mitra.index'), icon: UserCheck, current: route().current('admin.mitra.*') },
