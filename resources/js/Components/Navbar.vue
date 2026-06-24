@@ -164,7 +164,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
 
           <Link href="/langganan" class="nav-link" :class="{ active: $page.component === 'Subscription' }">Langganan</Link>
           <Link href="/tentang" class="nav-link" :class="{ active: $page.component === 'About' }">Tentang</Link>
-          <Link href="/mitra" class="nav-link" :class="{ active: $page.component === 'Partners' }">Mitra</Link>
+          <Link href="/mitra" class="nav-link" :class="{ active: $page.component === 'Partners' }">Contributor Research</Link>
           <Link v-if="user" href="/watchlist" class="nav-link" :class="{ active: $page.component === 'Watchlist/Index' }">Watchlist</Link>
         </div>
       </div>
@@ -331,7 +331,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
 
           <Link href="/langganan" class="nav-mobile-link" :class="{ active: $page.component === 'Subscription' }" @click="mobileMenuOpen = false">Langganan</Link>
           <Link href="/tentang" class="nav-mobile-link" :class="{ active: $page.component === 'About' }" @click="mobileMenuOpen = false">Tentang</Link>
-          <Link href="/mitra" class="nav-mobile-link" :class="{ active: $page.component === 'Partners' }" @click="mobileMenuOpen = false">Mitra</Link>
+          <Link href="/mitra" class="nav-mobile-link" :class="{ active: $page.component === 'Partners' }" @click="mobileMenuOpen = false">Contributor Research</Link>
           <Link v-if="user" href="/watchlist" class="nav-mobile-link" :class="{ active: $page.component === 'Watchlist/Index' }" @click="mobileMenuOpen = false">Watchlist</Link>
         </div>
 
