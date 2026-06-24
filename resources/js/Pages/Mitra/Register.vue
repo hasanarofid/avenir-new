@@ -17,7 +17,24 @@ const form = useForm({
     bank_name: '',
     bank_account_number: '',  
     bank_account_name: '',
+    profile_photo: null,
 });
+
+const handleProfilePhotoUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        if (file.size > 2 * 1024 * 1024) { // Limit to 2MB
+            form.errors.profile_photo = 'Ukuran file terlalu besar. Maksimal ukuran file adalah 2MB.';
+            event.target.value = ''; // reset input
+            form.profile_photo = null;
+        } else {
+            form.clearErrors('profile_photo');
+            form.profile_photo = file;
+        }
+    } else {
+        form.profile_photo = null;
+    }
+};
 
 const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -70,6 +87,20 @@ const submit = () => {
             <!-- User must be authenticated to see this form -->
 
             <div class="form-header">Data Pribadi & Kredensial</div>
+
+            <!-- Profile Photo -->
+            <div class="form-group">
+              <label for="profile_photo">Foto Profil <span style="color:#64748b; font-weight:normal; font-size:11px;">(Maks: 2MB, Opsional)</span></label>
+              <input 
+                id="profile_photo" 
+                type="file"
+                accept="image/*"
+                @change="handleProfilePhotoUpload"
+                class="form-input" 
+                style="padding: 11px 16px;"
+              />
+              <div v-if="form.errors.profile_photo" class="error-msg">{{ form.errors.profile_photo }}</div>
+            </div>
 
             <!-- Certification & Specializations -->
             <div class="form-row-2col">

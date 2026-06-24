@@ -22,12 +22,19 @@ const props = defineProps({
           </h2>
           <p class="text-sm text-slate-400 mt-1">Kelola profil dan informasi mitra kamu</p>
         </div>
+        <a :href="route('profile.edit')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold text-sm transition-colors shadow-lg shadow-emerald-900/20 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+          Edit Profil / Foto
+        </a>
       </div>
 
       <!-- Profile Card -->
       <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6">
         <div class="flex items-center gap-4 mb-6">
-          <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center font-bold text-2xl text-emerald-450 border border-slate-700">
+          <div v-if="user.profile_photo_url" class="w-16 h-16 rounded-full overflow-hidden border border-slate-700">
+            <img :src="user.profile_photo_url" :alt="user.name" class="w-full h-full object-cover" />
+          </div>
+          <div v-else class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center font-bold text-2xl text-emerald-450 border border-slate-700">
             {{ user.name.charAt(0).toUpperCase() }}
           </div>
           <div>

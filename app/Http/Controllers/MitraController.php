@@ -87,6 +87,7 @@ class MitraController extends Controller
             'bank_name' => 'required|string|max:255',
             'bank_account_number' => 'required|string|max:255',
             'bank_account_name' => 'required|string|max:255',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -103,6 +104,15 @@ class MitraController extends Controller
             $portfolioPdfPath = null;
             if ($request->hasFile('portfolio_pdf')) {
                 $portfolioPdfPath = $request->file('portfolio_pdf')->store('portfolios', 'public');
+            }
+            
+            if ($request->hasFile('profile_photo')) {
+                $user = Auth::user();
+                if ($user->profile_photo_path) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
+                }
+                $user->profile_photo_path = $request->file('profile_photo')->store('profile-photos', 'public');
+                $user->save();
             }
 
             // Create/update partner request

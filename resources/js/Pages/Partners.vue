@@ -1,5 +1,5 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { computed } from 'vue';
 
@@ -10,9 +10,7 @@ const props = defineProps({
     }
 });
 
-function handleDaftarClick() {
-  router.visit(route('mitra.register'));
-}
+
 </script>
 
 <template>
@@ -33,7 +31,7 @@ function handleDaftarClick() {
               Terbitkan riset, paper, dan artikel analitis berbasis data melalui ekosistem Avenir Research. Bantu investor memahami pasar lebih dalam dengan insight yang berkualitas dan dapat diandalkan.
             </p>
             <div class="hero-actions">
-              <button @click="handleDaftarClick" class="btn-primary">Daftar Sebagai Contributor &rarr;</button>
+              <Link :href="route('mitra.register')" class="btn-primary" style="display: inline-block; text-align: center;">Daftar Sebagai Contributor &rarr;</Link>
               <a href="#registered-contributors" class="btn-outline">Lihat Contributor Terdaftar &darr;</a>
             </div>
             
@@ -304,8 +302,11 @@ function handleDaftarClick() {
                   <div class="profile-role">
                     <span class="role-badge">Contributor Research</span>
                   </div>
-                  <div class="profile-specs" v-if="contributor.specializations && contributor.specializations.length > 0">
+                  <div class="profile-specs" v-if="Array.isArray(contributor.specializations) && contributor.specializations.length > 0">
                     {{ contributor.specializations.join(' • ') }}
+                  </div>
+                  <div class="profile-specs" v-else-if="typeof contributor.specializations === 'string' && contributor.specializations.length > 0">
+                    {{ contributor.specializations }}
                   </div>
                 </div>
               </div>
@@ -333,7 +334,7 @@ function handleDaftarClick() {
             <h2>Siap Menerbitkan Riset di Avenir?</h2>
             <p>Bangun track record riset, perluas distribusi insight, dan jadi bagian dari ekosistem Avenir Research.</p>
             <div class="cta-actions">
-              <button @click="handleDaftarClick" class="btn-primary">Daftar Sebagai Contributor</button>
+              <Link :href="route('mitra.register')" class="btn-primary" style="display: inline-block; text-align: center;">Daftar Sebagai Contributor</Link>
               <a href="/katalog" class="btn-outline-white">Lihat Katalog Riset</a>
             </div>
           </div>
