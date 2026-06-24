@@ -1,8 +1,8 @@
 <script setup>
-import { ref } from 'vue';
-import { Head, useForm, Link } from '@inertiajs/vue3';
+import { ref, computed, watch } from 'vue';
+import { Head, useForm, Link, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Save, ChevronLeft, Image as ImageIcon } from '@lucide/vue';
+import { Save, ChevronLeft, Image as ImageIcon, Eye } from '@lucide/vue';
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
@@ -24,11 +24,24 @@ const form = useForm({
   content: props.article?.content || '',
   is_paid: props.article?.is_paid ? true : false,
   status: props.article?.status || 'published',
-  image: ''
+  image: '',
+  is_preview: false
+});
+
+const page = usePage();
+
+watch(() => page.props.flash?.preview_slug, (slug) => {
+  if (slug) {
+    window.open(`/artikel/${slug}`, '_blank');
+  }
+}, { immediate: true });
+
+const isFormValid = computed(() => {
+  return form.title && form.title.trim() !== '';
 });
 
 const localContent = ref(form.content);
-import { watch } from 'vue';
+
 watch(localContent, (newVal) => {
   form.content = newVal;
 });
@@ -60,6 +73,18 @@ const handleDrop = (e) => {
     form.image = file;
     imagePreview.value = URL.createObjectURL(file);
   }
+};
+
+const saveAsDraftAndPreview = () => {
+  form.status = 'draft';
+  form.is_preview = true;
+  submit();
+};
+
+const saveAndPublish = () => {
+  form.status = 'published';
+  form.is_preview = false;
+  submit();
 };
 
 const submit = () => {
@@ -96,7 +121,7 @@ const submit = () => {
         </div>
       </div>
 
-      <form @submit.prevent="submit" class="bg-[#121614] border border-emerald-950/30 rounded-2xl overflow-hidden shadow-xl shadow-slate-950/20">
+      <form @submit.prevent="saveAndPublish" class="bg-[#121614] border border-emerald-950/30 rounded-2xl overflow-hidden shadow-xl shadow-slate-950/20">
         <div class="p-6 md:p-8 space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Title -->
@@ -245,14 +270,24 @@ const submit = () => {
 
         </div>
 
-        <div class="px-6 py-4 bg-[#090b0a]/40 border-t border-emerald-950/30 flex justify-end">
+        <div class="px-6 py-4 bg-[#090b0a]/40 border-t border-emerald-950/30 flex justify-end gap-3">
+          <button 
+            type="button" 
+            @click="saveAsDraftAndPreview"
+            :disabled="form.processing || !isFormValid"
+            class="inline-flex items-center px-5 py-2.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-sm font-semibold text-white rounded-xl shadow-lg transition-all duration-200 cursor-pointer"
+          >
+            <Eye class="w-4 h-4 mr-2" />
+            Lihat Preview
+          </button>
+
           <button 
             type="submit" 
-            :disabled="form.processing"
+            :disabled="form.processing || !isFormValid"
             class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-sm font-semibold text-white rounded-xl shadow-lg shadow-emerald-600/20 transition-all duration-200 cursor-pointer"
           >
             <Save class="w-4 h-4 mr-2" />
-            {{ isEdit ? 'Perbarui Artikel' : 'Simpan Artikel' }}
+            Simpan & Publish
           </button>
         </div>
       </form>

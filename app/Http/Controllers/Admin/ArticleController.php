@@ -47,7 +47,8 @@ class ArticleController extends Controller
             'content' => 'nullable|string',
             'is_paid' => 'boolean',
             'status' => 'required|string',
-            'image' => 'nullable|image|max:5120'
+            'image' => 'nullable|image|max:5120',
+            'is_preview' => 'nullable|boolean'
         ]);
 
         $data['slug'] = Str::slug($data['title']);
@@ -68,7 +69,14 @@ class ArticleController extends Controller
             $data['published_at'] = now();
         }
 
-        Article::create($data);
+        $article = Article::create($data);
+
+        if ($request->boolean('is_preview')) {
+            return redirect()->route('admin.articles.edit', $article->id)->with([
+                'success' => 'Artikel disimpan sebagai draft',
+                'preview_slug' => $article->slug
+            ]);
+        }
 
         return redirect()->route('admin.articles.index')->with('success', 'Artikel berhasil ditambahkan');
     }
@@ -90,7 +98,8 @@ class ArticleController extends Controller
             'content' => 'nullable|string',
             'is_paid' => 'boolean',
             'status' => 'required|string',
-            'image' => 'nullable|image|max:5120'
+            'image' => 'nullable|image|max:5120',
+            'is_preview' => 'nullable|boolean'
         ]);
 
         if ($data['title'] !== $article->title) {
@@ -121,6 +130,13 @@ class ArticleController extends Controller
         $data['author'] = auth()->user()->name ?? 'Tim Avenir Research';
 
         $article->update($data);
+
+        if ($request->boolean('is_preview')) {
+            return redirect()->back()->with([
+                'success' => 'Artikel disimpan sebagai draft',
+                'preview_slug' => $article->slug
+            ]);
+        }
 
         return redirect()->route('admin.articles.index')->with('success', 'Artikel berhasil diperbarui');
     }
