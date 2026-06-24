@@ -54,86 +54,78 @@ const updatePackage = () => {
   <Head title="Manajemen Paket Langganan" />
 
   <AdminLayout>
-    <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
-      <div class="sm:flex sm:items-center sm:justify-between mb-8">
+    <div class="space-y-6 pb-12">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-emerald-950/30 pb-4">
         <div>
-          <h1 class="text-2xl md:text-3xl font-bold text-slate-100 flex items-center gap-2">
-            🎟️ Manajemen Paket Langganan
-          </h1>
-          <p class="mt-1 text-sm text-slate-400">
-            Kelola harga dasar, durasi, dan diskon promo paket langganan.
-          </p>
+          <h2 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+            Manajemen Paket Langganan
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">Kelola harga dasar, durasi, dan diskon promo paket langganan.</p>
+        </div>
+        <div class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono font-bold text-xs rounded-full">
+          {{ packages.length }} PAKET
         </div>
       </div>
 
-      <div class="bg-slate-900 shadow-lg rounded-xl border border-slate-800 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-slate-400">
-            <thead class="text-xs uppercase bg-slate-800/50 text-slate-400">
-              <tr>
-                <th scope="col" class="px-6 py-4 font-semibold">Nama Paket</th>
-                <th scope="col" class="px-6 py-4 font-semibold">Harga Dasar</th>
-                <th scope="col" class="px-6 py-4 font-semibold">Diskon</th>
-                <th scope="col" class="px-6 py-4 font-semibold">Harga Aktif</th>
-                <th scope="col" class="px-6 py-4 font-semibold">Durasi</th>
-                <th scope="col" class="px-6 py-4 font-semibold">Batas Waktu Diskon</th>
-                <th scope="col" class="px-6 py-4 font-semibold">Status</th>
-                <th scope="col" class="px-6 py-4 font-semibold text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800/60">
-              <tr v-for="pkg in packages" :key="pkg.id" class="hover:bg-slate-800/30 transition-colors">
-                <td class="px-6 py-4">
-                  <div class="font-bold text-slate-200">{{ pkg.name }}</div>
-                  <div class="text-xs text-slate-500">{{ pkg.id }}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-slate-300">
-                  Rp {{ pkg.price.toLocaleString('id-ID') }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span v-if="pkg.discount_percent > 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    {{ pkg.discount_percent }}% OFF
+      <div class="space-y-4">
+        <div v-for="pkg in packages" :key="pkg.id" class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl hover:border-emerald-700/50 transition-colors">
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-3 mb-1">
+                <h3 class="text-lg font-bold text-white">{{ pkg.name }}</h3>
+                <span v-if="pkg.is_active" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  ✅ Ditampilkan
+                </span>
+                <span v-else class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                  ❌ Disembunyikan
+                </span>
+                <span v-if="pkg.discount_percent > 0" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  PROMO {{ pkg.discount_percent }}% OFF
+                </span>
+              </div>
+              <div class="text-sm text-slate-400 font-mono">ID: {{ pkg.id }}</div>
+            </div>
+            
+            <div class="flex gap-2">
+              <button @click="openEditModal(pkg)" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#090b0a] border border-emerald-950/50 text-slate-300 hover:text-emerald-400 hover:border-emerald-700 text-xs font-semibold rounded-lg transition-all">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                Edit Paket
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-4 border-t border-emerald-950/30">
+            <div>
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Harga Dasar</div>
+              <div class="text-sm font-semibold text-slate-300">Rp {{ pkg.price.toLocaleString('id-ID') }}</div>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Harga Saat Ini</div>
+              <div class="text-sm font-semibold" :class="pkg.has_active_discount ? 'text-emerald-400' : 'text-slate-300'">
+                Rp {{ pkg.active_price.toLocaleString('id-ID') }}
+              </div>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Durasi Paket</div>
+              <div class="text-sm font-semibold text-slate-300">{{ pkg.duration_days }} Hari</div>
+            </div>
+            <div>
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Batas Promo Diskon</div>
+              <div class="text-sm font-semibold text-slate-300">
+                <template v-if="pkg.discount_percent > 0 && pkg.discount_end_at">
+                  <span v-if="new Date(pkg.discount_end_at) > new Date()" class="text-amber-400">
+                    {{ new Date(pkg.discount_end_at).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}) }}
                   </span>
-                  <span v-else class="text-slate-500">-</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span v-if="pkg.has_active_discount" class="font-bold text-emerald-400">
-                    Rp {{ pkg.active_price.toLocaleString('id-ID') }}
+                  <span v-else class="text-rose-400 line-through">
+                    {{ new Date(pkg.discount_end_at).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}) }}
                   </span>
-                  <span v-else class="text-slate-300">
-                    Rp {{ pkg.active_price.toLocaleString('id-ID') }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-slate-300">
-                  {{ pkg.duration_days }} Hari
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div v-if="pkg.discount_percent > 0 && pkg.discount_end_at" class="text-sm">
-                    <span v-if="new Date(pkg.discount_end_at) > new Date()" class="text-slate-300">
-                      {{ new Date(pkg.discount_end_at).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}) }}
-                    </span>
-                    <span v-else class="text-rose-400 text-xs font-semibold">
-                      Berakhir (Kadalursa)
-                    </span>
-                  </div>
-                  <span v-else class="text-slate-500">-</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span v-if="pkg.is_active" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Aktif
-                  </span>
-                  <span v-else class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Nonaktif
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button @click="openEditModal(pkg)" class="text-indigo-400 hover:text-indigo-300 transition-colors">
-                    Edit
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </template>
+                <span v-else class="text-slate-500">-</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
