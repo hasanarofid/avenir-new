@@ -69,6 +69,8 @@ class ArticleController extends Controller
             $data['published_at'] = now();
         }
 
+        unset($data['is_preview']);
+
         $article = Article::create($data);
 
         if ($request->boolean('is_preview')) {
@@ -128,6 +130,8 @@ class ArticleController extends Controller
 
         $data['user_id'] = auth()->id();
         $data['author'] = auth()->user()->name ?? 'Tim Avenir Research';
+
+        unset($data['is_preview']);
 
         $article->update($data);
 
