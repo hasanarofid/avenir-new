@@ -34,63 +34,66 @@ class DashboardController extends Controller
         $totalMitra = \Illuminate\Support\Facades\DB::table('partners')->where('is_verified', true)->count();
         
         // Exclude internal Tim Avenir if we had a specific logic, here just count all for now.
-        $totalViews = \Illuminate\Support\Facades\DB::table('research_views')->count();
+        $totalViews = \Illuminate\Support\Facades\DB::table('research_view_logs')->count();
         
-        $likesCount = \Illuminate\Support\Facades\DB::table('research_likes')->count();
-        $commentsCount = \Illuminate\Support\Facades\DB::table('comments')->where('is_deleted', false)->count();
+        $likesCount = \Illuminate\Support\Facades\DB::table('app_likes')->where('likeable_type', 'App\Models\Research')->count();
+        $commentsCount = \Illuminate\Support\Facades\DB::table('app_comments')->where('commentable_type', 'App\Models\Research')->count() + \Illuminate\Support\Facades\DB::table('comments')->count();
 
         // 30 days views trend real data
         $trendData = [];
         for ($i = 29; $i >= 0; $i--) {
             $date = now()->subDays($i)->format('Y-m-d');
-            $count = \Illuminate\Support\Facades\DB::table('research_views')
-                        ->whereDate('viewed_at', $date)
+            $count = \Illuminate\Support\Facades\DB::table('research_view_logs')
+                        ->whereDate('created_at', $date)
                         ->count();
             $trendData[] = $count;
         }
 
         // Top 10 Research
-        $topResearchQuery = \Illuminate\Support\Facades\DB::table('research_views')
-            ->select('research_meta_id', \Illuminate\Support\Facades\DB::raw('count(*) as views_count'))
-            ->groupBy('research_meta_id')
+        $topResearchQuery = \Illuminate\Support\Facades\DB::table('research_view_logs')
+            ->select('research_id', \Illuminate\Support\Facades\DB::raw('count(*) as views_count'))
+            ->groupBy('research_id')
             ->orderByDesc('views_count')
             ->limit(10)
             ->get();
 
-        $topResearchIds = $topResearchQuery->pluck('research_meta_id')->toArray();
-        $topResearchMetas = \Illuminate\Support\Facades\DB::table('research_metas')
-            ->whereIn('research_id', $topResearchIds)
+        $topResearchIds = $topResearchQuery->pluck('research_id')->toArray();
+        $topResearchModels = \Illuminate\Support\Facades\DB::table('research')
+            ->leftJoin('users', 'research.author_id', '=', 'users.id')
+            ->whereIn('research.id', $topResearchIds)
+            ->select('research.id', 'research.title', 'research.ticker', 'users.name as author_name')
             ->get()
-            ->keyBy('research_id');
+            ->keyBy('id');
 
-        $topResearch = $topResearchQuery->map(function($view) use ($topResearchMetas) {
-            $meta = $topResearchMetas->get($view->research_meta_id);
+        $topResearch = $topResearchQuery->map(function($view) use ($topResearchModels) {
+            $meta = $topResearchModels->get($view->research_id);
             return [
-                'id' => $view->research_meta_id,
+                'id' => $view->research_id,
                 'title' => $meta ? $meta->title : 'Unknown Research',
                 'ticker' => $meta ? $meta->ticker : '-',
-                'author_type' => $meta ? $meta->author_type : 'Tim Avenir',
+                'author_type' => $meta ? $meta->author_name : 'Tim Avenir',
                 'views_count' => $view->views_count,
             ];
         });
 
         // Top Authors
-        $topAuthorsQuery = \Illuminate\Support\Facades\DB::table('research_views')
-            ->join('research_metas', 'research_views.research_meta_id', '=', 'research_metas.research_id')
-            ->select('research_metas.author_display_name', \Illuminate\Support\Facades\DB::raw('count(research_views.id) as views_count'))
-            ->groupBy('research_metas.author_display_name')
+        $topAuthorsQuery = \Illuminate\Support\Facades\DB::table('research_view_logs')
+            ->join('research', 'research_view_logs.research_id', '=', 'research.id')
+            ->leftJoin('users', 'research.author_id', '=', 'users.id')
+            ->select(\Illuminate\Support\Facades\DB::raw('COALESCE(users.name, "Tim Avenir") as author_display_name'), \Illuminate\Support\Facades\DB::raw('count(research_view_logs.id) as views_count'))
+            ->groupBy('author_display_name')
             ->orderByDesc('views_count')
             ->limit(5)
             ->get();
 
         // Heatmap Aktivitas
-        $heatmapQuery = \Illuminate\Support\Facades\DB::table('research_views')
+        $heatmapQuery = \Illuminate\Support\Facades\DB::table('research_view_logs')
             ->select(
-                \Illuminate\Support\Facades\DB::raw('DAYOFWEEK(viewed_at) as day_of_week'),
-                \Illuminate\Support\Facades\DB::raw('HOUR(viewed_at) as hour_of_day'),
+                \Illuminate\Support\Facades\DB::raw('DAYOFWEEK(created_at) as day_of_week'),
+                \Illuminate\Support\Facades\DB::raw('HOUR(created_at) as hour_of_day'),
                 \Illuminate\Support\Facades\DB::raw('count(*) as views_count')
             )
-            ->where('viewed_at', '>=', now()->subDays(30))
+            ->where('created_at', '>=', now()->subDays(30))
             ->groupBy('day_of_week', 'hour_of_day')
             ->get();
 
