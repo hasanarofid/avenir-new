@@ -97,7 +97,8 @@ const snapshots = computed(() => {
 
 /** Build SVG polyline points string dari array harga. */
 function buildSparklinePoints(data) {
-  if (!data || data.length < 2) return null;
+  // Guard: pastikan data adalah array valid (bukan string JSON atau null)
+  if (!Array.isArray(data) || data.length < 2) return null;
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;

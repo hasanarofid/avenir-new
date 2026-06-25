@@ -97,7 +97,7 @@ class SectorsApiService
                         'change_abs'       => $changeAbs,
                         'change_pct'       => $changePct,
                         'ytd_pct'          => $ytdPct,
-                        'sparkline_json'   => json_encode($sparkline),
+                        'sparkline_json'   => $sparkline, // raw array — model cast handles json_encode
                         'source'           => 'sectors_api',
                         'last_sync'        => now(),
                     ];
