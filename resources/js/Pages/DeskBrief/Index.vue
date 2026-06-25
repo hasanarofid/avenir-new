@@ -5,6 +5,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({
   deskBrief: Object,
+  realtimeSnapshots: Array,
 });
 
 // Mock data if no data from DB yet
@@ -83,7 +84,13 @@ const mockData = {
   }
 };
 
-const brief = computed(() => props.deskBrief || mockData);
+const brief = computed(() => {
+  const base = props.deskBrief || mockData;
+  return {
+    ...base,
+    snapshots: props.realtimeSnapshots || base.snapshots,
+  };
+});
 </script>
 
 <template>
