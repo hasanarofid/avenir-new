@@ -23,8 +23,8 @@ const mockData = {
     view: 'Constructive',
     horizon: '1-4 weeks',
   },
-  headline: 'Waiting for data from Sectors.app — jalankan php artisan sectors:sync',
-  subHeadline: 'Data market akan tampil setelah command sectors:sync dijalankan. Snapshot IHSG, LQ45, IDX30 akan diambil dari Sectors API dan disimpan ke database.',
+  headline: 'Pasar konstruktif di tengah perbaikan global; Indonesia masih menarik bagi asing',
+  subHeadline: 'Perbaikan sentimen global dan tekanan inflasi yang melandai mendukung risk appetite. IHSG berpotensi menguat selektif, didorong sektor Banking, Telco, dan Consumer Staples dengan fundamental solid.',
   macroCards: [
     { title: 'GLOBAL GROWTH', status: 'Stable', value: '3.1%', desc: '2025E Global GDP' },
     { title: 'INFLATION (US)', status: 'Cooling', value: '2.3%', desc: 'Apr-25 PCE YoY' },
