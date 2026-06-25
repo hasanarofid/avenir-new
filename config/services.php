@@ -42,8 +42,12 @@ return [
     ],
 
     'chatgpt' => [
-        'api_key' => env('CHATGPT_API_KEY'),
+        'api_key'       => env('CHATGPT_API_KEY'),
         'default_model' => env('CHATGPT_DEFAULT_MODEL', 'gpt-4o'),
+    ],
+
+    'sectors' => [
+        'key' => env('SECTOR_API_KEY'),
     ],
 
 ];

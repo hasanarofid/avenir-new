@@ -1,95 +1,129 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({
-  deskBrief: Object,
-  realtimeSnapshots: Array,
+  deskBrief:   { type: Object, default: null },
+  snapshots:   { type: Array,  default: () => [] },
+  topMovers:   { type: Object, default: () => ({ gainers: [], losers: [] }) },
+  mostTraded:  { type: Array,  default: () => [] },
+  apiStatus:   { type: Object, default: null },
 });
 
-// Mock data if no data from DB yet
+// Mock data untuk komponen yang belum terhubung ke DB
 const mockData = {
-  date: '23 May 2025',
-  lastUpdate: '23 May 2025 08:15 WIB',
+  date: '25 Jun 2026',
+  lastUpdate: '25 Jun 2026 17:00 WIB',
   marketStance: {
-    label: 'RISK ON',
-    score: 68,
-    prevScore: 61,
-    prevDate: '16 May 2025',
-    view: 'Positive',
+    label: 'SELECTIVE RISK-ON',
+    score: 42,
+    prevScore: 38,
+    prevDate: '24 Jun 2026',
+    view: 'Constructive',
     horizon: '1-4 weeks',
   },
-  headline: 'Global easing hopes lift risk appetite; Indonesia fundamentals remain supportive',
-  subHeadline: 'Lower UST yields and a softer USD support EM flows. IHSG poised for higher high as earnings revisions stabilize and liquidity stays ample.',
+  headline: 'Waiting for data from Sectors.app — jalankan php artisan sectors:sync',
+  subHeadline: 'Data market akan tampil setelah command sectors:sync dijalankan. Snapshot IHSG, LQ45, IDX30 akan diambil dari Sectors API dan disimpan ke database.',
   macroCards: [
     { title: 'GLOBAL GROWTH', status: 'Stable', value: '3.1%', desc: '2025E Global GDP' },
     { title: 'INFLATION (US)', status: 'Cooling', value: '2.3%', desc: 'Apr-25 PCE YoY' },
-    { title: 'LIQUIDITY (G3)', status: 'Ample', value: '$6.1T', desc: 'CB Balance Sheet' },
+    { title: 'LIQUIDITY (G3)', status: 'Ample',   value: '$6.1T', desc: 'CB Balance Sheet' },
   ],
-  regimeText: 'We are in a late-cycle expansion regime supported by easing inflation, resilient earnings and strong liquidity. Policy remains supportive while growth is above trend. Stay pro-risk with selective positioning.',
+  regimeText: 'Selective risk-on: pasar konstruktif namun hanya untuk sektor dan saham terpilih. Likuiditas asing masih oke, yield manageable. Fokus pada quality earnings dengan domestic demand exposure.',
   drivers: [
-    { rank: 1, title: 'US Rates & Dollar Direction', impact: 'High', dots: 3 },
-    { rank: 2, title: 'Global Growth & China Demand', impact: 'High', dots: 3 },
-    { rank: 3, title: 'Indonesia Earnings Outlook', impact: 'Medium', dots: 2 },
-    { rank: 4, title: 'Liquidity & Foreign Flows', impact: 'Medium', dots: 2 },
-    { rank: 5, title: 'Commodity Prices', impact: 'Low', dots: 1 },
-    { rank: 6, title: 'Domestic Politics & Policy', impact: 'Low', dots: 1 },
-  ],
-  snapshots: [
-    { symbol: 'IHSG', value: '7,214.56', change: '+1.02%', isUp: true, ytd: '+2.68%' },
-    { symbol: 'USD/IDR', value: '16,245', change: '-0.21%', isUp: false, ytd: '-1.36%' },
-    { symbol: '10Y IND YIELD', value: '6.70%', change: '-3.0 bps', isUp: false, ytd: '-28.0 bps' },
-    { symbol: 'BRENT', value: '$84.78', change: '+0.92%', isUp: true, ytd: '-13.5%' },
-    { symbol: 'GOLD', value: '$2,355', change: '+0.71%', isUp: true, ytd: '+12.6%' },
+    { rank: 1, title: 'US Rates & Dollar Direction',  impact: 'High',   dots: 3 },
+    { rank: 2, title: 'Global Growth & China Demand', impact: 'High',   dots: 3 },
+    { rank: 3, title: 'Indonesia Earnings Outlook',   impact: 'Medium', dots: 2 },
+    { rank: 4, title: 'Liquidity & Foreign Flows',    impact: 'Medium', dots: 2 },
+    { rank: 5, title: 'Commodity Prices',             impact: 'Low',    dots: 1 },
+    { rank: 6, title: 'Domestic Politics & Policy',   impact: 'Low',    dots: 1 },
   ],
   sectors: [
-    { name: 'Banking', change: '+4.6%', color: 'bg-green-600' },
-    { name: 'Telecom', change: '+3.8%', color: 'bg-green-500' },
-    { name: 'Consumer Staples', change: '+3.1%', color: 'bg-green-500' },
-    { name: 'Healthcare', change: '+2.4%', color: 'bg-green-500' },
-    { name: 'Energy', change: '+1.7%', color: 'bg-green-500' },
-    { name: 'Transportation', change: '+1.5%', color: 'bg-green-500' },
-    { name: 'Property', change: '+0.8%', color: 'bg-green-500' },
-    { name: 'Infrastructure', change: '+0.6%', color: 'bg-green-500' },
-    { name: 'Industrial', change: '-0.2%', color: 'bg-red-500' },
-    { name: 'Retail', change: '-0.6%', color: 'bg-red-500' },
-    { name: 'Basic Materials', change: '-1.2%', color: 'bg-red-500' },
-    { name: 'Technology', change: '-1.8%', color: 'bg-red-500' },
+    { name: 'Banking',                change: '+4.6%', color: 'bg-green-600' },
+    { name: 'Telecom',                change: '+3.8%', color: 'bg-green-500' },
+    { name: 'Consumer Staples',       change: '+3.1%', color: 'bg-green-500' },
+    { name: 'Healthcare',             change: '+2.4%', color: 'bg-green-500' },
+    { name: 'Energy',                 change: '+1.7%', color: 'bg-green-500' },
+    { name: 'Transportation',         change: '+1.5%', color: 'bg-green-500' },
+    { name: 'Property',               change: '+0.8%', color: 'bg-green-500' },
+    { name: 'Infrastructure',         change: '+0.6%', color: 'bg-green-500' },
+    { name: 'Industrial',             change: '-0.2%', color: 'bg-red-500' },
+    { name: 'Retail',                 change: '-0.6%', color: 'bg-red-500' },
+    { name: 'Basic Materials',        change: '-1.2%', color: 'bg-red-500' },
+    { name: 'Technology',             change: '-1.8%', color: 'bg-red-500' },
     { name: 'Consumer Discretionary', change: '-2.1%', color: 'bg-red-500' },
-    { name: 'Mining', change: '-3.4%', color: 'bg-red-600' },
+    { name: 'Mining',                 change: '-3.4%', color: 'bg-red-600' },
   ],
   catalysts: [
-    { date: '23 May', event: 'Indonesia GDP 1Q25 (Final)', impact: 'High', region: 'ID' },
-    { date: '27 May', event: 'US Durable Goods Orders Apr', impact: 'Medium', region: 'US' },
-    { date: '28 May', event: 'FOMC Minutes (May)', impact: 'High', region: 'US' },
-    { date: '2 Jun',  event: 'China Caixin Manufacturing PMI May', impact: 'Medium', region: 'CN' },
-    { date: '5 Jun',  event: 'ECB Policy Decision', impact: 'High', region: 'EU' },
-    { date: '7 Jun',  event: 'Indonesia FX Reserves May', impact: 'Low', region: 'ID' },
+    { date: '27 Jun', event: 'US Durable Goods Orders',          impact: 'Medium', region: 'US' },
+    { date: '30 Jun', event: 'Indonesia Inflation Jun',           impact: 'High',   region: 'ID' },
+    { date: '1 Jul',  event: 'China Caixin Manufacturing PMI',    impact: 'Medium', region: 'CN' },
+    { date: '3 Jul',  event: 'Indonesia FX Reserves Jun',         impact: 'Low',    region: 'ID' },
+    { date: '8 Jul',  event: 'BI Board of Governors Meeting',     impact: 'High',   region: 'ID' },
   ],
   risks: [
-    { risk: 'Global Recession Risk', level: 'Medium', color: 'text-yellow-400' },
+    { risk: 'Global Recession Risk',       level: 'Medium', color: 'text-yellow-400' },
     { risk: 'US Policy Error / Rates Shock', level: 'High', color: 'text-red-500' },
-    { risk: 'Geopolitical Tension', level: 'High', color: 'text-red-500' },
-    { risk: 'China Growth Slowdown', level: 'Medium', color: 'text-yellow-400' },
-    { risk: 'Commodity Price Shock', level: 'Medium', color: 'text-yellow-400' },
-    { risk: 'IDR Volatility', level: 'Low', color: 'text-green-500' },
-    { risk: 'Domestic Policy Risk', level: 'Low', color: 'text-green-500' },
+    { risk: 'Geopolitical Tension',        level: 'High',   color: 'text-red-500' },
+    { risk: 'China Growth Slowdown',       level: 'Medium', color: 'text-yellow-400' },
+    { risk: 'Commodity Price Shock',       level: 'Medium', color: 'text-yellow-400' },
+    { risk: 'IDR Volatility',              level: 'Low',    color: 'text-green-500' },
+    { risk: 'Domestic Policy Risk',        level: 'Low',    color: 'text-green-500' },
   ],
   analyst: {
-    quote: "Liquidity is the key tailwind. Foreign flows have turned positive with yield support and a weaker USD. We favor quality earnings with domestic demand exposure. Banks, Telcos and Staples remain our top picks. Watch FOMC minutes and China PMI for near-term market direction.",
-    author: "Riset Avenir Research",
-    role: "Head of Market Intelligence",
-    topPicks: ['BBCA', 'TLKM', 'UNVR', 'AMMN', 'PGAS']
-  }
+    quote: 'Selective risk-on. Prioritaskan saham dengan domestic revenue exposure yang kuat, balance sheet bersih, dan dividend yield menarik. Banks dan Telcos tetap jadi pilihan utama di tengah kondisi pasar yang masih konstruktif.',
+    author: 'Riset Avenir Research',
+    role: 'Head of Market Intelligence',
+    topPicks: ['BBCA', 'TLKM', 'UNVR', 'AMMN', 'PGAS'],
+  },
 };
 
-const brief = computed(() => {
-  const base = props.deskBrief || mockData;
-  return {
-    ...base,
-    snapshots: props.realtimeSnapshots || base.snapshots,
-  };
+const brief = computed(() => props.deskBrief || mockData);
+
+// Snapshot: gunakan data real dari DB, fallback ke placeholder
+const snapshots = computed(() => {
+  if (props.snapshots && props.snapshots.length > 0) return props.snapshots;
+  return [
+    { symbol: 'IHSG',         value: '—', change: '—', isUp: null, ytd: '—', sparkline: [], isLive: false, lastSync: null },
+    { symbol: 'LQ45',         value: '—', change: '—', isUp: null, ytd: '—', sparkline: [], isLive: false, lastSync: null },
+    { symbol: 'IDX30',        value: '—', change: '—', isUp: null, ytd: '—', sparkline: [], isLive: false, lastSync: null },
+    { symbol: 'USD/IDR',      value: '—', change: '—', isUp: null, ytd: '—', sparkline: [], isLive: false, lastSync: null },
+    { symbol: '10Y IND YIELD', value: '—', change: '—', isUp: null, ytd: '—', sparkline: [], isLive: false, lastSync: null },
+    { symbol: 'BRENT',        value: '—', change: '—', isUp: null, ytd: '—', sparkline: [], isLive: false, lastSync: null },
+    { symbol: 'GOLD',         value: '—', change: '—', isUp: null, ytd: '—', sparkline: [], isLive: false, lastSync: null },
+  ];
+});
+
+/** Build SVG polyline points string dari array harga. */
+function buildSparklinePoints(data) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const w = 100;
+  const h = 20;
+  return data
+    .map((v, i) => {
+      const x = (i / (data.length - 1)) * w;
+      const y = h - ((v - min) / range) * h;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(' ');
+}
+
+const apiStatusColor = computed(() => {
+  const s = props.apiStatus?.status;
+  if (s === 'fresh')   return 'text-green-400';
+  if (s === 'stale')   return 'text-orange-400';
+  return 'text-gray-500';
+});
+
+const apiStatusLabel = computed(() => {
+  const s = props.apiStatus?.status;
+  if (s === 'fresh')   return '● Live EOD';
+  if (s === 'stale')   return '⚠ Data Stale';
+  return '○ No Sync Yet';
 });
 </script>
 
@@ -221,26 +255,77 @@ const brief = computed(() => {
           <!-- 3. Cross-Asset Snapshot -->
           <div class="bg-[#151917] border border-[#2A302D] rounded-xl p-5 xl:col-span-3 flex flex-col justify-between">
             <div>
-              <div class="flex justify-between items-center mb-5">
-                <h3 class="text-[11px] font-semibold text-gray-300 tracking-wider uppercase">3. Cross-Asset Snapshot <span class="text-gray-500 ml-1">ⓘ</span></h3>
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-[11px] font-semibold text-gray-300 tracking-wider uppercase">3. Cross-Asset Snapshot</h3>
+                <span :class="apiStatusColor" class="text-[9px] font-medium tracking-wide">{{ apiStatusLabel }}</span>
               </div>
-              <div class="grid grid-cols-5 gap-3">
-                <div v-for="snap in brief.snapshots" :key="snap.symbol" class="text-center flex flex-col items-center">
-                  <div class="text-[10px] text-gray-400 mb-1 tracking-wider">{{ snap.symbol }}</div>
-                  <div class="text-sm font-bold text-white mb-0.5">{{ snap.value }}</div>
-                  <div class="text-[11px] mb-2 font-medium" :class="snap.change.startsWith('+') ? 'text-green-400' : 'text-red-400'">{{ snap.change }}</div>
-                  <!-- Sparkline mock -->
-                  <svg viewBox="0 0 100 20" class="w-12 h-6 mb-2" preserveAspectRatio="none">
-                    <polyline points="0,15 20,10 40,12 60,5 80,15 100,2" fill="none" :stroke="snap.change.startsWith('+') ? '#4ade80' : '#f87171'" stroke-width="1.5" vector-effect="non-scaling-stroke" v-if="snap.change.startsWith('+')"></polyline>
-                    <polyline points="0,5 20,10 40,8 60,15 80,5 100,18" fill="none" stroke="#f87171" stroke-width="1.5" vector-effect="non-scaling-stroke" v-else></polyline>
-                  </svg>
-                  <div class="text-[9px] text-gray-500 mt-auto">YTD: <span :class="snap.ytd.startsWith('+') ? 'text-green-500/80' : 'text-red-500/80'">{{ snap.ytd }}</span></div>
+
+              <!-- IDX Indices (data real dari Sectors API) -->
+              <div class="mb-3">
+                <p class="text-[9px] text-gray-600 uppercase tracking-widest mb-2">IDX Indices — Sectors.app EOD</p>
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                  <div
+                    v-for="snap in snapshots.filter(s => ['IHSG','LQ45','IDX30'].includes(s.symbol))"
+                    :key="snap.symbol"
+                    class="bg-[#0f1210] border border-[#2A302D] rounded-lg p-2.5 flex flex-col items-center"
+                  >
+                    <!-- Symbol + LIVE badge -->
+                    <div class="flex items-center gap-1 mb-1">
+                      <span class="text-[9px] text-gray-400 tracking-wider">{{ snap.symbol }}</span>
+                      <span v-if="snap.isLive" class="text-[7px] text-green-400 font-semibold">● EOD</span>
+                    </div>
+                    <!-- Value -->
+                    <div class="text-sm font-bold text-white mb-0.5">
+                      {{ snap.value }}
+                    </div>
+                    <!-- Change -->
+                    <div
+                      class="text-[10px] font-semibold mb-1.5"
+                      :class="snap.isUp === true ? 'text-green-400' : snap.isUp === false ? 'text-red-400' : 'text-gray-500'"
+                    >
+                      {{ snap.change }}
+                    </div>
+                    <!-- Sparkline real -->
+                    <svg viewBox="0 0 100 20" class="w-full h-5" preserveAspectRatio="none">
+                      <template v-if="snap.sparkline && snap.sparkline.length >= 2">
+                        <polyline
+                          :points="buildSparklinePoints(snap.sparkline)"
+                          fill="none"
+                          :stroke="snap.isUp ? '#4ade80' : '#f87171'"
+                          stroke-width="1.5"
+                          vector-effect="non-scaling-stroke"
+                        />
+                      </template>
+                      <template v-else>
+                        <!-- Placeholder dashed line jika belum ada data -->
+                        <line x1="0" y1="10" x2="100" y2="10" stroke="#374151" stroke-width="1" stroke-dasharray="3,2" />
+                      </template>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Other Assets (static / manual) -->
+              <p class="text-[9px] text-gray-600 uppercase tracking-widest mb-2">Other Assets</p>
+              <div class="grid grid-cols-4 gap-1.5">
+                <div
+                  v-for="snap in snapshots.filter(s => !['IHSG','LQ45','IDX30'].includes(s.symbol))"
+                  :key="snap.symbol"
+                  class="text-center"
+                >
+                  <div class="text-[9px] text-gray-500 mb-0.5 truncate">{{ snap.symbol }}</div>
+                  <div class="text-[11px] font-bold text-white">{{ snap.value }}</div>
+                  <div
+                    class="text-[9px]"
+                    :class="snap.isUp === true ? 'text-green-400' : snap.isUp === false ? 'text-red-400' : 'text-gray-600'"
+                  >{{ snap.change }}</div>
                 </div>
               </div>
             </div>
-            <div class="mt-5 pt-3 flex justify-between text-[9px] text-gray-600">
-              <span>Source: Avenir Research, Bloomberg</span>
-              <span>As of {{ brief.lastUpdate }}</span>
+
+            <div class="mt-4 pt-3 flex justify-between text-[9px] text-gray-600">
+              <span>Source: Sectors.app (IDX) · Manual (others)</span>
+              <span>{{ props.apiStatus?.lastSync ?? brief.lastUpdate }}</span>
             </div>
           </div>
           
@@ -414,12 +499,68 @@ const brief = computed(() => {
           </div>
         </div>
 
+        <!-- Top Movers Strip (data real dari Sectors API) -->
+        <div v-if="topMovers.gainers?.length || topMovers.losers?.length" class="mt-4 bg-[#151917] border border-[#2A302D] rounded-xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-[11px] font-semibold text-gray-300 tracking-wider uppercase">
+              Top Movers IDX
+              <span class="normal-case text-gray-500 font-normal text-[10px] ml-1">(1D — Sectors.app EOD)</span>
+            </h3>
+            <span :class="apiStatusColor" class="text-[9px]">{{ apiStatusLabel }}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Gainers -->
+            <div>
+              <p class="text-[9px] text-green-500 uppercase tracking-widest font-semibold mb-2">▲ Top Gainers</p>
+              <div class="space-y-1.5">
+                <div
+                  v-for="(mover, i) in (topMovers.gainers || []).slice(0, 5)"
+                  :key="i"
+                  class="flex items-center justify-between text-[10px]"
+                >
+                  <span class="font-semibold text-white">{{ mover.symbol }}</span>
+                  <span class="text-green-400 font-medium">+{{ Number(mover.price_pct ?? 0).toFixed(2) }}%</span>
+                </div>
+              </div>
+            </div>
+            <!-- Losers -->
+            <div>
+              <p class="text-[9px] text-red-500 uppercase tracking-widest font-semibold mb-2">▼ Top Losers</p>
+              <div class="space-y-1.5">
+                <div
+                  v-for="(mover, i) in (topMovers.losers || []).slice(0, 5)"
+                  :key="i"
+                  class="flex items-center justify-between text-[10px]"
+                >
+                  <span class="font-semibold text-white">{{ mover.symbol }}</span>
+                  <span class="text-red-400 font-medium">{{ Number(mover.price_pct ?? 0).toFixed(2) }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Footer -->
-        <div class="mt-6 pt-4 border-t border-[#2A302D] flex justify-between text-[10px] text-gray-500">
-          <p>This report does not contain any recommendation to buy or sell any securities. For institutional use only.</p>
-          <div class="flex gap-4">
+        <div class="mt-6 pt-4 border-t border-[#2A302D] flex flex-col sm:flex-row justify-between gap-3 text-[10px] text-gray-500">
+          <p>Informasi ini bersifat umum dan tidak merupakan rekomendasi investasi. Data bersumber dari Sectors.app dan diolah oleh Avenir Research.</p>
+          <div class="flex items-center gap-4 flex-shrink-0">
+            <!-- API Status indicator -->
+            <div v-if="props.apiStatus" class="flex items-center gap-1.5">
+              <span
+                class="w-1.5 h-1.5 rounded-full"
+                :class="{
+                  'bg-green-400': props.apiStatus.status === 'fresh',
+                  'bg-orange-400': props.apiStatus.status === 'stale',
+                  'bg-gray-600': props.apiStatus.status === 'no_data',
+                }"
+              ></span>
+              <span class="text-gray-500">
+                {{ props.apiStatus.provider }}
+                <template v-if="props.apiStatus.lastSync"> · {{ props.apiStatus.lastSync }}</template>
+                <template v-if="props.apiStatus.creditsToday"> · {{ props.apiStatus.creditsToday }} credits today</template>
+              </span>
+            </div>
             <span class="text-green-400 font-medium">Avenir Research</span>
-            <span>Better Research. Smarter Decisions.</span>
           </div>
         </div>
       </div>

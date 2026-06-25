@@ -44,6 +44,7 @@ jobs:
             php artisan view:clear
             php artisan queue:restart
             php artisan market:fetch || true
+            php artisan sectors:sync || true
 
             # 6. Pastikan symlink storage terbuat
             php artisan storage:link || true
