@@ -26,7 +26,7 @@ const isHomePage = computed(() => [
   'Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 
   'About', 'Partners', 'Subscription', 'KatalogDetail', 'EmitenHub/Index', 
   'EmitenHub/Show', 'Watchlist/Index', 'KIBrief/Index', 'Disclosure/Index',
-  'Mitra/Register', 'Profile', 'Profile/Edit'
+  'Mitra/Register', 'Profile', 'Profile/Edit', 'DeskBrief/Index'
 ].includes(page.component));
 
 const handleLogout = () => {
@@ -114,7 +114,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
         <div class="nav-links">
           <Link href="/" class="nav-link" :class="{ active: $page.component === 'Home' }">Beranda</Link>
           
-          <!-- Market Dropdown -->
+          <!-- Market Dropdown (Deprecated)
           <div class="nav-dropdown-wrap" @mouseenter="marketDropdownOpen = true" @mouseleave="marketDropdownOpen = false">
             <button class="nav-link dropdown-toggle" :class="{ active: ['Disclosure/Index', 'KIBrief/Index', 'EmitenHub/Index', 'EmitenHub/Show'].includes($page.component) }">
               Market
@@ -137,6 +137,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
               </div>
             </transition>
           </div>
+          -->
+          <Link href="/desk-brief" class="nav-link" :class="{ active: $page.component === 'DeskBrief/Index' }">Market Intelligence</Link>
 
           <!-- Research Dropdown -->
           <div class="nav-dropdown-wrap" @mouseenter="researchDropdownOpen = true" @mouseleave="researchDropdownOpen = false">
@@ -315,12 +317,15 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
         <div class="nav-mobile-links">
           <Link href="/" class="nav-mobile-link" :class="{ active: $page.component === 'Home' }" @click="mobileMenuOpen = false">Beranda</Link>
           
+          <!-- Market Group (Deprecated)
           <div class="nav-mobile-group">
             <span class="nav-mobile-group-label">Market</span>
             <Link href="/disclosure-radar" class="nav-mobile-link" :class="{ active: $page.component === 'Disclosure/Index' }" @click="mobileMenuOpen = false">Disclosure Radar</Link>
             <Link href="/ki-brief" class="nav-mobile-link" :class="{ active: $page.component === 'KIBrief/Index' }" @click="mobileMenuOpen = false">KI Brief</Link>
             <Link href="/emiten" class="nav-mobile-link" :class="{ active: $page.component === 'EmitenHub/Index' || $page.component === 'EmitenHub/Show' }" @click="mobileMenuOpen = false">Emiten Hub</Link>
           </div>
+          -->
+          <Link href="/desk-brief" class="nav-mobile-link" :class="{ active: $page.component === 'DeskBrief/Index' }" @click="mobileMenuOpen = false">Market Intelligence</Link>
 
           <div class="nav-mobile-group">
             <span class="nav-mobile-group-label">Research</span>

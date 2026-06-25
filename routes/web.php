@@ -27,6 +27,10 @@ Route::get('/api/market-chart/{symbol}', [HomeController::class, 'marketChartApi
 Route::post('/interaction/{type}/{id}/like', [\App\Http\Controllers\InteractionController::class, 'toggleLike'])->name('interaction.like');
 Route::post('/interaction/{type}/{id}/comment', [\App\Http\Controllers\InteractionController::class, 'addComment'])->name('interaction.comment');
 Route::post('/interaction/{type}/{id}/share', [\App\Http\Controllers\InteractionController::class, 'incrementShare'])->name('interaction.share');
+// Market Intelligence (Desk Brief)
+Route::get('/desk-brief', [\App\Http\Controllers\DeskBriefController::class, 'index'])->name('desk-brief.index');
+
+/* Deprecated Market Hub Routes
 // Emiten Hub (V1)
 Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
 Route::get('/emiten', [\App\Http\Controllers\EmitenHubController::class, 'index'])->name('emiten.index');
@@ -37,6 +41,7 @@ Route::get('/ki-brief', [\App\Http\Controllers\KIBriefController::class, 'index'
 
 // Disclosure Radar (V1.5)
 Route::get('/disclosure-radar', [\App\Http\Controllers\DisclosureController::class, 'index'])->name('disclosure.index');
+*/
 
 Route::middleware('auth')->group(function () {
     Route::get('/watchlist', [\App\Http\Controllers\WatchlistController::class, 'index'])->name('watchlist.index');
