@@ -4,9 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         
-        <!-- Google AdSense -->
+        <!-- Google AdSense meta (non-blocking) -->
         <meta name="google-adsense-account" content="ca-pub-7190047001129861">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7190047001129861" crossorigin="anonymous"></script>
+
         @php
             $defaultSiteName = \App\Models\Setting::getValue('site_name', config('app.name', 'Avenir Research'));
             $defaultDescription = \App\Models\Setting::getValue('site_description', 'Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif.');
@@ -53,5 +53,8 @@
     </head>
     <body class="font-sans antialiased">
         @inertia
+
+        <!-- Google AdSense (defer agar tidak blocking page load) -->
+        <script defer src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7190047001129861" crossorigin="anonymous"></script>
     </body>
 </html>
