@@ -23,8 +23,10 @@
         "@lucide/vue": "^1.17.0",
         "@vueform/multiselect": "^2.6.11",
         "@vueup/vue-quill": "^1.5.3",
+        "apexcharts": "^5.15.2",
         "lucide-vue-next": "^1.0.0",
         "pinia": "^3.0.4",
-        "sweetalert2": "^11.26.25"
+        "sweetalert2": "^11.26.25",
+        "vue3-apexcharts": "^1.11.1"
     }
 }

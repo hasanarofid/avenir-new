@@ -114,31 +114,33 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
         <div class="nav-links">
           <Link href="/" class="nav-link" :class="{ active: $page.component === 'Home' }">Beranda</Link>
           
-          <!-- Market Dropdown (Deprecated)
+          <!-- Market Intelligence Dropdown -->
           <div class="nav-dropdown-wrap" @mouseenter="marketDropdownOpen = true" @mouseleave="marketDropdownOpen = false">
-            <button class="nav-link dropdown-toggle" :class="{ active: ['Disclosure/Index', 'KIBrief/Index', 'EmitenHub/Index', 'EmitenHub/Show'].includes($page.component) }">
-              Market
+            <button class="nav-link dropdown-toggle" :class="{ active: ['DeskBrief/Index'].includes($page.component) }">
+              Market Intelligence
               <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <transition name="nav-drop">
               <div v-if="marketDropdownOpen" class="nav-dropdown">
-                <Link href="/disclosure-radar" class="nav-dd-item">
-                  <strong>Disclosure Radar</strong>
-                  <span class="nav-dd-desc">Live corporate action monitoring</span>
+                <Link href="/desk-brief" class="nav-dd-item">
+                  <strong>Desk Brief</strong>
+                  <span class="nav-dd-desc">Daily market briefing & snapshot</span>
                 </Link>
-                <Link href="/ki-brief" class="nav-dd-item">
-                  <strong>KI Brief</strong>
-                  <span class="nav-dd-desc">AI-powered disclosure summary</span>
-                </Link>
-                <Link href="/emiten" class="nav-dd-item">
-                  <strong>Emiten Hub</strong>
-                  <span class="nav-dd-desc">800+ Ticker IHSG directory</span>
-                </Link>
+                <div class="nav-dd-item" style="opacity: 0.5; cursor: default;">
+                  <strong>Smart Money Flow</strong>
+                  <span class="nav-dd-desc">Coming Soon</span>
+                </div>
+                <div class="nav-dd-item" style="opacity: 0.5; cursor: default;">
+                  <strong>Event-to-Impact Radar</strong>
+                  <span class="nav-dd-desc">Coming Soon</span>
+                </div>
+                <div class="nav-dd-item" style="opacity: 0.5; cursor: default;">
+                  <strong>Sector Rotation</strong>
+                  <span class="nav-dd-desc">Coming Soon</span>
+                </div>
               </div>
             </transition>
           </div>
-          -->
-          <Link href="/desk-brief" class="nav-link" :class="{ active: $page.component === 'DeskBrief/Index' }">Market Intelligence</Link>
 
           <!-- Research Dropdown -->
           <div class="nav-dropdown-wrap" @mouseenter="researchDropdownOpen = true" @mouseleave="researchDropdownOpen = false">
@@ -317,15 +319,13 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
         <div class="nav-mobile-links">
           <Link href="/" class="nav-mobile-link" :class="{ active: $page.component === 'Home' }" @click="mobileMenuOpen = false">Beranda</Link>
           
-          <!-- Market Group (Deprecated)
           <div class="nav-mobile-group">
-            <span class="nav-mobile-group-label">Market</span>
-            <Link href="/disclosure-radar" class="nav-mobile-link" :class="{ active: $page.component === 'Disclosure/Index' }" @click="mobileMenuOpen = false">Disclosure Radar</Link>
-            <Link href="/ki-brief" class="nav-mobile-link" :class="{ active: $page.component === 'KIBrief/Index' }" @click="mobileMenuOpen = false">KI Brief</Link>
-            <Link href="/emiten" class="nav-mobile-link" :class="{ active: $page.component === 'EmitenHub/Index' || $page.component === 'EmitenHub/Show' }" @click="mobileMenuOpen = false">Emiten Hub</Link>
+            <span class="nav-mobile-group-label">Market Intelligence</span>
+            <Link href="/desk-brief" class="nav-mobile-link" :class="{ active: $page.component === 'DeskBrief/Index' }" @click="mobileMenuOpen = false">Desk Brief</Link>
+            <span class="nav-mobile-link" style="opacity: 0.5;">Smart Money Flow (Soon)</span>
+            <span class="nav-mobile-link" style="opacity: 0.5;">Event Radar (Soon)</span>
+            <span class="nav-mobile-link" style="opacity: 0.5;">Sector Rotation (Soon)</span>
           </div>
-          -->
-          <Link href="/desk-brief" class="nav-mobile-link" :class="{ active: $page.component === 'DeskBrief/Index' }" @click="mobileMenuOpen = false">Market Intelligence</Link>
 
           <div class="nav-mobile-group">
             <span class="nav-mobile-group-label">Research</span>

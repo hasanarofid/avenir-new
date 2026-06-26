@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import AestheticChart from '@/Components/AestheticChart.vue';
 
 const props = defineProps({
   deskBrief:   { type: Object, default: null },
@@ -538,6 +539,38 @@ const apiStatusLabel = computed(() => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- 9. Interactive Radar (Aesthetic Chart from User Request) -->
+        <div class="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-4 bg-[#151917] border border-[#2A302D] rounded-xl p-4 flex flex-col h-[520px]">
+            <h3 class="text-[11px] font-semibold text-gray-300 tracking-wider uppercase mb-4">Radar Stocks</h3>
+            <div class="flex-1 overflow-y-auto no-scrollbar space-y-1 pr-2">
+              <div v-for="(stock, i) in ['AADI', 'AALI', 'ABMM', 'ACST', 'ADMR', 'ADRO', 'AGII', 'AGRO']" :key="stock" 
+                   class="flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-[#2A302D] transition-colors"
+                   :class="{'bg-[#1A1F1C] border border-[#3A403D]': stock === 'ADMR'}">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-[10px] font-bold"
+                       :class="stock === 'ADMR' ? 'text-blue-400' : 'text-gray-400'">
+                    {{ stock.substring(0,2) }}
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-white">{{ stock }}</div>
+                    <div class="text-[9px] text-gray-500 truncate w-24">Company Name Tbk</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs font-bold text-white">{{ stock === 'ADMR' ? '1,330' : (1000 + i * 250).toLocaleString() }}</div>
+                  <div class="text-[9px]" :class="stock === 'ADMR' || i % 2 === 0 ? 'text-red-400' : 'text-green-400'">
+                    {{ stock === 'ADMR' || i % 2 === 0 ? '-' : '+' }}{{ (i + 1) * 15 }} ({{ stock === 'ADMR' || i % 2 === 0 ? '-' : '+' }}{{ (i * 1.5 + 0.3).toFixed(2) }}%)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lg:col-span-8">
+            <AestheticChart symbol="ADMR" price="1,330" change="-230 (-14.74%) Year To Date" :isUp="false" />
           </div>
         </div>
 
