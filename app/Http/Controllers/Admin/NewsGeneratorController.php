@@ -68,6 +68,7 @@ Sertakan tag HTML yang sesuai untuk format konten (misal: p, h3, ul, li).
 Output HANYA DALAM FORMAT JSON VALID tanpa tambahan apapun, dengan struktur:
 {
     "title": "Judul Berita yang Catchy dan Profesional",
+    "category": "Pilih SALAH SATU secara persis: Market, Corporate Action, Macroekonomi, Global, Commodity, Fixed Income, Emiten",
     "badge": "Tag Utama (misal: IHSG, Korporasi, Global)",
     "excerpt": "Ringkasan pendek 1-2 kalimat menarik",
     "content_html": "<p>Teks paragraf 1...</p><p>Teks paragraf 2...</p>"
@@ -121,6 +122,7 @@ Teks Sumber: ' . substr($textToRewrite, 0, 10000);
     {
         $request->validate([
             'title' => 'required|string',
+            'category' => 'required|string',
             'badge' => 'required|string',
             'excerpt' => 'required|string',
             'cover_image_file' => 'nullable|image|max:5120', // Max 5MB
@@ -152,7 +154,7 @@ Teks Sumber: ' . substr($textToRewrite, 0, 10000);
         $article = Article::create([
             'title' => $request->title,
             'slug' => $slug,
-            'category' => 'News · Market',
+            'category' => $request->category,
             'badge' => $request->badge,
             'excerpt' => $request->excerpt,
             'content' => '<div class="art-body">' . $request->content_html . '</div>',

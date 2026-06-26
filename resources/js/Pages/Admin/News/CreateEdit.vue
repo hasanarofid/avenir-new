@@ -132,6 +132,7 @@ const submit = () => {
                 <option value="Global">Global</option>
                 <option value="Commodity">Commodity</option>
                 <option value="Fixed Income">Fixed Income</option>
+                <option value="Emiten">Emiten</option>
               </select>
             </div>
             

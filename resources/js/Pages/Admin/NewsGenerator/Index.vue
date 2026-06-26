@@ -21,6 +21,7 @@ const generateForm = useForm({
 
 const publishForm = useForm({
     title: '',
+    category: '',
     badge: '',
     excerpt: '',
     cover_image_file: null,
@@ -43,6 +44,7 @@ const generateNews = () => {
             if (flash && flash.generated_news) {
                 generatedData.value = flash.generated_news;
                 publishForm.title = generatedData.value.title;
+                publishForm.category = generatedData.value.category || 'Market';
                 publishForm.badge = generatedData.value.badge;
                 publishForm.excerpt = generatedData.value.excerpt;
                 publishForm.content_html = generatedData.value.content_html;
@@ -210,7 +212,22 @@ const publishNews = () => {
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="space-y-2">
-                                        <label class="text-xs font-bold text-slate-400 uppercase">Badge / Kategori Utama</label>
+                                        <label class="text-xs font-bold text-slate-400 uppercase">Kategori</label>
+                                        <select 
+                                            v-model="publishForm.category"
+                                            class="w-full bg-[#090b0a] border border-emerald-950/40 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors h-[42px]"
+                                        >
+                                            <option value="Market">Market</option>
+                                            <option value="Corporate Action">Corporate Action</option>
+                                            <option value="Macroekonomi">Macroekonomi</option>
+                                            <option value="Global">Global</option>
+                                            <option value="Commodity">Commodity</option>
+                                            <option value="Fixed Income">Fixed Income</option>
+                                            <option value="Emiten">Emiten</option>
+                                        </select>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold text-slate-400 uppercase">Badge / Tag Minor</label>
                                         <input 
                                             v-model="publishForm.badge"
                                             type="text"
@@ -230,7 +247,7 @@ const publishNews = () => {
                                         </select>
                                         <p class="text-[10px] text-slate-500">Tahan CTRL/CMD untuk memilih lebih dari satu.</p>
                                     </div>
-                                    <div class="space-y-2 col-span-2 md:col-span-1">
+                                    <div class="space-y-2">
                                         <label class="text-xs font-bold text-slate-400 uppercase">Gambar Cover (Upload)</label>
                                         <div class="relative">
                                             <input 
