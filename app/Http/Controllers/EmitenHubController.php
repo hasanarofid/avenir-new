@@ -81,39 +81,39 @@ class EmitenHubController extends Controller
             // Get data from 7 days ago to ensure we have at least 2 trading days
             $start = now()->subDays(7)->format('Y-m-d');
             
-            // Multi-curl or parallel requests would be faster, but since it's cached every 5 mins,
-            // sequential is acceptable. We use Pool for concurrent requests to speed up the cache generation.
-            $responses = \Illuminate\Support\Facades\Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($symbols, $apiKey, $start) {
-                $reqs = [];
-                foreach ($symbols as $symbol) {
-                    $reqs[] = $pool->as($symbol)->withHeaders(['Authorization' => $apiKey])->timeout(5)->get("https://api.sectors.app/v2/daily/{$symbol}/?start={$start}");
-                }
-                return $reqs;
-            });
-            
-            foreach ($responses as $symbol => $response) {
-                if ($response->successful()) {
-                    $data = $response->json();
-                    if (is_array($data) && count($data) >= 2) {
-                        $latest = $data[count($data) - 1];
-                        $previous = $data[count($data) - 2];
-                        
-                        $price = $latest['close'];
-                        $prevPrice = $previous['close'];
-                        
-                        $changePercent = 0;
-                        if ($prevPrice > 0) {
-                            $changePercent = (($price - $prevPrice) / $prevPrice) * 100;
+            foreach ($symbols as $symbol) {
+                try {
+                    $response = \Illuminate\Support\Facades\Http::withHeaders(['Authorization' => $apiKey])
+                        ->withoutVerifying() // Prevent SSL certificate issues on some live servers
+                        ->timeout(5)
+                        ->get("https://api.sectors.app/v2/daily/{$symbol}/?start={$start}");
+
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        if (is_array($data) && count($data) >= 2) {
+                            $latest = $data[count($data) - 1];
+                            $previous = $data[count($data) - 2];
+                            
+                            $price = $latest['close'];
+                            $prevPrice = $previous['close'];
+                            
+                            $changePercent = 0;
+                            if ($prevPrice > 0) {
+                                $changePercent = (($price - $prevPrice) / $prevPrice) * 100;
+                            }
+                            
+                            $results[] = [
+                                'symbol' => str_replace('.JK', '', $symbol),
+                                'price' => number_format($price, 0, ',', '.'),
+                                'change' => ($changePercent > 0 ? '+' : '') . number_format($changePercent, 2) . '%',
+                                'isUp' => $changePercent >= 0,
+                                'category' => 'stock'
+                            ];
                         }
-                        
-                        $results[] = [
-                            'symbol' => str_replace('.JK', '', $symbol),
-                            'price' => number_format($price, 0, ',', '.'),
-                            'change' => ($changePercent > 0 ? '+' : '') . number_format($changePercent, 2) . '%',
-                            'isUp' => $changePercent >= 0,
-                            'category' => 'stock'
-                        ];
                     }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to fetch ticker {$symbol}: " . $e->getMessage());
+                    // Lanjut ke symbol berikutnya tanpa crash
                 }
             }
             
