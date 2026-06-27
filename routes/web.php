@@ -30,9 +30,11 @@ Route::post('/interaction/{type}/{id}/share', [\App\Http\Controllers\Interaction
 // Market Intelligence (Desk Brief)
 Route::get('/desk-brief', [\App\Http\Controllers\DeskBriefController::class, 'index'])->name('desk-brief.index');
 
+// Market Tickers API for News Marquee
+Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
+
 /* Deprecated Market Hub Routes
 // Emiten Hub (V1)
-Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
 Route::get('/emiten', [\App\Http\Controllers\EmitenHubController::class, 'index'])->name('emiten.index');
 Route::get('/emiten/{symbol}', [\App\Http\Controllers\EmitenHubController::class, 'show'])->name('emiten.show');
 
