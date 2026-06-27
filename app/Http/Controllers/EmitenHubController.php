@@ -37,7 +37,7 @@ class EmitenHubController extends Controller
             'filters' => $request->only([
                 'search', 'sector', 'market_cap', 'per', 'growth', 'yield', 'papan', 'index_board'
             ]),
-            'sectorApiKey' => env('SECTOR_API_KEY')
+            'sectorApiKey' => config('services.sectors.key')
         ]);
     }
 
@@ -76,7 +76,7 @@ class EmitenHubController extends Controller
             // Include top 10 tickers
             $symbols = ['BBCA.JK', 'BBRI.JK', 'BMRI.JK', 'AMMN.JK', 'BREN.JK', 'TLKM.JK', 'ASII.JK', 'UNTR.JK', 'TPIA.JK', 'INDF.JK'];
             $results = [];
-            $apiKey = env('SECTOR_API_KEY');
+            $apiKey = config('services.sectors.key');
             
             // Get data from 7 days ago to ensure we have at least 2 trading days
             $start = now()->subDays(7)->format('Y-m-d');
