@@ -283,7 +283,23 @@ function sectorBg(change) {
 </script>
 
 <template>
-  <Head title="Desk Brief | Market Intelligence" />
+  <Head>
+    <title>Desk Brief | Market Intelligence</title>
+    <meta name="description" content="Desk Brief Avenir Research - Rangkuman intelijen pasar, rotasi sektor, smart money flow, dan katalis harian (real-time)." />
+    <meta property="og:title" content="Desk Brief | Market Intelligence" />
+    <meta property="og:description" content="Desk Brief Avenir Research - Rangkuman intelijen pasar, rotasi sektor, smart money flow, dan katalis harian (real-time)." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    
+    <!-- GEO Tags -->
+    <meta name="geo.region" content="ID" />
+    <meta name="geo.placename" content="Indonesia" />
+    <meta name="geo.position" content="-0.789275;113.921327" />
+    <meta name="ICBM" content="-0.789275, 113.921327" />
+    <meta name="language" content="id-ID" />
+    <meta name="view-transition" content="same-origin" />
+  </Head>
+
   <AppLayout>
     <div class="bg-[#090b0a] min-h-screen text-gray-200 pb-16 font-sans">
       <div class="w-full max-w-[1536px] mx-auto px-4 lg:px-6 py-5">
