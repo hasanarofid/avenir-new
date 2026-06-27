@@ -27,19 +27,20 @@ class SyncSectorsData extends Command
             $this->warn('  ✗ No index snapshot data returned.');
         }
 
-        // 2. Fetch top movers and cache (5 min TTL — used by controller)
+        // 2. Fetch top movers and cache (TTL sampai end of day WIB)
         $this->info('  → Fetching top movers...');
         $movers = $sectors->fetchTopMovers();
-        Cache::put('sectors_top_movers', $movers, now()->addHours(6));
+        Cache::put('sectors_top_movers', $movers, now()->endOfDay()->addHours(7)); // +7h offset WIB
         $gCount = count($movers['gainers']);
         $lCount = count($movers['losers']);
         $this->info("  ✓ Cached top movers: {$gCount} gainers, {$lCount} losers.");
 
-        // 3. Fetch most traded and cache
+        // 3. Fetch most traded and cache (TTL sama)
         $this->info('  → Fetching most traded stocks...');
         $mostTraded = $sectors->fetchMostTraded();
-        Cache::put('sectors_most_traded', $mostTraded, now()->addHours(6));
+        Cache::put('sectors_most_traded', $mostTraded, now()->endOfDay()->addHours(7));
         $this->info('  ✓ Cached most traded: ' . count($mostTraded) . ' stock(s).');
+
 
         $this->info('[sectors:sync] Done.');
 
