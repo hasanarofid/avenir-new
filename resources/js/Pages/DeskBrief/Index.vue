@@ -102,6 +102,8 @@ const tooltipPos   = ref({ x: 0, y: 0 });
 const animatedScore = ref(0);
 const shared       = ref(false);
 
+const showCalendarModal = ref(false);
+
 // Animated score on mount
 onMounted(() => {
   const target = brief.value.marketStance.score;
@@ -146,14 +148,21 @@ function buildSparklinePoints(data) {
   }).join(' ');
 }
 
-// Area path untuk fill di bawah sparkline
-function buildSparklineArea(data) {
-  if (!Array.isArray(data) || data.length < 2) return null;
-  const pts = buildSparklinePoints(data);
-  if (!pts) return null;
-  const lastX = ((data.length - 1) / (data.length - 1)) * 100;
-  return `M0,20 L${pts.replace(/(\d+\.\d+),(\d+\.\d+)/g, (_, x, y) => `${x},${y}`).split(' ').join(' L')} L${lastX},20 Z`;
-}
+// Data min/max IHSG untuk chart Smart Money
+const ihsgStats = computed(() => {
+  const ihsg = idxSnapshots.value.find(s => s.symbol === 'IHSG');
+  const data = ihsg?.sparkline ?? [];
+  if (data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const minIdx = data.indexOf(min);
+  const maxIdx = data.indexOf(max);
+  return {
+    min, max,
+    minX: (minIdx / (data.length - 1)) * 100,
+    maxX: (maxIdx / (data.length - 1)) * 100,
+  };
+});
 
 // ──────────────────────────────────────────────
 // API Status
@@ -237,23 +246,8 @@ const losers  = computed(() => (props.topMovers?.losers  || []).slice(0, 5));
 const hasMovers = computed(() => gainers.value.length > 0 || losers.value.length > 0);
 
 // ──────────────────────────────────────────────
-// Smart Money: chart data berdasarkan periode
-// ──────────────────────────────────────────────
-const smChartData = computed(() => {
-  // Gunakan IHSG sparkline dari DB sebagai proxy untuk Smart Money chart
-  const ihsg = idxSnapshots.value.find(s => s.symbol === 'IHSG');
-  const sparkline = ihsg?.sparkline ?? [];
-  if (sparkline.length < 2) return { pts: null, areaPath: null };
-  // Simulasi data berdasarkan periode (semua gunakan same sparkline untuk MVP)
-  return {
-    pts: buildSparklinePoints(sparkline),
-    areaPath: buildSparklineArea(sparkline),
-    labels: ['30 hari lalu', '', '', '', '', 'Hari ini'],
-  };
-});
-
-// ──────────────────────────────────────────────
 // Actions
+
 // ──────────────────────────────────────────────
 function shareLink() {
   navigator.clipboard?.writeText(window.location.href).then(() => {
@@ -472,24 +466,16 @@ function sectorBg(change) {
                   :class="snap.isUp === true ? 'text-green-400' : snap.isUp === false ? 'text-red-400' : 'text-gray-600'">
                   {{ snap.change }}
                 </div>
-                <!-- Real sparkline -->
+                <!-- Real sparkline (No Fill) -->
                 <svg viewBox="0 0 100 20" class="w-full h-4" preserveAspectRatio="none">
                   <template v-if="buildSparklinePoints(snap.sparkline)">
-                    <defs>
-                      <linearGradient :id="`sg-${snap.symbol}`" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" :stop-color="snap.isUp ? '#4ade80' : '#f87171'" stop-opacity="0.3"/>
-                        <stop offset="100%" :stop-color="snap.isUp ? '#4ade80' : '#f87171'" stop-opacity="0"/>
-                      </linearGradient>
-                    </defs>
-                    <path v-if="buildSparklineArea(snap.sparkline)"
-                      :d="buildSparklineArea(snap.sparkline)"
-                      :fill="`url(#sg-${snap.symbol})`"
-                    />
                     <polyline
                       :points="buildSparklinePoints(snap.sparkline)"
                       fill="none"
                       :stroke="snap.isUp ? '#4ade80' : '#f87171'"
                       stroke-width="1.5"
+                      stroke-linejoin="round"
+                      stroke-linecap="round"
                       vector-effect="non-scaling-stroke"
                     />
                   </template>
@@ -527,54 +513,60 @@ function sectorBg(change) {
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-[10px] font-semibold text-gray-400 tracking-widest uppercase">4. Smart Money / Broker Flow</h3>
               <!-- Period Toggle -->
-              <div class="flex text-[9px] bg-[#0c0f0d] rounded overflow-hidden border border-[#1e2420]">
-                <button v-for="p in ['6M','1Y','3Y']" :key="p"
+              <div class="flex gap-3 text-[9px]">
+                <button v-for="p in ['1D','1W','1M','3M','YTD','1Y','3Y','5Y']" :key="p"
                   @click="smPeriod = p"
-                  class="px-2 py-1 transition-colors"
-                  :class="smPeriod === p ? 'bg-[#252b27] text-white' : 'text-gray-500 hover:text-gray-300'"
+                  class="pb-1 transition-colors font-medium border-b-2"
+                  :class="smPeriod === p ? 'border-green-500 text-green-400' : 'border-transparent text-gray-500 hover:text-gray-300'"
                 >{{ p }}</button>
               </div>
             </div>
 
-            <p class="text-[9px] text-gray-500 text-center mb-2">IHSG Smart Money: Accumulation & Cost Basis</p>
-
-            <!-- Chart legend -->
-            <div class="flex justify-center gap-4 text-[8px] text-gray-500 mb-2">
-              <span class="flex items-center gap-1"><span class="w-3 h-px bg-white inline-block"></span> IHSG Price (LHS)</span>
-              <span class="flex items-center gap-1"><span class="w-3 h-px bg-red-400 inline-block border-b border-dashed border-red-400"></span> Running Cost Basis</span>
-              <span class="flex items-center gap-1"><span class="w-3 h-px bg-blue-400 inline-block"></span> Net Inventory (RHS)</span>
-            </div>
+            <p class="text-[9px] text-gray-500 mb-2">IHSG Trend & Cumulative Accumulation ({{ smPeriod }})</p>
 
             <!-- Chart area -->
-            <div class="flex-1 relative min-h-[100px]">
-              <svg class="w-full h-full" viewBox="0 0 200 70" preserveAspectRatio="none">
-                <!-- Background grid lines -->
-                <line x1="0" y1="17.5" x2="200" y2="17.5" stroke="#1e2420" stroke-width="0.5"/>
-                <line x1="0" y1="35"   x2="200" y2="35"   stroke="#1e2420" stroke-width="0.5"/>
-                <line x1="0" y1="52.5" x2="200" y2="52.5" stroke="#1e2420" stroke-width="0.5"/>
+            <div class="flex-1 relative min-h-[140px] flex mt-2">
+              <!-- Y-axis background -->
+              <div class="flex-1 relative mr-2">
+                <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <!-- Dashed Baseline -->
+                  <line x1="0" y1="50" x2="100" y2="50" stroke="#4ade80" stroke-width="1" stroke-dasharray="2,3" opacity="0.3"/>
 
-                <!-- Real sparkline dari IHSG (white line) -->
-                <template v-if="smChartData.pts">
-                  <!-- Scale the sparkline to fit 200×70 viewBox -->
-                  <polyline
-                    :points="idxSnapshots.find(s=>s.symbol==='IHSG')?.sparkline?.length >= 2
-                      ? idxSnapshots.find(s=>s.symbol==='IHSG').sparkline.map((v,i,arr) => {
-                          const min=Math.min(...arr), max=Math.max(...arr), range=max-min||1;
-                          return `${(i/(arr.length-1)*200).toFixed(1)},${(65-((v-min)/range)*50).toFixed(1)}`;
-                        }).join(' ')
-                      : '0,35 50,25 100,30 150,15 200,10'"
-                    fill="none" stroke="#ffffff" stroke-width="1" vector-effect="non-scaling-stroke"
-                  />
-                </template>
-                <template v-else>
-                  <!-- Static mock lines jika tidak ada data -->
-                  <polyline points="0,55 40,45 80,48 120,25 160,30 200,10" fill="none" stroke="#60a5fa" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
-                  <polyline points="0,35 40,40 80,30 120,18 160,25 200,8"  fill="none" stroke="#ffffff" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
-                  <polyline points="0,42 40,44 80,36 120,22 160,28 200,14" fill="none" stroke="#ef4444" stroke-dasharray="3" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
-                </template>
-              </svg>
+                  <!-- Real sparkline (colored based on trend) -->
+                  <template v-if="ihsgStats">
+                    <polyline
+                      :points="idxSnapshots.find(s=>s.symbol==='IHSG').sparkline.map((v,i,arr) => {
+                          const range = ihsgStats.max - ihsgStats.min || 1;
+                          return `${(i/(arr.length-1)*100).toFixed(1)},${(90-((v-ihsgStats.min)/range)*80).toFixed(1)}`;
+                        }).join(' ')"
+                      fill="none" :stroke="idxSnapshots.find(s=>s.symbol==='IHSG').isUp === false ? '#f87171' : '#4ade80'" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"
+                    />
+                  </template>
+                  <template v-else>
+                    <polyline points="0,55 40,45 80,48 120,25 160,30 200,10" fill="none" stroke="#4ade80" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+                  </template>
+                </svg>
+                
+                <!-- Max / Min labels overlay -->
+                <div v-if="ihsgStats" class="absolute inset-0 pointer-events-none">
+                  <span class="absolute text-[8px] text-gray-400 -translate-x-1/2" 
+                        :style="{ left: `${ihsgStats.maxX}%`, top: '0%' }">
+                    {{ ihsgStats.max.toLocaleString(undefined, {maximumFractionDigits:0}) }}
+                  </span>
+                  <span class="absolute text-[8px] text-gray-400 -translate-x-1/2" 
+                        :style="{ left: `${ihsgStats.minX}%`, bottom: '0%' }">
+                    {{ ihsgStats.min.toLocaleString(undefined, {maximumFractionDigits:0}) }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Y-axis labels -->
+              <div v-if="ihsgStats" class="w-8 flex flex-col justify-between items-end text-[7px] text-gray-500 py-2 border-l border-[#1e2420] pl-1">
+                <span>{{ ihsgStats.max.toLocaleString(undefined, {maximumFractionDigits:0}) }}</span>
+                <span>{{ ((ihsgStats.max + ihsgStats.min) / 2).toLocaleString(undefined, {maximumFractionDigits:0}) }}</span>
+                <span>{{ ihsgStats.min.toLocaleString(undefined, {maximumFractionDigits:0}) }}</span>
+              </div>
             </div>
-
             <!-- X-axis labels -->
             <div class="flex justify-between text-[8px] text-gray-600 mt-1 px-0.5">
               <span>{{ smPeriod === '6M' ? "Jan '26" : smPeriod === '1Y' ? "Jun '25" : "Jun '23" }}</span>
@@ -689,7 +681,7 @@ function sectorBg(change) {
               </table>
             </div>
 
-            <button class="mt-3 text-[10px] text-green-400 hover:text-green-300 transition-colors text-left font-medium">
+            <button @click="showCalendarModal = true" class="mt-3 text-[10px] text-green-400 hover:text-green-300 transition-colors text-left font-medium">
               View Full Calendar →
             </button>
           </div>
@@ -757,7 +749,7 @@ function sectorBg(change) {
                 <span
                   v-for="pick in brief.analyst.topPicks"
                   :key="pick"
-                  class="px-2 py-0.5 bg-[#1e2421] border border-[#3a403d] text-white text-[10px] rounded font-medium hover:border-green-500/50 hover:text-green-400 cursor-pointer transition-colors"
+                  class="px-2 py-0.5 border border-green-800/80 text-green-400 text-[10px] rounded-full font-medium hover:border-green-500/80 hover:bg-green-900/20 cursor-pointer transition-colors"
                 >{{ pick }}</span>
               </div>
             </div>
@@ -853,5 +845,61 @@ function sectorBg(change) {
         </div>
       </div>
     </Teleport>
+
+    <!-- ── CALENDAR MODAL ────────────────────────────────────── -->
+    <Teleport to="body">
+      <div v-if="showCalendarModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="showCalendarModal = false">
+        <div class="bg-[#131714] border border-[#252b27] rounded-xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+          <div class="flex justify-between items-center p-5 border-b border-[#252b27]">
+            <h2 class="text-sm font-bold text-white tracking-widest uppercase">Full Catalyst Calendar</h2>
+            <button @click="showCalendarModal = false" class="text-gray-500 hover:text-white transition-colors">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="p-5 overflow-y-auto custom-scrollbar">
+            <table class="w-full text-xs text-left">
+              <thead>
+                <tr class="text-gray-600 border-b border-[#1e2420]">
+                  <th class="pb-3 font-normal">Date</th>
+                  <th class="pb-3 font-normal">Event</th>
+                  <th class="pb-3 font-normal text-right pr-4">Impact</th>
+                  <th class="pb-3 font-normal text-center">Region</th>
+                  <th class="pb-3 font-normal text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="cat in (brief.catalysts || [])" :key="cat.event + cat.date" class="border-b border-[#1a1f1c] last:border-0 hover:bg-[#1a1f1c] transition-colors">
+                  <td class="py-3 pr-3 whitespace-nowrap text-gray-400">{{ cat.date }}</td>
+                  <td class="py-3 pr-3 text-gray-200 font-medium">{{ cat.event }}</td>
+                  <td class="py-3 text-right pr-4 whitespace-nowrap">
+                    <span :class="impactStyle(cat.impact).text">{{ cat.impact }}</span>
+                    <span class="inline-block w-2 h-2 rounded-full ml-1" :class="impactStyle(cat.impact).dot"></span>
+                  </td>
+                  <td class="py-3 text-center text-gray-500">{{ cat.region }}</td>
+                  <td class="py-3 text-center">
+                    <span v-if="cat.isPast" class="text-[9px] px-2 py-0.5 border border-gray-700 text-gray-500 rounded">Past</span>
+                    <span v-else class="text-[9px] px-2 py-0.5 border border-green-800 text-green-500 rounded">Upcoming</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </AppLayout>
 </template>
+
+<style>
+/* Optional: styling scrollbar for the modal */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #2a302d;
+  border-radius: 4px;
+}
+</style>
