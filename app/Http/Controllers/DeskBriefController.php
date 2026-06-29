@@ -7,6 +7,10 @@ use Inertia\Inertia;
 use App\Models\DeskBrief;
 use App\Models\MarketSnapshot;
 use App\Models\ApiSyncLog;
+use App\Models\SectorBiasDaily;
+use App\Models\RiskAlert;
+use App\Models\SmartMoneyFlow;
+use App\Models\EconomicEvent;
 use Illuminate\Support\Facades\Cache;
 
 class DeskBriefController extends Controller
@@ -18,12 +22,47 @@ class DeskBriefController extends Controller
             ->orderBy('date', 'desc')
             ->first();
 
+        $date = $latestBrief ? $latestBrief->date : today()->toDateString();
+
         return Inertia::render('DeskBrief/Index', [
             'deskBrief'    => $latestBrief,
             'snapshots'    => $this->getSnapshots(),
             'topMovers'    => $this->getTopMovers(),
             'mostTraded'   => $this->getMostTraded(),
             'apiStatus'    => $this->getApiStatus(),
+            'sectorBias'   => SectorBiasDaily::whereDate('date', $date)->get(),
+            'riskAlerts'   => RiskAlert::whereDate('date', $date)->get(),
+            'smartMoney'   => SmartMoneyFlow::whereDate('date', $date)->first(),
+            'events'       => EconomicEvent::orderBy('date', 'desc')->take(10)->get(),
+            'macroCards'   => MarketSnapshot::whereIn('symbol_or_metric', ['GLOBAL_GROWTH', 'US_INFLATION', 'G3_LIQUIDITY'])
+                                ->orderBy('date', 'desc')->get()->unique('symbol_or_metric')->values()
+        ]);
+    }
+
+    public function whatChanged()
+    {
+        $latestTwoStances = \App\Models\MarketStanceDaily::orderBy('date', 'desc')->take(2)->get();
+        $todayStance = $latestTwoStances->first();
+        $yesterdayStance = $latestTwoStances->last();
+        
+        $delta = [];
+        if ($todayStance && $yesterdayStance && $todayStance->id !== $yesterdayStance->id) {
+            $delta['regime'] = $todayStance->score - $yesterdayStance->score;
+            $delta['stance_changed'] = $todayStance->label !== $yesterdayStance->label;
+            
+            if ($delta['regime'] > 0) {
+                $delta['regime_trend'] = 'warming';
+            } elseif ($delta['regime'] < 0) {
+                $delta['regime_trend'] = 'cooling';
+            } else {
+                $delta['regime_trend'] = 'neutral';
+            }
+        }
+
+        return Inertia::render('DeskBrief/WhatChanged', [
+            'delta' => $delta,
+            'todayStance' => $todayStance,
+            'yesterdayStance' => $yesterdayStance,
         ]);
     }
 
@@ -66,15 +105,45 @@ class DeskBriefController extends Controller
             }
         }
 
-        // Append static fallback cards (non-Sectors data: FX, Yield, Commodity)
-        $staticCards = [
-            ['symbol' => 'USD/IDR',      'value' => '—', 'change' => '—', 'changeAbs' => '—', 'isUp' => null, 'ytd' => '—', 'sparkline' => [], 'lastSync' => null, 'isLive' => false, 'date' => null],
-            ['symbol' => '10Y IND YIELD','value' => '—', 'change' => '—', 'changeAbs' => '—', 'isUp' => null, 'ytd' => '—', 'sparkline' => [], 'lastSync' => null, 'isLive' => false, 'date' => null],
-            ['symbol' => 'BRENT',         'value' => '—', 'change' => '—', 'changeAbs' => '—', 'isUp' => null, 'ytd' => '—', 'sparkline' => [], 'lastSync' => null, 'isLive' => false, 'date' => null],
-            ['symbol' => 'GOLD',          'value' => '—', 'change' => '—', 'changeAbs' => '—', 'isUp' => null, 'ytd' => '—', 'sparkline' => [], 'lastSync' => null, 'isLive' => false, 'date' => null],
+        // Fetch from cache or fetch directly if cache is empty
+        $marketSummary = \Illuminate\Support\Facades\Cache::remember('market_summary', 60, function () {
+            $service = app(\App\Services\MarketDataService::class);
+            return $service->getQuotes(['IDR=X', '^TNX', 'ID10YT=RR', 'BZ=F', 'GC=F']);
+        });
+
+        $formatCard = function($symbol, $defaultLabel) use ($marketSummary) {
+            $data = $marketSummary[$symbol] ?? null;
+            if (!$data || !isset($data['price']) || $data['price'] == 0) {
+                return ['symbol' => $defaultLabel, 'value' => '—', 'change' => '—', 'changeAbs' => '—', 'isUp' => null, 'ytd' => '—', 'sparkline' => [], 'lastSync' => null, 'isLive' => false, 'date' => null];
+            }
+            $price = (float)$data['price'];
+            $changePct = (float)$data['changePercent'];
+            $changeAbs = (float)$data['change'];
+            return [
+                'symbol' => $defaultLabel,
+                'value' => number_format($price, 2, '.', ','),
+                'change' => ($changePct >= 0 ? '+' : '') . number_format($changePct, 2) . '%',
+                'changeAbs' => ($changeAbs >= 0 ? '+' : '') . number_format($changeAbs, 2),
+                'isUp' => $changePct >= 0,
+                'ytd' => '—',
+                'sparkline' => $data['chartData'] ?? [],
+                'lastSync' => now()->format('d M Y H:i') . ' WIB',
+                'isLive' => true,
+                'date' => now()->format('Y-m-d'),
+            ];
+        };
+
+        // If ID10YT=RR has data, use it, otherwise fallback to US 10Y (^TNX)
+        $yieldSymbol = (isset($marketSummary['ID10YT=RR']['price']) && $marketSummary['ID10YT=RR']['price'] > 0) ? 'ID10YT=RR' : '^TNX';
+
+        $macroCards = [
+            $formatCard('IDR=X', 'USD/IDR'),
+            $formatCard($yieldSymbol, '10Y YIELD'),
+            $formatCard('BZ=F', 'BRENT'),
+            $formatCard('GC=F', 'GOLD'),
         ];
 
-        return array_merge($formatted, $staticCards);
+        return array_merge($formatted, $macroCards);
     }
 
     /**

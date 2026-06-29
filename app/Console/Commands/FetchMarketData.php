@@ -31,7 +31,7 @@ class FetchMarketData extends Command
         $this->info('Starting market data fetch...');
 
         // Base/Default tickers (Market Summary)
-        $symbols = ['^JKSE', 'IDR=X', 'GC=F', 'BZ=F'];
+        $symbols = ['^JKSE', 'IDR=X', 'GC=F', 'BZ=F', '^TNX', 'ID10YT=RR'];
 
         // Get admin settings
         $settings = Setting::pluck('value', 'key');
