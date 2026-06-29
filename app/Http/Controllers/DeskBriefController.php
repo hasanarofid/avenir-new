@@ -36,6 +36,12 @@ class DeskBriefController extends Controller
             'events'       => EconomicEvent::orderBy('date', 'desc')->take(10)->get(),
             'macroCards'   => MarketSnapshot::whereIn('symbol_or_metric', ['GLOBAL_GROWTH', 'US_INFLATION', 'G3_LIQUIDITY'])
                                 ->orderBy('date', 'desc')->get()->unique('symbol_or_metric')->values()
+        ])->withViewData([
+            'meta' => [
+                'title' => 'Desk Brief | Avenir Research',
+                'description' => 'Rangkuman intelijen pasar, rotasi sektor, smart money flow, dan katalis harian (real-time).',
+                'image' => asset('favicon.png')
+            ]
         ]);
     }
 
