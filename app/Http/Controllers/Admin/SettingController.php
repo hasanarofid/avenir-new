@@ -60,6 +60,10 @@ class SettingController extends Controller
             'maint_tentang'       => 'nullable|boolean',
             'maint_mitra'         => 'nullable|boolean',
             'maint_langganan'     => 'nullable|boolean',
+            'maint_desk_brief'    => 'nullable|boolean',
+            'maint_smart_money'   => 'nullable|boolean',
+            'maint_event_radar'   => 'nullable|boolean',
+            'maint_sector_rotation'=> 'nullable|boolean',
         ]);
 
         // Process site logo file upload
@@ -99,7 +103,7 @@ class SettingController extends Controller
         Setting::setValue('market_trending_tickers', $validatedData['market_trending_tickers'] ?? 'BBRI.JK, TLKM.JK, ASII.JK, MDKA.JK, AMMN.JK, GOTO.JK', 'text');
 
         // Granular Maintenance Mode
-        $maintKeys = ['maint_home', 'maint_katalog', 'maint_artikel', 'maint_news', 'maint_emiten', 'maint_ki_brief', 'maint_disclosure', 'maint_tentang', 'maint_mitra', 'maint_langganan'];
+        $maintKeys = ['maint_home', 'maint_katalog', 'maint_artikel', 'maint_news', 'maint_emiten', 'maint_ki_brief', 'maint_disclosure', 'maint_tentang', 'maint_mitra', 'maint_langganan', 'maint_desk_brief', 'maint_smart_money', 'maint_event_radar', 'maint_sector_rotation'];
         foreach ($maintKeys as $mKey) {
             Setting::setValue($mKey, (bool) ($validatedData[$mKey] ?? false) ? '1' : '0', 'boolean');
         }

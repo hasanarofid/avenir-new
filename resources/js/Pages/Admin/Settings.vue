@@ -34,6 +34,10 @@ const form = useForm({
   maint_tentang: props.settings.maint_tentang === '1' || props.settings.maint_tentang === true,
   maint_mitra: props.settings.maint_mitra === '1' || props.settings.maint_mitra === true,
   maint_langganan: props.settings.maint_langganan === '1' || props.settings.maint_langganan === true,
+  maint_desk_brief: props.settings.maint_desk_brief === '1' || props.settings.maint_desk_brief === true,
+  maint_smart_money: props.settings.maint_smart_money === '1' || props.settings.maint_smart_money === true,
+  maint_event_radar: props.settings.maint_event_radar === '1' || props.settings.maint_event_radar === true,
+  maint_sector_rotation: props.settings.maint_sector_rotation === '1' || props.settings.maint_sector_rotation === true,
   market_top_tickers: props.settings.market_top_tickers || 'BBRI.JK, TLKM.JK, ASII.JK, AMMN.JK, MDKA.JK',
   market_watchlist_tickers: props.settings.market_watchlist_tickers || 'BBRI.JK, TLKM.JK, ASII.JK, MDKA.JK',
   market_trending_tickers: props.settings.market_trending_tickers || 'BBRI.JK, TLKM.JK, ASII.JK, MDKA.JK, AMMN.JK, GOTO.JK',
@@ -633,6 +637,53 @@ const submit = () => {
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" v-model="form.maint_langganan" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+              <!-- Desk Brief -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Desk Brief</h4>
+                  <p class="text-xxs text-slate-500">Daily market briefing & snapshot</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_desk_brief" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+
+              <!-- Smart Money Flow -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Smart Money Flow</h4>
+                  <p class="text-xxs text-slate-500">Foreign & broker flow analytics</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_smart_money" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+
+              <!-- Event-to-Impact Radar -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Event-to-Impact Radar</h4>
+                  <p class="text-xxs text-slate-500">Market events & catalysts</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_event_radar" class="sr-only peer">
+                  <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                </label>
+              </div>
+
+              <!-- Sector Rotation -->
+              <div class="p-4 rounded-xl bg-[#090b0a] border border-emerald-950/40 flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-200">Sector Rotation</h4>
+                  <p class="text-xxs text-slate-500">Sectoral momentum & rotation</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" v-model="form.maint_sector_rotation" class="sr-only peer">
                   <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
                 </label>
               </div>
