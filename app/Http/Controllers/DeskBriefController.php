@@ -24,6 +24,34 @@ class DeskBriefController extends Controller
 
         $date = $latestBrief ? $latestBrief->date : today()->toDateString();
 
+        $latestTwoStances = \App\Models\MarketStanceDaily::orderBy('date', 'desc')->take(2)->get();
+        $todayStance = $latestTwoStances->first();
+        $yesterdayStance = $latestTwoStances->last();
+        
+        $delta = [];
+        if ($todayStance && $yesterdayStance && $todayStance->id !== $yesterdayStance->id) {
+            $delta['regime'] = $todayStance->score - $yesterdayStance->score;
+            $delta['stance_changed'] = $todayStance->label !== $yesterdayStance->label;
+            
+            if ($delta['regime'] > 0) {
+                $delta['regime_trend'] = 'warming';
+            } elseif ($delta['regime'] < 0) {
+                $delta['regime_trend'] = 'cooling';
+            } else {
+                $delta['regime_trend'] = 'neutral';
+            }
+        }
+
+        $yesterdaySmart = SmartMoneyFlow::orderBy('date', 'desc')->skip(1)->first();
+        $todaySmart = SmartMoneyFlow::orderBy('date', 'desc')->first();
+        if ($todaySmart && $yesterdaySmart) {
+            $delta['foreign_flow_today'] = $todaySmart->cumulative_vs;
+            $delta['flow_flipped'] = ($todaySmart->cumulative_vs !== $yesterdaySmart->cumulative_vs);
+        } else {
+            $delta['foreign_flow_today'] = 'Net Buy';
+            $delta['flow_flipped'] = false;
+        }
+
         return Inertia::render('DeskBrief/Index', [
             'deskBrief'    => $latestBrief,
             'snapshots'    => $this->getSnapshots(),
@@ -35,7 +63,10 @@ class DeskBriefController extends Controller
             'smartMoney'   => SmartMoneyFlow::whereDate('date', $date)->first(),
             'events'       => EconomicEvent::orderBy('date', 'desc')->take(10)->get(),
             'macroCards'   => MarketSnapshot::whereIn('symbol_or_metric', ['GLOBAL_GROWTH', 'US_INFLATION', 'G3_LIQUIDITY'])
-                                ->orderBy('date', 'desc')->get()->unique('symbol_or_metric')->values()
+                                ->orderBy('date', 'desc')->get()->unique('symbol_or_metric')->values(),
+            'delta'        => $delta,
+            'todayStance'  => $todayStance,
+            'yesterdayStance' => $yesterdayStance,
         ])->withViewData([
             'meta' => [
                 'title' => 'Desk Brief | Avenir Research',
@@ -63,6 +94,16 @@ class DeskBriefController extends Controller
             } else {
                 $delta['regime_trend'] = 'neutral';
             }
+        }
+
+        $yesterdaySmart = SmartMoneyFlow::orderBy('date', 'desc')->skip(1)->first();
+        $todaySmart = SmartMoneyFlow::orderBy('date', 'desc')->first();
+        if ($todaySmart && $yesterdaySmart) {
+            $delta['foreign_flow_today'] = $todaySmart->cumulative_vs;
+            $delta['flow_flipped'] = ($todaySmart->cumulative_vs !== $yesterdaySmart->cumulative_vs);
+        } else {
+            $delta['foreign_flow_today'] = 'Net Buy';
+            $delta['flow_flipped'] = false;
         }
 
         return Inertia::render('DeskBrief/WhatChanged', [

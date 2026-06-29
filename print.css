@@ -1,0 +1,8 @@
+@media print {
+  /* Hide the main navbar and sidebar from AppLayout if any */
+  nav, header, .sidebar, .actions, .foot, .topbar { display: none !important; }
+  /* Ensure the deskbrief section takes full width */
+  .deskbrief { padding: 0 !important; margin: 0 !important; }
+  /* Force background colors to print */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
