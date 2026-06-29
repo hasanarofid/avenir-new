@@ -10,7 +10,17 @@ const props = defineProps({
     populerTopics: Array,
 });
 
-const categories = ['Semua', 'Fundamental', 'Makro', 'Sektor', 'Valuasi', 'Belajar Saham', 'Strategi', 'Opini'];
+const categories = computed(() => {
+    let result = ['Semua'];
+    if (props.articles && props.articles.length > 0) {
+        const badges = props.articles
+            .map(a => a.badge)
+            .filter(badge => badge && badge.trim() !== '');
+        const uniqueBadges = [...new Set(badges)].sort();
+        result = [...result, ...uniqueBadges];
+    }
+    return result;
+});
 const selectedCategory = ref('Semua');
 const searchQuery = ref('');
 const sortOrder = ref('Terbaru');
@@ -20,7 +30,7 @@ const filteredArticles = computed(() => {
     let result = props.articles || [];
     
     if (selectedCategory.value !== 'Semua') {
-        result = result.filter(a => a.category && a.category.toLowerCase() === selectedCategory.value.toLowerCase());
+        result = result.filter(a => a.badge && a.badge.toLowerCase() === selectedCategory.value.toLowerCase());
     }
     
     if (searchQuery.value) {
@@ -95,7 +105,7 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                 <div class="featured-image">
                   <img v-if="featuredArticle.cover_image" :src="featuredArticle.cover_image" :alt="featuredArticle.title" />
                   <div v-else class="placeholder-img"></div>
-                  <div class="badge-cat" v-if="featuredArticle.category">{{ featuredArticle.category.toUpperCase() }}</div>
+                  <div class="badge-cat" v-if="featuredArticle.badge">{{ featuredArticle.badge.toUpperCase() }}</div>
                 </div>
                 <div class="featured-content">
                   <div class="featured-label">
@@ -166,7 +176,7 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                 <div class="recent-image">
                   <img v-if="article.cover_image" :src="article.cover_image" loading="lazy" :alt="article.title" />
                   <div v-else class="placeholder-img"></div>
-                  <div class="badge-cat" v-if="article.category">{{ article.category.toUpperCase() }}</div>
+                  <div class="badge-cat" v-if="article.badge">{{ article.badge.toUpperCase() }}</div>
                 </div>
                 <div class="recent-content">
                   <h3 class="recent-title">{{ article.title }}</h3>
@@ -241,7 +251,7 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
                     <div v-else class="placeholder-img"></div>
                   </div>
                   <div class="editor-pick-content">
-                    <div class="badge-cat-text" v-if="article.category">{{ article.category.toUpperCase() }}</div>
+                    <div class="badge-cat-text" v-if="article.badge">{{ article.badge.toUpperCase() }}</div>
                     <h3 class="editor-pick-title">{{ article.title }}</h3>
                     <div class="editor-pick-meta">{{ getReadTime(article) }} min read</div>
                   </div>
