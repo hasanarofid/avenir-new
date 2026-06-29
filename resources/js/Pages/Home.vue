@@ -500,7 +500,7 @@ const headlinesPasar = computed(() => {
             </div>
             
             <div class="mt-6 lg:mt-0 relative z-10 flex-shrink-0">
-              <Link href="/langganan" class="bg-[#22c55e] text-[#090b0a] hover:bg-[#16a34a] flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 shadow-lg shadow-emerald-500/10">
+              <Link href="/langganan" class="bg-primary-500 text-[#090b0a] hover:bg-primary-500 flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 shadow-lg shadow-emerald-500/10">
                 Lihat Paket Langganan
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </Link>

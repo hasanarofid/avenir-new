@@ -152,7 +152,7 @@ const series = computed(() => [{
       </div>
       
       <!-- CTA Button -->
-      <button class="w-full py-3.5 bg-[#4ADE80] hover:bg-[#34d399] text-[#064E3B] font-bold rounded-lg text-sm transition-colors shadow-[0_0_15px_rgba(74,222,128,0.2)]">
+      <button class="w-full py-3.5 bg-primary-500 hover:bg-primary-500 text-[#064E3B] font-bold rounded-lg text-sm transition-colors shadow-[0_0_15px_rgba(74,222,128,0.2)]">
         Lihat Detail Saham
       </button>
 

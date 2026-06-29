@@ -31,7 +31,7 @@ import { Link } from '@inertiajs/vue3';
         <Link href="/login" class="px-3.5 py-1.5 rounded-full text-xs font-semibold border border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white transition-colors">
           Masuk
         </Link>
-        <Link href="/register" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#22c55e] text-black hover:bg-emerald-500 transition-colors">
+        <Link href="/register" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary-500 text-black hover:bg-emerald-500 transition-colors">
           Daftar
         </Link>
       </div>

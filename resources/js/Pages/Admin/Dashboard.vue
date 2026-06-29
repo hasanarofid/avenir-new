@@ -245,7 +245,7 @@ const getHeatmapClass = (day, hour) => {
             <circle v-for="(val, i) in filteredTrendViews" :key="i" 
               :cx="(i / (filteredTrendViews.length - 1)) * 100" 
               :cy="100 - ((val / filteredMaxTrend) * 100)" 
-              r="1.5" fill="#121614" stroke="#10b981" stroke-width="1" class="transition-all duration-500 hover:r-2 hover:fill-[#10b981] cursor-pointer" />
+              r="1.5" fill="#121614" stroke="#10b981" stroke-width="1" class="transition-all duration-500 hover:r-2 hover:fill-primary-500 cursor-pointer" />
           </svg>
         </div>
       </div>

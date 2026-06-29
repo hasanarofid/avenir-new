@@ -26,7 +26,7 @@ defineProps({
       <!-- Article Header -->
       <div class="px-8 pt-10 pb-6 border-b border-white/5">
         <div class="flex items-center gap-2 mb-4">
-          <span v-if="article.badge" class="px-3 py-1 bg-emerald-950/20 text-[#22c55e] border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
+          <span v-if="article.badge" class="px-3 py-1 bg-emerald-950/20 text-primary-500 border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase tracking-wider">
             {{ article.badge }}
           </span>
           <span v-if="article.category" class="px-3 py-1 bg-white/5 text-slate-400 rounded-full text-[10px] font-bold uppercase tracking-wider">
@@ -51,7 +51,7 @@ defineProps({
       <!-- Ticker Information if exists -->
       <div v-if="ticker" class="bg-[#090b0a] border-b border-white/5 px-8 py-5 flex items-center justify-between">
         <div>
-          <span class="font-mono text-xl font-bold text-[#22c55e]">{{ ticker.symbol }}</span>
+          <span class="font-mono text-xl font-bold text-primary-500">{{ ticker.symbol }}</span>
           <p class="text-xs text-slate-450 mt-1">{{ ticker.company_name }}</p>
         </div>
         <div class="text-right">
@@ -79,10 +79,10 @@ defineProps({
             <h3 class="text-2xl font-sans font-bold text-white mb-3">Lanjutkan Membaca</h3>
             <p class="text-slate-400 mb-6">Artikel ini dikurasi secara eksklusif untuk member Premium. Berlangganan sekarang untuk mendapatkan akses penuh ke seluruh perpustakaan riset Avenir.</p>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link :href="route('premium.index')" class="bg-[#22c55e] hover:bg-emerald-600 text-black font-bold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto shadow-md">
+              <Link :href="route('premium.index')" class="bg-primary-500 hover:bg-emerald-600 text-black font-bold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto shadow-md">
                 Upgrade ke Premium
               </Link>
-              <Link :href="route('login')" class="text-[#22c55e] hover:text-emerald-400 font-semibold py-3 px-8 w-full sm:w-auto">
+              <Link :href="route('login')" class="text-primary-500 hover:text-emerald-400 font-semibold py-3 px-8 w-full sm:w-auto">
                 Sudah punya akun? Log in
               </Link>
             </div>
