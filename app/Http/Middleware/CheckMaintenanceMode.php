@@ -28,6 +28,10 @@ class CheckMaintenanceMode
             'tentang' => 'maint_tentang',
             'mitra*' => 'maint_mitra',
             'langganan*' => 'maint_langganan',
+            'desk-brief*' => 'maint_desk_brief',
+            'smart-money-flow*' => 'maint_smart_money',
+            'event-to-impact-radar*' => 'maint_event_radar',
+            'sector-rotation*' => 'maint_sector_rotation',
         ];
 
         // Ensure these critical paths are never blocked by maintenance mode logic
