@@ -6,6 +6,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 
 
 const props = defineProps({
+  date:        { type: String, default: null },
   deskBrief:   { type: Object, default: null },
   snapshots:   { type: Array,  default: () => [] },
   topMovers:   { type: Object, default: () => ({ gainers: [], losers: [] }) },
@@ -119,7 +120,9 @@ const brief = computed(() => {
     ...data,
     marketStance: data.market_stance || mockData.marketStance,
     drivers: data.drivers || mockData.drivers,
-    lastUpdate: data.updated_at ? new Date(data.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace('.', ':') + ' WIB' : mockData.lastUpdate,
+    lastUpdate: data.updated_at 
+        ? new Date(data.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace('.', ':') + ' WIB' 
+        : (props.date ? new Date(props.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' 17:00 WIB' : mockData.lastUpdate),
     headline: data.title || mockData.headline,
     subHeadline: data.market_read || mockData.subHeadline,
     regimeText: data.so_what || mockData.regimeText,
@@ -414,7 +417,7 @@ function sectorBg(change) {
     <div class="lastupd">Last Update: <b>{{ brief.lastUpdate }}</b><br><span style="font-size:8.5px;font-weight:normal;color:#999;letter-spacing:0">(Updated daily at EOD)</span></div>
     <div class="pbtns">
       <div class="btn green">⤴ Share Desk Brief</div>
-      <div class="btn ghost" @click="printReport">⎙ Print / PDF</div>
+      <div class="btn ghost" @click="printPage">⎙ Print / PDF</div>
       <div class="btn dots">⋮</div>
     </div>
   </div>
@@ -701,8 +704,8 @@ function sectorBg(change) {
   </AppLayout>
 </template>
 
-<style>
-:root{
+<style scoped>
+.deskbrief-page {
   --bg:#090B0A; --bg2:#0E0E0E; --card:#151515; --card2:#1A1A1A; --inset:#101010;
   --line:#242424; --line2:#2E2E2E; --line3:#383838;
   --ink:#EAEAE7; --ink2:#B6B6B0; --muted:#7C7C76; --faint:#565651;
@@ -1075,10 +1078,90 @@ function sectorBg(change) {
 
 
 
+@media screen and (max-width: 1024px) {
+  .hero, .dh {
+    grid-template-columns: 1fr !important;
+    gap: 20px;
+  }
+  .grid {
+    display: flex;
+    flex-direction: column;
+  }
+  .span3, .span4, .span5, .span6, .span8, .span12 {
+    grid-column: span 12;
+    width: 100%;
+  }
+  .idx3, .oa, .intern, .smstats, .sheat {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .movers {
+    grid-template-columns: 1fr;
+  }
+  .phead {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .phead .right {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .macros {
+    border-left: none;
+    border-top: 1px solid var(--line);
+    padding-left: 0;
+    padding-top: 20px;
+  }
+  .hero-stats {
+    border-left: none;
+    padding-left: 0;
+  }
+  .conf, .cal2 {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .idx3, .oa, .intern, .smstats, .sheat {
+    grid-template-columns: 1fr;
+  }
+  .changed {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+  .changed .lab, .chg {
+    border-right: none;
+    padding: 5px 0;
+  }
+}
+</style>
+
+<style>
 @media print {
-  .nav, .foot, .pbtns, .dropdown { display: none !important; }
-  .deskbrief-page { width: 100% !important; }
+  nav, header, footer, [class*="footer"], .nav, .foot, .pbtns, .dropdown, .phead { display: none !important; }
+  .deskbrief-page { 
+    width: 100% !important; 
+    background: var(--bg) !important; 
+    color: var(--ink) !important;
+  }
   .wrap { padding: 0 !important; }
+  
+  /* Force dark theme printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  /* Prevent awkward page breaks */
+  .hero, .card, .phead { 
+    page-break-inside: avoid !important; 
+    break-inside: avoid !important; 
+  }
 }
 b, strong { font-weight: 700 !important; }
 </style>

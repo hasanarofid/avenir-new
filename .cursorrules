@@ -45,4 +45,6 @@
 ## 6. Konteks Deployment & Pindah Perangkat
 
 - Selalu tuliskan "State of Project" jika saya meminta ringkasan pekerjaan.
-- Pahami bahwa saya mendeploy proyek ke VPS menggunakan Git dan SSH/GitHub Actions (`ssh root@101.50.1.12 -p 50008`). Pastikan _workaround_ atau perubahan konfigurasi aman untuk di-_build_ (`npm run build`) secara otomatis di server produksi tanpa isu memori/timeout.
+- Pahami bahwa saya mendeploy proyek ke VPS menggunakan Git dan SSH/GitHub Actions (`ssh root@101.50.1.12 -p 50008`). Pastikan _workaround_ atau perubahan konfigurasi aman untuk di-_build_ (`npm run build`) secara otomatis di server produksi tanpa isu memori/timeout di folder /home/hasanarofid/Documents/hasanarofid/avenir/avenir-new/.github/workflows.
+- primary warna website ini #4c940c
+- sering halaman dengan PRD dan gambar ui/ux dari client , standartkan hader dan footer nya dalam satu component dan max-width nya agar tetao seragam

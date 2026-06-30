@@ -53,6 +53,7 @@ class DeskBriefController extends Controller
         }
 
         return Inertia::render('DeskBrief/Index', [
+            'date'         => $date,
             'deskBrief'    => $latestBrief,
             'snapshots'    => $this->getSnapshots(),
             'topMovers'    => $this->getTopMovers(),
