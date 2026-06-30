@@ -78,6 +78,7 @@ const navigationGroups = [
     title: 'CONTENT MANAGEMENT',
     roles: ['admin', 'team_research'],
     items: [
+      { name: 'Desk Brief', href: route('admin.desk-brief.index'), icon: Activity, current: route().current('admin.desk-brief.*') },
       { name: 'Katalog Riset', href: route('admin.katalog-riset.index'), icon: FileText, current: route().current('admin.katalog-riset.*') },
       { name: 'News (Berita Pasar)', href: route('admin.news.index'), icon: Newspaper, current: route().current('admin.news.*') },
       { name: 'Artikel Edukasi', href: route('admin.articles.index'), icon: LibraryBig, current: route().current('admin.articles.*') },

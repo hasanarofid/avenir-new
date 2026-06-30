@@ -143,6 +143,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/news-generator', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'index'])->name('news-generator.index');
         Route::post('/news-generator/generate', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'generate'])->name('news-generator.generate');
         Route::post('/news-generator/publish', [\App\Http\Controllers\Admin\NewsGeneratorController::class, 'publish'])->name('news-generator.publish');
+
+        // Desk Brief
+        Route::get('/desk-brief', [\App\Http\Controllers\Admin\DeskBriefController::class, 'index'])->name('desk-brief.index');
+        Route::get('/desk-brief/{id}/edit', [\App\Http\Controllers\Admin\DeskBriefController::class, 'edit'])->name('desk-brief.edit');
+        Route::put('/desk-brief/{id}', [\App\Http\Controllers\Admin\DeskBriefController::class, 'update'])->name('desk-brief.update');
+        Route::post('/desk-brief/{id}/publish', [\App\Http\Controllers\Admin\DeskBriefController::class, 'publish'])->name('desk-brief.publish');
     });
 
     // Admin Only Routes

@@ -15,12 +15,20 @@ use Illuminate\Support\Facades\Cache;
 
 class DeskBriefController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $latestBrief = DeskBrief::with(['marketStance', 'drivers', 'radarStocks'])
-            ->where('status', 'published')
-            ->orderBy('date', 'desc')
-            ->first();
+        $previewId = $request->query('preview_id');
+        
+        $latestBriefQuery = DeskBrief::with(['marketStance', 'drivers', 'radarStocks']);
+
+        // Check if user is requesting a preview and is authorized
+        if ($previewId && auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('team_research'))) {
+            $latestBrief = $latestBriefQuery->find($previewId);
+        } else {
+            $latestBrief = $latestBriefQuery->where('status', 'published')
+                ->orderBy('date', 'desc')
+                ->first();
+        }
 
         $date = $latestBrief ? $latestBrief->date : today()->toDateString();
 
@@ -54,6 +62,7 @@ class DeskBriefController extends Controller
 
         return Inertia::render('DeskBrief/Index', [
             'date'         => $date,
+            'isPreview'    => $previewId && $latestBrief && $latestBrief->status !== 'published',
             'deskBrief'    => $latestBrief,
             'snapshots'    => $this->getSnapshots(),
             'topMovers'    => $this->getTopMovers(),

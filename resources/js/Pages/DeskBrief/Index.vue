@@ -7,6 +7,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({
   date:        { type: String, default: null },
+  isPreview:   { type: Boolean, default: false },
   deskBrief:   { type: Object, default: null },
   snapshots:   { type: Array,  default: () => [] },
   topMovers:   { type: Object, default: () => ({ gainers: [], losers: [] }) },
@@ -407,6 +408,10 @@ function sectorBg(change) {
     <Head title="Desk Brief - Avenir" />
     <div class="deskbrief-page ">
 
+<div v-if="isPreview" class="preview-banner">
+  ⚠️ PREVIEW MODE: You are viewing an unpublished draft.
+</div>
+
 <!-- PAGE HEADER -->
 <div class="phead">
   <div>
@@ -720,6 +725,16 @@ function sectorBg(change) {
 .num{font-variant-numeric:tabular-nums}
 .pos{color:var(--green)}.neg{color:var(--red)}.amb{color:var(--amber)}
 .dotr{width:6px;height:6px;border-radius:50%;display:inline-block}
+
+.preview-banner {
+  background: #facc15;
+  color: #000;
+  text-align: center;
+  padding: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
 
 /* ---------------- top nav ---------------- */
 .nav{height:58px;background:#0C0C0C;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 26px;gap:30px}
