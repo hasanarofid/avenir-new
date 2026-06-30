@@ -15,3 +15,7 @@ Schedule::command('news:fetch-rss')->hourly();
 // + jam 07:00 WIB (00:00 UTC) untuk pre-market brief
 Schedule::command('sectors:sync')->dailyAt('10:00')->timezone('UTC');
 Schedule::command('sectors:sync')->dailyAt('00:00')->timezone('UTC');
+
+// Buat draft Desk Brief setiap hari pada jam 17:05 WIB (10:05 UTC)
+// Dijalankan 5 menit setelah sectors:sync agar data prefill siap
+Schedule::command('deskbrief:draft')->dailyAt('10:05')->timezone('UTC');
