@@ -30,3 +30,6 @@ Thumbs.db
 # Database Backups
 database_backup/
 *.sql
+
+
+prd-testing/
