@@ -25,7 +25,7 @@ class DeskBriefDraftCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(\App\Services\MarketIntelligence\ScoringEngine $scoringEngine, \App\Services\MarketIntelligence\DeltaEngine $deltaEngine)
     {
         $dateParam = $this->argument('date');
         $date = $dateParam ? Carbon::parse($dateParam)->toDateString() : today()->toDateString();
@@ -39,20 +39,34 @@ class DeskBriefDraftCommand extends Command
             return Command::SUCCESS;
         }
 
-        $this->info("  → Creating and auto-publishing new Desk Brief...");
+        $this->info("  → Calculating Regime Score...");
+        $stance = $scoringEngine->calculateRegimeScore($date);
+
+        $this->info("  → Calculating Confluence...");
+        $scoringEngine->calculateConfluence($date);
+
+        $this->info("  → Calculating Delta (What Changed)...");
+        $delta = $deltaEngine->getWhatChanged($date);
+        
+        // You would typically save $delta array as JSON to a 'what_changed_json' column in desk_briefs, 
+        // but since we haven't added it to schema yet, we just generate it to ensure the engine works.
+
+        $this->info("  → Creating Desk Brief draft...");
 
         $brief = DeskBrief::create([
             'date' => $date,
             'session_type' => 'EOD',
-            'status' => 'published',
-            'published_at' => now(),
+            'market_stance_id' => $stance->id,
+            'status' => 'draft', // PRD: "No autonomous publish"
+            'published_at' => null,
             'title' => 'Desk Brief - ' . Carbon::parse($date)->format('d M Y'),
             'market_read' => '',
             'so_what' => '',
             'what_to_do' => '',
         ]);
 
-        $this->info("  ✓ Desk Brief created and published successfully! (ID: {$brief->id})");
+        $this->info("  ✓ Desk Brief draft created successfully! (ID: {$brief->id})");
+        $this->info("  ⚠ Please review and publish via Admin Panel.");
         $this->info("[deskbrief:draft] Done.");
 
         return Command::SUCCESS;

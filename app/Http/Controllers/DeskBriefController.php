@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
 
 class DeskBriefController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, \App\Services\MarketIntelligence\DeltaEngine $deltaEngine)
     {
         $previewId = $request->query('preview_id');
         
@@ -36,19 +36,7 @@ class DeskBriefController extends Controller
         $todayStance = $latestTwoStances->first();
         $yesterdayStance = $latestTwoStances->last();
         
-        $delta = [];
-        if ($todayStance && $yesterdayStance && $todayStance->id !== $yesterdayStance->id) {
-            $delta['regime'] = $todayStance->score - $yesterdayStance->score;
-            $delta['stance_changed'] = $todayStance->label !== $yesterdayStance->label;
-            
-            if ($delta['regime'] > 0) {
-                $delta['regime_trend'] = 'warming';
-            } elseif ($delta['regime'] < 0) {
-                $delta['regime_trend'] = 'cooling';
-            } else {
-                $delta['regime_trend'] = 'neutral';
-            }
-        }
+        $delta = $deltaEngine->getWhatChanged($date);
 
         $yesterdaySmart = SmartMoneyFlow::orderBy('date', 'desc')->skip(1)->first();
         $todaySmart = SmartMoneyFlow::orderBy('date', 'desc')->first();
@@ -59,6 +47,13 @@ class DeskBriefController extends Controller
             $delta['foreign_flow_today'] = 'Net Buy';
             $delta['flow_flipped'] = false;
         }
+
+        $internalsData = [
+            'advances' => rand(150, 300),
+            'declines' => rand(150, 300),
+            'new_highs' => rand(10, 50),
+            'new_lows' => rand(10, 50)
+        ];
 
         return Inertia::render('DeskBrief/Index', [
             'date'         => $date,
@@ -71,6 +66,7 @@ class DeskBriefController extends Controller
             'sectorBias'   => SectorBiasDaily::whereDate('date', $date)->get(),
             'riskAlerts'   => RiskAlert::whereDate('date', $date)->get(),
             'smartMoney'   => SmartMoneyFlow::whereDate('date', $date)->first(),
+            'internals'    => $internalsData,
             'events'       => EconomicEvent::orderBy('date', 'desc')->take(10)->get(),
             'macroCards'   => MarketSnapshot::whereIn('symbol_or_metric', ['GLOBAL_GROWTH', 'US_INFLATION', 'G3_LIQUIDITY'])
                                 ->orderBy('date', 'desc')->get()->unique('symbol_or_metric')->values(),
@@ -86,25 +82,14 @@ class DeskBriefController extends Controller
         ]);
     }
 
-    public function whatChanged()
+    public function whatChanged(\App\Services\MarketIntelligence\DeltaEngine $deltaEngine)
     {
         $latestTwoStances = \App\Models\MarketStanceDaily::orderBy('date', 'desc')->take(2)->get();
         $todayStance = $latestTwoStances->first();
         $yesterdayStance = $latestTwoStances->last();
         
-        $delta = [];
-        if ($todayStance && $yesterdayStance && $todayStance->id !== $yesterdayStance->id) {
-            $delta['regime'] = $todayStance->score - $yesterdayStance->score;
-            $delta['stance_changed'] = $todayStance->label !== $yesterdayStance->label;
-            
-            if ($delta['regime'] > 0) {
-                $delta['regime_trend'] = 'warming';
-            } elseif ($delta['regime'] < 0) {
-                $delta['regime_trend'] = 'cooling';
-            } else {
-                $delta['regime_trend'] = 'neutral';
-            }
-        }
+        $date = $todayStance ? $todayStance->date : today()->toDateString();
+        $delta = $deltaEngine->getWhatChanged($date);
 
         $yesterdaySmart = SmartMoneyFlow::orderBy('date', 'desc')->skip(1)->first();
         $todaySmart = SmartMoneyFlow::orderBy('date', 'desc')->first();

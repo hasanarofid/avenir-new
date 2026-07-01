@@ -640,16 +640,18 @@ function sectorBg(change) {
     <div class="card span3">
       <div class="chd"><div class="t"><b>8.</b>CATALYST CALENDAR</div></div>
       <div class="caltabs"><span class="caltab on">Upcoming</span><span class="caltab">Past Events</span></div>
-      <table class="cal2">
-        <thead><tr><th>Date</th><th>Event</th><th>Imp</th></tr></thead>
-        <tbody>
-          <tr><td class="dt">27 Jun</td><td class="ev">US Durable Goods Orders</td><td><span class="lvl-med" style="font-weight:700;font-size:9px">● Med</span></td></tr>
-          <tr><td class="dt">30 Jun</td><td class="ev">Indonesia Inflation Jun<div class="imp-sub">→ <b>Consumer, Banks</b> · hist: CPI lunak → IHSG +0.6% (1d)</div></td><td><span class="lvl-high" style="font-weight:700;font-size:9px">● High</span></td></tr>
-          <tr><td class="dt">1 Jul</td><td class="ev">China Caixin Mfg PMI</td><td><span class="lvl-med" style="font-weight:700;font-size:9px">● Med</span></td></tr>
-          <tr><td class="dt">3 Jul</td><td class="ev">Indonesia FX Reserves</td><td><span class="lvl-low" style="font-weight:700;font-size:9px">● Low</span></td></tr>
-          <tr><td class="dt">8 Jul</td><td class="ev">BI Board of Governors Mtg<div class="imp-sub">→ <b>Banks, yield</b> · hist: hold → banks +1.2% (3d)</div></td><td><span class="lvl-high" style="font-weight:700;font-size:9px">● High</span></td></tr>
-        </tbody>
-      </table>
+      <div class="cal2-wrap">
+        <table class="cal2">
+          <thead><tr><th>Date</th><th>Event</th><th>Imp</th></tr></thead>
+          <tbody>
+            <tr><td class="dt">27 Jun</td><td class="ev">US Durable Goods Orders</td><td><span class="lvl-med" style="font-weight:700;font-size:9px">● Med</span></td></tr>
+            <tr><td class="dt">30 Jun</td><td class="ev">Indonesia Inflation Jun<div class="imp-sub">→ <b>Consumer, Banks</b> · hist: CPI lunak → IHSG +0.6% (1d)</div></td><td><span class="lvl-high" style="font-weight:700;font-size:9px">● High</span></td></tr>
+            <tr><td class="dt">1 Jul</td><td class="ev">China Caixin Mfg PMI</td><td><span class="lvl-med" style="font-weight:700;font-size:9px">● Med</span></td></tr>
+            <tr><td class="dt">3 Jul</td><td class="ev">Indonesia FX Reserves</td><td><span class="lvl-low" style="font-weight:700;font-size:9px">● Low</span></td></tr>
+            <tr><td class="dt">8 Jul</td><td class="ev">BI Board of Governors Mtg<div class="imp-sub">→ <b>Banks, yield</b> · hist: hold → banks +1.2% (3d)</div></td><td><span class="lvl-high" style="font-weight:700;font-size:9px">● High</span></td></tr>
+          </tbody>
+        </table>
+      </div>
       <div class="viewall">View Full Calendar →</div>
     </div>
 
@@ -986,9 +988,9 @@ function sectorBg(change) {
 .sms .s{font-size:8.5px;color:var(--faint);margin-top:1px}
 
 /* ===== sector heatmap ===== */
-.sheat{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sheat{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px}
 .sh{border-radius:6px;padding:9px 9px}
-.sh .n{font-size:9.5px;font-weight:600;color:#0A0A0A;line-height:1.15}
+.sh .n{font-size:9.5px;font-weight:600;color:#0A0A0A;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sh .p{font-size:12px;font-weight:700;color:#0A0A0A;margin-top:3px}
 .scale{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:11px}
 
@@ -997,6 +999,7 @@ function sectorBg(change) {
 .caltab{font-size:11px;font-weight:600;color:var(--muted);padding-bottom:8px}
 .caltab.on{color:var(--green);border-bottom:2px solid var(--green)}
 .cal2{width:100%;border-collapse:collapse;font-size:11px}
+.cal2-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .cal2 th{text-align:left;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;padding:6px 5px}
 .cal2 th:last-child,.cal2 td:last-child{text-align:right}
 .cal2 td{padding:8px 5px;border-top:1px solid var(--line);color:var(--ink2)}
@@ -1022,14 +1025,15 @@ function sectorBg(change) {
 
 /* ===== top movers ===== */
 .movers{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.movers > div {min-width: 0;}
 .movhd{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:7px}
 .mvr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:11.5px}
 .mvr:last-child{border-bottom:none}
-.mvr .rk{font-size:10px;color:var(--faint);width:12px}
-.mvr .tk{font-weight:700;color:var(--ink);width:46px}
-.mvr .nm{color:var(--muted);font-size:10px;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.mvr .pr{color:var(--ink2);font-variant-numeric:tabular-nums;width:54px;text-align:right}
-.mvr .ch{font-weight:700;width:62px;text-align:right}
+.mvr .rk{font-size:10px;color:var(--faint);width:12px;flex-shrink:0}
+.mvr .tk{font-weight:700;color:var(--ink);width:46px;flex-shrink:0}
+.mvr .nm{color:var(--muted);font-size:10px;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
+.mvr .pr{color:var(--ink2);font-variant-numeric:tabular-nums;width:54px;text-align:right;flex-shrink:0}
+.mvr .ch{font-weight:700;width:62px;text-align:right;flex-shrink:0}
 
 /* what changed ribbon */
 .changed{display:flex;align-items:stretch;background:linear-gradient(90deg,#16201A,#121212);border:1px solid var(--line2);border-radius:10px;padding:11px 4px;overflow:hidden}
