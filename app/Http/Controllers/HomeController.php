@@ -498,7 +498,7 @@ class HomeController extends Controller
                 'published_at' => $article->published_at
                     ? $article->published_at->format('d M Y')
                     : null,
-                'is_paid' => (bool) $article->is_paid,
+                'is_paid' => true, // Force true as backend truncates all articles
                 'is_unlocked' => $isUnlocked,
                 'content' => $content,
                 'comments' => $comments,
@@ -581,7 +581,30 @@ class HomeController extends Controller
             }
         }
 
-        return substr($content, 0, 2000);
+        // Safe truncation: find the first </p> or </div> after 1500 chars
+        $minLen = 1500;
+        if (strlen($content) <= $minLen) {
+            return $content;
+        }
+
+        $pPos = strpos($content, '</p>', $minLen);
+        $divPos = strpos($content, '</div>', $minLen);
+        
+        $cutPos = false;
+        if ($pPos !== false && $divPos !== false) {
+            $cutPos = min($pPos + 4, $divPos + 6);
+        } elseif ($pPos !== false) {
+            $cutPos = $pPos + 4;
+        } elseif ($divPos !== false) {
+            $cutPos = $divPos + 6;
+        }
+
+        if ($cutPos !== false) {
+            return substr($content, 0, $cutPos);
+        }
+
+        // Fallback to strip_tags if no safe HTML boundary is found
+        return '<p>' . \Illuminate\Support\Str::limit(strip_tags($content), 2000) . '</p>';
     }
 
     /**

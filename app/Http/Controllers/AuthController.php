@@ -40,6 +40,8 @@ class AuthController extends Controller
                 'user_id' => $user->id,
                 'first_name' => $request->fname,
                 'last_name' => $request->lname,
+                'is_subscriber' => true,
+                'subscription_ends_at' => now()->addDays(7),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
