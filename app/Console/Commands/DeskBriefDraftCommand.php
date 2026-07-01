@@ -57,8 +57,8 @@ class DeskBriefDraftCommand extends Command
             'date' => $date,
             'session_type' => 'EOD',
             'market_stance_id' => $stance->id,
-            'status' => 'draft', // PRD: "No autonomous publish"
-            'published_at' => null,
+            'status' => 'published', // Client request: Auto publish
+            'published_at' => now(),
             'title' => 'Desk Brief - ' . Carbon::parse($date)->format('d M Y'),
             'market_read' => '',
             'so_what' => '',
