@@ -119,6 +119,84 @@ class SectorsApiService
         return $results;
     }
 
+    public function fetchSectorIndices(): array
+    {
+        $start = now()->subDays(2)->format('Y-m-d');
+        $end   = now()->format('Y-m-d');
+
+        // Map IDX sector codes to human readable names expected by DeskBrief
+        $indices = [
+            'idxfinance' => 'Banking',
+            'idxtechno'  => 'Technology',
+            'idxhealth'  => 'Healthcare',
+            'idxprop'    => 'Property',
+            'idxenergy'  => 'Energy',
+            'idxbasic'   => 'Basic Materials',
+            'idxcycli'   => 'Cons. Discretionary',
+            'idxnoncyc'  => 'Cons. Staples',
+            'idxtrans'   => 'Transportation',
+            'idxindust'  => 'Industrial',
+            'idxinfra'   => 'Infrastructure',
+        ];
+
+        $results = [];
+        $creditsUsed = 0;
+        $startedAt = now();
+
+        try {
+            $responses = Http::pool(function (Pool $pool) use ($indices, $start, $end) {
+                foreach (array_keys($indices) as $code) {
+                    $pool->as($code)
+                        ->withHeaders($this->headers())
+                        ->timeout(10)
+                        ->get("{$this->baseUrl}/index-daily/{$code}/", [
+                            'start' => $start,
+                            'end'   => $end,
+                        ]);
+                }
+            });
+
+            foreach ($indices as $code => $label) {
+                $response = $responses[$code] ?? null;
+
+                if ($response && $response->successful()) {
+                    $data = $response->json();
+                    $creditsUsed++;
+
+                    if (!is_array($data) || count($data) < 2) {
+                        continue;
+                    }
+
+                    $latest   = $data[count($data) - 1];
+                    $previous = $data[count($data) - 2];
+
+                    $price     = (float) ($latest['price'] ?? 0);
+                    $prevPrice = (float) ($previous['price'] ?? $price);
+                    $changePct = $prevPrice > 0 ? (($price - $prevPrice) / $prevPrice) * 100 : 0;
+
+                    $results[] = [
+                        'date'   => $latest['date'],
+                        'sector' => $label,
+                        'return_1d' => round($changePct, 2),
+                    ];
+                } else {
+                    Log::warning("SectorsApiService: failed to fetch sector index [{$code}]", [
+                        'status' => $response?->status(),
+                        'body'   => $response?->body(),
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error('SectorsApiService::fetchSectorIndices exception: ' . $e->getMessage());
+            $this->logSync('sector_daily', 'failed', $creditsUsed, $startedAt, $e->getMessage());
+            return [];
+        }
+
+        $this->logSync('sector_daily', 'success', $creditsUsed, $startedAt);
+
+        return $results;
+    }
+
     /**
      * Fetch top gainers & losers for today (1d period).
      * Returns ['gainers' => [...], 'losers' => [...]]

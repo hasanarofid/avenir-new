@@ -27,37 +27,28 @@ class DataSyncService
     }
 
     /**
-     * Sinkronisasi dari Sectors API (mock/simulated for MVP)
+     * Sinkronisasi dari Sectors API
      */
     protected function syncSectorsApp(string $date)
     {
-        $apiKey = env('SECTOR_API_KEY');
-        // Simulate fetching daily index data from sectors
-        // In reality, this would hit https://api.sectors.app/v1/daily/{index}
-        
-        $indexes = ['IHSG', 'LQ45', 'IDX30'];
-        foreach ($indexes as $idx) {
-            MarketSnapshot::updateOrCreate(
-                ['date' => $date, 'symbol_or_metric' => $idx],
-                [
-                    'value' => 7000 + rand(-100, 200),
-                    'change_abs' => rand(-50, 50),
-                    'change_pct' => rand(-100, 100) / 100,
-                    'source' => 'Sectors.app',
-                    'last_sync' => now()
-                ]
-            );
+        $sectorsApi = app(\App\Services\SectorsApiService::class);
+
+        // 1. Fetch IHSG, LQ45, IDX30
+        $indexSnapshots = $sectorsApi->fetchIndexSnapshots();
+        if (!empty($indexSnapshots)) {
+            $sectorsApi->persistIndexSnapshots($indexSnapshots);
         }
 
-        // Simulate fetching sector performances
-        $sectors = ['Banking', 'Telecom', 'Consumer Staples', 'Healthcare', 'Energy', 'Transportation', 'Property', 'Infrastructure', 'Industrial', 'Retail', 'Basic Materials', 'Technology', 'Consumer Discretionary', 'Mining'];
-        foreach ($sectors as $sector) {
+        // 2. Fetch Sector Indices
+        $sectorIndices = $sectorsApi->fetchSectorIndices();
+        foreach ($sectorIndices as $secData) {
             SectorBiasDaily::updateOrCreate(
-                ['date' => $date, 'sector' => $sector],
+                ['date' => $secData['date'], 'sector' => $secData['sector']],
                 [
+                    'return_1d' => $secData['return_1d'],
+                    // For now, keep others as neutral/0 until we have specific data sources for them
                     'bias' => 'neutral',
-                    'return_1d' => rand(-300, 300) / 100,
-                    'flow_value' => rand(-100000, 100000), // in millions
+                    'flow_value' => rand(-50000, 50000), // Still mocked for now as it's not in the index API
                     'rotation_score' => rand(-1, 1),
                     'smart_money_score' => rand(-1, 1),
                     'valuation_score' => rand(-1, 1),
