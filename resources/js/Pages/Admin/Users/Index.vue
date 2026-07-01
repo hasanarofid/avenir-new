@@ -16,6 +16,7 @@ const headers = [
   { text: 'Nama', value: 'name' },
   { text: 'Email', value: 'email' },
   { text: 'Status', value: 'is_subscriber' },
+  { text: 'Masa Aktif', value: 'subscription_ends_at', type: 'date' },
   { text: 'No HP', value: 'phone_number' },
   { text: 'Role', value: 'roles' },
   { text: 'Daftar Sejak', value: 'created_at', type: 'date' }

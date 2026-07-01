@@ -21,6 +21,7 @@ class UserController extends Controller
                 'users.created_at',
                 'user_profiles.is_subscriber',
                 'user_profiles.phone_number',
+                'user_profiles.subscription_ends_at',
                 'trial_email_history.created_at as trial_started_at'
             )
             ->orderBy('users.created_at', 'desc');
