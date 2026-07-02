@@ -77,7 +77,7 @@ import { Link } from '@inertiajs/vue3';
         <div class="about-cta-box">
           <h2>Mulai Jelajahi Riset</h2>
           <p>
-            Dapatkan akses penuh ke seluruh katalog riset dan artikel dengan <strong>7 hari trial gratis</strong> untuk akun baru, lalu Rp 149.000/bulan.
+            Dapatkan akses penuh ke seluruh katalog riset dan artikel dengan mengaktifkan <strong>7 hari trial gratis</strong> melalui halaman Langganan, lalu mulai dari Rp 149.000/bulan.
           </p>
           <Link href="/katalog" class="about-cta-btn">Lihat Semua Riset →</Link>
         </div>

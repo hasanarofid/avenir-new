@@ -57,6 +57,7 @@ Route::get('/p/{slug}', [\App\Http\Controllers\PageController::class, 'show'])->
 Route::get('/tentang', [HomeController::class, 'tentang'])->name('tentang');
 Route::get('/mitra', [HomeController::class, 'mitra'])->name('mitra');
 Route::get('/langganan', [HomeController::class, 'langganan'])->name('langganan');
+Route::post('/langganan/trial', [HomeController::class, 'aktifkanTrial'])->name('langganan.trial')->middleware('auth');
 Route::post('/langganan/kirim', [HomeController::class, 'kirimPembayaran'])->name('langganan.kirim')->middleware('auth');
 
 Route::post('/login', [AuthController::class, 'login']);

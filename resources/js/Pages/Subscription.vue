@@ -62,6 +62,32 @@ const handleSelectPackage = (pkg) => {
     return;
   }
 
+  if (pkg.id === 'trial') {
+      form.post('/langganan/trial', {
+          onSuccess: () => {
+              Swal.fire({
+                title: 'Berhasil!',
+                text: 'Trial 7 hari Anda telah aktif. Selamat menikmati akses premium!',
+                icon: 'success',
+                background: '#121614',
+                color: '#cbd5e1',
+                confirmButtonColor: '#10b981'
+              });
+          },
+          onError: (errors) => {
+              Swal.fire({
+                title: 'Oops',
+                text: errors.error || 'Terjadi kesalahan. Silakan coba lagi.',
+                icon: 'error',
+                background: '#121614',
+                color: '#cbd5e1',
+                confirmButtonColor: '#10b981'
+              });
+          }
+      });
+      return;
+  }
+
   if (props.status === 'pending') {
     Swal.fire({
       title: 'Menunggu Verifikasi',
@@ -241,7 +267,6 @@ const handleCloseModal = () => {
 
             <!-- Card Content -->
             <div class="plan-card-body">
-              <div class="trial-header">FREE TRIAL · 7 HARI</div>
               <h3 class="plan-title">{{ pkg.name }}</h3>
               
               <div class="price-box">

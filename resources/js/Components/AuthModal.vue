@@ -148,7 +148,7 @@ const submitRegister = () => {
       <!-- REGISTER TAB -->
       <div v-else-if="authStore.activeTab === 'register'" class="auth-view active">
         <h3>Buat Akun</h3>
-        <p class="auth-sub">Akun baru otomatis mendapat akses penuh selama 7 hari — tanpa kartu kredit, tanpa komitmen.</p>
+        <p class="auth-sub">Aktifkan 7 hari trial gratis melalui menu Langganan setelah mendaftar — tanpa kartu kredit, tanpa komitmen.</p>
         
         <div class="auth-trial-banner">
           <div class="auth-trial-icon">🎁</div>

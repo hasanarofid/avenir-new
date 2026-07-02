@@ -801,6 +801,7 @@ class HomeController extends Controller
         $pendingSubmission = null;
         $isSubscriber = false;
 
+        $isEligibleForTrial = true;
         if (auth()->check()) {
             $user = auth()->user();
 
@@ -808,6 +809,11 @@ class HomeController extends Controller
             $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
                 ->where('user_id', $user->id)
                 ->first();
+            
+            if ($profile && $profile->subscription_ends_at !== null) {
+                $isEligibleForTrial = false;
+            }
+
             if (auth()->user()->hasActivePremium() || auth()->user()->hasRole("admin")) {
                 $isSubscriber = true;
                 $status = 'active';
@@ -847,7 +853,28 @@ class HomeController extends Controller
                 'specialBg' => $pkg->special_bg,
                 'image' => $pkg->image_path,
             ];
-        });
+        })->toArray();
+
+        if ($isEligibleForTrial) {
+            array_unshift($packages, [
+                'id' => 'trial',
+                'name' => 'Free Trial 7 Hari',
+                'price' => 0,
+                'active_price' => 0,
+                'has_active_discount' => false,
+                'discount_percent' => 0,
+                'discount_end_at' => null,
+                'priceStr' => '0',
+                'activePriceStr' => '0',
+                'period' => '/ 7 Hari',
+                'perMonth' => 'Coba gratis semua fitur premium',
+                'saveText' => 'Akses Premium 7 Hari',
+                'durationDays' => 7,
+                'badge' => 'Coba Gratis',
+                'specialBg' => false,
+                'image' => !empty($packages) ? $packages[0]['image'] : asset('favicon.png'),
+            ]);
+        }
 
         return Inertia::render('Subscription', [
             'status' => $status,
@@ -865,6 +892,41 @@ class HomeController extends Controller
                 'description' => 'Dapatkan akses penuh ke laporan riset premium, insight pasar, dan rekomendasi saham eksklusif.',
             ]
         ]);
+    }
+
+    /**
+     * Handle trial activation request.
+     */
+    public function aktifkanTrial(Request $request)
+    {
+        $user = auth()->user();
+
+        $profile = \Illuminate\Support\Facades\DB::table('user_profiles')
+            ->where('user_id', $user->id)
+            ->first();
+        
+        if ($profile && $profile->subscription_ends_at !== null) {
+            return back()->withErrors(['error' => 'Anda sudah pernah menikmati masa percobaan atau sudah berlangganan sebelumnya.']);
+        }
+
+        \Illuminate\Support\Facades\DB::table('user_profiles')
+            ->where('user_id', $user->id)
+            ->update([
+                'is_subscriber' => true,
+                'subscription_ends_at' => now()->addDays(7),
+                'updated_at' => now(),
+            ]);
+
+        // Optional log
+        \App\Models\ActivityLog::create([
+            'user_id' => $user->id,
+            'action' => 'Aktivasi Trial',
+            'description' => 'User mengaktifkan trial 7 hari dari halaman Langganan.',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return redirect()->back()->with('success', 'Trial 7 hari berhasil diaktifkan. Selamat menikmati akses premium!');
     }
 
     /**
