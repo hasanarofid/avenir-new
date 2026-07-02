@@ -35,6 +35,18 @@ class UserController extends Controller
             });
         }
 
+        if ($request->has('role') && $request->role != '' && $request->role != 'all') {
+            $role = $request->role;
+            $query->whereExists(function ($q) use ($role) {
+                $q->select(DB::raw(1))
+                  ->from('model_has_roles')
+                  ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                  ->whereColumn('model_has_roles.model_id', 'users.id')
+                  ->where('model_has_roles.model_type', \App\Models\User::class)
+                  ->where('roles.name', $role);
+            });
+        }
+
         $paginated = $query->paginate(10)->withQueryString();
 
         $paginated->getCollection()->transform(function ($user) {
@@ -45,7 +57,7 @@ class UserController extends Controller
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $paginated,
-            'filters' => $request->only('search'),
+            'filters' => $request->only('search', 'role'),
             'availableRoles' => \Spatie\Permission\Models\Role::pluck('name')
         ]);
     }

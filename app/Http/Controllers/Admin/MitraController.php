@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\DB;
 
 class MitraController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $mitra = DB::table('partners')
+        $query = DB::table('partners')
             ->leftJoin('users', 'partners.user_id', '=', 'users.id')
             ->leftJoin('user_profiles', 'users.id', '=', 'user_profiles.user_id')
             ->select(
@@ -22,11 +22,22 @@ class MitraController extends Controller
                 'user_profiles.phone_number',
                 'user_profiles.avatar_url'
             )
-            ->orderBy('partners.created_at', 'desc')
-            ->get();
+            ->orderBy('partners.created_at', 'desc');
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('users.name', 'like', '%' . $search . '%')
+                  ->orWhere('users.email', 'like', '%' . $search . '%')
+                  ->orWhere('user_profiles.phone_number', 'like', '%' . $search . '%');
+            });
+        }
+
+        $mitra = $query->paginate(10)->withQueryString();
 
         return Inertia::render('Admin/Mitra/Index', [
-            'mitra' => $mitra
+            'mitra' => $mitra,
+            'filters' => $request->only('search')
         ]);
     }
 

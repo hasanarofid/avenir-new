@@ -2,11 +2,27 @@
 import { ref } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import DataTable from '@/Components/DataTable.vue';
 import { Users, Plus, Edit, Trash2, X, Eye, EyeOff } from '@lucide/vue';
 
 const props = defineProps({
-  teamResearch: Array
+  teamResearch: Object,
+  filters: Object
 });
+
+const headers = [
+  { text: 'Nama', value: 'name' },
+  { text: 'Email', value: 'email' },
+  { text: 'Terdaftar Sejak', value: 'created_at', type: 'date' }
+];
+
+const handleSearch = (searchQuery) => {
+  router.get(
+    route('admin.tim-internal.index'),
+    { search: searchQuery },
+    { preserveState: true, preserveScroll: true, replace: true }
+  );
+};
 
 // Modals State
 const isAddModalOpen = ref(false);
@@ -117,50 +133,34 @@ function formatDate(dateString) {
         </button>
       </div>
 
-      <!-- List Users -->
-      <div v-if="teamResearch.length === 0" class="text-center py-12 bg-[#121614] border border-emerald-950/30 rounded-2xl">
-        <Users class="w-12 h-12 text-emerald-900/50 mx-auto mb-3" />
-        <h3 class="text-lg font-bold text-slate-300">Belum Ada Tim Internal</h3>
-        <p class="text-sm text-slate-500 mt-1">Silakan tambahkan akun Tim Internal baru.</p>
-      </div>
-
-      <div v-else class="space-y-4">
-        <div v-for="user in teamResearch" :key="user.id" class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-5 shadow-xl hover:border-emerald-700/50 transition-colors">
-          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-            <div>
-              <div class="flex items-center gap-3 mb-1">
-                <h3 class="text-lg font-bold text-white">{{ user.name }}</h3>
-                <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Tim Internal</span>
-              </div>
-              <div class="text-sm text-slate-400 font-mono">{{ user.email }}</div>
-            </div>
-            
-            <div class="flex items-center gap-2">
-              <button 
-                @click="openEditModal(user)"
-                class="p-2 bg-[#090b0a] border border-emerald-950/50 text-slate-300 hover:text-emerald-400 hover:border-emerald-700 rounded-lg transition-all"
-                title="Edit"
-              >
-                <Edit class="w-4 h-4" />
-              </button>
-              <button 
-                @click="deleteUser(user.id)"
-                class="p-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 rounded-lg transition-all"
-                title="Hapus"
-              >
-                <Trash2 class="w-4 h-4" />
-              </button>
-            </div>
+      <DataTable 
+        :items="teamResearch.data" 
+        :headers="headers" 
+        :pagination="teamResearch.links"
+        :server-search="true"
+        :initial-search="filters?.search || ''"
+        search-placeholder="Cari nama atau email..."
+        @search="handleSearch"
+      >
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-2">
+            <button 
+              @click="openEditModal(item)"
+              class="p-2 bg-[#090b0a] border border-emerald-950/50 text-slate-300 hover:text-emerald-400 hover:border-emerald-700 rounded-lg transition-all"
+              title="Edit"
+            >
+              <Edit class="w-4 h-4" />
+            </button>
+            <button 
+              @click="deleteUser(item.id)"
+              class="p-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 rounded-lg transition-all"
+              title="Hapus"
+            >
+              <Trash2 class="w-4 h-4" />
+            </button>
           </div>
-
-          <div class="grid grid-cols-2 gap-4 mt-5 pt-4 border-t border-emerald-950/30">
-            <div>
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Terdaftar Sejak</div>
-              <div class="text-sm font-semibold text-slate-300">{{ formatDate(user.created_at) }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </template>
+      </DataTable>
     </div>
 
     <!-- Add Modal -->

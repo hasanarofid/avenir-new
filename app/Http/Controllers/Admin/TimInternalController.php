@@ -11,14 +11,24 @@ use Illuminate\Validation\Rules;
 
 class TimInternalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $teamResearchUsers = User::role('tim_internal')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = User::role('tim_internal')
+            ->orderBy('created_at', 'desc');
 
-        return Inertia::render('Admin/TeamResearch/Index', [
-            'teamResearch' => $teamResearchUsers
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+
+        $teamResearchUsers = $query->paginate(10)->withQueryString();
+
+        return Inertia::render('Admin/TimInternal/Index', [
+            'teamResearch' => $teamResearchUsers,
+            'filters' => $request->only('search')
         ]);
     }
 

@@ -1,10 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, computed } from 'vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { Users, Trash2 } from '@lucide/vue';
 import Swal from 'sweetalert2';
+import Multiselect from '@vueform/multiselect';
+import '@vueform/multiselect/themes/default.css';
 
 const props = defineProps({
   users: Object,
@@ -23,14 +25,26 @@ const headers = [
 ];
 
 const selectedItems = ref([]);
+const filterRole = ref(props.filters?.role || 'all');
+
+const roleOptions = computed(() => {
+    return [
+        { value: 'all', label: 'Semua Role' },
+        ...props.availableRoles.map(r => ({ value: r, label: r }))
+    ];
+});
 
 const handleSearch = (searchQuery) => {
   router.get(
     route('admin.users.index'),
-    { search: searchQuery },
+    { search: searchQuery, role: filterRole.value },
     { preserveState: true, preserveScroll: true, replace: true }
   );
 };
+
+watch(filterRole, () => {
+  handleSearch(props.filters?.search || '');
+});
 
 const updateRole = (userId, role) => {
   if (confirm(`Apakah Anda yakin ingin mengubah role user ini menjadi ${role}?`)) {
@@ -155,6 +169,15 @@ const handleBulkDelete = async () => {
         </template>
         
         <template #actions-header>
+          <div class="w-[200px] z-20 mr-2">
+            <Multiselect
+              v-model="filterRole"
+              :options="roleOptions"
+              :searchable="true"
+              placeholder="Filter by Role"
+              class="w-full text-sm"
+            />
+          </div>
           <button 
             v-if="selectedItems.length > 0"
             @click="handleBulkDelete"
@@ -169,3 +192,32 @@ const handleBulkDelete = async () => {
     </div>
   </AdminLayout>
 </template>
+
+<style>
+.multiselect {
+  --ms-bg: #090b0a;
+  --ms-bg-disabled: #121614;
+  --ms-border-color: rgba(6, 78, 59, 0.4);
+  --ms-border-width: 1px;
+  --ms-border-color-active: #10b981;
+  --ms-radius: 0.5rem;
+  --ms-dropdown-bg: #121614;
+  --ms-dropdown-border-color: rgba(6, 78, 59, 0.4);
+  --ms-option-bg-pointed: rgba(16, 185, 129, 0.1);
+  --ms-option-bg-selected: #059669;
+  --ms-option-bg-selected-pointed: #047857;
+  --ms-option-color-pointed: #e2e8f0;
+  --ms-option-color-selected: #ffffff;
+  --ms-font-color: #cbd5e1;
+  --ms-empty-color: #64748b;
+  --ms-caret-color: #94a3b8;
+  --ms-clear-color: #94a3b8;
+  --ms-spinner-color: #10b981;
+  --ms-placeholder-color: #64748b;
+}
+
+.multiselect-dropdown {
+  overflow-y: auto;
+  z-index: 50;
+}
+</style>
