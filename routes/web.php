@@ -29,6 +29,7 @@ Route::post('/interaction/{type}/{id}/comment', [\App\Http\Controllers\Interacti
 Route::post('/interaction/{type}/{id}/share', [\App\Http\Controllers\InteractionController::class, 'incrementShare'])->name('interaction.share');
 // Market Intelligence (Desk Brief)
 Route::get('/desk-brief', [\App\Http\Controllers\DeskBriefController::class, 'index'])->name('desk-brief.index');
+Route::get('/desk-brief-mockup', [\App\Http\Controllers\DeskBriefController::class, 'mockup'])->name('desk-brief.mockup');
 Route::get('/desk-brief/what-changed', [\App\Http\Controllers\DeskBriefController::class, 'whatChanged'])->name('desk-brief.what-changed');
 
 // Market Tickers API for News Marquee

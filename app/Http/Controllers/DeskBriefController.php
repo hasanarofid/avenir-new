@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Cache;
 
 class DeskBriefController extends Controller
 {
+    public function mockup()
+    {
+        return Inertia::render('DeskBrief/IndexMockup');
+    }
+
     public function index(Request $request, \App\Services\MarketIntelligence\DeltaEngine $deltaEngine)
     {
         $previewId = $request->query('preview_id');

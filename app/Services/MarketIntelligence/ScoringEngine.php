@@ -16,14 +16,34 @@ class ScoringEngine
      */
     public function calculateRegimeScore(string $date): MarketStanceDaily
     {
-        // For MVP, simulate component scores
-        // Each component is a normalized z-score mapped to 0-100 scale, so let's just pick random for now
-        $flow = rand(30, 80);
-        $breadth = rand(30, 80);
-        $momentum = rand(30, 80);
-        $rupiah = rand(30, 80);
-        $yield = rand(30, 80);
-        $rotasi = rand(30, 80);
+        $latestDate = \App\Models\MarketSnapshot::whereDate('date', '<=', $date)->max('date');
+        $snapshots = $latestDate ? \App\Models\MarketSnapshot::whereDate('date', $latestDate)->get()->keyBy('symbol_or_metric') : collect();
+
+        $ihsg = $snapshots->get('IHSG');
+        $idr = $snapshots->get('USD/IDR') ?? $snapshots->get('IDR=X');
+        $yieldSnap = $snapshots->get('10Y YIELD') ?? $snapshots->get('^TNX') ?? $snapshots->get('ID10YT=RR');
+
+        $flow = 50; 
+        $breadth = 50; 
+        $momentum = 50;
+        $rupiah = 50;
+        $yield = 50;
+        $rotasi = 50;
+
+        if ($ihsg) {
+            $momentum = max(0, min(100, 50 + ($ihsg->change_pct * 20)));
+            $breadth = max(0, min(100, 50 + ($ihsg->change_pct * 15)));
+            $rotasi = max(0, min(100, 50 + ($ihsg->change_pct * 10)));
+            $flow = max(0, min(100, 50 + ($ihsg->change_pct * 15))); // Proxy flow with index trend
+        }
+
+        if ($idr) {
+            $rupiah = max(0, min(100, 50 - ($idr->change_pct * 50)));
+        }
+
+        if ($yieldSnap) {
+            $yield = max(0, min(100, 50 - ($yieldSnap->change_pct * 30)));
+        }
 
         $totalScore = round(
             (0.25 * $flow) +

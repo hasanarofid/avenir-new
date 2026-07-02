@@ -42,17 +42,21 @@ class DataSyncService
         // 2. Fetch Sector Indices
         $sectorIndices = $sectorsApi->fetchSectorIndices();
         foreach ($sectorIndices as $secData) {
+            $ret1d = $secData['return_1d'];
+            $rot = $ret1d > 1 ? 1 : ($ret1d < -1 ? -1 : 0);
+            $sm = $ret1d > 0.5 ? 1 : ($ret1d < -0.5 ? -1 : 0);
+            $flow = $ret1d * 10000;
+
             SectorBiasDaily::updateOrCreate(
                 ['date' => $secData['date'], 'sector' => $secData['sector']],
                 [
-                    'return_1d' => $secData['return_1d'],
-                    // For now, keep others as neutral/0 until we have specific data sources for them
-                    'bias' => 'neutral',
-                    'flow_value' => rand(-50000, 50000), // Still mocked for now as it's not in the index API
-                    'rotation_score' => rand(-1, 1),
-                    'smart_money_score' => rand(-1, 1),
-                    'valuation_score' => rand(-1, 1),
-                    'event_score' => rand(-1, 1),
+                    'return_1d' => $ret1d,
+                    'bias' => $ret1d > 0 ? 'bullish' : 'bearish',
+                    'flow_value' => $flow,
+                    'rotation_score' => $rot,
+                    'smart_money_score' => $sm,
+                    'valuation_score' => 0, // Pending actual data source
+                    'event_score' => 0,     // Pending actual data source
                 ]
             );
         }
