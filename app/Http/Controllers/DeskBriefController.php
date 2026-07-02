@@ -22,7 +22,7 @@ class DeskBriefController extends Controller
         $latestBriefQuery = DeskBrief::with(['marketStance', 'drivers', 'radarStocks']);
 
         // Check if user is requesting a preview and is authorized
-        if ($previewId && auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('team_research'))) {
+        if ($previewId && auth()->check() && (auth()->user()->hasRole('admin') || auth()->user()->hasRole('tim_internal'))) {
             $latestBrief = $latestBriefQuery->find($previewId);
         } else {
             $latestBrief = $latestBriefQuery->where('status', 'published')

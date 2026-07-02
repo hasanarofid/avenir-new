@@ -69,14 +69,14 @@ const isUserMenuOpen = ref(false);
 const navigationGroups = [
   {
     title: 'MAIN MENU',
-    roles: ['admin', 'team_research'],
+    roles: ['admin', 'tim_internal'],
     items: [
       { name: 'Dashboard', href: route('admin.dashboard'), icon: LayoutDashboard, current: route().current('admin.dashboard') },
     ]
   },
   {
     title: 'CONTENT MANAGEMENT',
-    roles: ['admin', 'team_research'],
+    roles: ['admin', 'tim_internal'],
     items: [
       { name: 'Desk Brief', href: route('admin.desk-brief.index'), icon: Activity, current: route().current('admin.desk-brief.*') },
       { name: 'Katalog Riset', href: route('admin.katalog-riset.index'), icon: FileText, current: route().current('admin.katalog-riset.*') },
@@ -86,7 +86,7 @@ const navigationGroups = [
   },
   {
     title: 'AVENIR AI ENGINES',
-    roles: ['admin', 'team_research'],
+    roles: ['admin', 'tim_internal'],
     items: [
       { name: 'Research AI', href: route('admin.research-generator.index'), icon: BrainCircuit, current: route().current('admin.research-generator.*') },
       { name: 'News AI Generator', href: route('admin.news-generator.index'), icon: Globe, current: route().current('admin.news-generator.*') },
@@ -102,7 +102,7 @@ const navigationGroups = [
       { name: 'Pembayaran', href: route('admin.payments.index'), icon: CreditCard, current: route().current('admin.payments.*') },
       { name: 'Pool Mitra', href: route('admin.pool.index'), icon: Coins, current: route().current('admin.pool.*') },
       { name: 'Mitra Analis', href: route('admin.mitra.index'), icon: UserCheck, current: route().current('admin.mitra.*') },
-      { name: 'Team Research', href: route('admin.team-research.index'), icon: Users, current: route().current('admin.team-research.*') },
+      { name: 'Tim Internal', href: route('admin.tim-internal.index'), icon: Users, current: route().current('admin.tim-internal.*') },
       { name: 'Subscriber', href: route('admin.users.index'), icon: Users, current: route().current('admin.users.*') },
       { name: 'Notifikasi & Blast', href: route('admin.notifications.index'), icon: Bell, current: route().current('admin.notifications.*') },
     ]

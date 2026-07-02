@@ -9,11 +9,11 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
-class TeamResearchController extends Controller
+class TimInternalController extends Controller
 {
     public function index()
     {
-        $teamResearchUsers = User::role('team_research')
+        $teamResearchUsers = User::role('tim_internal')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -36,9 +36,9 @@ class TeamResearchController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $user->assignRole('team_research');
+        $user->assignRole('tim_internal');
 
-        return redirect()->back()->with('success', 'Akun Team Research berhasil ditambahkan!');
+        return redirect()->back()->with('success', 'Akun Tim Internal berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
@@ -63,7 +63,7 @@ class TeamResearchController extends Controller
         }
         $user->save();
 
-        return redirect()->back()->with('success', 'Akun Team Research berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Akun Tim Internal berhasil diperbarui!');
     }
 
     public function destroy($id)
@@ -77,6 +77,6 @@ class TeamResearchController extends Controller
 
         $user->delete();
 
-        return redirect()->back()->with('success', 'Akun Team Research berhasil dihapus!');
+        return redirect()->back()->with('success', 'Akun Tim Internal berhasil dihapus!');
     }
 }

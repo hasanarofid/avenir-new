@@ -49,9 +49,9 @@ class RoleAndPermissionSeeder extends Seeder
         // Role untuk Subscriber (Pengguna Berbayar)
         Role::findOrCreate('subscriber', 'web');
 
-        // Role untuk Team Research
-        $teamResearchRole = Role::findOrCreate('team_research', 'web');
-        $teamResearchRole->givePermissionTo(['create articles', 'edit articles', 'publish articles']);
+        // Role untuk Tim Internal
+        $timInternalRole = Role::findOrCreate('tim_internal', 'web');
+        $timInternalRole->givePermissionTo(['create articles', 'edit articles', 'publish articles']);
         
         // Role untuk User Biasa
         Role::findOrCreate('user', 'web');

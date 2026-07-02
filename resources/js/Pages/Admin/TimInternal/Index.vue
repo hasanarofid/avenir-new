@@ -62,7 +62,7 @@ const closeEditModal = () => {
 
 // Actions
 const submitAdd = () => {
-  addForm.post(route('admin.team-research.store'), {
+  addForm.post(route('admin.tim-internal.store'), {
     preserveScroll: true,
     onSuccess: () => {
       closeAddModal();
@@ -71,7 +71,7 @@ const submitAdd = () => {
 };
 
 const submitEdit = () => {
-  editForm.put(route('admin.team-research.update', selectedUser.value.id), {
+  editForm.put(route('admin.tim-internal.update', selectedUser.value.id), {
     preserveScroll: true,
     onSuccess: () => {
       closeEditModal();
@@ -81,7 +81,7 @@ const submitEdit = () => {
 
 const deleteUser = (id) => {
   if (confirm('Apakah Anda yakin ingin menghapus akun ini?')) {
-    router.delete(route('admin.team-research.destroy', id), {
+    router.delete(route('admin.tim-internal.destroy', id), {
       preserveScroll: true
     });
   }
@@ -95,7 +95,7 @@ function formatDate(dateString) {
 </script>
 
 <template>
-  <Head title="Kelola Team Research" />
+  <Head title="Kelola Tim Internal" />
 
   <AdminLayout>
     <div class="space-y-6 pb-12">
@@ -104,9 +104,9 @@ function formatDate(dateString) {
         <div>
           <h2 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
             <Users class="w-6 h-6 text-emerald-500" />
-            Team Research
+            Tim Internal
           </h2>
-          <p class="text-sm text-slate-400 mt-1">Kelola akun pengguna dengan akses Team Research.</p>
+          <p class="text-sm text-slate-400 mt-1">Kelola akun pengguna dengan akses Tim Internal.</p>
         </div>
         <button 
           @click="openAddModal"
@@ -120,8 +120,8 @@ function formatDate(dateString) {
       <!-- List Users -->
       <div v-if="teamResearch.length === 0" class="text-center py-12 bg-[#121614] border border-emerald-950/30 rounded-2xl">
         <Users class="w-12 h-12 text-emerald-900/50 mx-auto mb-3" />
-        <h3 class="text-lg font-bold text-slate-300">Belum Ada Team Research</h3>
-        <p class="text-sm text-slate-500 mt-1">Silakan tambahkan akun Team Research baru.</p>
+        <h3 class="text-lg font-bold text-slate-300">Belum Ada Tim Internal</h3>
+        <p class="text-sm text-slate-500 mt-1">Silakan tambahkan akun Tim Internal baru.</p>
       </div>
 
       <div v-else class="space-y-4">
@@ -130,7 +130,7 @@ function formatDate(dateString) {
             <div>
               <div class="flex items-center gap-3 mb-1">
                 <h3 class="text-lg font-bold text-white">{{ user.name }}</h3>
-                <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Team Research</span>
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Tim Internal</span>
               </div>
               <div class="text-sm text-slate-400 font-mono">{{ user.email }}</div>
             </div>
@@ -168,7 +168,7 @@ function formatDate(dateString) {
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeAddModal"></div>
       <div class="relative bg-[#121614] border border-emerald-950/50 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
         <div class="p-5 border-b border-emerald-950/30 flex items-center justify-between">
-          <h3 class="text-lg font-bold text-white">Tambah Team Research</h3>
+          <h3 class="text-lg font-bold text-white">Tambah Tim Internal</h3>
           <button @click="closeAddModal" class="text-slate-400 hover:text-white transition-colors">
             <X class="w-5 h-5" />
           </button>
@@ -258,7 +258,7 @@ function formatDate(dateString) {
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeEditModal"></div>
       <div class="relative bg-[#121614] border border-emerald-950/50 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
         <div class="p-5 border-b border-emerald-950/30 flex items-center justify-between">
-          <h3 class="text-lg font-bold text-white">Edit Team Research</h3>
+          <h3 class="text-lg font-bold text-white">Edit Tim Internal</h3>
           <button @click="closeEditModal" class="text-slate-400 hover:text-white transition-colors">
             <X class="w-5 h-5" />
           </button>

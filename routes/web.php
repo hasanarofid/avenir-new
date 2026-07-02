@@ -68,7 +68,7 @@ Route::post('/migrate-setup', [MigratedPasswordController::class, 'storeNewPassw
 
 Route::get('/dashboard', function () {
     $user = auth()->user();
-    if ($user->hasRole('admin') || $user->hasRole('team_research')) {
+    if ($user->hasRole('admin') || $user->hasRole('tim_internal')) {
         return redirect()->route('admin.dashboard');
     } elseif ($user->hasRole('mitra')) {
         return redirect()->route('mitra.dashboard');
@@ -108,8 +108,8 @@ Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () 
 // Admin CMS Routes
 Route::prefix('admin')->name('admin.')->group(function () {
     
-    // Shared Routes for Admin & Team Research
-    Route::middleware(['auth', 'role:admin|team_research'])->group(function () {
+    // Shared Routes for Admin & Tim Internal
+    Route::middleware(['auth', 'role:admin|tim_internal'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Katalog Riset
@@ -180,8 +180,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/pool', [\App\Http\Controllers\Admin\PoolController::class, 'index'])->name('pool.index');
         Route::post('/pool', [\App\Http\Controllers\Admin\PoolController::class, 'store'])->name('pool.store');
 
-        // Team Research
-        Route::resource('team-research', \App\Http\Controllers\Admin\TeamResearchController::class)->except(['create', 'show', 'edit']);
+        // Tim Internal
+        Route::resource('tim-internal', \App\Http\Controllers\Admin\TimInternalController::class)->except(['create', 'show', 'edit']);
 
         // Users
         Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
