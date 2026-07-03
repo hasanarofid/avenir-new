@@ -25,7 +25,7 @@ class DeskBriefDraftCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(\App\Services\MarketIntelligence\ScoringEngine $scoringEngine, \App\Services\MarketIntelligence\DeltaEngine $deltaEngine)
+    public function handle(\App\Services\MarketIntelligence\ScoringEngine $scoringEngine, \App\Services\MarketIntelligence\DeltaEngine $deltaEngine, \App\Services\MarketIntelligence\KeyDriversEngine $keyDriversEngine)
     {
         $dateParam = $this->argument('date');
         $date = $dateParam ? Carbon::parse($dateParam)->toDateString() : today()->toDateString();
@@ -66,6 +66,22 @@ class DeskBriefDraftCommand extends Command
         ]);
 
         $this->info("  ✓ Desk Brief draft created successfully! (ID: {$brief->id})");
+
+        $this->info("  → Calculating Key Drivers...");
+        $drivers = $keyDriversEngine->buildIhsgKeyDrivers('LQ45', 5, $date, []);
+        foreach ($drivers as $driverData) {
+            $brief->drivers()->create([
+                'rank' => $driverData['rank'],
+                'title' => $driverData['title'],
+                'category' => $driverData['category'],
+                'source' => $driverData['components']['data_quality'] ?? 'unknown',
+                'impact_level' => $driverData['impact_level'],
+                'explanation' => $driverData['explanation'],
+                'affected_sectors_json' => $driverData['components'] ?? [],
+            ]);
+        }
+        $this->info("  ✓ Key Drivers saved successfully!");
+
         $this->info("  ⚠ Please review and publish via Admin Panel.");
         $this->info("[deskbrief:draft] Done.");
 

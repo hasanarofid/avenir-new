@@ -284,6 +284,64 @@ class SectorsApiService
     }
 
     /**
+     * Fetch top brokers for a specific date and criteria.
+     */
+    public function fetchTopBrokers(?string $date = null, string $metric = 'net', string $origin = 'all', string $cohort = 'all', int $nBrokers = 200): array
+    {
+        $params = [
+            'metric' => $metric,
+            'origin' => $origin,
+            'cohort' => $cohort,
+            'n_brokers' => $nBrokers,
+        ];
+        if ($date) {
+            $params['date'] = $date;
+        }
+        try {
+            $response = Http::withHeaders($this->headers())
+                ->timeout(10)
+                ->get("{$this->baseUrl}/brokers/top/", $params);
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['results']) && is_array($data['results'])) return $data['results'];
+                if (isset($data['data']) && is_array($data['data'])) return $data['data'];
+                if (is_array($data)) return $data;
+            }
+        } catch (\Throwable $e) {
+            Log::error('fetchTopBrokers exception: ' . $e->getMessage());
+        }
+        return [];
+    }
+
+    /**
+     * Fetch companies universe.
+     */
+    public function fetchCompaniesUniverse(string $indexName = 'LQ45', int $limit = 200): array
+    {
+        $params = [
+            'where' => "indices in ['{$indexName}']",
+            'order_by' => '-market_cap',
+            'limit' => $limit,
+        ];
+        try {
+            $response = Http::withHeaders($this->headers())
+                ->timeout(15)
+                ->get("{$this->baseUrl}/companies/", $params);
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['results']) && is_array($data['results'])) return $data['results'];
+                if (isset($data['data']) && is_array($data['data'])) return $data['data'];
+                if (is_array($data) && count($data) > 0 && !isset($data['results'])) return $data;
+            }
+        } catch (\Throwable $e) {
+            Log::error('fetchCompaniesUniverse exception: ' . $e->getMessage());
+        }
+        return [];
+    }
+
+    /**
      * Persist index snapshots to market_snapshots table.
      */
     public function persistIndexSnapshots(array $snapshots): void

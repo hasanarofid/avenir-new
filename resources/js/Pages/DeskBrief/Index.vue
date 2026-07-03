@@ -47,12 +47,12 @@ const mockData = {
   ],
   regimeText: 'Selective risk-on: pasar konstruktif namun hanya untuk sektor dan saham terpilih. Likuiditas asing masih oke, yield manageable. Fokus pada quality earnings dengan domestic demand exposure.',
   drivers: [
-    { rank: 1, title: 'US Rates & Dollar Direction',   impact: 'High',   dots: 3, category: 'Macro/Rate',    explanation: 'Fed hawkish pause menekan DXY; positive for EM flows.' },
-    { rank: 2, title: 'Global Growth & China Demand',  impact: 'High',   dots: 3, category: 'Flow',          explanation: 'China stimulus incremental mendukung komoditas & risk sentiment.' },
-    { rank: 3, title: 'Indonesia Earnings Outlook',    impact: 'Medium', dots: 2, category: 'Earnings',      explanation: 'Q1 results mixed; Banks & Telco beat, Consumer miss.' },
-    { rank: 4, title: 'Liquidity & Foreign Flows',     impact: 'Medium', dots: 2, category: 'Flow',          explanation: 'Foreign net buy di SBN; ekuitas masih volatile.' },
-    { rank: 5, title: 'Commodity Prices',              impact: 'Low',    dots: 1, category: 'Commodity',     explanation: 'CPO & coal sideways; neutral untuk mining/plantation.' },
-    { rank: 6, title: 'Domestic Politics & Policy',   impact: 'Low',    dots: 1, category: 'Policy',        explanation: 'Kabinet stabil; tidak ada kejutan kebijakan signifikan.' },
+    { rank: 1, title: 'IDX Liquidity & Foreign Flow',   impact: 'High',   dots: 3, category: 'Flow/Liquidity', explanation: 'Foreign net inflow mendukung stabilitas.' },
+    { rank: 2, title: 'Rupiah, BI & SBN Yield',         impact: 'High',   dots: 3, category: 'Macro/Rate',     explanation: 'Yield dan nilai tukar jadi penentu utama risk appetite.' },
+    { rank: 3, title: 'Market Breadth & Internals',     impact: 'Medium', dots: 2, category: 'Market Internals', explanation: 'Partisipasi saham penggerak indeks.' },
+    { rank: 4, title: 'Sector Rotation & Leadership',   impact: 'Medium', dots: 2, category: 'Sector Rotation',  explanation: 'Rotasi sektoral ke area defensif atau pro-growth.' },
+    { rank: 5, title: 'Indonesia Earnings Outlook',     impact: 'Low',    dots: 1, category: 'Earnings',         explanation: 'Proyeksi earning ke depan masih solid.' },
+    { rank: 6, title: 'Domestic Policy & Fiscal Risk',  impact: 'Low',    dots: 1, category: 'Policy/Risk',      explanation: 'Kebijakan fiskal domestik terkendali.' },
   ],
   sectors: [
     { name: 'Banking',                change: 4.6,  color: '#16a34a' },
@@ -564,12 +564,26 @@ function getConfClass(label) {
     <div class="card span3">
       <div class="chd"><div class="t"><b>2.</b>KEY DRIVERS</div><div class="meta">Ranked by impact</div></div>
       <div class="kd">
-        <div class="kdr"><span class="rk">1</span><div class="bd"><div class="t">US Rates &amp; Dollar Direction <span class="ctag ct-up">▲ Escalated</span></div><div class="c">Macro / Rate</div></div><div class="imp"><span class="idots3"><i style="background:#E2705C"></i><i style="background:#E2705C"></i><i style="background:#E2705C"></i></span><span class="lvl lvl-high">High</span></div></div>
-        <div class="kdr"><span class="rk">2</span><div class="bd"><div class="t">Global Growth &amp; China Demand</div><div class="c">Flow</div></div><div class="imp"><span class="idots3"><i style="background:#E2705C"></i><i style="background:#E2705C"></i><i style="background:#E2705C"></i></span><span class="lvl lvl-high">High</span></div></div>
-        <div class="kdr"><span class="rk">3</span><div class="bd"><div class="t">Indonesia Earnings Outlook</div><div class="c">Earnings</div></div><div class="imp"><span class="idots3"><i style="background:#D99B3E"></i><i style="background:#D99B3E"></i><i style="background:#333"></i></span><span class="lvl lvl-med">Medium</span></div></div>
-        <div class="kdr"><span class="rk">4</span><div class="bd"><div class="t">Liquidity &amp; Foreign Flows <span class="ctag ct-flip">↺ Flipped +</span></div><div class="c">Flow</div></div><div class="imp"><span class="idots3"><i style="background:#D99B3E"></i><i style="background:#D99B3E"></i><i style="background:#333"></i></span><span class="lvl lvl-med">Medium</span></div></div>
-        <div class="kdr"><span class="rk">5</span><div class="bd"><div class="t">Commodity Prices</div><div class="c">Commodity</div></div><div class="imp"><span class="idots3"><i style="background:#46C46E"></i><i style="background:#333"></i><i style="background:#333"></i></span><span class="lvl lvl-low">Low</span></div></div>
-        <div class="kdr"><span class="rk">6</span><div class="bd"><div class="t">Domestic Politics &amp; Policy</div><div class="c">Policy</div></div><div class="imp"><span class="idots3"><i style="background:#46C46E"></i><i style="background:#333"></i><i style="background:#333"></i></span><span class="lvl lvl-low">Low</span></div></div>
+        <div class="kdr" v-for="driver in deskBrief.drivers" :key="driver.id">
+          <span class="rk">{{ driver.rank }}</span>
+          <div class="bd">
+            <div class="t">
+              {{ driver.title }}
+              <span v-if="driver.explanation" :class="['ctag', driver.explanation.includes('▼') ? 'ct-dn' : 'ct-up']">
+                {{ driver.explanation }}
+              </span>
+            </div>
+            <div class="c">{{ driver.category }}</div>
+          </div>
+          <div class="imp">
+            <span class="idots3">
+              <i v-for="n in 3" :key="n" :style="{ background: n <= (driver.impact_level === 'HIGH' ? 3 : (driver.impact_level === 'MEDIUM' ? 2 : 1)) ? (driver.impact_level === 'HIGH' ? '#E2705C' : (driver.impact_level === 'MEDIUM' ? '#D99B3E' : '#46C46E')) : '#333' }"></i>
+            </span>
+            <span :class="['lvl', driver.impact_level === 'HIGH' ? 'lvl-high' : (driver.impact_level === 'MEDIUM' ? 'lvl-med' : 'lvl-low')]">
+              {{ driver.impact_level === 'HIGH' ? 'High' : (driver.impact_level === 'MEDIUM' ? 'Medium' : 'Low') }}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
 
