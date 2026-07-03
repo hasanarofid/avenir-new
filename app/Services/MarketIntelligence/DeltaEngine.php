@@ -79,9 +79,9 @@ class DeltaEngine
         // 5. Breadth
         $breadthDriver = $todayBrief ? $todayBrief->drivers->firstWhere('rank', 3) : null;
         if ($breadthDriver && is_array($breadthDriver->affected_sectors_json)) {
-            $adv = $breadthDriver->affected_sectors_json['advancers'] ?? 198;
-            $dec = $breadthDriver->affected_sectors_json['decliners'] ?? 312;
-            $ratio = $breadthDriver->affected_sectors_json['advance_ratio'] ?? (198/(198+312));
+            $adv = $breadthDriver->affected_sectors_json['advancers'] ?? 520;
+            $dec = $breadthDriver->affected_sectors_json['decliners'] ?? 159;
+            $ratio = $breadthDriver->affected_sectors_json['advance_ratio'] ?? (520/(520+159));
             $state = $ratio < 0.4 ? 'Negatif' : ($ratio > 0.6 ? 'Positif' : 'Netral');
             $delta['breadth'] = [
                 'state' => $state,
@@ -97,6 +97,18 @@ class DeltaEngine
             $total = $sec->rotation_score + $sec->smart_money_score + $sec->valuation_score + $sec->event_score;
             if ($total >= 1) {
                 $delta['confluence_sectors'][] = $sec->sector . " +" . $total;
+            }
+        }
+        
+        // 7. New Risk Flag
+        $delta['new_risk_flag'] = null;
+        if ($todayBrief) {
+            $escalatedDriver = $todayBrief->drivers->whereIn('badge', ['ESCALATED', 'WATCH'])->first();
+            if ($escalatedDriver) {
+                $delta['new_risk_flag'] = [
+                    'badge' => $escalatedDriver->badge,
+                    'title' => $escalatedDriver->title
+                ];
             }
         }
         

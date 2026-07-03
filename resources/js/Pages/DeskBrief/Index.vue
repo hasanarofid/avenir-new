@@ -535,6 +535,12 @@ function getConfClass(label) {
           <div class="k">Foreign flow</div>
           <div class="v" v-html="delta.foreign_flow_text"></div>
         </div>
+        <div class="chg" v-if="delta.new_risk_flag">
+          <div class="k">New risk flag</div>
+          <div class="v" :class="delta.new_risk_flag.badge === 'ESCALATED' ? 'neg' : 'amb'">
+            {{ delta.new_risk_flag.badge }} &middot; {{ delta.new_risk_flag.title }}
+          </div>
+        </div>
         <div class="chg" v-if="delta.breadth">
           <div class="k">Breadth</div>
           <div class="v">{{ delta.breadth.state }} <span style="color:var(--muted);font-weight:500">({{ delta.breadth.advancers }}&#9650;/{{ delta.breadth.decliners }}&#9660;)</span></div>
@@ -618,9 +624,9 @@ function getConfClass(label) {
       </div>
       <div class="oalbl">Market Internals</div>
       <div class="intern">
-        <div class="it"><div class="k">Breadth A/D</div><div class="v">198 / 312</div></div>
-        <div class="it"><div class="k">% &gt; 200DMA</div><div class="v">58%</div></div>
-        <div class="it"><div class="k">New H / L</div><div class="v">12 / 9</div></div>
+        <div class="it"><div class="k">Breadth A/D</div><div class="v">{{ brief.internals.advances ?? brief.internals.advancers ?? 520 }} / {{ brief.internals.declines ?? brief.internals.decliners ?? 159 }}</div></div>
+        <div class="it"><div class="k">% &gt; 200DMA</div><div class="v">{{ brief.internals.above200dma ?? '58%' }}</div></div>
+        <div class="it"><div class="k">New H / L</div><div class="v">{{ brief.internals.newHighs ?? brief.internals.new_highs ?? 12 }} / {{ brief.internals.newLows ?? brief.internals.new_lows ?? 9 }}</div></div>
       </div>
       <div class="csrc">Index −1.7% tapi breadth hanya mild negatif &amp; 58% di atas 200DMA → koreksi dangkal, bukan distribusi luas.</div>
     </div>

@@ -54,10 +54,11 @@ class DeskBriefController extends Controller
         }
 
         $internalsData = [
-            'advances' => rand(150, 300),
-            'declines' => rand(150, 300),
-            'new_highs' => rand(10, 50),
-            'new_lows' => rand(10, 50)
+            'advances' => 520,
+            'declines' => 159,
+            'above_200dma' => rand(40, 60),
+            'new_highs' => rand(10, 30),
+            'new_lows' => rand(10, 30),
         ];
 
         return Inertia::render('DeskBrief/Index', [
