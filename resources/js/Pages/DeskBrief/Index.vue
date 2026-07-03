@@ -527,11 +527,22 @@ function getConfClass(label) {
           </div>
         </div>
 
-        <div class="chg"><div class="k">Driver escalated</div><div class="v">US Rates <span class="ar neg">&#9650; to High</span></div></div>
-        <div class="chg"><div class="k">Foreign flow</div><div class="v">Outflow &rarr; <span class="pos">Net Buy &#8634;</span></div></div>
-        <div class="chg"><div class="k">New risk flag</div><div class="v amb">Yield · SBN 6.85%</div></div>
-        <div class="chg"><div class="k">Breadth</div><div class="v">Mild negatif <span style="color:var(--muted);font-weight:500">(198&#9650;/312&#9660;)</span></div></div>
-        <div class="chg"><div class="k">Confluence</div><div class="v pos">Banks +1 &#9650;</div></div>
+        <div class="chg" v-if="delta.driver_escalated">
+          <div class="k">Driver escalated</div>
+          <div class="v">{{ delta.driver_escalated.title }} <span class="ar neg">&#9650; to High</span></div>
+        </div>
+        <div class="chg" v-if="delta.foreign_flow_state">
+          <div class="k">Foreign flow</div>
+          <div class="v">{{ delta.foreign_flow_state }} <span class="pos" v-if="delta.foreign_flow_badge">{{ delta.foreign_flow_badge }}</span></div>
+        </div>
+        <div class="chg" v-if="delta.breadth">
+          <div class="k">Breadth</div>
+          <div class="v">{{ delta.breadth.state }} <span style="color:var(--muted);font-weight:500">({{ delta.breadth.advancers }}&#9650;/{{ delta.breadth.decliners }}&#9660;)</span></div>
+        </div>
+        <div class="chg" v-if="delta.confluence_sectors && delta.confluence_sectors.length > 0">
+          <div class="k">Confluence</div>
+          <div class="v pos">{{ delta.confluence_sectors.join(', ') }} &#9650;</div>
+        </div>
       </div>
     </div>
 

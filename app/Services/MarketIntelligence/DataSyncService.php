@@ -67,11 +67,64 @@ class DataSyncService
      */
     protected function syncMacroData(string $date)
     {
+        $fredApiKey = env('FRED_API_KEY');
+        
         $macros = [
             'GLOBAL_GROWTH' => ['val' => 3.1, 'chg' => 0],
             'US_INFLATION' => ['val' => 2.3, 'chg' => -0.1],
             'G3_LIQUIDITY' => ['val' => 6.1, 'chg' => 0.2]
         ];
+
+        // Fetch DEXINUS (Used as proxy for USD/IDR as per PRD) from FRED if API Key exists
+        if ($fredApiKey) {
+            try {
+                $response = Http::timeout(10)->get("https://api.stlouisfed.org/fred/series/observations", [
+                    'series_id' => 'DEXINUS',
+                    'api_key' => $fredApiKey,
+                    'file_type' => 'json',
+                    'sort_order' => 'desc',
+                    'limit' => 6 // Need current + 5 days ago to calculate 5d change
+                ]);
+                
+                if ($response->successful()) {
+                    $data = $response->json();
+                    if (!empty($data['observations']) && count($data['observations']) >= 2) {
+                        $obs = $data['observations'];
+                        // Find the most recent valid value
+                        $currentVal = null;
+                        $pastVal = null;
+                        
+                        foreach ($obs as $o) {
+                            if (is_numeric($o['value'])) {
+                                if ($currentVal === null) {
+                                    $currentVal = (float) $o['value'];
+                                } else {
+                                    // Store older values to find 5d change
+                                    $pastVal = (float) $o['value'];
+                                }
+                            }
+                        }
+
+                        if ($currentVal !== null && $pastVal !== null) {
+                            $pctChange = ($currentVal - $pastVal) / $pastVal;
+                            
+                            MarketSnapshot::updateOrCreate(
+                                ['date' => $date, 'symbol_or_metric' => 'USD_IDR_PROXY'],
+                                [
+                                    'value' => $currentVal,
+                                    'change_abs' => $currentVal - $pastVal,
+                                    'change_pct' => $pctChange,
+                                    'source' => 'FRED',
+                                    'last_sync' => now()
+                                ]
+                            );
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error("[DataSyncService] FRED API Error: " . $e->getMessage());
+            }
+        }
 
         foreach ($macros as $key => $data) {
             MarketSnapshot::updateOrCreate(
