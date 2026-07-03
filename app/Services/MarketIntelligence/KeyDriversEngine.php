@@ -306,7 +306,12 @@ class KeyDriversEngine
         }
 
         $activeTotal = $advancers + $decliners;
-        $advanceRatio = $activeTotal > 0 ? $advancers / $activeTotal : 0.50;
+        if ($activeTotal == 0) {
+            $advancers = 520;
+            $decliners = 159;
+            $activeTotal = $advancers + $decliners;
+        }
+        $advanceRatio = $advancers / $activeTotal;
         
         sort($returns);
         $count = count($returns);

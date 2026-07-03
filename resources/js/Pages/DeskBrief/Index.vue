@@ -543,7 +543,7 @@ function getConfClass(label) {
         </div>
         <div class="chg" v-if="delta.breadth">
           <div class="k">Breadth</div>
-          <div class="v">{{ delta.breadth.state }} <span style="color:var(--muted);font-weight:500">({{ delta.breadth.advancers }}&#9650;/{{ delta.breadth.decliners }}&#9660;)</span></div>
+          <div class="v"><span :class="delta.breadth.state === 'Positif' ? 'pos' : (delta.breadth.state === 'Negatif' ? 'neg' : '')">{{ delta.breadth.state }}</span> <span style="color:var(--muted);font-weight:500">({{ delta.breadth.advancers }}&#9650;/{{ delta.breadth.decliners }}&#9660;)</span></div>
         </div>
         <div class="chg" v-if="delta.confluence_sectors && delta.confluence_sectors.length > 0">
           <div class="k">Confluence</div>

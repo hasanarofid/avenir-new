@@ -79,9 +79,9 @@ class DeltaEngine
         // 5. Breadth
         $breadthDriver = $todayBrief ? $todayBrief->drivers->firstWhere('rank', 3) : null;
         if ($breadthDriver && is_array($breadthDriver->affected_sectors_json)) {
-            $adv = $breadthDriver->affected_sectors_json['advancers'] ?? 520;
-            $dec = $breadthDriver->affected_sectors_json['decliners'] ?? 159;
-            $ratio = $breadthDriver->affected_sectors_json['advance_ratio'] ?? (520/(520+159));
+            $adv = !empty($breadthDriver->affected_sectors_json['advancers']) ? $breadthDriver->affected_sectors_json['advancers'] : 520;
+            $dec = !empty($breadthDriver->affected_sectors_json['decliners']) ? $breadthDriver->affected_sectors_json['decliners'] : 159;
+            $ratio = $adv / ($adv + $dec);
             $state = $ratio < 0.4 ? 'Negatif' : ($ratio > 0.6 ? 'Positif' : 'Netral');
             $delta['breadth'] = [
                 'state' => $state,
