@@ -13,7 +13,7 @@ class DeskBriefDraftCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'deskbrief:draft {date? : The date to generate Desk Brief for (Y-m-d). Defaults to today.}';
+    protected $signature = 'deskbrief:draft {date? : The date to generate Desk Brief for (Y-m-d). Defaults to today.} {--force : Overwrite if already exists}';
 
     /**
      * The console command description.
@@ -35,8 +35,13 @@ class DeskBriefDraftCommand extends Command
         $existing = DeskBrief::whereDate('date', $date)->first();
 
         if ($existing) {
-            $this->warn("  ✗ A Desk Brief for {$date} already exists (ID: {$existing->id}). Skipping creation.");
-            return Command::SUCCESS;
+            if ($this->option('force')) {
+                $this->info("  ! A Desk Brief for {$date} already exists (ID: {$existing->id}). Force deleting...");
+                $existing->delete();
+            } else {
+                $this->warn("  ✗ A Desk Brief for {$date} already exists (ID: {$existing->id}). Skipping creation. Use --force to overwrite.");
+                return Command::SUCCESS;
+            }
         }
 
         $this->info("  → Calculating Regime Score...");
