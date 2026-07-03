@@ -166,6 +166,28 @@ const tooltipPos   = ref({ x: 0, y: 0 });
 const animatedScore = ref(0);
 const shared       = ref(false);
 
+const regimeComponents = computed(() => {
+  const ts = props.todayStance;
+  if (!ts) return [
+    { name: 'Price Trend', score: 50 },
+    { name: 'Breadth', score: 50 },
+    { name: 'Flow', score: 50 },
+    { name: 'Rotasi', score: 50 },
+    { name: 'Vol/Liq', score: 50 },
+  ];
+  return [
+    { name: 'Price Trend', score: ts.momentum_score },
+    { name: 'Breadth', score: ts.breadth_score },
+    { name: 'Flow', score: ts.foreign_score },
+    { name: 'Rotasi', score: ts.sector_score },
+    { name: 'Vol/Liq', score: ts.rupiah_score },
+  ];
+});
+
+const positiveComponentsCount = computed(() => {
+  return regimeComponents.value.filter(c => c.score >= 50).length;
+});
+
 const showCalendarModal = ref(false);
 
 // Animated score on mount
@@ -528,11 +550,12 @@ function getConfClass(label) {
       </div>
       <div style="font-size:8.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin-top:14px;font-weight:600">Komponen skor</div>
       <div class="rcomp">
-        <span class="rc up">Flow ▲</span><span class="rc up">Breadth ▲</span><span class="rc up">Momentum ▲</span>
-        <span class="rc dn">Rupiah ▼</span><span class="rc dn">Yield ▼</span><span class="rc up">Rotasi ▲</span>
+        <span v-for="c in regimeComponents" :key="c.name" :class="['rc', c.score >= 50 ? 'up' : 'dn']">
+          {{ c.name }} {{ c.score >= 50 ? '▲' : '▼' }}
+        </span>
       </div>
       <div class="traj" style="font-size:11px;color:#aaa;line-height:1.4">
-        Trajectory: <span :class="delta && delta.regime > 0 ? 'pos' : (delta && delta.regime < 0 ? 'neg' : '')"><b>{{ delta && delta.regime_trend ? delta.regime_trend : 'neutral' }}</b></span> · {{ yesterdayStance ? yesterdayStance.score : '-' }} → {{ todayStance ? todayStance.score : '-' }} (4 dari 6 komponen positif)
+        Trajectory: <span :class="delta && delta.regime > 0 ? 'pos' : (delta && delta.regime < 0 ? 'neg' : '')"><b>{{ delta && delta.regime_trend ? delta.regime_trend : 'neutral' }}</b></span> · {{ yesterdayStance ? yesterdayStance.score : '-' }} → {{ todayStance ? todayStance.score : '-' }} ({{ positiveComponentsCount }} dari 5 komponen positif)
       </div>
       <div class="csrc" v-if="yesterdayStance" style="font-size:10px;color:#666;margin-top:12px">Prev. Score: {{ yesterdayStance.score }} ({{ new Date(yesterdayStance.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) }})</div>
     </div>
@@ -697,7 +720,7 @@ function getConfClass(label) {
           <div class="movhd pos">▲ Top Gainers</div>
           <div class="mvr" v-for="(g, idx) in gainers" :key="g.symbol">
             <span class="rk">{{ idx + 1 }}</span>
-            <span class="ff ff-ok">⚑</span>
+            <span :class="['ff', g.flow_confirmed !== false ? 'ff-ok' : 'ff-warn']">{{ g.flow_confirmed !== false ? '⚑' : '⚠' }}</span>
             <span class="tk">{{ g.symbol }}</span>
             <span class="nm">{{ g.name || g.symbol }}</span>
             <span class="pr">{{ g.last_close || '-' }}</span>
@@ -709,7 +732,7 @@ function getConfClass(label) {
           <div class="movhd neg">▼ Top Losers</div>
           <div class="mvr" v-for="(l, idx) in losers" :key="l.symbol">
             <span class="rk">{{ idx + 1 }}</span>
-            <span class="ff ff-warn">⚠</span>
+            <span :class="['ff', l.flow_confirmed !== false ? 'ff-warn' : 'ff-ok']">{{ l.flow_confirmed !== false ? '⚠' : '⚑' }}</span>
             <span class="tk">{{ l.symbol }}</span>
             <span class="nm">{{ l.name || l.symbol }}</span>
             <span class="pr">{{ l.last_close || '-' }}</span>

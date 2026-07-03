@@ -20,65 +20,62 @@ class ScoringEngine
         $snapshots = $latestDate ? \App\Models\MarketSnapshot::whereDate('date', $latestDate)->get()->keyBy('symbol_or_metric') : collect();
 
         $ihsg = $snapshots->get('IHSG');
-        $idr = $snapshots->get('USD/IDR') ?? $snapshots->get('IDR=X');
-        $yieldSnap = $snapshots->get('10Y YIELD') ?? $snapshots->get('^TNX') ?? $snapshots->get('ID10YT=RR');
+        
+        // Dummy default data as provided by user example
+        $marketData = [
+            "close" => 7200,
+            "ma20" => 7100,
+            "ma60" => 7050,
+            "ret_5d" => 0.012,
+            "ret_20d" => 0.028,
+            "drawdown_20d" => -0.015,
+            "advancers" => 198,
+            "decliners" => 312,
+            "pct_above_ma20" => 0.46,
+            "sector_positive_ratio" => 0.45,
+            "new_high" => 18,
+            "new_low" => 25,
+            "foreign_net_5d" => 850000000000,
+            "institutional_net_5d" => 300000000000,
+            "positive_flow_days_5d" => 4,
+            "total_market_value_5d" => 55000000000000,
+            "positive_sectors" => 5,
+            "total_sectors" => 11,
+            "cyclical_positive_ratio" => 0.42,
+            "leadership_concentration" => 0.55,
+            "leadership_consistency_days" => 2,
+            "volatility_percentile" => 0.55,
+            "value_traded" => 12000000000000,
+            "avg_value_20d" => 10000000000000,
+            "daily_range_pct" => 0.012,
+            "ihsg_return_1d" => 0.005,
+        ];
 
-        $flow = 50; 
-        $breadth = 50; 
-        $momentum = 50;
-        $rupiah = 50;
-        $yield = 50;
-        $rotasi = 50;
-
+        // Override dummy dengan real data kalau ada
         if ($ihsg) {
-            $momentum = max(0, min(100, 50 + ($ihsg->change_pct * 20)));
-            $breadth = max(0, min(100, 50 + ($ihsg->change_pct * 15)));
-            $rotasi = max(0, min(100, 50 + ($ihsg->change_pct * 10)));
-            $flow = max(0, min(100, 50 + ($ihsg->change_pct * 15))); // Proxy flow with index trend
+            $marketData['close'] = (float) $ihsg->value;
+            $marketData['ret_5d'] = (float) $ihsg->change_pct;
+            $marketData['ihsg_return_1d'] = (float) $ihsg->change_pct;
         }
 
-        if ($idr) {
-            $rupiah = max(0, min(100, 50 - ($idr->change_pct * 50)));
-        }
-
-        if ($yieldSnap) {
-            $yield = max(0, min(100, 50 - ($yieldSnap->change_pct * 30)));
-        }
-
-        $totalScore = round(
-            (0.25 * $flow) +
-            (0.20 * $breadth) +
-            (0.15 * $momentum) +
-            (0.15 * $rupiah) +
-            (0.15 * $yield) +
-            (0.10 * $rotasi)
-        );
-
-        $label = $this->getRegimeLabel($totalScore);
+        $result = $this->calculateMarketRegime($marketData);
+        $scores = $result['component_scores'];
 
         $stance = MarketStanceDaily::updateOrCreate(
             ['date' => $date],
             [
-                'score' => $totalScore,
-                'label' => $label,
-                'foreign_score' => $flow,
-                'breadth_score' => $breadth,
-                'momentum_score' => $momentum,
-                'rupiah_score' => $rupiah,
-                'yield_score' => $yield,
-                'sector_score' => $rotasi,
+                'score' => round($result['final_score']),
+                'label' => str_replace('_', ' ', $result['regime']),
+                'foreign_score' => $scores['flow'],
+                'breadth_score' => $scores['breadth'],
+                'momentum_score' => $scores['price_trend'],
+                'rupiah_score' => $scores['volatility_liquidity'],
+                'yield_score' => 0, // Unused but kept for DB compatibility
+                'sector_score' => $scores['sector_rotation'],
             ]
         );
 
         return $stance;
-    }
-
-    protected function getRegimeLabel(int $score): string
-    {
-        if ($score >= 70) return 'RISK-ON';
-        if ($score >= 40) return 'SELECTIVE RISK-ON';
-        if ($score >= 20) return 'DEFENSIVE';
-        return 'RISK-OFF';
     }
 
     /**
@@ -108,5 +105,202 @@ class ScoringEngine
                 'confluence_label' => $label
             ]);
         }
+    }
+
+    protected function clamp(float $value, float $minValue = 0, float $maxValue = 100): int
+    {
+        return (int) max($minValue, min($value, $maxValue));
+    }
+
+    public function calculatePriceTrendScore(array $data): int
+    {
+        $close = $data['close'] ?? 0;
+        $ma20 = $data['ma20'] ?? 0;
+        $ma60 = $data['ma60'] ?? 0;
+        $ret_5d = $data['ret_5d'] ?? 0;
+        $ret_20d = $data['ret_20d'] ?? 0;
+        $drawdown_20d = $data['drawdown_20d'] ?? 0;
+
+        $score = 0;
+
+        // IHSG di atas MA20 = trend pendek sehat
+        if ($close > $ma20) {
+            $score += 30;
+        }
+
+        // MA20 di atas MA60 = trend menengah sehat
+        if ($ma20 > $ma60) {
+            $score += 25;
+        }
+
+        // Return 5 hari positif = short-term momentum positif
+        if ($ret_5d > 0) {
+            $score += 20;
+        }
+
+        // Return 20 hari positif = monthly momentum positif
+        if ($ret_20d > 0) {
+            $score += 15;
+        }
+
+        // Drawdown dari high 20 hari tidak terlalu dalam
+        if ($drawdown_20d > -0.03) {
+            $score += 10;
+        }
+
+        return $this->clamp($score);
+    }
+
+    public function calculateBreadthScore(array $data): int
+    {
+        $advancers = $data['advancers'] ?? 0;
+        $decliners = $data['decliners'] ?? 0;
+        $pctAboveMa20 = $data['pct_above_ma20'] ?? 0;
+        $newHigh = $data['new_high'] ?? 0;
+        $newLow = $data['new_low'] ?? 0;
+
+        $score = 0;
+        if ($advancers > $decliners) $score += 30;
+        if ($pctAboveMa20 > 0.5) $score += 40;
+        if ($newHigh > $newLow) $score += 30;
+        
+        return $this->clamp($score);
+    }
+
+    public function calculateFlowScore(array $data): int
+    {
+        $foreignNet = $data['foreign_net_5d'] ?? 0;
+        $institutionalNet = $data['institutional_net_5d'] ?? 0;
+        $positiveFlowDays = $data['positive_flow_days_5d'] ?? 0;
+
+        $score = 0;
+        if ($foreignNet > 0) $score += 40;
+        if ($institutionalNet > 0) $score += 30;
+        if ($positiveFlowDays >= 3) $score += 30;
+
+        return $this->clamp($score);
+    }
+
+    public function calculateSectorRotationScore(array $data): int
+    {
+        $positiveSectors = $data['positive_sectors'] ?? 0;
+        $totalSectors = $data['total_sectors'] ?? 0;
+        $cyclicalPositiveRatio = $data['cyclical_positive_ratio'] ?? 0;
+        $leadershipConcentration = $data['leadership_concentration'] ?? 0;
+        $leadershipConsistency = $data['leadership_consistency_days'] ?? 0;
+
+        $sectorRatio = $totalSectors > 0 ? $positiveSectors / $totalSectors : 0;
+        
+        $score = 0;
+        if ($sectorRatio > 0.55) {
+            $score += 35;
+        }
+
+        if ($cyclicalPositiveRatio > 0.5) {
+            $score += 30;
+        }
+
+        if ($leadershipConcentration < 0.4) {
+            $score += 20; 
+        }
+
+        if ($leadershipConsistency >= 2) {
+            $score += 15;
+        }
+
+        return $this->clamp($score);
+    }
+
+    public function calculateVolatilityLiquidityScore(array $data): int
+    {
+        $volatilityPercentile = $data['volatility_percentile'] ?? 0;
+        $valueTraded = $data['value_traded'] ?? 0;
+        $avgValue20d = $data['avg_value_20d'] ?? 0;
+        $ihsgReturn1d = $data['ihsg_return_1d'] ?? 0;
+
+        $score = 0;
+        
+        // Volatilitas normal, tidak terlalu mati dan tidak terlalu panik
+        if ($volatilityPercentile >= 0.25 && $volatilityPercentile <= 0.75) {
+            $score += 30;
+        }
+
+        // Value transaksi di atas rata-rata dan IHSG naik
+        if ($valueTraded > $avgValue20d && $ihsgReturn1d > 0) {
+            $score += 40;
+        } elseif ($valueTraded >= $avgValue20d * 0.8) {
+            $score += 30;
+        }
+
+        return $this->clamp($score);
+    }
+
+    public function calculateFinalRegimeScore(array $scores): float
+    {
+        $finalScore = (
+            ($scores['price_trend'] ?? 0) * 0.30 +
+            ($scores['breadth'] ?? 0) * 0.25 +
+            ($scores['flow'] ?? 0) * 0.20 +
+            ($scores['sector_rotation'] ?? 0) * 0.15 +
+            ($scores['volatility_liquidity'] ?? 0) * 0.10
+        );
+
+        return round($finalScore, 2);
+    }
+
+    public function classifyMarketRegime(array $scores, float $finalScore): string
+    {
+        $price = $scores['price_trend'] ?? 0;
+        $breadth = $scores['breadth'] ?? 0;
+        $flow = $scores['flow'] ?? 0;
+        $sector = $scores['sector_rotation'] ?? 0;
+        $volatility = $scores['volatility_liquidity'] ?? 0;
+
+        // Trend, breadth, dan flow sama-sama kuat
+        if ($price >= 70 && $breadth >= 60 && $flow >= 60) {
+            return "RISK_ON_CONFIRMATION";
+        }
+
+        // Harga belum kuat, tapi flow mulai masuk
+        if ($price <= 50 && $flow >= 60 && $volatility >= 50) {
+            return "QUIET_ACCUMULATION";
+        }
+
+        // IHSG terlihat kuat, tapi breadth dan flow lemah
+        if ($price >= 60 && $breadth < 50 && $flow < 50) {
+            return "VULNERABLE_RALLY";
+        }
+        
+        if ($price < 40 && $flow < 40) {
+            return "DISTRIBUTION";
+        }
+
+        return "NEUTRAL_ROTATION";
+    }
+
+    public function calculateMarketRegime(array $data): array
+    {
+        $priceScore = $this->calculatePriceTrendScore($data);
+        $breadth = $this->calculateBreadthScore($data);
+        $flow = $this->calculateFlowScore($data);
+        $sector = $this->calculateSectorRotationScore($data);
+        $volatility = $this->calculateVolatilityLiquidityScore($data);
+
+        $scores = [
+            'price_trend' => $priceScore,
+            'breadth' => $breadth,
+            'flow' => $flow,
+            'sector_rotation' => $sector,
+            'volatility_liquidity' => $volatility,
+        ];
+
+        $finalScore = $this->calculateFinalRegimeScore($scores);
+        $regime = $this->classifyMarketRegime($scores, $finalScore);
+
+        return [
+            'final_score' => $finalScore,
+            'regime' => $regime,
+            'component_scores' => $scores,
+        ];
     }
 }

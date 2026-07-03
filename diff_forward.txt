@@ -1,0 +1,135 @@
+--- resources/js/Pages/DeskBrief/Index.vue	2026-07-03 09:39:30.815105722 +0700
++++ resources/js/Pages/DeskBrief/IndexMockup.vue	2026-07-03 09:39:30.815105722 +0700
+@@ -138,7 +138,6 @@
+       name: sb.sector,
+       change: Number(sb.return_1d),
+     })) : mockData.sectors,
+-    sectorBiases: props.sectorBias?.length ? props.sectorBias : [],
+     catalysts: props.events?.length ? props.events : mockData.catalysts,
+     risks: props.riskAlerts?.length ? props.riskAlerts.map(r => ({
+       risk: r.risk_type,
+@@ -385,23 +384,6 @@
+   if (change >= -4)  return '#ef4444';
+   return '#dc2626';
+ }
+-
+-function getSigClass(val) {
+-  if (val > 0) return 'sig-up';
+-  if (val < 0) return 'sig-dn';
+-  return 'sig-neu';
+-}
+-function getSigIcon(val) {
+-  if (val > 0) return '▲';
+-  if (val < 0) return '▼';
+-  return '●';
+-}
+-function getConfClass(label) {
+-  if (label === 'Strong') return 'cs-strong';
+-  if (label === 'Building') return 'cs-strong';
+-  if (label === 'Watch') return 'cs-mod';
+-  return 'cs-avoid';
+-}
+ </script>
+ 
+ 
+@@ -601,14 +583,12 @@
+       <table class="conf">
+         <thead><tr><th>Sektor</th><th>Rotasi<br>1M</th><th>Smart<br>Money</th><th>Valuasi</th><th>Event</th><th>Confluence</th></tr></thead>
+         <tbody>
+-          <tr v-for="sec in brief.sectorBiases" :key="sec.sector">
+-            <td class="sct">{{ sec.sector }}</td>
+-            <td :class="['sig', getSigClass(sec.rotation_score)]">{{ getSigIcon(sec.rotation_score) }}</td>
+-            <td :class="['sig', getSigClass(sec.smart_money_score)]">{{ getSigIcon(sec.smart_money_score) }}</td>
+-            <td :class="['sig', getSigClass(sec.valuation_score)]">{{ getSigIcon(sec.valuation_score) }}</td>
+-            <td :class="['sig', getSigClass(sec.event_score)]">{{ getSigIcon(sec.event_score) }}</td>
+-            <td><span :class="['confscore', getConfClass(sec.confluence_label)]">{{ sec.confluence_label }}</span></td>
+-          </tr>
++          <tr><td class="sct">Banking</td><td class="sig sig-up">▲</td><td class="sig sig-up">▲</td><td class="sig sig-neu">●</td><td class="sig sig-up">▲</td><td><span class="confscore cs-strong">✓✓✓ Strong</span></td></tr>
++          <tr><td class="sct">Telco</td><td class="sig sig-up">▲</td><td class="sig sig-up">▲</td><td class="sig sig-up">▲</td><td class="sig sig-neu">●</td><td><span class="confscore cs-strong">✓✓✓ Strong</span></td></tr>
++          <tr><td class="sct">Plantation / CPO<small>SMAR · Undervalued (Valuation Lab)</small></td><td class="sig sig-neu">●</td><td class="sig sig-up">▲</td><td class="sig sig-up">▲</td><td class="sig sig-up">▲</td><td><span class="confscore cs-strong">✓✓ Building</span></td></tr>
++          <tr><td class="sct">Energy</td><td class="sig sig-up">▲</td><td class="sig sig-neu">●</td><td class="sig sig-up">▲</td><td class="sig sig-neu">●</td><td><span class="confscore cs-mod">✓ Watch</span></td></tr>
++          <tr><td class="sct">Property</td><td class="sig sig-dn">▼</td><td class="sig sig-dn">▼</td><td class="sig sig-neu">●</td><td class="sig sig-dn">▼</td><td><span class="confscore cs-avoid">✗ Avoid</span></td></tr>
++          <tr><td class="sct">Technology</td><td class="sig sig-dn">▼</td><td class="sig sig-dn">▼</td><td class="sig sig-dn">▼</td><td class="sig sig-dn">▼</td><td><span class="confscore cs-avoid">✗ Avoid</span></td></tr>
+         </tbody>
+       </table>
+       <div class="note">Confluence tertinggi di <b>Banking &amp; Telco</b> — rotasi, akumulasi asing, valuasi, dan katalis searah. Plantation menguat (flow + valuasi via Valuation Lab + CPO). <b>Property &amp; Tech</b>: keempat sinyal negatif → hindari.</div>
+@@ -638,10 +618,20 @@
+     <div class="card span3">
+       <div class="chd"><div class="t"><b>7.</b>SECTOR ROTATION</div><div class="meta">Heatmap · 1M Chg%</div></div>
+       <div class="sheat">
+-        <div class="sh" v-for="sec in brief.sectors" :key="sec.name" :style="{ background: sectorBg(sec.change) }">
+-          <div class="n">{{ sec.name }}</div>
+-          <div class="p">{{ sec.change > 0 ? '+' : '' }}{{ sec.change }}%</div>
+-        </div>
++        <div class="sh" style="background:#3FB36B"><div class="n">Banking</div><div class="p">+4.6%</div></div>
++        <div class="sh" style="background:#4CB873"><div class="n">Telecom</div><div class="p">+3.8%</div></div>
++        <div class="sh" style="background:#5CB97C"><div class="n">Cons. Staples</div><div class="p">+3.1%</div></div>
++        <div class="sh" style="background:#6FB983"><div class="n">Healthcare</div><div class="p">+2.4%</div></div>
++        <div class="sh" style="background:#84BB8C"><div class="n">Energy</div><div class="p">+1.7%</div></div>
++        <div class="sh" style="background:#93BD93"><div class="n">Transport</div><div class="p">+1.3%</div></div>
++        <div class="sh" style="background:#A6C29D"><div class="n">Property</div><div class="p">+0.8%</div></div>
++        <div class="sh" style="background:#B0C4A2"><div class="n">Infrastruct.</div><div class="p">+0.6%</div></div>
++        <div class="sh" style="background:#D8B0A6"><div class="n">Industrial</div><div class="p">−0.2%</div></div>
++        <div class="sh" style="background:#D6A199"><div class="n">Retail</div><div class="p">−0.6%</div></div>
++        <div class="sh" style="background:#D2887C"><div class="n">Basic Mat.</div><div class="p">−1.2%</div></div>
++        <div class="sh" style="background:#CE7A6C"><div class="n">Technology</div><div class="p">−1.6%</div></div>
++        <div class="sh" style="background:#C76A5A"><div class="n">Cons. Disc.</div><div class="p">−2.1%</div></div>
++        <div class="sh" style="background:#B8503F"><div class="n">Mining</div><div class="p">−3.4%</div></div>
+       </div>
+       <div class="scale"><span>−5%</span><span>Avenir · 27 Jun</span><span>+5%</span></div>
+     </div>
+@@ -654,11 +644,11 @@
+         <table class="cal2">
+           <thead><tr><th>Date</th><th>Event</th><th>Imp</th></tr></thead>
+           <tbody>
+-            <tr v-for="(c, idx) in filteredCatalysts" :key="idx">
+-              <td class="dt">{{ c.date }}</td>
+-              <td class="ev" v-html="c.event"></td>
+-              <td><span :class="'lvl-' + (c.impact === 'High' ? 'high' : (c.impact === 'Medium' ? 'med' : 'low'))" style="font-weight:700;font-size:9px">● {{ c.impact }}</span></td>
+-            </tr>
++            <tr><td class="dt">27 Jun</td><td class="ev">US Durable Goods Orders</td><td><span class="lvl-med" style="font-weight:700;font-size:9px">● Med</span></td></tr>
++            <tr><td class="dt">30 Jun</td><td class="ev">Indonesia Inflation Jun<div class="imp-sub">→ <b>Consumer, Banks</b> · hist: CPI lunak → IHSG +0.6% (1d)</div></td><td><span class="lvl-high" style="font-weight:700;font-size:9px">● High</span></td></tr>
++            <tr><td class="dt">1 Jul</td><td class="ev">China Caixin Mfg PMI</td><td><span class="lvl-med" style="font-weight:700;font-size:9px">● Med</span></td></tr>
++            <tr><td class="dt">3 Jul</td><td class="ev">Indonesia FX Reserves</td><td><span class="lvl-low" style="font-weight:700;font-size:9px">● Low</span></td></tr>
++            <tr><td class="dt">8 Jul</td><td class="ev">BI Board of Governors Mtg<div class="imp-sub">→ <b>Banks, yield</b> · hist: hold → banks +1.2% (3d)</div></td><td><span class="lvl-high" style="font-weight:700;font-size:9px">● High</span></td></tr>
+           </tbody>
+         </table>
+       </div>
+@@ -695,27 +685,19 @@
+       <div class="movers">
+         <div>
+           <div class="movhd pos">▲ Top Gainers</div>
+-          <div class="mvr" v-for="(g, idx) in gainers" :key="g.symbol">
+-            <span class="rk">{{ idx + 1 }}</span>
+-            <span class="ff ff-ok">⚑</span>
+-            <span class="tk">{{ g.symbol }}</span>
+-            <span class="nm">{{ g.name || g.symbol }}</span>
+-            <span class="pr">{{ g.last_close || '-' }}</span>
+-            <span class="ch pos">+{{ g.price_pct }}%</span>
+-          </div>
+-          <div v-if="!gainers.length" style="padding:10px;font-size:11px;color:var(--muted)">No gainers data available.</div>
++          <div class="mvr"><span class="rk">1</span><span class="ff ff-warn">⚠</span><span class="tk">BHAT</span><span class="nm">PT Bhakti Multi Artha Tbk</span><span class="pr">2,680</span><span class="ch pos">+20.23%</span></div>
++          <div class="mvr"><span class="rk">2</span><span class="ff ff-warn">⚠</span><span class="tk">SURE</span><span class="nm">PT Super Energy Tbk</span><span class="pr">3,330</span><span class="ch pos">+9.84%</span></div>
++          <div class="mvr"><span class="rk">3</span><span class="ff ff-ok">⚑</span><span class="tk">ARKO</span><span class="nm">PT Arkora Hydro Tbk</span><span class="pr">5,200</span><span class="ch pos">+7.88%</span></div>
++          <div class="mvr"><span class="rk">4</span><span class="ff ff-warn">⚠</span><span class="tk">SAME</span><span class="nm">Sarana Meditama Metropol…</span><span class="pr">400</span><span class="ch pos">+7.53%</span></div>
++          <div class="mvr"><span class="rk">5</span><span class="ff ff-ok">⚑</span><span class="tk">BINA</span><span class="nm">PT Bank Ina Perdana Tbk</span><span class="pr">3,790</span><span class="ch pos">+6.48%</span></div>
+         </div>
+         <div>
+           <div class="movhd neg">▼ Top Losers</div>
+-          <div class="mvr" v-for="(l, idx) in losers" :key="l.symbol">
+-            <span class="rk">{{ idx + 1 }}</span>
+-            <span class="ff ff-warn">⚠</span>
+-            <span class="tk">{{ l.symbol }}</span>
+-            <span class="nm">{{ l.name || l.symbol }}</span>
+-            <span class="pr">{{ l.last_close || '-' }}</span>
+-            <span class="ch neg">{{ l.price_pct }}%</span>
+-          </div>
+-          <div v-if="!losers.length" style="padding:10px;font-size:11px;color:var(--muted)">No losers data available.</div>
++          <div class="mvr"><span class="rk">1</span><span class="ff ff-warn">⚠</span><span class="tk">YUPI</span><span class="nm">PT Yupi Indo Jelly Gum Tbk</span><span class="pr">1,395</span><span class="ch neg">−14.68%</span></div>
++          <div class="mvr"><span class="rk">2</span><span class="ff ff-ok">⚑</span><span class="tk">EMAS</span><span class="nm">PT Merdeka Gold Resources…</span><span class="pr">6,125</span><span class="ch neg">−13.12%</span></div>
++          <div class="mvr"><span class="rk">3</span><span class="ff ff-ok">⚑</span><span class="tk">ENRG</span><span class="nm">Energi Mega Persada Tbk</span><span class="pr">1,040</span><span class="ch neg">−10.73%</span></div>
++          <div class="mvr"><span class="rk">4</span><span class="ff ff-warn">⚠</span><span class="tk">MGLV</span><span class="nm">PT Panca Anugrah Wisesa T…</span><span class="pr">7,750</span><span class="ch neg">−9.88%</span></div>
++          <div class="mvr"><span class="rk">5</span><span class="ff ff-ok">⚑</span><span class="tk">CUAN</span><span class="nm">PT Petrindo Jaya Kreasi Tbk</span><span class="pr">565</span><span class="ch neg">−9.60%</span></div>
+         </div>
+       </div>
+     </div>
