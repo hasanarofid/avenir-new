@@ -531,9 +531,9 @@ function getConfClass(label) {
           <div class="k">Driver escalated</div>
           <div class="v">{{ delta.driver_escalated.title }} <span class="ar neg">&#9650; to High</span></div>
         </div>
-        <div class="chg" v-if="delta.foreign_flow_state">
+        <div class="chg" v-if="delta.foreign_flow_text">
           <div class="k">Foreign flow</div>
-          <div class="v">{{ delta.foreign_flow_state }} <span class="pos" v-if="delta.foreign_flow_badge">{{ delta.foreign_flow_badge }}</span></div>
+          <div class="v" v-html="delta.foreign_flow_text"></div>
         </div>
         <div class="chg" v-if="delta.breadth">
           <div class="k">Breadth</div>
@@ -605,7 +605,7 @@ function getConfClass(label) {
         <div class="idxc" v-for="s in idxSnapshots" :key="s.symbol">
           <div class="k">{{ s.symbol }}</div>
           <div class="v">{{ s.price }}</div>
-          <div class="c" :class="s.change > 0 ? 'pos' : (s.change < 0 ? 'neg' : 'amb')">{{ s.change > 0 ? '+' : '' }}{{ s.change }}%</div>
+          <div class="c" :class="parseFloat(s.change) > 0 ? 'pos' : (parseFloat(s.change) < 0 ? 'neg' : 'amb')">{{ s.change }}</div>
         </div>
       </div>
       <div class="oalbl">Other Assets</div>
@@ -613,7 +613,7 @@ function getConfClass(label) {
         <div v-for="s in otherSnapshots" :key="s.symbol">
           <div class="k">{{ s.symbol }}</div>
           <div class="v">{{ s.price }}</div>
-          <div class="c" :class="s.change > 0 ? 'pos' : (s.change < 0 ? 'neg' : 'amb')">{{ s.change > 0 ? '+' : '' }}{{ s.change }}%</div>
+          <div class="c" :class="parseFloat(s.change) > 0 ? 'pos' : (parseFloat(s.change) < 0 ? 'neg' : 'amb')">{{ s.change }}</div>
         </div>
       </div>
       <div class="oalbl">Market Internals</div>
