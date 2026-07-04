@@ -36,9 +36,21 @@ class MitraController extends Controller
             $articles = [];
         }
         
-        $incomeService = new \App\Services\MitraIncomeService();
-        $monthlyIncome = $incomeService->calculateMonthlyIncome($user->id, $currentMonth, $currentYear);
-        $cumulativeIncome = $incomeService->calculateCumulativeIncome($user->id);
+        $partnerProfile = \App\Models\PartnerProfile::where('user_id', $user->id)->first();
+        
+        $monthlyIncome = 0;
+        $cumulativeIncome = 0;
+
+        if ($partnerProfile) {
+            $monthlyIncome = $partnerProfile->payouts()
+                ->whereHas('period', function($q) use ($currentMonth, $currentYear) {
+                    $q->whereYear('period_month', $currentYear)
+                      ->whereMonth('period_month', $currentMonth);
+                })
+                ->sum('payout_amount');
+            
+            $cumulativeIncome = $partnerProfile->payouts()->sum('payout_amount');
+        }
 
         return Inertia::render('Mitra/Dashboard', [
             'researches' => $researches,
