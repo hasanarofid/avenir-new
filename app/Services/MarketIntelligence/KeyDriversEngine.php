@@ -220,6 +220,7 @@ class KeyDriversEngine
                 'retail_net_5d' => $retailNet5d,
                 'market_gross_5d' => $marketGross5d,
                 'flow_intensity' => $flowIntensity,
+                'positive_flow_days_5d' => $positiveFlowDays,
             ],
         ];
     }

@@ -14,7 +14,7 @@ class ScoringEngine
      * Hitung Regime Score berdasarkan bobot PRD.
      * regime = 0.25*flow + 0.20*breadth + 0.15*momentum + 0.15*rupiah + 0.15*yield + 0.10*rotasi
      */
-    public function calculateRegimeScore(string $date): MarketStanceDaily
+    public function calculateRegimeScore(string $date, array $driversData = []): MarketStanceDaily
     {
         $latestDate = \App\Models\MarketSnapshot::whereDate('date', '<=', $date)->max('date');
         $snapshots = $latestDate ? \App\Models\MarketSnapshot::whereDate('date', $latestDate)->get()->keyBy('symbol_or_metric') : collect();
@@ -56,6 +56,14 @@ class ScoringEngine
             $marketData['close'] = (float) $ihsg->value;
             $marketData['ret_5d'] = (float) $ihsg->change_pct;
             $marketData['ihsg_return_1d'] = (float) $ihsg->change_pct;
+        }
+
+        $flowDriver = collect($driversData)->firstWhere('rank', 1);
+        if ($flowDriver && !empty($flowDriver['components']['data_quality']) && $flowDriver['components']['data_quality'] === 'live_sectors') {
+            $marketData['foreign_net_5d'] = (float) ($flowDriver['components']['foreign_net_5d'] ?? 0);
+            $marketData['institutional_net_5d'] = (float) ($flowDriver['components']['institutional_net_5d'] ?? 0);
+            $marketData['positive_flow_days_5d'] = (int) ($flowDriver['components']['positive_flow_days_5d'] ?? 0);
+            $marketData['total_market_value_5d'] = (float) ($flowDriver['components']['market_gross_5d'] ?? 0);
         }
 
         $result = $this->calculateMarketRegime($marketData);

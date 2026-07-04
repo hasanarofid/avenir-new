@@ -44,8 +44,26 @@ class DeskBriefDraftCommand extends Command
             }
         }
 
+        $this->info("  → Calculating Key Drivers...");
+        
+        $usdIdrProxy = \App\Models\MarketSnapshot::where('date', '<=', $date)
+            ->where('symbol_or_metric', 'USD_IDR_PROXY')
+            ->orderBy('date', 'desc')
+            ->first();
+
+        $manualInputs = [
+            'RUPIAH_BI_SBN_YIELD' => [
+                'usd_idr_change_5d' => $usdIdrProxy ? (float) $usdIdrProxy->change_pct : null,
+                'sbn_10y' => null,
+                'sbn_10y_change_5d' => null,
+                'bi_stance' => 'neutral',
+            ]
+        ];
+
+        $driversData = $keyDriversEngine->buildIhsgKeyDrivers('LQ45', 5, $date, $manualInputs);
+
         $this->info("  → Calculating Regime Score...");
-        $stance = $scoringEngine->calculateRegimeScore($date);
+        $stance = $scoringEngine->calculateRegimeScore($date, $driversData);
 
         $this->info("  → Calculating Confluence...");
         $scoringEngine->calculateConfluence($date);
@@ -72,24 +90,9 @@ class DeskBriefDraftCommand extends Command
 
         $this->info("  ✓ Desk Brief draft created successfully! (ID: {$brief->id})");
 
-        $this->info("  → Calculating Key Drivers...");
+        $this->info("  → Saving Key Drivers...");
         
-        $usdIdrProxy = \App\Models\MarketSnapshot::where('date', '<=', $date)
-            ->where('symbol_or_metric', 'USD_IDR_PROXY')
-            ->orderBy('date', 'desc')
-            ->first();
-
-        $manualInputs = [
-            'RUPIAH_BI_SBN_YIELD' => [
-                'usd_idr_change_5d' => $usdIdrProxy ? (float) $usdIdrProxy->change_pct : null,
-                'sbn_10y' => null,
-                'sbn_10y_change_5d' => null,
-                'bi_stance' => 'neutral',
-            ]
-        ];
-
-        $drivers = $keyDriversEngine->buildIhsgKeyDrivers('LQ45', 5, $date, $manualInputs);
-        foreach ($drivers as $driverData) {
+        foreach ($driversData as $driverData) {
             $brief->drivers()->create([
                 'rank' => $driverData['rank'],
                 'title' => $driverData['title'],
