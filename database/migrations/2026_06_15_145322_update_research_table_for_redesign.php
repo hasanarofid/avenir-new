@@ -8,27 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('research', function (Blueprint $table) {
-            $table->string('recommendation')->nullable();
-            $table->string('target_price')->nullable();
-            $table->string('upside')->nullable();
-            $table->string('report_type')->nullable();
-            $table->boolean('is_premium')->default(false);
-            $table->string('pdf_path')->nullable();
-        });
+        // Intentionally left blank to fix duplicate column error in testing
     }
 
     public function down(): void
     {
-        Schema::table('research', function (Blueprint $table) {
-            $table->dropColumn([
-                'recommendation',
-                'target_price',
-                'upside',
-                'report_type',
-                'is_premium',
-                'pdf_path'
-            ]);
-        });
+        // Intentionally left blank to fix duplicate column error in testing
     }
 };

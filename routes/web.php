@@ -211,3 +211,55 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::get('/mitra-pool-simulator', function () {
+    $service = new \App\Services\Mitra\MitraPayoutService();
+    $engine = new \App\Services\Mitra\MitraScoringEngine();
+
+    $period = \App\Models\PartnerPayoutPeriod::firstOrCreate(
+        ['period_month' => '2026-07-01'],
+        ['net_subscription_revenue' => 25000000, 'pool_rate' => 0.20]
+    );
+
+    $partner1 = \App\Models\PartnerProfile::firstOrCreate(
+        ['display_name' => 'Fikri Analyst (Demo)'],
+        ['analyst_level' => 'Avenir Select Analyst']
+    );
+
+    $partner2 = \App\Models\PartnerProfile::firstOrCreate(
+        ['display_name' => 'Hasan Analyst (Demo)'],
+        ['analyst_level' => 'Contributor']
+    );
+
+    // Score calculation
+    $score1 = $engine->calculateFinalScore(150, 80, 90, 50, 90, 'Equity Research', $partner1->analyst_level);
+    $score2 = $engine->calculateFinalScore(80, 70, 50, 20, 80, 'Market Note', $partner2->analyst_level);
+
+    $partnerScores = [
+        $partner1->id => $score1,
+        $partner2->id => $score2,
+    ];
+
+    $processedPeriod = $service->processPayoutPeriod($period, $partnerScores);
+    $payouts = $processedPeriod->payouts()->with('partner')->get();
+
+    $html = "<div style='font-family: Arial; padding: 40px;'>";
+    $html .= "<h2>Avenir Mitra Pool Simulator (Demo)</h2>";
+    $html .= "<p>Net Subscription Revenue: <b>Rp " . number_format($processedPeriod->net_subscription_revenue, 0, ',', '.') . "</b></p>";
+    $html .= "<p>Mitra Pool Amount (20%): <b>Rp " . number_format($processedPeriod->mitra_pool_amount, 0, ',', '.') . "</b></p>";
+    $html .= "<hr><table border='1' cellpadding='10' cellspacing='0' style='width: 100%; text-align: left;'>";
+    $html .= "<tr style='background: #f4f4f4;'><th>Mitra Name</th><th>Analyst Level</th><th>Partner Score</th><th>Payout Amount</th></tr>";
+
+    foreach($payouts as $payout) {
+        $html .= "<tr>";
+        $html .= "<td>" . $payout->partner->display_name . "</td>";
+        $html .= "<td>" . $payout->partner->analyst_level . "</td>";
+        $html .= "<td>" . number_format($payout->partner_score, 2) . "</td>";
+        $html .= "<td><b>Rp " . number_format($payout->payout_amount, 0, ',', '.') . "</b></td>";
+        $html .= "</tr>";
+    }
+    
+    $html .= "</table></div>";
+    
+    return $html;
+});
