@@ -3,6 +3,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { Users, FileText, Layers, Settings, ArrowRight, Activity, TrendingUp, UserCheck, Search, Award } from '@lucide/vue';
 import { ref, computed, onMounted } from 'vue';
+import VueApexCharts from 'vue3-apexcharts';
 
 const props = defineProps({
   stats: {
@@ -28,6 +29,7 @@ const totalEngagement = totalLikes + totalComments;
 const newUsersThisMonth = props.stats.new_users_this_month || 0;
 const mrr = props.stats.mrr || 0;
 const topResearch = props.stats.top_research || [];
+const topArticles = props.stats.top_articles || [];
 const topAuthors = props.stats.top_authors || [];
 const heatmapData = props.stats.heatmap || [];
 
@@ -81,7 +83,11 @@ const filteredTrendViews = computed(() => {
     'Fitback': 0.3
   };
   const mult = multipliers[activeFilter.value] || 1;
-  return trendData.map(val => Math.round(val * mult));
+  return trendData.map(val => ({
+    date: val.date,
+    research_views: Math.round(val.research_views * mult),
+    article_views: Math.round(val.article_views * mult)
+  }));
 });
 
 const filteredTotalViews = computed(() => {
@@ -97,19 +103,95 @@ const filteredTotalViews = computed(() => {
   return Math.round(base * (multipliers[activeFilter.value] || 1));
 });
 
-const filteredMaxTrend = computed(() => Math.max(...filteredTrendViews.value, 1));
-const filteredTrendPoints = computed(() => {
-  if (!filteredTrendViews.value || filteredTrendViews.value.length === 0) return '0,100';
-  return filteredTrendViews.value.map((val, i) => {
-    const x = (i / (filteredTrendViews.value.length - 1)) * 100;
-    const y = 100 - ((val / filteredMaxTrend.value) * 100);
-    return `${x},${y}`;
-  }).join(' ');
+const chartSeries = computed(() => {
+  const data = filteredTrendViews.value;
+  return [
+    {
+      name: 'Research Views',
+      data: data.map(item => item.research_views)
+    },
+    {
+      name: 'Article Views',
+      data: data.map(item => item.article_views)
+    }
+  ];
+});
+
+const chartOptions = computed(() => {
+  const data = filteredTrendViews.value;
+  return {
+    chart: {
+      type: 'area',
+      toolbar: { show: false },
+      background: 'transparent',
+      parentHeightOffset: 0
+    },
+    colors: ['#4c940c', '#3b82f6'],
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: [0.3, 0.3],
+        opacityTo: [0, 0],
+        stops: [0, 100]
+      }
+    },
+    stroke: {
+      curve: 'straight',
+      width: 2,
+      dashArray: [0, 4]
+    },
+    markers: {
+      size: 4,
+      colors: ['#121614', '#121614'],
+      strokeColors: ['#4c940c', '#3b82f6'],
+      strokeWidth: 2,
+      hover: {
+        size: 6
+      }
+    },
+    dataLabels: { enabled: false },
+    grid: {
+      show: true,
+      borderColor: '#1e293b',
+      strokeDashArray: 4,
+      xaxis: { lines: { show: true } },
+      yaxis: { lines: { show: true } },
+      padding: { top: 0, right: 0, bottom: 0, left: 10 }
+    },
+    xaxis: {
+      categories: data.map(item => item.date),
+      labels: { show: true, style: { colors: '#64748b', fontSize: '10px' } },
+      axisBorder: { show: true, color: '#1e293b' },
+      axisTicks: { show: false },
+      tooltip: { enabled: false }
+    },
+    yaxis: {
+      labels: { show: true, style: { colors: '#64748b', fontSize: '10px' } }
+    },
+    legend: {
+      position: 'bottom',
+      horizontalAlign: 'center',
+      labels: { colors: '#94a3b8' },
+      itemMargin: { horizontal: 10, vertical: 5 }
+    },
+    tooltip: {
+      theme: 'dark',
+      y: {
+        formatter: (val) => `${val.toLocaleString('id-ID')} views`
+      }
+    }
+  };
 });
 
 const maxResearchViews = computed(() => {
   if (topResearch.length === 0) return 1;
   return Math.max(...topResearch.map(r => r.views_count));
+});
+
+const maxArticleViews = computed(() => {
+  if (topArticles.length === 0) return 1;
+  return Math.max(...topArticles.map(a => a.views_count));
 });
 
 const totalAuthorViews = computed(() => {
@@ -227,26 +309,7 @@ const getHeatmapClass = (day, hour) => {
         </div>
         
         <div class="relative w-full h-[240px] mt-4">
-          <svg class="w-full h-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="trendGradBg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <line x1="0" y1="25" x2="100" y2="25" stroke="#1e293b" stroke-width="0.5" stroke-dasharray="2 2" />
-            <line x1="0" y1="50" x2="100" y2="50" stroke="#1e293b" stroke-width="0.5" stroke-dasharray="2 2" />
-            <line x1="0" y1="75" x2="100" y2="75" stroke="#1e293b" stroke-width="0.5" stroke-dasharray="2 2" />
-            <line x1="0" y1="100" x2="100" y2="100" stroke="#1e293b" stroke-width="0.5" />
-            
-            <polygon :points="`0,100 ${filteredTrendPoints} 100,100`" fill="url(#trendGradBg)" class="transition-all duration-500" />
-            <polyline :points="filteredTrendPoints" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" class="transition-all duration-500" />
-            
-            <circle v-for="(val, i) in filteredTrendViews" :key="i" 
-              :cx="(i / (filteredTrendViews.length - 1)) * 100" 
-              :cy="100 - ((val / filteredMaxTrend) * 100)" 
-              r="1.5" fill="#121614" stroke="#10b981" stroke-width="1" class="transition-all duration-500 hover:r-2 hover:fill-primary-500 cursor-pointer" />
-          </svg>
+          <VueApexCharts type="area" height="240" :options="chartOptions" :series="chartSeries" />
         </div>
       </div>
 
@@ -363,30 +426,61 @@ const getHeatmapClass = (day, hour) => {
         </div>
       </div>
 
-      <!-- Top 10 Research -->
-      <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl">
-        <div>
-          <h3 class="text-lg font-bold text-white">Top 10 Riset Paling Banyak Dilihat</h3>
-          <p class="text-xs text-slate-500">RANKING · Berdasarkan unique views · Excluded Tim Avenir</p>
-        </div>
-        
-        <div class="mt-6 space-y-4">
-          <div v-if="filteredResearch.length === 0" class="text-sm text-slate-500">Belum ada data views.</div>
-          <div v-for="(item, i) in filteredResearch" :key="item.id" class="flex items-center gap-4">
-            <div class="w-6 h-6 rounded bg-[#090b0a] border border-emerald-950/50 flex items-center justify-center text-xs font-bold text-slate-400">{{ i + 1 }}</div>
-            <div class="flex-1">
-              <div class="flex items-center justify-between mb-1.5">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-white truncate max-w-[200px]" :title="item.title">{{ item.title || item.ticker }}</span>
-                  <span v-if="item.author_type" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ item.author_type }}</span>
+      <!-- Top 10 Lists -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Top 10 Research -->
+        <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl flex flex-col">
+          <div>
+            <h3 class="text-lg font-bold text-white">Top 10 Riset Paling Banyak Dilihat</h3>
+            <p class="text-xs text-slate-500">RANKING · Berdasarkan unique views · Excluded Tim Avenir</p>
+          </div>
+          
+          <div class="mt-6 space-y-4 flex-1">
+            <div v-if="filteredResearch.length === 0" class="text-sm text-slate-500">Belum ada data views.</div>
+            <div v-for="(item, i) in filteredResearch" :key="item.id" class="flex items-center gap-4">
+              <div class="w-6 h-6 rounded bg-[#090b0a] border border-emerald-950/50 flex items-center justify-center text-xs font-bold text-slate-400">{{ i + 1 }}</div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-white truncate max-w-[200px]" :title="item.title">{{ item.title || item.ticker }}</span>
+                    <span v-if="item.author_type" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ item.author_type }}</span>
+                  </div>
+                  <div class="text-sm font-bold font-mono text-white">{{ item.views_count.toLocaleString('id-ID') }}</div>
                 </div>
-                <div class="text-sm font-bold font-mono text-white">{{ item.views_count.toLocaleString('id-ID') }}</div>
+                <div class="w-full bg-[#090b0a] h-1.5 rounded overflow-hidden">
+                  <div class="bg-emerald-500 h-full rounded transition-all duration-500" :style="{ width: ((item.views_count / maxResearchViews) * 100) + '%' }"></div>
+                </div>
               </div>
-              <div class="w-full bg-[#090b0a] h-1.5 rounded overflow-hidden">
-                <div class="bg-emerald-500 h-full rounded transition-all duration-500" :style="{ width: ((item.views_count / maxResearchViews) * 100) + '%' }"></div>
-              </div>
+              <div class="w-16 text-right text-[10px] text-slate-500 font-semibold">{{ item.views_count.toLocaleString('id-ID') }} views</div>
             </div>
-            <div class="w-16 text-right text-[10px] text-slate-500 font-semibold">{{ item.views_count.toLocaleString('id-ID') }} views</div>
+          </div>
+        </div>
+
+        <!-- Top 10 Articles -->
+        <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl flex flex-col">
+          <div>
+            <h3 class="text-lg font-bold text-white">Top 10 Artikel Paling Banyak Dilihat</h3>
+            <p class="text-xs text-slate-500">RANKING · Berdasarkan unique views · Excluded Tim Avenir</p>
+          </div>
+          
+          <div class="mt-6 space-y-4 flex-1">
+            <div v-if="topArticles.length === 0" class="text-sm text-slate-500">Belum ada data views.</div>
+            <div v-for="(item, i) in topArticles" :key="item.id" class="flex items-center gap-4">
+              <div class="w-6 h-6 rounded bg-[#090b0a] border border-emerald-950/50 flex items-center justify-center text-xs font-bold text-slate-400">{{ i + 1 }}</div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1.5">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-white truncate max-w-[200px]" :title="item.title">{{ item.title || item.ticker }}</span>
+                    <span v-if="item.author_type" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ item.author_type }}</span>
+                  </div>
+                  <div class="text-sm font-bold font-mono text-white">{{ item.views_count.toLocaleString('id-ID') }}</div>
+                </div>
+                <div class="w-full bg-[#090b0a] h-1.5 rounded overflow-hidden">
+                  <div class="bg-emerald-500 h-full rounded transition-all duration-500" :style="{ width: ((item.views_count / maxArticleViews) * 100) + '%' }"></div>
+                </div>
+              </div>
+              <div class="w-16 text-right text-[10px] text-slate-500 font-semibold">{{ item.views_count.toLocaleString('id-ID') }} views</div>
+            </div>
           </div>
         </div>
       </div>
@@ -417,11 +511,52 @@ const getHeatmapClass = (day, hour) => {
         </div>
       </div>
 
+      <!-- Engagement Score Widget -->
+      <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl">
+         <div>
+            <h3 class="text-lg font-bold text-white">Engagement Score</h3>
+            <p class="text-xs text-slate-500">INTERACTION · Likes & Comments Accumulation</p>
+         </div>
+         
+         <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 bg-[#090b0a] border border-emerald-950/30 rounded-xl flex items-center justify-between transition hover:border-emerald-500/30">
+              <div>
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Likes</div>
+                <div class="text-2xl font-black text-emerald-500 font-mono">{{ totalLikes.toLocaleString('id-ID') }}</div>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                 <span class="text-emerald-500 text-sm">👍</span>
+              </div>
+            </div>
+            <div class="p-4 bg-[#090b0a] border border-emerald-950/30 rounded-xl flex items-center justify-between transition hover:border-blue-500/30">
+              <div>
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Comments</div>
+                <div class="text-2xl font-black text-blue-500 font-mono">{{ totalComments.toLocaleString('id-ID') }}</div>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                 <span class="text-blue-500 text-sm">💬</span>
+              </div>
+            </div>
+            <div class="p-4 bg-gradient-to-br from-[#0f3823] to-[#090b0a] border border-emerald-500/40 rounded-xl flex items-center justify-between shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+              <div>
+                <div class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Overall Score
+                </div>
+                <div class="text-3xl font-black text-white font-mono">{{ totalEngagement.toLocaleString('id-ID') }}</div>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/40 border-2 border-emerald-300/20">
+                 <span class="text-white font-bold text-lg">⚡</span>
+              </div>
+            </div>
+         </div>
+      </div>
+
       <!-- Engagement & Subscription Status -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <div class="bg-[#121614] border border-emerald-950/30 rounded-2xl p-6 shadow-xl space-y-6">
           <div>
-            <h3 class="text-lg font-bold text-white">Engagement Funnel</h3>
+            <h3 class="text-lg font-bold text-white">Subscriber Funnel</h3>
             <p class="text-xs text-slate-500">CONVERSION · Account → Trial → Subscribe</p>
           </div>
 

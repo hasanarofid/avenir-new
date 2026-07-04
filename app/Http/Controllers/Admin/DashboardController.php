@@ -34,19 +34,31 @@ class DashboardController extends Controller
         $totalMitra = \Illuminate\Support\Facades\DB::table('partners')->where('is_verified', true)->count();
         
         // Exclude internal Tim Avenir if we had a specific logic, here just count all for now.
-        $totalViews = \Illuminate\Support\Facades\DB::table('research_view_logs')->count();
+        $totalViews = \Illuminate\Support\Facades\DB::table('research_view_logs')->count() + \Illuminate\Support\Facades\DB::table('article_view_logs')->count();
         
-        $likesCount = \Illuminate\Support\Facades\DB::table('app_likes')->where('likeable_type', 'App\Models\Research')->count();
-        $commentsCount = \Illuminate\Support\Facades\DB::table('app_comments')->where('commentable_type', 'App\Models\Research')->count() + \Illuminate\Support\Facades\DB::table('comments')->count();
+        $likesCount = \Illuminate\Support\Facades\DB::table('app_likes')->where('likeable_type', 'App\Models\Research')->count() + \Illuminate\Support\Facades\DB::table('app_likes')->where('likeable_type', 'App\Models\Article')->count();
+        $commentsCount = \Illuminate\Support\Facades\DB::table('app_comments')->where('commentable_type', 'App\Models\Research')->count() + \Illuminate\Support\Facades\DB::table('app_comments')->where('commentable_type', 'App\Models\Article')->count() + \Illuminate\Support\Facades\DB::table('comments')->count();
 
         // 30 days views trend real data
         $trendData = [];
         for ($i = 29; $i >= 0; $i--) {
-            $date = now()->subDays($i)->format('Y-m-d');
-            $count = \Illuminate\Support\Facades\DB::table('research_view_logs')
+            $dateObj = now()->subDays($i);
+            $date = $dateObj->format('Y-m-d');
+            $dateLabel = $dateObj->format('d M');
+            
+            $countR = \Illuminate\Support\Facades\DB::table('research_view_logs')
                         ->whereDate('created_at', $date)
                         ->count();
-            $trendData[] = $count;
+            $countA = \Illuminate\Support\Facades\DB::table('article_view_logs')
+                        ->whereDate('created_at', $date)
+                        ->count();
+            
+            $trendData[] = [
+                'date' => $dateLabel,
+                'research_views' => $countR,
+                'article_views' => $countA,
+                'total' => $countR + $countA
+            ];
         }
 
         // Top 10 Research
@@ -86,6 +98,32 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Top 10 Articles
+        $topArticlesQuery = \Illuminate\Support\Facades\DB::table('article_view_logs')
+            ->select('article_id', \Illuminate\Support\Facades\DB::raw('count(*) as views_count'))
+            ->groupBy('article_id')
+            ->orderByDesc('views_count')
+            ->limit(10)
+            ->get();
+
+        $topArticlesIds = $topArticlesQuery->pluck('article_id')->toArray();
+        $topArticlesModels = \Illuminate\Support\Facades\DB::table('articles')
+            ->leftJoin('users', 'articles.user_id', '=', 'users.id')
+            ->whereIn('articles.id', $topArticlesIds)
+            ->select('articles.id', 'articles.title', 'users.name as author_name')
+            ->get()
+            ->keyBy('id');
+
+        $topArticles = $topArticlesQuery->map(function($view) use ($topArticlesModels) {
+            $meta = $topArticlesModels->get($view->article_id);
+            return [
+                'id' => $view->article_id,
+                'title' => $meta ? $meta->title : 'Unknown Article',
+                'author_type' => $meta ? $meta->author_name : 'Tim Avenir',
+                'views_count' => $view->views_count,
+            ];
+        });
+
         // Heatmap Aktivitas
         $heatmapQuery = \Illuminate\Support\Facades\DB::table('research_view_logs')
             ->select(
@@ -115,6 +153,7 @@ class DashboardController extends Controller
                 'comments_count' => $commentsCount,
                 'trend_data' => $trendData,
                 'top_research' => $topResearch,
+                'top_articles' => $topArticles,
                 'top_authors' => $topAuthorsQuery,
                 'heatmap' => $heatmapQuery,
                 'mrr' => $mrr,
