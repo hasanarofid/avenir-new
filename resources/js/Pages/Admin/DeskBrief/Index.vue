@@ -53,6 +53,86 @@ const handlePublish = (item) => {
     }
   });
 };
+
+const showBreakdown = (stance) => {
+  const momentumRes = stance.momentum_score * 0.3;
+  const breadthRes = stance.breadth_score * 0.25;
+  const foreignRes = stance.foreign_score * 0.2;
+  const sectorRes = stance.sector_score * 0.15;
+  const rupiahRes = stance.rupiah_score * 0.1;
+  const total = momentumRes + breadthRes + foreignRes + sectorRes + rupiahRes;
+
+  const getDynamicNote = (key, score) => {
+    if (key === 'momentum') {
+      if (score >= 80) return '(Skor ini naik maksimal mendekati 100 karena penguatan IHSG membuat mayoritas indikator tren teknikal seperti Close > MA20 terpenuhi).';
+      if (score <= 30) return '(Skor rendah karena IHSG di bawah MA20 dan MA60, menunjukkan downtrend).';
+      return '(Skor moderat, tren harga IHSG berada dalam fase konsolidasi atau transisi).';
+    }
+    if (key === 'breadth') {
+      if (score >= 80) return '(Rasio saham naik jauh mengungguli saham turun, breadth sangat sehat).';
+      if (score <= 30) return '(Lebih banyak saham yang turun signifikan, breadth sangat lemah).';
+      return '(Perbandingan saham naik dan turun relatif seimbang di pasar).';
+    }
+    if (key === 'foreign') {
+      if (score >= 70) return '(Asing mencatatkan Net Buy yang deras sehingga mendapat poin penuh).';
+      if (score <= 30) return '(Sesuai tarikan API live, asing masih mencatatkan Outflow deras sehingga tidak mendapat poin).';
+      return '(Aliran dana asing cenderung netral atau mixed).';
+    }
+    if (key === 'sector') {
+      if (score >= 70) return '(Rotasi sektor berjalan mulus dengan partisipasi merata dari berbagai sektor).';
+      if (score <= 30) return '(Konsentrasi kepemimpinan pasar sangat sempit atau hanya tertuju pada satu sektor).';
+      return '(Partisipasi sektoral cukup, namun belum sepenuhnya merata).';
+    }
+    if (key === 'rupiah') {
+      if (score >= 70) return '(Likuiditas memadai dan volatilitas terjaga).';
+      if (score <= 30) return '(Likuiditas mengering atau terjadi lonjakan volatilitas yang tinggi).';
+      return '(Kondisi likuiditas pasar dan volatilitas pada batas wajar).';
+    }
+    return '';
+  };
+
+  const html = `
+    <div class="text-left text-sm text-gray-300 space-y-4 font-sans leading-relaxed">
+      <div class="flex flex-col">
+        <div><span class="font-bold text-white">1. Price Trend (Momentum):</span> Skor <span class="text-emerald-400 font-bold">${stance.momentum_score}</span> Bobot 30% &rarr; ${stance.momentum_score} &times; 30% = <span class="text-white font-bold">${momentumRes.toFixed(2)}</span></div>
+        <div class="text-[13px] text-gray-400 italic">${getDynamicNote('momentum', stance.momentum_score)}</div>
+      </div>
+      <div class="flex flex-col">
+        <div><span class="font-bold text-white">2. Market Breadth:</span> Skor <span class="text-emerald-400 font-bold">${stance.breadth_score}</span> Bobot 25% &rarr; ${stance.breadth_score} &times; 25% = <span class="text-white font-bold">${breadthRes.toFixed(2)}</span></div>
+        <div class="text-[13px] text-gray-400 italic">${getDynamicNote('breadth', stance.breadth_score)}</div>
+      </div>
+      <div class="flex flex-col">
+        <div><span class="font-bold text-white">3. Flow (Foreign):</span> Skor <span class="text-emerald-400 font-bold">${stance.foreign_score}</span> Bobot 20% &rarr; ${stance.foreign_score} &times; 20% = <span class="text-white font-bold">${foreignRes.toFixed(2)}</span></div>
+        <div class="text-[13px] text-gray-400 italic">${getDynamicNote('foreign', stance.foreign_score)}</div>
+      </div>
+      <div class="flex flex-col">
+        <div><span class="font-bold text-white">4. Sector Rotation:</span> Skor <span class="text-emerald-400 font-bold">${stance.sector_score}</span> Bobot 15% &rarr; ${stance.sector_score} &times; 15% = <span class="text-white font-bold">${sectorRes.toFixed(2)}</span></div>
+        <div class="text-[13px] text-gray-400 italic">${getDynamicNote('sector', stance.sector_score)}</div>
+      </div>
+      <div class="flex flex-col">
+        <div><span class="font-bold text-white">5. Volatility & Liquidity (Rupiah):</span> Skor <span class="text-emerald-400 font-bold">${stance.rupiah_score}</span> Bobot 10% &rarr; ${stance.rupiah_score} &times; 10% = <span class="text-white font-bold">${rupiahRes.toFixed(2)}</span></div>
+        <div class="text-[13px] text-gray-400 italic">${getDynamicNote('rupiah', stance.rupiah_score)}</div>
+      </div>
+      <div class="mt-4 pt-4 border-t border-gray-700">
+        <div class="font-bold text-lg text-white">Total Final Score: <span class="text-blue-400">${total.toFixed(2)}</span></div>
+      </div>
+    </div>
+  `;
+
+  Swal.fire({
+    title: '<span class="text-lg font-bold text-white">Breakdown Perhitungan Regime</span>',
+    html: html,
+    background: '#1A1A1A',
+    color: '#fff',
+    width: '650px',
+    showConfirmButton: true,
+    confirmButtonText: 'Tutup',
+    confirmButtonColor: '#3B82F6',
+    customClass: {
+      popup: 'border border-gray-800 rounded-xl'
+    }
+  });
+};
 </script>
 
 <template>
@@ -84,10 +164,13 @@ const handlePublish = (item) => {
         
         <template #cell(market_stance_id)="{ item }">
           <div v-if="item.market_stance" class="flex flex-col gap-2 py-2">
-            <div class="flex items-center">
+            <div class="flex items-center gap-2">
               <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-bold rounded border border-emerald-500/20 shadow-sm flex items-center gap-2">
                 <span class="text-white">{{ item.market_stance.score }}</span> <span class="text-emerald-600/50">|</span> {{ item.market_stance.label }}
               </span>
+              <button @click="showBreakdown(item.market_stance)" class="p-1 text-blue-400 hover:bg-blue-500/10 rounded-md transition-colors" title="Lihat Breakdown Perhitungan">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+              </button>
             </div>
             <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-[10px] mt-1 bg-[#161616] p-2 rounded-lg border border-gray-800/60 shadow-inner w-fit">
               <div class="flex flex-col items-center justify-center px-1">
