@@ -6,7 +6,7 @@ import { activeTab } from '../../../Composables/useOwnershipLogic';
 <template>
   <aside class="side">
     <div class="brand">
-      <div class="logo">A</div>
+      <img src="/favicon.png" class="logo" style="background: none;" alt="Avenir" />
       <div><h1>AVENIR</h1><p>RESEARCH</p></div>
     </div>
     <div class="navTitle">Ownership Intelligence</div>
