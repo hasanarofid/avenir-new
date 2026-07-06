@@ -11,7 +11,7 @@ class DeskBriefController extends Controller
 {
     public function index()
     {
-        $deskBriefs = DeskBrief::with('analyst')->orderBy('date', 'desc')
+        $deskBriefs = DeskBrief::with(['analyst', 'marketStance'])->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
             ->paginate(10);
             
