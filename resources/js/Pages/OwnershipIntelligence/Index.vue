@@ -33,7 +33,22 @@ onUnmounted(() => {
 });</script>
 
 <template>
-  <Head title="Ownership Intelligence" />
+  <Head>
+        <title>Ownership Intelligence | Avenir</title>
+        <meta name="description" content="Ownership Intelligence - Avenir Research Market Intelligence." />
+        <meta property="og:title" content="Ownership Intelligence | Avenir" />
+        <meta property="og:description" content="Ownership Intelligence - Avenir Research Market Intelligence." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        
+        <!-- GEO Tags -->
+        <meta name="geo.region" content="ID" />
+        <meta name="geo.placename" content="Indonesia" />
+        <meta name="geo.position" content="-0.789275;113.921327" />
+        <meta name="ICBM" content="-0.789275, 113.921327" />
+        <meta name="language" content="id-ID" />
+        <meta name="view-transition" content="same-origin" />
+  </Head>
   
   <AppLayout>
     <div v-if="!dataLoaded" style="display:flex; justify-content:center; align-items:center; height:100vh;">
