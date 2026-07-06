@@ -172,7 +172,7 @@ const showBreakdown = (stance) => {
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
               </button>
             </div>
-            <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-[10px] mt-1 bg-[#161616] p-2 rounded-lg border border-gray-800/60 shadow-inner w-fit">
+            <div class="grid grid-cols-5 gap-2 text-[10px] mt-1 bg-[#161616] p-2 rounded-lg border border-gray-800/60 shadow-inner w-fit">
               <div class="flex flex-col items-center justify-center px-1">
                 <span class="uppercase tracking-wider text-[8px] text-gray-500 mb-0.5">Foreign</span>
                 <span class="font-bold text-[11px]" :class="item.market_stance.foreign_score >= 50 ? 'text-emerald-400' : 'text-red-400'">{{ item.market_stance.foreign_score }}</span>
@@ -185,13 +185,9 @@ const showBreakdown = (stance) => {
                 <span class="uppercase tracking-wider text-[8px] text-gray-500 mb-0.5">Momentum</span>
                 <span class="font-bold text-[11px]" :class="item.market_stance.momentum_score >= 50 ? 'text-emerald-400' : 'text-red-400'">{{ item.market_stance.momentum_score }}</span>
               </div>
-              <div class="flex flex-col items-center justify-center px-1 md:border-l border-gray-800/50">
-                <span class="uppercase tracking-wider text-[8px] text-gray-500 mb-0.5">Rupiah</span>
-                <span class="font-bold text-[11px]" :class="item.market_stance.rupiah_score >= 50 ? 'text-emerald-400' : 'text-red-400'">{{ item.market_stance.rupiah_score }}</span>
-              </div>
               <div class="flex flex-col items-center justify-center px-1 border-l border-gray-800/50">
-                <span class="uppercase tracking-wider text-[8px] text-gray-500 mb-0.5">Yield</span>
-                <span class="font-bold text-[11px]" :class="item.market_stance.yield_score >= 50 ? 'text-emerald-400' : 'text-red-400'">{{ item.market_stance.yield_score }}</span>
+                <span class="uppercase tracking-wider text-[8px] text-gray-500 mb-0.5">Volatility</span>
+                <span class="font-bold text-[11px]" :class="item.market_stance.rupiah_score >= 50 ? 'text-emerald-400' : 'text-red-400'">{{ item.market_stance.rupiah_score }}</span>
               </div>
               <div class="flex flex-col items-center justify-center px-1 border-l border-gray-800/50">
                 <span class="uppercase tracking-wider text-[8px] text-gray-500 mb-0.5">Sector</span>
