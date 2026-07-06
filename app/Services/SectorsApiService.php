@@ -31,7 +31,7 @@ class SectorsApiService
      */
     public function fetchIndexSnapshots(): array
     {
-        $start = now()->subDays(30)->format('Y-m-d');
+        $start = now()->subDays(45)->format('Y-m-d');
         $end   = now()->format('Y-m-d');
 
         $indices = [

@@ -61,16 +61,17 @@ class ScoringEngine
                 $prices = $ihsg->sparkline_json;
                 $count = count($prices);
                 
-                if ($count >= 20) {
-                    $last20 = array_slice($prices, -20);
-                    $marketData['ma20'] = array_sum($last20) / 20;
+                if ($count > 0) {
+                    $period = min(20, $count);
+                    $lastN = array_slice($prices, -$period);
+                    $marketData['ma20'] = array_sum($lastN) / $period;
                     
-                    $firstOf20 = $last20[0];
-                    $lastOf20 = end($last20);
-                    $marketData['ret_20d'] = $firstOf20 > 0 ? ($lastOf20 - $firstOf20) / $firstOf20 : 0;
+                    $firstOfN = $lastN[0];
+                    $lastOfN = end($lastN);
+                    $marketData['ret_20d'] = $firstOfN > 0 ? ($lastOfN - $firstOfN) / $firstOfN : 0;
                     
-                    $maxOf20 = max($last20);
-                    $marketData['drawdown_20d'] = $maxOf20 > 0 ? ($lastOf20 - $maxOf20) / $maxOf20 : 0;
+                    $maxOfN = max($lastN);
+                    $marketData['drawdown_20d'] = $maxOfN > 0 ? ($lastOfN - $maxOfN) / $maxOfN : 0;
                 }
                 
                 if ($count >= 60) {
