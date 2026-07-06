@@ -16,7 +16,12 @@ const form = useForm({
   title: props.deskBrief.title || '',
   market_read: props.deskBrief.market_read || '',
   so_what: props.deskBrief.so_what || '',
-  what_to_do: props.deskBrief.what_to_do || ''
+  what_to_do: props.deskBrief.what_to_do || '',
+  momentum_score: props.deskBrief.market_stance?.momentum_score || 0,
+  breadth_score: props.deskBrief.market_stance?.breadth_score || 0,
+  foreign_score: props.deskBrief.market_stance?.foreign_score || 0,
+  sector_score: props.deskBrief.market_stance?.sector_score || 0,
+  rupiah_score: props.deskBrief.market_stance?.rupiah_score || 0,
 });
 
 const submit = () => {
@@ -129,6 +134,35 @@ const submit = () => {
           placeholder="Rekomendasi spesifik / Takeaway analis..."
         ></textarea>
         <div v-if="form.errors.what_to_do" class="text-red-500 text-sm mt-1">{{ form.errors.what_to_do }}</div>
+      </div>
+    </div>
+
+    <!-- Manual Overrides for Market Stance -->
+    <div v-if="deskBrief.market_stance" class="bg-[#1A1A1A] rounded-xl border border-gray-800 p-6 space-y-6 mt-6">
+      <h3 class="text-lg font-bold text-white mb-4">Manual Override: Skor Market Stance</h3>
+      <p class="text-sm text-gray-400 mb-6">Jika data API kosong atau bermasalah, Anda bisa mengisi nilai komponen skor (0 - 100) secara manual di bawah ini. Total skor otomatis dihitung saat Anda menekan tombol "Simpan Narasi".</p>
+      
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-300 mb-1">Momentum (30%)</label>
+          <input type="number" min="0" max="100" v-model="form.momentum_score" class="w-full bg-[#0F0F0F] border border-gray-800 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-300 mb-1">Breadth (25%)</label>
+          <input type="number" min="0" max="100" v-model="form.breadth_score" class="w-full bg-[#0F0F0F] border border-gray-800 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-300 mb-1">Foreign Flow (20%)</label>
+          <input type="number" min="0" max="100" v-model="form.foreign_score" class="w-full bg-[#0F0F0F] border border-gray-800 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-300 mb-1">Sector (15%)</label>
+          <input type="number" min="0" max="100" v-model="form.sector_score" class="w-full bg-[#0F0F0F] border border-gray-800 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-300 mb-1">Volatility (10%)</label>
+          <input type="number" min="0" max="100" v-model="form.rupiah_score" class="w-full bg-[#0F0F0F] border border-gray-800 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors" />
+        </div>
       </div>
     </div>
   </AdminLayout>
