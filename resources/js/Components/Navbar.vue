@@ -26,7 +26,7 @@ const isHomePage = computed(() => [
   'Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 
   'About', 'Partners', 'Subscription', 'KatalogDetail', 'EmitenHub/Index', 
   'EmitenHub/Show', 'Watchlist/Index', 'KIBrief/Index', 'Disclosure/Index',
-  'Mitra/Register', 'Profile', 'Profile/Edit', 'DeskBrief/Index', 'DeskBrief/WhatChanged'
+  'Mitra/Register', 'Profile', 'Profile/Edit', 'DeskBrief/Index', 'DeskBrief/WhatChanged', 'OwnershipIntelligence/Index'
 ].includes(page.component));
 
 const handleLogout = () => {
@@ -116,7 +116,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
           
           <!-- Market Intelligence Dropdown -->
           <div class="nav-dropdown-wrap" @mouseenter="marketDropdownOpen = true" @mouseleave="marketDropdownOpen = false">
-            <button class="nav-link dropdown-toggle" :class="{ active: ['DeskBrief/Index'].includes($page.component) }">
+            <button class="nav-link dropdown-toggle" :class="{ active: ['DeskBrief/Index', 'OwnershipIntelligence/Index'].includes($page.component) }">
               Market Intelligence
               <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
@@ -125,6 +125,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
                 <Link href="/desk-brief" class="nav-dd-item">
                   <strong>Desk Brief</strong>
                   <span class="nav-dd-desc">Daily market briefing & snapshot</span>
+                </Link>
+                <Link href="/desk-brief/ownership-intelligence" class="nav-dd-item">
+                  <strong>Ownership Intelligence</strong>
+                  <span class="nav-dd-desc">Linked Network & Changes</span>
                 </Link>
                 <div class="nav-dd-item" style="opacity: 0.5; cursor: default;">
                   <strong>Smart Money Flow</strong>
@@ -322,6 +326,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
           <div class="nav-mobile-group">
             <span class="nav-mobile-group-label">Market Intelligence</span>
             <Link href="/desk-brief" class="nav-mobile-link" :class="{ active: $page.component === 'DeskBrief/Index' }" @click="mobileMenuOpen = false">Desk Brief</Link>
+            <Link href="/desk-brief/ownership-intelligence" class="nav-mobile-link" :class="{ active: $page.component === 'OwnershipIntelligence/Index' }" @click="mobileMenuOpen = false">Ownership Intelligence</Link>
             <span class="nav-mobile-link" style="opacity: 0.5;">Smart Money Flow (Soon)</span>
             <span class="nav-mobile-link" style="opacity: 0.5;">Event Radar (Soon)</span>
             <span class="nav-mobile-link" style="opacity: 0.5;">Sector Rotation (Soon)</span>

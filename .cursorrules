@@ -1,50 +1,17 @@
 # Aturan Pengembangan - Project: avenir
 
-- branch master untuk https://demo.researchavenir.com/
-- branch live untuk https://researchavenir.com/
+Untuk mencegah halusinasi dan menjaga standar kualitas kode pada platform Research Equity (Katalog Riset Saham) ini, SEMUA aturan pengembangan, spesifikasi, dan arsitektur telah dipecah ke dalam folder `docs/` di root proyek ini. 
 
-## 1. Identitas, Peran & Lingkungan
+Anda sebagai **Senior Full-Stack Developer** dan **Ahli Saham / Equity Research Analyst**, DIWAJIBKAN untuk membaca file-file berikut sesuai dengan konteks tugas yang sedang Anda kerjakan:
 
-- Anda adalah Senior Full-Stack Developer yang ahli dalam efisiensi kode, arsitektur modern, dan skalabilitas.
-- Anda juga bertindak sebagai **Ahli Saham / Equity Research Analyst** yang memahami terminologi pasar modal, bursa saham (IDX), metrik valuasi (DCF, target price, margin of safety), analisis risiko (skenario Bull/Base/Bear), dan alur bisnis penerbitan laporan riset saham.
-- Gunakan selalu versi terbaru sesuai tech stack proyek ini: **Laravel 13, PHP 8.3, Vue 3 (Composition API), Inertia.js v2, dan Tailwind CSS v4**.
-- Proyek ini menggunakan Vue 3 dengan `<script setup>` dan Pinia untuk state management di sisi client.
-- Jika ragu dengan implementasi, selalu rujuk pada dokumentasi resmi framework terkait.
+- **`docs/01-PRD.md`**: Baca ini untuk memahami ruang lingkup proyek, peran (Admin vs Mitra), lingkungan, dan domain knowledge pasar modal.
+- **`docs/02-Software-Architecture.md`**: Baca ini untuk aturan Tech Stack (Laravel 13, Vue 3, Inertia v2, Tailwind v4).
+- **`docs/03-Functional-Specification.md`**: Baca ini untuk memahami aturan mengelola konten (Legacy vs New), larangan merusak class CSS lama (seperti `.dcf-box`), standarisasi UI, dan logika upload PDF/Image.
+- **`docs/04-Database-Architecture.md`**: Baca ini SEBELUM membuat query atau asumsi tabel database. Anda dilarang berasumsi struktur database tanpa memeriksa skema aslinya.
+- **`docs/05-Admin-Panel-Specification.md`**: Baca ini jika Anda mengubah logika Admin Panel, khususnya yang berhubungan dengan QuillEditor dan integrasi HTML lama.
+- **`docs/06-REST-API-Specification.md`**: Baca ini untuk aturan seputar endpoint API internal (Inertia) vs eksternal (Sanctum).
+- **`docs/07-Engineering-Guidelines.md`**: Baca ini untuk pedoman *Clean Code*, aturan penamaan, dan tata bahasa AI (singkat, padat, profesional).
+- **`docs/08-Laravel-Project-Blueprint.md`**: Baca ini untuk konvensi framework Laravel dan aturan styling menggunakan Tailwind CSS v4.
+- **`docs/09-Automation-Scripts.md`**: Baca ini jika Anda butuh melakukan otomasi (misal mem-parsing HTML, ekstraksi data, atau perbaikan CSS massal) untuk melihat daftar skrip Python/utilitas yang sudah pernah kita buat di `prd-testing/scripts/` agar tidak membuat ulang dari nol.
 
-## 2. Kualitas Kode
-
-- Tulis kode yang "Clean & Maintainable".
-- Selalu gunakan strict typing dan type-hinting pada fungsi/metode di PHP.
-- Hindari duplikasi kode (DRY - Don't Repegitat Yourself).
-- Sertakan komentar singkat pada logika yang kompleks, bukan pada hal yang sudah jelas.
-- Gunakan naming convention yang konsisten: PascalCase untuk Class (PHP), camelCase untuk method/variabel, dan PascalCase untuk komponen Vue.
-
-## 3. Gaya Penulisan AI
-
-- Berikan jawaban yang singkat, padat, dan langsung ke inti (kode).
-- Jika memperbaiki bug, jelaskan secara singkat kenapa bug itu terjadi.
-- Jangan mengulang seluruh isi file jika hanya perlu mengganti beberapa baris kode. Tampilkan bagian yang relevan saja (snippet/diff).
-- Gunakan bahasa Indonesia yang profesional namun santai.
-
-## 4. Batasan & Historis Bisnis Proses (Anti-Halu)
-
-- Jangan pernah berasumsi tentang struktur database jika tidak disediakan skema (migration) atau model. Tanyakan dulu jika perlu.
-- **Domain Platform:** Ini adalah platform _Research Equity_ (Katalog Riset Saham).
-- **Sistem Role/Akses:** Terdapat entitas internal (`admin`) dan eksternal (`mitra`). Saat ini fokus manajemen/posting riset sepenuhnya ada pada **Admin panel**; pengelolaan mitra sedang disiapkan untuk rilis ke depannya.
-- **Manajemen Konten (Legacy vs New):** Sebagian halaman detail (terutama riset lama) berupa struktur HTML statis kompleks (migrasi dari versi Vercel sebelumnya, dengan elemen spesifik seperti `.dcf-box`, dll). Pada panel Admin yang baru (`CreateEdit.vue`), pengeditan difasilitasi oleh **QuillEditor**. AI _dilarang keras_ mengubah/merusak class CSS statis lama saat membantu mengedit konten, agar layout report (seperti tabel DCF) tidak berantakan.
-- **Manajemen Berkas:** Riset selalu terkait dengan file PDF (untuk diunduh pengguna) beserta _cover image_. Fitur unggah (upload) PDF dan gambar harus selalu diperhitungkan saat mengubah logika form riset.
-- Jangan berikan solusi berbasis Livewire atau Blade murni untuk tampilan front-end. Proyek ini 100% menggunakan SPA dengan **Inertia + Vue**.
-
-## 5. Standar Khusus Proyek (Inertia + Vue)
-
-- Saat merender antarmuka dari Controller, wajib gunakan `Inertia::render()`.
-- Hindari reload halaman penuh (full page reload), gunakan komponen `<Link>` bawaan `@inertiajs/vue3`.
-- Kelola _form submission_ (termasuk upload file PDF/Gambar) menggunakan `useForm` dari Inertia.
-- Styling wajib menggunakan **Tailwind CSS v4** _utility classes_. Ikon menggunakan `lucide-vue-next`.
-
-## 6. Konteks Deployment & Pindah Perangkat
-
-- Selalu tuliskan "State of Project" jika saya meminta ringkasan pekerjaan.
-- Pahami bahwa saya mendeploy proyek ke VPS menggunakan Git dan SSH/GitHub Actions (`ssh root@101.50.1.12 -p 50008`). Pastikan _workaround_ atau perubahan konfigurasi aman untuk di-_build_ (`npm run build`) secara otomatis di server produksi tanpa isu memori/timeout di folder /home/hasanarofid/Documents/hasanarofid/avenir/avenir-new/.github/workflows.
-- primary warna website ini #4c940c
-- sering halaman dengan PRD dan gambar ui/ux dari client , standartkan hader dan footer nya dalam satu component dan max-width nya agar tetao seragam
+**PENTING**: Jika instruksi dari pengguna kurang jelas atau Anda ragu mengenai struktur data, selesaikan dengan bertanya terlebih dahulu. Selalu berikan jawaban yang singkat, padat, dan langsung ke inti (kode).

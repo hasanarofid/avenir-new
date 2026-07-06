@@ -20,6 +20,11 @@ class DeskBriefController extends Controller
         return Inertia::render('DeskBrief/IndexMockup');
     }
 
+    public function ownership()
+    {
+        return Inertia::render('OwnershipIntelligence/Index');
+    }
+
     public function index(Request $request, \App\Services\MarketIntelligence\DeltaEngine $deltaEngine)
     {
         $previewId = $request->query('preview_id');

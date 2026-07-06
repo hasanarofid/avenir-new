@@ -31,6 +31,7 @@ Route::post('/interaction/{type}/{id}/share', [\App\Http\Controllers\Interaction
 Route::get('/desk-brief', [\App\Http\Controllers\DeskBriefController::class, 'index'])->name('desk-brief.index');
 Route::get('/desk-brief-mockup', [\App\Http\Controllers\DeskBriefController::class, 'mockup'])->name('desk-brief.mockup');
 Route::get('/desk-brief/what-changed', [\App\Http\Controllers\DeskBriefController::class, 'whatChanged'])->name('desk-brief.what-changed');
+Route::get('/desk-brief/ownership-intelligence', [\App\Http\Controllers\DeskBriefController::class, 'ownership'])->name('desk-brief.ownership');
 
 // Market Tickers API for News Marquee
 Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
