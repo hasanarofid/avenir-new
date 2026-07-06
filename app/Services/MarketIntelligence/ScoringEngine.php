@@ -56,6 +56,30 @@ class ScoringEngine
             $marketData['close'] = (float) $ihsg->value;
             $marketData['ret_5d'] = (float) $ihsg->change_pct;
             $marketData['ihsg_return_1d'] = (float) $ihsg->change_pct;
+
+            if (!empty($ihsg->sparkline_json) && is_array($ihsg->sparkline_json)) {
+                $prices = $ihsg->sparkline_json;
+                $count = count($prices);
+                
+                if ($count >= 20) {
+                    $last20 = array_slice($prices, -20);
+                    $marketData['ma20'] = array_sum($last20) / 20;
+                    
+                    $firstOf20 = $last20[0];
+                    $lastOf20 = end($last20);
+                    $marketData['ret_20d'] = $firstOf20 > 0 ? ($lastOf20 - $firstOf20) / $firstOf20 : 0;
+                    
+                    $maxOf20 = max($last20);
+                    $marketData['drawdown_20d'] = $maxOf20 > 0 ? ($lastOf20 - $maxOf20) / $maxOf20 : 0;
+                }
+                
+                if ($count >= 60) {
+                    $last60 = array_slice($prices, -60);
+                    $marketData['ma60'] = array_sum($last60) / 60;
+                } elseif ($count > 0) {
+                    $marketData['ma60'] = array_sum($prices) / $count;
+                }
+            }
         }
 
         $flowDriver = collect($driversData)->firstWhere('rank', 1);
@@ -64,6 +88,20 @@ class ScoringEngine
             $marketData['institutional_net_5d'] = (float) ($flowDriver['components']['institutional_net_5d'] ?? 0);
             $marketData['positive_flow_days_5d'] = (int) ($flowDriver['components']['positive_flow_days_5d'] ?? 0);
             $marketData['total_market_value_5d'] = (float) ($flowDriver['components']['market_gross_5d'] ?? 0);
+        }
+
+        $breadthDriver = collect($driversData)->firstWhere('rank', 3);
+        if ($breadthDriver && !empty($breadthDriver['components']['data_quality']) && $breadthDriver['components']['data_quality'] === 'live_sectors') {
+            $marketData['advancers'] = (int) ($breadthDriver['components']['advancers'] ?? $marketData['advancers']);
+            $marketData['decliners'] = (int) ($breadthDriver['components']['decliners'] ?? $marketData['decliners']);
+        }
+
+        $sectorDriver = collect($driversData)->firstWhere('rank', 4);
+        if ($sectorDriver && !empty($sectorDriver['components']['data_quality']) && $sectorDriver['components']['data_quality'] === 'live_sectors') {
+            $marketData['positive_sectors'] = (int) ($sectorDriver['components']['positive_sectors'] ?? $marketData['positive_sectors']);
+            $marketData['total_sectors'] = (int) ($sectorDriver['components']['total_sectors'] ?? $marketData['total_sectors']);
+            $marketData['sector_positive_ratio'] = (float) ($sectorDriver['components']['sector_positive_ratio'] ?? $marketData['sector_positive_ratio']);
+            $marketData['leadership_concentration'] = (float) ($sectorDriver['components']['leadership_concentration'] ?? $marketData['leadership_concentration']);
         }
 
         $result = $this->calculateMarketRegime($marketData);
