@@ -10,76 +10,70 @@ use Illuminate\Support\Facades\Log;
 
 class ScoringEngine
 {
-    /**
-     * Hitung Regime Score berdasarkan bobot PRD.
-     * regime = 0.25*flow + 0.20*breadth + 0.15*momentum + 0.15*rupiah + 0.15*yield + 0.10*rotasi
-     */
-    public function calculateRegimeScore(string $date, array $driversData = []): MarketStanceDaily
+    public function gatherMarketData(string $date, array $driversData = []): array
     {
-        $latestDate = \App\Models\MarketSnapshot::whereDate('date', '<=', $date)->max('date');
+        $latestDate = \App\Models\MarketSnapshot::whereDate('date', '<=', $date)
+            ->where('symbol_or_metric', 'IHSG')
+            ->max('date');
         $snapshots = $latestDate ? \App\Models\MarketSnapshot::whereDate('date', $latestDate)->get()->keyBy('symbol_or_metric') : collect();
 
         $ihsg = $snapshots->get('IHSG');
         
-        // Dummy default data as provided by user example
+        if (!$ihsg) {
+            throw new \Exception("Data IHSG belum ditarik dari API (Mungkin token habis atau data belum rilis untuk tanggal {$date}).");
+        }
+
         $marketData = [
-            "close" => 7200,
-            "ma20" => 7100,
-            "ma60" => 7050,
-            "ret_5d" => 0.012,
-            "ret_20d" => 0.028,
-            "drawdown_20d" => -0.015,
-            "advancers" => 520,
-            "decliners" => 159,
-            "pct_above_ma20" => 0.58,
-            "sector_positive_ratio" => 0.45,
-            "new_high" => 12,
-            "new_low" => 9,
-            "foreign_net_5d" => 850000000000,
-            "institutional_net_5d" => 300000000000,
-            "positive_flow_days_5d" => 4,
-            "total_market_value_5d" => 55000000000000,
-            "positive_sectors" => 5,
-            "total_sectors" => 11,
-            "cyclical_positive_ratio" => 0.42,
-            "leadership_concentration" => 0.55,
-            "leadership_consistency_days" => 2,
-            "volatility_percentile" => 0.55,
-            "value_traded" => 12000000000000,
-            "avg_value_20d" => 10000000000000,
-            "daily_range_pct" => 0.012,
-            "ihsg_return_1d" => 0.005,
+            'close' => (float) $ihsg->value,
+            'ret_5d' => (float) $ihsg->change_pct,
+            'ihsg_return_1d' => (float) $ihsg->change_pct,
+            'ma20' => 0,
+            'ma60' => 0,
+            'ret_20d' => 0,
+            'drawdown_20d' => 0,
+            'advancers' => 0,
+            'decliners' => 0,
+            'pct_above_ma20' => 0,
+            'sector_positive_ratio' => 0,
+            'new_high' => 0,
+            'new_low' => 0,
+            'foreign_net_5d' => 0,
+            'institutional_net_5d' => 0,
+            'positive_flow_days_5d' => 0,
+            'total_market_value_5d' => 0,
+            'positive_sectors' => 0,
+            'total_sectors' => 0,
+            'cyclical_positive_ratio' => 0,
+            'leadership_concentration' => 0,
+            'leadership_consistency_days' => 0,
+            'volatility_percentile' => 0,
+            'value_traded' => 0,
+            'avg_value_20d' => 0,
+            'daily_range_pct' => 0,
         ];
 
-        // Override dummy dengan real data kalau ada
-        if ($ihsg) {
-            $marketData['close'] = (float) $ihsg->value;
-            $marketData['ret_5d'] = (float) $ihsg->change_pct;
-            $marketData['ihsg_return_1d'] = (float) $ihsg->change_pct;
-
-            if (!empty($ihsg->sparkline_json) && is_array($ihsg->sparkline_json)) {
-                $prices = $ihsg->sparkline_json;
-                $count = count($prices);
+        if (!empty($ihsg->sparkline_json) && is_array($ihsg->sparkline_json)) {
+            $prices = $ihsg->sparkline_json;
+            $count = count($prices);
+            
+            if ($count > 0) {
+                $period = min(20, $count);
+                $lastN = array_slice($prices, -$period);
+                $marketData['ma20'] = array_sum($lastN) / $period;
                 
-                if ($count > 0) {
-                    $period = min(20, $count);
-                    $lastN = array_slice($prices, -$period);
-                    $marketData['ma20'] = array_sum($lastN) / $period;
-                    
-                    $firstOfN = $lastN[0];
-                    $lastOfN = end($lastN);
-                    $marketData['ret_20d'] = $firstOfN > 0 ? ($lastOfN - $firstOfN) / $firstOfN : 0;
-                    
-                    $maxOfN = max($lastN);
-                    $marketData['drawdown_20d'] = $maxOfN > 0 ? ($lastOfN - $maxOfN) / $maxOfN : 0;
-                }
+                $firstOfN = $lastN[0];
+                $lastOfN = end($lastN);
+                $marketData['ret_20d'] = $firstOfN > 0 ? ($lastOfN - $firstOfN) / $firstOfN : 0;
                 
-                if ($count >= 60) {
-                    $last60 = array_slice($prices, -60);
-                    $marketData['ma60'] = array_sum($last60) / 60;
-                } elseif ($count > 0) {
-                    $marketData['ma60'] = array_sum($prices) / $count;
-                }
+                $maxOfN = max($lastN);
+                $marketData['drawdown_20d'] = $maxOfN > 0 ? ($lastOfN - $maxOfN) / $maxOfN : 0;
+            }
+            
+            if ($count >= 60) {
+                $last60 = array_slice($prices, -60);
+                $marketData['ma60'] = array_sum($last60) / 60;
+            } elseif ($count > 0) {
+                $marketData['ma60'] = array_sum($prices) / $count;
             }
         }
 
@@ -93,19 +87,32 @@ class ScoringEngine
 
         $breadthDriver = collect($driversData)->firstWhere('rank', 3);
         if ($breadthDriver && !empty($breadthDriver['components']['data_quality']) && $breadthDriver['components']['data_quality'] === 'live_sectors') {
-            $marketData['advancers'] = (int) ($breadthDriver['components']['advancers'] ?? $marketData['advancers']);
-            $marketData['decliners'] = (int) ($breadthDriver['components']['decliners'] ?? $marketData['decliners']);
+            $marketData['advancers'] = (int) ($breadthDriver['components']['advancers'] ?? 0);
+            $marketData['decliners'] = (int) ($breadthDriver['components']['decliners'] ?? 0);
         }
 
         $sectorDriver = collect($driversData)->firstWhere('rank', 4);
         if ($sectorDriver && !empty($sectorDriver['components']['data_quality']) && $sectorDriver['components']['data_quality'] === 'live_sectors') {
-            $marketData['positive_sectors'] = (int) ($sectorDriver['components']['positive_sectors'] ?? $marketData['positive_sectors']);
-            $marketData['total_sectors'] = (int) ($sectorDriver['components']['total_sectors'] ?? $marketData['total_sectors']);
-            $marketData['sector_positive_ratio'] = (float) ($sectorDriver['components']['sector_positive_ratio'] ?? $marketData['sector_positive_ratio']);
-            $marketData['leadership_concentration'] = (float) ($sectorDriver['components']['leadership_concentration'] ?? $marketData['leadership_concentration']);
+            $marketData['positive_sectors'] = (int) ($sectorDriver['components']['positive_sectors'] ?? 0);
+            $marketData['total_sectors'] = (int) ($sectorDriver['components']['total_sectors'] ?? 0);
+            $marketData['sector_positive_ratio'] = (float) ($sectorDriver['components']['sector_positive_ratio'] ?? 0);
+            $marketData['leadership_concentration'] = (float) ($sectorDriver['components']['leadership_concentration'] ?? 0);
         }
+        
+        return [
+            'marketData' => $marketData,
+            'latestDate' => $latestDate
+        ];
+    }
 
-        $result = $this->calculateMarketRegime($marketData);
+    /**
+     * Hitung Regime Score berdasarkan bobot PRD.
+     * regime = 0.25*flow + 0.20*breadth + 0.15*momentum + 0.15*rupiah + 0.15*yield + 0.10*rotasi
+     */
+    public function calculateRegimeScore(string $date, array $driversData = []): MarketStanceDaily
+    {
+        $gathered = $this->gatherMarketData($date, $driversData);
+        $result = $this->calculateMarketRegime($gathered['marketData']);
         $scores = $result['component_scores'];
 
         $stance = MarketStanceDaily::updateOrCreate(

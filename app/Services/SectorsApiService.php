@@ -12,17 +12,80 @@ use Carbon\Carbon;
 
 class SectorsApiService
 {
-    protected string $apiKey;
+    protected array $apiKeys = [];
+    protected int $currentKeyIndex = 0;
     protected string $baseUrl = 'https://api.sectors.app/v2';
 
     public function __construct()
     {
-        $this->apiKey = config('services.sectors.key', env('SECTOR_API_KEY'));
+        $keys = [
+            config('services.sectors.key', env('SECTOR_API_KEY')),
+            env('SECTOR_API_KEY_2'),
+            env('SECTOR_API_KEY_3'),
+        ];
+        // Filter out empty keys
+        $this->apiKeys = array_values(array_filter($keys));
+        
+        if (empty($this->apiKeys)) {
+            Log::warning('SectorsApiService: No API keys configured.');
+        }
     }
 
     protected function headers(): array
     {
-        return ['Authorization' => $this->apiKey];
+        $key = $this->apiKeys[$this->currentKeyIndex] ?? '';
+        return ['Authorization' => $key];
+    }
+
+    protected function rotateKey(): bool
+    {
+        if ($this->currentKeyIndex < count($this->apiKeys) - 1) {
+            $this->currentKeyIndex++;
+            Log::info("SectorsApiService: Rotating to API Key index {$this->currentKeyIndex}");
+            return true;
+        }
+        return false;
+    }
+
+    protected function isLimitExceeded(?\Illuminate\Http\Client\Response $response): bool
+    {
+        if (!$response) return false;
+        return $response->status() === 429 || str_contains($response->body(), 'monthly_limit_exceeded');
+    }
+
+    protected function executeWithRotation(\Closure $requestCallback)
+    {
+        while (true) {
+            $response = $requestCallback();
+            
+            if (is_array($response)) {
+                $limitExceeded = false;
+                foreach ($response as $res) {
+                    if ($this->isLimitExceeded($res)) {
+                        $limitExceeded = true;
+                        break;
+                    }
+                }
+                if ($limitExceeded) {
+                    if ($this->rotateKey()) {
+                        continue;
+                    } else {
+                        throw new \Exception("Sectors API Limit Exceeded on all keys.");
+                    }
+                }
+                return $response;
+            }
+            
+            if ($this->isLimitExceeded($response)) {
+                if ($this->rotateKey()) {
+                    continue;
+                } else {
+                    throw new \Exception("Sectors API Limit Exceeded on all keys.");
+                }
+            }
+            
+            return $response;
+        }
     }
 
     /**
@@ -45,16 +108,18 @@ class SectorsApiService
         $startedAt = now();
 
         try {
-            $responses = Http::pool(function (Pool $pool) use ($indices, $start, $end) {
-                foreach ($indices as $code => $label) {
-                    $pool->as($code)
-                        ->withHeaders($this->headers())
-                        ->timeout(10)
-                        ->get("{$this->baseUrl}/index-daily/{$code}/", [
-                            'start' => $start,
-                            'end'   => $end,
-                        ]);
-                }
+            $responses = $this->executeWithRotation(function () use ($indices, $start, $end) {
+                return Http::pool(function (Pool $pool) use ($indices, $start, $end) {
+                    foreach ($indices as $code => $label) {
+                        $pool->as($code)
+                            ->withHeaders($this->headers())
+                            ->timeout(10)
+                            ->get("{$this->baseUrl}/index-daily/{$code}/", [
+                                'start' => $start,
+                                'end'   => $end,
+                            ]);
+                    }
+                });
             });
 
             foreach ($indices as $code => $label) {
@@ -144,16 +209,18 @@ class SectorsApiService
         $startedAt = now();
 
         try {
-            $responses = Http::pool(function (Pool $pool) use ($indices, $start, $end) {
-                foreach (array_keys($indices) as $code) {
-                    $pool->as($code)
-                        ->withHeaders($this->headers())
-                        ->timeout(10)
-                        ->get("{$this->baseUrl}/index-daily/{$code}/", [
-                            'start' => $start,
-                            'end'   => $end,
-                        ]);
-                }
+            $responses = $this->executeWithRotation(function () use ($indices, $start, $end) {
+                return Http::pool(function (Pool $pool) use ($indices, $start, $end) {
+                    foreach (array_keys($indices) as $code) {
+                        $pool->as($code)
+                            ->withHeaders($this->headers())
+                            ->timeout(10)
+                            ->get("{$this->baseUrl}/index-daily/{$code}/", [
+                                'start' => $start,
+                                'end'   => $end,
+                            ]);
+                    }
+                });
             });
 
             foreach ($indices as $code => $label) {
@@ -208,11 +275,13 @@ class SectorsApiService
         try {
             // Endpoint: GET /v2/companies/top-changes/
             // Response structure: { top_gainers: { 1d: [...] }, top_losers: { 1d: [...] } }
-            $response = Http::withHeaders($this->headers())
-                ->timeout(10)
-                ->get("{$this->baseUrl}/companies/top-changes/", [
-                    'classifications' => 'top_gainers,top_losers',
-                ]);
+            $response = $this->executeWithRotation(function () {
+                return Http::withHeaders($this->headers())
+                    ->timeout(10)
+                    ->get("{$this->baseUrl}/companies/top-changes/", [
+                        'classifications' => 'top_gainers,top_losers',
+                    ]);
+            });
 
             if ($response->successful()) {
                 $this->logSync('top_changes', 'success', 1, $startedAt);
@@ -258,12 +327,14 @@ class SectorsApiService
         $today     = now()->format('Y-m-d');
 
         try {
-            $response = Http::withHeaders($this->headers())
-                ->timeout(10)
-                ->get("{$this->baseUrl}/most-traded/", [
-                    'start' => $today,
-                    'end'   => $today,
-                ]);
+            $response = $this->executeWithRotation(function () use ($today) {
+                return Http::withHeaders($this->headers())
+                    ->timeout(10)
+                    ->get("{$this->baseUrl}/most-traded/", [
+                        'start' => $today,
+                        'end'   => $today,
+                    ]);
+            });
 
             if ($response->successful()) {
                 $this->logSync('most_traded', 'success', 1, $startedAt);
@@ -298,9 +369,11 @@ class SectorsApiService
             $params['date'] = $date;
         }
         try {
-            $response = Http::withHeaders($this->headers())
-                ->timeout(10)
-                ->get("{$this->baseUrl}/brokers/top/", $params);
+            $response = $this->executeWithRotation(function () use ($params) {
+                return Http::withHeaders($this->headers())
+                    ->timeout(10)
+                    ->get("{$this->baseUrl}/brokers/top/", $params);
+            });
             
             if ($response->successful()) {
                 $data = $response->json();
@@ -325,9 +398,11 @@ class SectorsApiService
             'limit' => $limit,
         ];
         try {
-            $response = Http::withHeaders($this->headers())
-                ->timeout(15)
-                ->get("{$this->baseUrl}/companies/", $params);
+            $response = $this->executeWithRotation(function () use ($params) {
+                return Http::withHeaders($this->headers())
+                    ->timeout(15)
+                    ->get("{$this->baseUrl}/companies/", $params);
+            });
             
             if ($response->successful()) {
                 $data = $response->json();

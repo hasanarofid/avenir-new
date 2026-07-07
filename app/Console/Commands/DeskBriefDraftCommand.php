@@ -74,7 +74,12 @@ class DeskBriefDraftCommand extends Command
         $driversData = $keyDriversEngine->buildIhsgKeyDrivers('LQ45', 5, $date, $manualInputs);
 
         $this->info("  → Calculating Regime Score...");
-        $stance = $scoringEngine->calculateRegimeScore($date, $driversData);
+        try {
+            $stance = $scoringEngine->calculateRegimeScore($date, $driversData);
+        } catch (\Exception $e) {
+            $this->error("  ✗ Gagal menghitung Regime Score: " . $e->getMessage());
+            return Command::FAILURE;
+        }
 
         $this->info("  → Calculating Confluence...");
         $scoringEngine->calculateConfluence($date);
