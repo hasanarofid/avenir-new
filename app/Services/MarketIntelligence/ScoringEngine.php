@@ -77,9 +77,14 @@ class ScoringEngine
             }
         }
 
+        $marketData['advancers'] = (int) ($snapshots->get('ADVANCERS')->value ?? 0);
+        $marketData['decliners'] = (int) ($snapshots->get('DECLINERS')->value ?? 0);
+        $marketData['value_traded'] = (float) ($snapshots->get('VALUE_TRADED_BN_IDR')->value ?? 0);
+        $marketData['foreign_net_5d'] = (float) ($snapshots->get('FOREIGN_NET_TODAY')->value ?? 0);
+
         $flowDriver = collect($driversData)->firstWhere('rank', 1);
         if ($flowDriver && !empty($flowDriver['components']['data_quality']) && $flowDriver['components']['data_quality'] === 'live_sectors') {
-            $marketData['foreign_net_5d'] = (float) ($flowDriver['components']['foreign_net_5d'] ?? 0);
+            // Only override if we have live data from API, but since API is out, we rely on PDF above
             $marketData['institutional_net_5d'] = (float) ($flowDriver['components']['institutional_net_5d'] ?? 0);
             $marketData['positive_flow_days_5d'] = (int) ($flowDriver['components']['positive_flow_days_5d'] ?? 0);
             $marketData['total_market_value_5d'] = (float) ($flowDriver['components']['market_gross_5d'] ?? 0);
@@ -87,8 +92,11 @@ class ScoringEngine
 
         $breadthDriver = collect($driversData)->firstWhere('rank', 3);
         if ($breadthDriver && !empty($breadthDriver['components']['data_quality']) && $breadthDriver['components']['data_quality'] === 'live_sectors') {
-            $marketData['advancers'] = (int) ($breadthDriver['components']['advancers'] ?? 0);
-            $marketData['decliners'] = (int) ($breadthDriver['components']['decliners'] ?? 0);
+            // Do not override advancers/decliners if they come from PDF
+            if ($marketData['advancers'] === 0) {
+                $marketData['advancers'] = (int) ($breadthDriver['components']['advancers'] ?? 0);
+                $marketData['decliners'] = (int) ($breadthDriver['components']['decliners'] ?? 0);
+            }
         }
 
         $sectorDriver = collect($driversData)->firstWhere('rank', 4);
@@ -97,6 +105,42 @@ class ScoringEngine
             $marketData['total_sectors'] = (int) ($sectorDriver['components']['total_sectors'] ?? 0);
             $marketData['sector_positive_ratio'] = (float) ($sectorDriver['components']['sector_positive_ratio'] ?? 0);
             $marketData['leadership_concentration'] = (float) ($sectorDriver['components']['leadership_concentration'] ?? 0);
+        }
+
+        // If sector stats are empty (due to API limit), calculate them from SectorBiasDaily which was populated by PDF
+        if ($marketData['total_sectors'] === 0) {
+            $sectors = \App\Models\SectorBiasDaily::whereDate('date', $date)->get();
+            $totalSectors = $sectors->count();
+            if ($totalSectors > 0) {
+                $positiveSectors = $sectors->where('return_1d', '>', 0)->count();
+                $marketData['total_sectors'] = $totalSectors;
+                $marketData['positive_sectors'] = $positiveSectors;
+                $marketData['sector_positive_ratio'] = $positiveSectors / $totalSectors;
+                
+                // Cyclical positive ratio estimation based on IDX Cyclical & Financial sectors
+                $cyclicals = ['Financials', 'Consumer Cyclicals', 'Basic Materials', 'Industrials', 'Energy'];
+                $cyclicalSectors = $sectors->whereIn('sector', $cyclicals);
+                if ($cyclicalSectors->count() > 0) {
+                    $positiveCyclicals = $cyclicalSectors->where('return_1d', '>', 0)->count();
+                    $marketData['cyclical_positive_ratio'] = $positiveCyclicals / $cyclicalSectors->count();
+                } else {
+                    $marketData['cyclical_positive_ratio'] = 0;
+                }
+
+                // Leadership concentration (how many sectors drive most of the positive returns)
+                // Roughly estimate: standard deviation of returns
+                $returns = $sectors->pluck('return_1d')->map(fn($v) => (float)$v)->toArray();
+                if (count($returns) > 1) {
+                    $mean = array_sum($returns) / count($returns);
+                    $variance = 0;
+                    foreach ($returns as $r) {
+                        $variance += pow($r - $mean, 2);
+                    }
+                    $variance /= count($returns);
+                    $stdDev = sqrt($variance);
+                    $marketData['leadership_concentration'] = $stdDev / 10; // Normalize roughly
+                }
+            }
         }
         
         return [

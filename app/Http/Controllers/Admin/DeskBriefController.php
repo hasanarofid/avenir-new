@@ -139,4 +139,80 @@ class DeskBriefController extends Controller
             'regime' => $result['regime'],
         ]);
     }
+
+    public function uploadPdf(Request $request)
+    {
+        $request->validate([
+            'pdf_file' => 'required|file|mimes:pdf|max:10240'
+        ]);
+
+        try {
+            $path = $request->file('pdf_file')->store('idx_pdfs');
+            $fullPath = storage_path('app/' . $path);
+
+            $scriptPath = base_path('prd-testing/scripts/python/parse_idx_pdf.py');
+            
+            $command = escapeshellcmd("python3 {$scriptPath} {$fullPath}");
+            $output = shell_exec($command);
+            $parsed = json_decode($output, true);
+
+            if (!$parsed || isset($parsed['error'])) {
+                return back()->with('error', 'Gagal memproses PDF: ' . ($parsed['error'] ?? 'Unknown error'));
+            }
+
+            $date = \Carbon\Carbon::parse($parsed['date'])->toDateString();
+
+            // Insert to MarketSnapshots
+            $metrics = [
+                'IHSG' => [
+                    'value' => $parsed['ihsg_close'] ?? 0,
+                    'change_abs' => $parsed['ihsg_change_abs'] ?? 0,
+                    'change_pct' => $parsed['ihsg_change_pct'] ?? 0
+                ],
+                'VALUE_TRADED_BN_IDR' => [
+                    'value' => $parsed['value_traded_bn_idr'] ?? 0
+                ],
+                'FOREIGN_NET_TODAY' => [
+                    'value' => $parsed['foreign_net_today'] ?? 0
+                ],
+                'ADVANCERS' => [
+                    'value' => $parsed['advancers'] ?? 0
+                ],
+                'DECLINERS' => [
+                    'value' => $parsed['decliners'] ?? 0
+                ],
+                'STABLE' => [
+                    'value' => $parsed['stable'] ?? 0
+                ]
+            ];
+
+            foreach ($metrics as $metric => $data) {
+                \App\Models\MarketSnapshot::updateOrCreate(
+                    ['date' => $date, 'symbol_or_metric' => $metric],
+                    array_merge($data, ['source' => 'pdf_upload'])
+                );
+            }
+
+            // Insert to SectorBiasDaily
+            if (isset($parsed['sectors']) && is_array($parsed['sectors'])) {
+                foreach ($parsed['sectors'] as $sectorName => $return1d) {
+                    \App\Models\SectorBiasDaily::updateOrCreate(
+                        ['date' => $date, 'sector' => $sectorName],
+                        ['return_1d' => $return1d, 'bias' => 'neutral']
+                    );
+                }
+            }
+
+            // Generate Draft automatically
+            \Illuminate\Support\Facades\Artisan::call('deskbrief:draft', [
+                'date' => $date,
+                '--force' => true
+            ]);
+
+            return back()->with('success', 'PDF berhasil diupload, data di-ekstrak, dan Draft berhasil dibuat untuk tanggal ' . $date);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+        }
+    }
 }
