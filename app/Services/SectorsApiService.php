@@ -176,7 +176,7 @@ class SectorsApiService
         } catch (\Throwable $e) {
             Log::error('SectorsApiService::fetchIndexSnapshots exception: ' . $e->getMessage());
             $this->logSync('index_daily', 'failed', $creditsUsed, $startedAt, $e->getMessage());
-            return [];
+            throw $e;
         }
 
         $this->logSync('index_daily', 'success', $creditsUsed, $startedAt);
@@ -256,7 +256,7 @@ class SectorsApiService
         } catch (\Throwable $e) {
             Log::error('SectorsApiService::fetchSectorIndices exception: ' . $e->getMessage());
             $this->logSync('sector_daily', 'failed', $creditsUsed, $startedAt, $e->getMessage());
-            return [];
+            throw $e;
         }
 
         $this->logSync('sector_daily', 'success', $creditsUsed, $startedAt);
@@ -312,7 +312,8 @@ class SectorsApiService
             $this->logSync('top_changes', 'failed', 0, $startedAt, $response->body());
         } catch (\Throwable $e) {
             Log::error('SectorsApiService::fetchTopMovers exception: ' . $e->getMessage());
-            $this->logSync('top_changes', 'failed', 0, $startedAt, $e->getMessage());
+            $this->logSync('top_changes', 'failed', 1, $startedAt, $e->getMessage());
+            throw $e;
         }
 
         return ['gainers' => [], 'losers' => []];
@@ -348,7 +349,8 @@ class SectorsApiService
             $this->logSync('most_traded', 'failed', 0, $startedAt, $response->body());
         } catch (\Throwable $e) {
             Log::error('SectorsApiService::fetchMostTraded exception: ' . $e->getMessage());
-            $this->logSync('most_traded', 'failed', 0, $startedAt, $e->getMessage());
+            $this->logSync('most_traded', 'failed', 1, $startedAt, $e->getMessage());
+            throw $e;
         }
 
         return [];
