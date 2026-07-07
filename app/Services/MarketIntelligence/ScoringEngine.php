@@ -202,16 +202,15 @@ class ScoringEngine
     {
         $advancers = $data['advancers'] ?? 0;
         $decliners = $data['decliners'] ?? 0;
-        $pctAboveMa20 = $data['pct_above_ma20'] ?? 0;
-        $newHigh = $data['new_high'] ?? 0;
-        $newLow = $data['new_low'] ?? 0;
 
-        $score = 0;
-        if ($advancers > $decliners) $score += 30;
-        if ($pctAboveMa20 > 0.5) $score += 40;
-        if ($newHigh > $newLow) $score += 30;
+        $total = $advancers + $decliners;
+        if ($total > 0) {
+            $score = ($advancers / $total) * 100;
+        } else {
+            $score = 0;
+        }
         
-        return $this->clamp($score);
+        return $this->clamp((int)round($score));
     }
 
     public function calculateFlowScore(array $data): int
@@ -219,11 +218,16 @@ class ScoringEngine
         $foreignNet = $data['foreign_net_5d'] ?? 0;
         $institutionalNet = $data['institutional_net_5d'] ?? 0;
         $positiveFlowDays = $data['positive_flow_days_5d'] ?? 0;
+        $totalMarketValue = $data['total_market_value_5d'] ?? 0;
+
+        $totalNetFlow = $foreignNet + $institutionalNet;
+        $flowIntensity = $totalMarketValue > 0 ? ($totalNetFlow / $totalMarketValue) : 0;
 
         $score = 0;
-        if ($foreignNet > 0) $score += 40;
-        if ($institutionalNet > 0) $score += 30;
-        if ($positiveFlowDays >= 3) $score += 30;
+        if ($foreignNet > 0) $score += 35;
+        if ($institutionalNet > 0) $score += 25;
+        if ($positiveFlowDays >= 3) $score += 20;
+        if ($flowIntensity > 0) $score += 20;
 
         return $this->clamp($score);
     }
