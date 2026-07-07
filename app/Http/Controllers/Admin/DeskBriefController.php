@@ -190,6 +190,7 @@ class DeskBriefController extends Controller
         
         return response()->json([
             'date' => $date,
+            'latest_available_date' => $latestDate,
             'raw_data' => $marketData,
             'scores' => $result['component_scores'],
             'final_score' => $result['final_score'],

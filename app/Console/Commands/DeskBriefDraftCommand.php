@@ -44,6 +44,17 @@ class DeskBriefDraftCommand extends Command
             }
         }
 
+        // Validate if data from Sectors is actually available for this date
+        $latestDate = \App\Models\MarketSnapshot::whereDate('date', '<=', $date)
+            ->where('symbol_or_metric', 'IHSG')
+            ->max('date');
+            
+        if ($latestDate !== $date && !$this->option('force')) {
+            $this->warn("  ✗ Data from Sectors for {$date} is not yet available (Latest is {$latestDate}). Aborting draft creation.");
+            $this->info("  Hint: The cronjob will try again later if configured, or you can run this manually when data is ready.");
+            return Command::FAILURE;
+        }
+
         $this->info("  → Calculating Key Drivers...");
         
         $usdIdrProxy = \App\Models\MarketSnapshot::where('date', '<=', $date)
