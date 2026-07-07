@@ -148,7 +148,7 @@ class DeskBriefController extends Controller
 
         try {
             $path = $request->file('pdf_file')->store('idx_pdfs');
-            $fullPath = storage_path('app/' . $path);
+            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
 
             $scriptPath = base_path('scripts/python/parse_idx_pdf.py');
             
