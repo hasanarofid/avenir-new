@@ -150,14 +150,20 @@ class DeskBriefController extends Controller
             $path = $request->file('pdf_file')->store('idx_pdfs');
             $fullPath = storage_path('app/' . $path);
 
-            $scriptPath = base_path('prd-testing/scripts/python/parse_idx_pdf.py');
+            $scriptPath = base_path('scripts/python/parse_idx_pdf.py');
             
-            $command = escapeshellcmd("python3 {$scriptPath} {$fullPath}");
-            $output = shell_exec($command);
+            $process = new \Symfony\Component\Process\Process(['python3', $scriptPath, $fullPath]);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new \Exception('Python Script Error: ' . ($process->getErrorOutput() ?: 'Command failed without error output.'));
+            }
+
+            $output = $process->getOutput();
             $parsed = json_decode($output, true);
 
             if (!$parsed || isset($parsed['error'])) {
-                return back()->withErrors(['pdf_file' => 'Gagal memproses PDF: ' . ($parsed['error'] ?? 'Pastikan aplikasi pdftotext (poppler-utils) dan python3 terinstal di server.')]);
+                return back()->withErrors(['pdf_file' => 'Gagal memproses PDF: ' . ($parsed['error'] ?? 'Output bukan JSON yang valid. Output: ' . substr($output, 0, 100))]);
             }
 
             $date = \Carbon\Carbon::parse($parsed['date'])->toDateString();
