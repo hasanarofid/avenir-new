@@ -17,6 +17,16 @@ Schedule::command('sectors:sync')->dailyAt('10:00')->timezone('UTC');
 Schedule::command('sectors:sync')->dailyAt('00:00')->timezone('UTC');
 
 // Buat draft Desk Brief setiap hari pada jam 17:05 WIB (10:05 UTC)
-// Dijalankan setelah sectors:sync dan deskbrief:sync agar data prefill siap
-Schedule::command('deskbrief:sync')->dailyAt('10:04')->timezone('UTC');
-Schedule::command('deskbrief:draft')->dailyAt('10:05')->timezone('UTC');
+// Sinkronisasi data dan pembuatan draft Desk Brief diulang setiap 15 menit
+// Antara jam 17:00 hingga 19:00 WIB.
+// Jika di jam 17:00 data Sectors belum keluar, ia akan mencoba lagi jam 17:15, 17:30, dst.
+// Jika draft hari ini sudah terbuat, ia akan otomatis melewati proses (skip).
+Schedule::command('deskbrief:sync')
+    ->everyFifteenMinutes()
+    ->between('17:00', '19:00')
+    ->timezone('Asia/Jakarta');
+
+Schedule::command('deskbrief:draft')
+    ->everyFifteenMinutes()
+    ->between('17:00', '19:00')
+    ->timezone('Asia/Jakarta');
