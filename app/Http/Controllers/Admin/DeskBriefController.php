@@ -157,7 +157,7 @@ class DeskBriefController extends Controller
             $parsed = json_decode($output, true);
 
             if (!$parsed || isset($parsed['error'])) {
-                return back()->with('error', 'Gagal memproses PDF: ' . ($parsed['error'] ?? 'Unknown error'));
+                return back()->withErrors(['pdf_file' => 'Gagal memproses PDF: ' . ($parsed['error'] ?? 'Pastikan aplikasi pdftotext (poppler-utils) dan python3 terinstal di server.')]);
             }
 
             $date = \Carbon\Carbon::parse($parsed['date'])->toDateString();
@@ -212,7 +212,7 @@ class DeskBriefController extends Controller
             return back()->with('success', 'PDF berhasil diupload, data di-ekstrak, dan Draft berhasil dibuat untuk tanggal ' . $date);
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+            return back()->withErrors(['pdf_file' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
         }
     }
 }
