@@ -36,7 +36,7 @@ Route::get('/desk-brief/ownership-intelligence', [\App\Http\Controllers\DeskBrie
 // Market Tickers API for News Marquee
 Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
 
-/* Deprecated Market Hub Routes
+// Deprecated Market Hub Routes
 // Emiten Hub (V1)
 Route::get('/emiten', [\App\Http\Controllers\EmitenHubController::class, 'index'])->name('emiten.index');
 Route::get('/emiten/{symbol}', [\App\Http\Controllers\EmitenHubController::class, 'show'])->name('emiten.show');
@@ -46,7 +46,6 @@ Route::get('/ki-brief', [\App\Http\Controllers\KIBriefController::class, 'index'
 
 // Disclosure Radar (V1.5)
 Route::get('/disclosure-radar', [\App\Http\Controllers\DisclosureController::class, 'index'])->name('disclosure.index');
-*/
 
 Route::middleware('auth')->group(function () {
     Route::get('/watchlist', [\App\Http\Controllers\WatchlistController::class, 'index'])->name('watchlist.index');
