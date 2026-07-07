@@ -11,7 +11,7 @@ def parse_idx_pdf(pdf_path):
         result_layout = subprocess.run(['pdftotext', '-layout', pdf_path, '-'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         
         if result_no_layout.returncode != 0:
-            return {"error": "Failed to read PDF"}
+            return {"error": f"Failed to read PDF. Return code: {result_no_layout.returncode}, Stderr: {result_no_layout.stderr}"}
             
         text = result_no_layout.stdout
         layout_text = result_layout.stdout
