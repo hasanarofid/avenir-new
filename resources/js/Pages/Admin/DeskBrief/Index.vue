@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
+import RegimeSimulator from './Components/RegimeSimulator.vue';
 import { Edit, Eye, CheckCircle } from '@lucide/vue';
 import Swal from 'sweetalert2';
 
@@ -12,6 +13,8 @@ const props = defineProps({
     required: true
   }
 });
+
+const activeTab = ref('data'); // 'data' or 'simulator'
 
 const headers = [
   { text: 'Tanggal', value: 'date', type: 'date' },
@@ -146,7 +149,24 @@ const showBreakdown = (stance) => {
       </div>
     </div>
 
-    <div class="bg-[#1A1A1A] rounded-xl border border-gray-800">
+    <!-- Tabs Navigation -->
+    <div class="flex border-b border-gray-800 mb-6 gap-6">
+      <button 
+        @click="activeTab = 'data'"
+        :class="['pb-3 font-medium transition-colors border-b-2', activeTab === 'data' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-500 hover:text-gray-300']"
+      >
+        Daftar Desk Brief
+      </button>
+      <button 
+        @click="activeTab = 'simulator'"
+        :class="['pb-3 font-medium transition-colors border-b-2', activeTab === 'simulator' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-gray-500 hover:text-gray-300']"
+      >
+        Regime Calculation Simulator & Verifier
+      </button>
+    </div>
+
+    <!-- Tab Content: Data Table -->
+    <div v-show="activeTab === 'data'" class="bg-[#1A1A1A] rounded-xl border border-gray-800">
       <DataTable
         :headers="headers"
         :items="deskBriefs.data"
@@ -227,6 +247,11 @@ const showBreakdown = (stance) => {
           </div>
         </template>
       </DataTable>
+    </div>
+
+    <!-- Tab Content: Simulator -->
+    <div v-show="activeTab === 'simulator'">
+      <RegimeSimulator />
     </div>
   </AdminLayout>
 </template>

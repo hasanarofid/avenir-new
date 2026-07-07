@@ -151,6 +151,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/desk-brief/{id}/edit', [\App\Http\Controllers\Admin\DeskBriefController::class, 'edit'])->name('desk-brief.edit');
         Route::put('/desk-brief/{id}', [\App\Http\Controllers\Admin\DeskBriefController::class, 'update'])->name('desk-brief.update');
         Route::post('/desk-brief/{id}/publish', [\App\Http\Controllers\Admin\DeskBriefController::class, 'publish'])->name('desk-brief.publish');
+        Route::post('/desk-brief/tester/run', [\App\Http\Controllers\Admin\DeskBriefController::class, 'runTester'])->name('desk-brief.tester.run');
     });
 
     // Admin Only Routes
