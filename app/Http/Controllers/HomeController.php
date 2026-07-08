@@ -1049,15 +1049,8 @@ class HomeController extends Controller
         $isUnlocked = false;
 
         if (auth()->check()) {
-            $profile = \Illuminate\Support\Facades\DB::table('user_profiles')->where('user_id', auth()->id())->first();
-            if ($profile && $profile->is_subscriber && $profile->subscription_ends_at && \Carbon\Carbon::parse($profile->subscription_ends_at)->isFuture()) {
+            if (auth()->user()->hasActivePremium() || auth()->user()->hasRole("admin")) {
                 $isSubscriber = true;
-            }
-            $hasUnlocked = \Illuminate\Support\Facades\DB::table('unlocked_researches')
-                ->where('user_id', auth()->id())
-                ->where('research_id', $research->id)
-                ->exists();
-            if ($hasUnlocked) {
                 $isUnlocked = true;
             }
         }
