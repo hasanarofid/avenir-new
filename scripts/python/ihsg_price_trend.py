@@ -1,73 +1,99 @@
 import sys
 import json
-import numpy as np
-import pandas as pd
-from pathlib import Path
+import csv
+from datetime import datetime
 
 def calculate_price_trend(csv_path):
     try:
-        # Read CSV
-        df = pd.read_csv(csv_path)
-        
-        # Clean 'Price' and 'High' columns
-        if 'Price' in df.columns:
-            df['Price'] = df['Price'].astype(str).str.replace(',', '').astype(float)
-        else:
-            return {"error": "Column 'Price' not found in CSV."}
-            
-        if 'High' in df.columns:
-            df['High'] = df['High'].astype(str).str.replace(',', '').astype(float)
-        else:
-            df['High'] = df['Price']
-            
-        # Parse Date
-        df['Date'] = pd.to_datetime(df['Date'], format='%m/%d/%Y', errors='coerce')
-        
-        # Sort values by Date ascending
-        df = df.sort_values('Date').reset_index(drop=True)
-        
-        if len(df) < 5:
+        data = []
+        with open(csv_path, 'r', encoding='utf-8-sig') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if 'Date' not in row and '\ufeffDate' not in row:
+                    # try fallback to lower case
+                    keys = [k.lower() for k in row.keys() if k]
+                    if 'date' not in keys:
+                        continue
+                
+                # find the correct key for Date, Price, High
+                date_key = next((k for k in row.keys() if k and k.lower() == 'date'), None)
+                price_key = next((k for k in row.keys() if k and k.lower() == 'price'), None)
+                high_key = next((k for k in row.keys() if k and k.lower() == 'high'), None)
+                
+                if not date_key or not price_key:
+                    continue
+                    
+                date_str = row[date_key].strip()
+                try:
+                    date_obj = datetime.strptime(date_str, '%m/%d/%Y')
+                except ValueError:
+                    try:
+                        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                    except ValueError:
+                        try:
+                            date_obj = datetime.strptime(date_str, '%d/%m/%Y')
+                        except ValueError:
+                            continue # skip unparseable date
+                
+                price_str = str(row.get(price_key, '0')).replace(',', '')
+                price = float(price_str) if price_str else 0.0
+                
+                high_str = str(row.get(high_key, price_str)).replace(',', '')
+                high = float(high_str) if high_str else price
+                
+                data.append({
+                    'Date': date_obj,
+                    'Price': price,
+                    'High': high
+                })
+                    
+        if len(data) < 5:
             return {"error": "Not enough data points. Minimum 5 days required."}
             
-        # Calculations
-        latest_date = df['Date'].iloc[-1].strftime('%Y-%m-%d')
-        close = df['Price'].iloc[-1]
+        # Sort values by Date ascending
+        data.sort(key=lambda x: x['Date'])
+        
+        prices = [row['Price'] for row in data]
+        highs = [row['High'] for row in data]
+        
+        latest_date = data[-1]['Date'].strftime('%Y-%m-%d')
+        close = prices[-1]
         
         # MA20
-        ma20 = df['Price'].rolling(window=20, min_periods=1).mean().iloc[-1]
+        ma20_slice = prices[-20:] if len(prices) >= 20 else prices
+        ma20 = sum(ma20_slice) / len(ma20_slice)
         
         # MA60
-        ma60 = df['Price'].rolling(window=60, min_periods=1).mean().iloc[-1]
+        ma60_slice = prices[-60:] if len(prices) >= 60 else prices
+        ma60 = sum(ma60_slice) / len(ma60_slice)
         
         # Sparkline (last 60 days)
-        prices_60d = df['Price'].tail(60).tolist()
+        prices_60d = prices[-60:]
         
         # Change for latest date
-        if len(df) >= 2:
-            change_abs = close - df['Price'].iloc[-2]
-            change_pct = (change_abs / df['Price'].iloc[-2]) * 100
+        if len(prices) >= 2:
+            change_abs = close - prices[-2]
+            change_pct = (change_abs / prices[-2]) * 100
         else:
             change_abs = 0
             change_pct = 0
-        
+            
         # Return 5D
-        if len(df) >= 6:
-            ret_5d = (close - df['Price'].iloc[-6]) / df['Price'].iloc[-6]
+        if len(prices) >= 6:
+            ret_5d = (close - prices[-6]) / prices[-6]
         else:
-            ret_5d = (close - df['Price'].iloc[0]) / df['Price'].iloc[0]
+            ret_5d = (close - prices[0]) / prices[0]
             
         # Return 20D
-        if len(df) >= 21:
-            ret_20d = (close - df['Price'].iloc[-21]) / df['Price'].iloc[-21]
+        if len(prices) >= 21:
+            ret_20d = (close - prices[-21]) / prices[-21]
         else:
-            ret_20d = (close - df['Price'].iloc[0]) / df['Price'].iloc[0]
+            ret_20d = (close - prices[0]) / prices[0]
             
         # Drawdown 20D
-        if len(df) >= 20:
-            max_high_20d = df['High'].tail(20).max()
-        else:
-            max_high_20d = df['High'].max()
-            
+        high_20d_slice = highs[-20:] if len(highs) >= 20 else highs
+        max_high_20d = max(high_20d_slice) if high_20d_slice else 0
+        
         drawdown_20d = (close - max_high_20d) / max_high_20d if max_high_20d > 0 else 0
         
         # Calculate Score
