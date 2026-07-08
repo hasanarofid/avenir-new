@@ -269,10 +269,13 @@ class DeskBriefController extends Controller
                     );
                 }
 
-                // Update Momentum Score in MarketStanceDaily
+                // Update Momentum and Volatility Scores in MarketStanceDaily
                 $stance = \App\Models\MarketStanceDaily::whereDate('date', $itemDate)->first();
                 if ($stance) {
-                    $stance->momentum_score = $dataItem['score'];
+                    $stance->momentum_score = $dataItem['score'] ?? $stance->momentum_score;
+                    if (isset($dataItem['volatility_score'])) {
+                        $stance->rupiah_score = $dataItem['volatility_score'];
+                    }
                     
                     // Recalculate Total Score
                     $totalScore = ($stance->momentum_score * 0.3) +

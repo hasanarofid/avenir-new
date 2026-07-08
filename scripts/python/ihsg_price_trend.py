@@ -1,121 +1,146 @@
 import sys
 import json
-import csv
+import traceback
+import pandas as pd
 from datetime import datetime
+
+def parse_volume(vol_str):
+    """Convert volume strings like '19.72B', '40.12M', '1.5K' to numeric."""
+    if not isinstance(vol_str, str):
+        return float(vol_str) if pd.notna(vol_str) else 0.0
+        
+    vol_str = vol_str.strip().upper().replace(',', '')
+    if not vol_str:
+        return 0.0
+        
+    try:
+        if vol_str.endswith('B'):
+            return float(vol_str[:-1]) * 1e9
+        elif vol_str.endswith('M'):
+            return float(vol_str[:-1]) * 1e6
+        elif vol_str.endswith('K'):
+            return float(vol_str[:-1]) * 1e3
+        return float(vol_str)
+    except ValueError:
+        return 0.0
 
 def calculate_price_trend(csv_path):
     try:
-        data = []
-        with open(csv_path, 'r', encoding='utf-8-sig') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                if 'Date' not in row and '\ufeffDate' not in row:
-                    # try fallback to lower case
-                    keys = [k.lower() for k in row.keys() if k]
-                    if 'date' not in keys:
-                        continue
-                
-                # find the correct key for Date, Price, High
-                date_key = next((k for k in row.keys() if k and k.lower() == 'date'), None)
-                price_key = next((k for k in row.keys() if k and k.lower() == 'price'), None)
-                high_key = next((k for k in row.keys() if k and k.lower() == 'high'), None)
-                
-                if not date_key or not price_key:
-                    continue
-                    
-                date_str = row[date_key].strip()
-                try:
-                    date_obj = datetime.strptime(date_str, '%m/%d/%Y')
-                except ValueError:
-                    try:
-                        date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-                    except ValueError:
-                        try:
-                            date_obj = datetime.strptime(date_str, '%d/%m/%Y')
-                        except ValueError:
-                            continue # skip unparseable date
-                
-                price_str = str(row.get(price_key, '0')).replace(',', '')
-                price = float(price_str) if price_str else 0.0
-                
-                high_str = str(row.get(high_key, price_str)).replace(',', '')
-                high = float(high_str) if high_str else price
-                
-                data.append({
-                    'Date': date_obj,
-                    'Price': price,
-                    'High': high
-                })
-                    
-        if len(data) < 5:
+        df = pd.read_csv(csv_path, encoding='utf-8-sig')
+        
+        # Rename for consistency across EN/ID versions of investing.com
+        col_map = {
+            "Date": "Date",
+            "Tanggal": "Date",
+            "Price": "Close",
+            "Terakhir": "Close",
+            "Open": "Open",
+            "Pembukaan": "Open",
+            "High": "High",
+            "Tertinggi": "High",
+            "Low": "Low",
+            "Terendah": "Low",
+            "Vol.": "Volume",
+            "Change %": "Change_Pct",
+            "Perubahan%": "Change_Pct",
+        }
+        
+        # Strip spaces from column names before mapping
+        df.rename(columns=lambda x: col_map.get(x.strip(), x.strip()), inplace=True)
+        
+        if "Date" not in df.columns or "Close" not in df.columns:
+            return {"error": f"Missing required columns. Found: {list(df.columns)}"}
+            
+        # Parse date gracefully
+        df["Date"] = pd.to_datetime(df["Date"], format="mixed", dayfirst=True)
+        df.sort_values("Date", inplace=True)
+        df.reset_index(drop=True, inplace=True)
+        
+        if len(df) < 5:
             return {"error": "Not enough data points. Minimum 5 days required."}
             
-        # Sort values by Date ascending
-        data.sort(key=lambda x: x['Date'])
+        # Clean numeric columns
+        for col in ["Close", "Open", "High", "Low"]:
+            if col in df.columns:
+                if df[col].dtype == object:
+                    df[col] = df[col].astype(str).str.replace(",", "").astype(float)
         
-        prices = [row['Price'] for row in data]
-        highs = [row['High'] for row in data]
+        if "Volume" in df.columns:
+            df["Volume"] = df["Volume"].apply(parse_volume)
+        else:
+            df["Volume"] = 0.0
+            
+        # Calculate features using rolling windows
+        df["MA20"] = df["Close"].rolling(window=20).mean()
+        df["MA60"] = df["Close"].rolling(window=60).mean()
+        
+        df["Return_5D"] = df["Close"].pct_change(periods=5)
+        df["Return_20D"] = df["Close"].pct_change(periods=20)
+        
+        df["High_20D"] = df["High"].rolling(window=20).max()
+        # Fallback to Close if High isn't available for Drawdown
+        if df["High_20D"].isnull().all():
+            df["High_20D"] = df["Close"].rolling(window=20).max()
+            
+        df["Drawdown_20D"] = (df["Close"] / df["High_20D"]) - 1.0
+        
+        # Volatility / Liquidity components
+        df["Vol_MA20"] = df["Volume"].rolling(window=20).mean()
+        df["Range"] = df["High"] - df["Low"]
+        df["Range_MA20"] = df["Range"].rolling(window=20).mean()
         
         results = []
-        for i in range(len(data)):
-            current_date = data[i]['Date'].strftime('%Y-%m-%d')
-            close = prices[i]
+        
+        for i, row in df.iterrows():
+            close = row["Close"]
+            ma20 = row["MA20"] if pd.notna(row["MA20"]) else close
+            ma60 = row["MA60"] if pd.notna(row["MA60"]) else close
             
-            # MA20
-            start_20 = max(0, i - 19)
-            ma20_slice = prices[start_20:i+1]
-            ma20 = sum(ma20_slice) / len(ma20_slice)
-            
-            # MA60
-            start_60 = max(0, i - 59)
-            ma60_slice = prices[start_60:i+1]
-            ma60 = sum(ma60_slice) / len(ma60_slice)
-            
-            # Sparkline (last 60 days)
-            prices_60d = prices[start_60:i+1]
-            
-            # Change for current date
-            if i >= 1:
-                change_abs = close - prices[i-1]
-                change_pct = (change_abs / prices[i-1]) * 100
-            else:
-                change_abs = 0
-                change_pct = 0
-                
-            # Return 5D
-            if i >= 5:
-                ret_5d = (close - prices[i-5]) / prices[i-5]
-            else:
-                ret_5d = (close - prices[0]) / prices[0]
-                
-            # Return 20D
-            if i >= 20:
-                ret_20d = (close - prices[i-20]) / prices[i-20]
-            else:
-                ret_20d = (close - prices[0]) / prices[0]
-                
-            # Drawdown 20D
-            high_20d_slice = highs[start_20:i+1]
-            max_high_20d = max(high_20d_slice) if high_20d_slice else close
-            drawdown_20d = (close - max_high_20d) / max_high_20d if max_high_20d > 0 else 0
-            
-            # Calculate Score
+            # Calculate Price Trend Score (0-100)
             score = 0
             if close > ma20: score += 30
             if ma20 > ma60: score += 25
-            if ret_5d > 0: score += 20
-            if ret_20d > 0: score += 15
-            if drawdown_20d > -0.03: score += 10
-            score = max(0, min(score, 100))
+            if pd.notna(row["Return_5D"]) and row["Return_5D"] > 0: score += 20
+            if pd.notna(row["Return_20D"]) and row["Return_20D"] > 0: score += 15
+            if pd.notna(row["Drawdown_20D"]) and row["Drawdown_20D"] > -0.03: score += 10
+            score = max(0, min(100, score))
+            
+            # Calculate Volatility & Liquidity Score (0-100)
+            vol_score = 50
+            if pd.notna(row["Volume"]) and pd.notna(row["Vol_MA20"]) and row["Vol_MA20"] > 0:
+                if row["Volume"] > row["Vol_MA20"]:
+                    vol_score += 30 # Good liquidity
+                    
+            if pd.notna(row["Range"]) and pd.notna(row["Range_MA20"]) and row["Range_MA20"] > 0:
+                if row["Range"] < (1.5 * row["Range_MA20"]):
+                    vol_score += 20 # Stable volatility
+                else:
+                    vol_score -= 20 # High volatility (bad)
+                    
+            vol_score = max(0, min(100, vol_score))
+            
+            # Calculate change
+            change_abs = 0.0
+            change_pct = 0.0
+            if i > 0:
+                prev_close = df.iloc[i-1]["Close"]
+                change_abs = close - prev_close
+                if prev_close > 0:
+                    change_pct = (change_abs / prev_close) * 100
+                    
+            # Get last 60 days for sparkline
+            start_idx = max(0, i - 59)
+            prices_60d = df.iloc[start_idx:i+1]["Close"].tolist()
             
             results.append({
-                "date": current_date,
+                "date": row["Date"].strftime("%Y-%m-%d"),
                 "close": round(close, 2),
                 "ma20": round(ma20, 2),
                 "ma60": round(ma60, 2),
-                "ret_5d": round(ret_5d, 4),
-                "ret_20d": round(ret_20d, 4),
+                "ret_5d": round(row["Return_5D"], 4) if pd.notna(row["Return_5D"]) else 0,
+                "ret_20d": round(row["Return_20D"], 4) if pd.notna(row["Return_20D"]) else 0,
                 "score": score,
+                "volatility_score": vol_score,
                 "prices_60d": prices_60d,
                 "change_abs": round(change_abs, 4),
                 "change_pct": round(change_pct, 4)
@@ -127,7 +152,6 @@ def calculate_price_trend(csv_path):
         }
 
     except Exception as e:
-        import traceback
         return {"error": str(e), "trace": traceback.format_exc()}
 
 if __name__ == "__main__":
