@@ -492,7 +492,7 @@ const handleShare = async () => {
                     <p class="text-[10px] text-center text-slate-500 mt-3 px-2">Anda memerlukan akses Premium untuk mengunduh laporan ini.</p>
                   </template>
                   <template v-else>
-                    <a v-if="research.pdf_path" :href="research.pdf_path" target="_blank" download class="ac-btn-download shadow-lg shadow-emerald-500/20">
+                    <a v-if="research.pdf_path" :href="`/katalog/${research.id}/download`" target="_blank" download class="ac-btn-download shadow-lg shadow-emerald-500/20">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                       Unduh PDF Lengkap
                     </a>
@@ -519,7 +519,7 @@ const handleShare = async () => {
             </button>
          </template>
          <template v-else>
-            <a v-if="research.pdf_path" :href="research.pdf_path" target="_blank" download class="ac-btn-download w-full shadow-lg shadow-emerald-500/20">
+            <a v-if="research.pdf_path" :href="`/katalog/${research.id}/download`" target="_blank" download class="ac-btn-download w-full shadow-lg shadow-emerald-500/20">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Unduh PDF Lengkap
             </a>
@@ -1051,16 +1051,6 @@ const handleShare = async () => {
   display: none !important;
 }
 
-/* Drop Cap for the first letter of the container */
-.kdp-page:not(.has-custom-content) .db-content::first-letter {
-  float: left;
-  font-size: 3.5rem;
-  line-height: 0.8;
-  margin-right: 0.15em;
-  margin-bottom: -0.05em;
-  font-weight: 700;
-  color: #10B981;
-}
 
 /* Styling for lists */
 .kdp-page:not(.has-custom-content) .db-content ul {

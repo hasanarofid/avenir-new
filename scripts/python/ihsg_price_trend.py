@@ -1,48 +1,164 @@
 import sys
 import json
 import csv
-import traceback
+import math
 from datetime import datetime
 
-def parse_volume(vol_str):
-    """Convert volume strings like '19.72B', '40.12M', '1.5K' to numeric."""
-    if not isinstance(vol_str, str):
-        try:
-            return float(vol_str) if vol_str is not None else 0.0
-        except:
-            return 0.0
-            
-    vol_str = vol_str.strip().upper().replace(',', '')
-    if not vol_str:
-        return 0.0
-        
+# =========================================================
+# 1. HELPERS & PARSERS
+# =========================================================
+
+def clamp(value, min_value=0, max_value=100):
+    return max(min_value, min(value, max_value))
+
+def is_na(x):
+    if x is None:
+        return True
+    if isinstance(x, float) and math.isnan(x):
+        return True
+    if isinstance(x, str):
+        s = x.strip().lower()
+        if s in ["", "-", "n/a", "nan", "none"]:
+            return True
+    return False
+
+def parse_number(x):
+    if is_na(x):
+        return None
+
+    s = str(x).strip()
+    s = s.replace("%", "").replace(" ", "").replace('"', "")
+
+    if s in ["", "-", "n/a", "nan", "none"]:
+        return None
+
+    multiplier = 1
+    if len(s) > 0 and s[-1].upper() in ["K", "M", "B"]:
+        suffix = s[-1].upper()
+        s = s[:-1]
+        if suffix == "K": multiplier = 1_000
+        elif suffix == "M": multiplier = 1_000_000
+        elif suffix == "B": multiplier = 1_000_000_000
+
+    if "," in s and "." in s:
+        if s.rfind(",") > s.rfind("."):
+            s = s.replace(".", "").replace(",", ".")
+        else:
+            s = s.replace(",", "")
+    elif "," in s:
+        parts = s.split(",")
+        if len(parts[-1]) <= 2:
+            s = s.replace(",", ".")
+        else:
+            s = s.replace(",", "")
+
     try:
-        if vol_str.endswith('B'):
-            return float(vol_str[:-1]) * 1e9
-        elif vol_str.endswith('M'):
-            return float(vol_str[:-1]) * 1e6
-        elif vol_str.endswith('K'):
-            return float(vol_str[:-1]) * 1e3
-        return float(vol_str)
-    except ValueError:
-        return 0.0
+        return float(s) * multiplier
+    except Exception:
+        return None
+
+# =========================================================
+# 2. CONTINUOUS SCORING ENGINE (CLIENT LOGIC)
+# =========================================================
+
+def score_piecewise(value, points):
+    if is_na(value):
+        return None
+
+    points = sorted(points, key=lambda x: x[0])
+
+    if value <= points[0][0]: return points[0][1]
+    if value >= points[-1][0]: return points[-1][1]
+
+    for i in range(len(points) - 1):
+        x0, y0 = points[i]
+        x1, y1 = points[i + 1]
+        if x0 <= value <= x1:
+            ratio = (value - x0) / (x1 - x0)
+            return y0 + ratio * (y1 - y0)
+    return None
+
+def score_close_vs_ma20(close, ma20):
+    if is_na(close) or is_na(ma20) or ma20 == 0: return None
+    distance = (close / ma20) - 1
+    return score_piecewise(distance, [
+        (-0.15, 5), (-0.10, 12), (-0.07, 22), (-0.03, 38),
+        (0.00, 60), (0.02, 75), (0.05, 90), (0.08, 100),
+    ])
+
+def score_ma20_vs_ma60(ma20, ma60):
+    if is_na(ma20) or is_na(ma60) or ma60 == 0: return None
+    spread = (ma20 / ma60) - 1
+    return score_piecewise(spread, [
+        (-0.15, 5), (-0.10, 15), (-0.07, 25), (-0.03, 40),
+        (0.00, 60), (0.02, 75), (0.05, 90), (0.08, 100),
+    ])
+
+def score_return_5d(ret_5d):
+    if is_na(ret_5d): return None
+    return score_piecewise(ret_5d, [
+        (-0.12, 5), (-0.08, 12), (-0.05, 25), (-0.02, 40),
+        (0.00, 52), (0.02, 65), (0.05, 85), (0.08, 100),
+    ])
+
+def score_return_20d(ret_20d):
+    if is_na(ret_20d): return None
+    return score_piecewise(ret_20d, [
+        (-0.20, 5), (-0.12, 15), (-0.08, 25), (-0.05, 35),
+        (0.00, 52), (0.03, 65), (0.08, 85), (0.12, 100),
+    ])
+
+def score_drawdown_20d(drawdown_20d):
+    if is_na(drawdown_20d): return None
+    return score_piecewise(drawdown_20d, [
+        (-0.25, 5), (-0.18, 15), (-0.12, 30), (-0.08, 45),
+        (-0.05, 60), (-0.03, 75), (-0.01, 90), (0.00, 100),
+    ])
+
+def calculate_price_trend_score(row):
+    components = {
+        "close_vs_ma20": score_close_vs_ma20(row.get("close"), row.get("ma20")),
+        "ma20_vs_ma60": score_ma20_vs_ma60(row.get("ma20"), row.get("ma60")),
+        "return_5d": score_return_5d(row.get("ret_5d")),
+        "return_20d": score_return_20d(row.get("ret_20d")),
+        "drawdown_20d": score_drawdown_20d(row.get("drawdown_20d")),
+    }
+
+    weights = {
+        "close_vs_ma20": 0.30,
+        "ma20_vs_ma60": 0.25,
+        "return_5d": 0.20,
+        "return_20d": 0.15,
+        "drawdown_20d": 0.10,
+    }
+
+    valid_score = 0
+    valid_weight = 0
+
+    for key, score in components.items():
+        if not is_na(score):
+            valid_score += score * weights[key]
+            valid_weight += weights[key]
+
+    if valid_weight == 0:
+        return None
+
+    return round(clamp(valid_score / valid_weight), 0)
+
+# =========================================================
+# 3. MAIN PIPELINE (WITHOUT PANDAS)
+# =========================================================
 
 def calculate_price_trend(csv_path):
     try:
         data = []
         with open(csv_path, 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
-            
             for row in reader:
-                # Rename for consistency across EN/ID versions of investing.com
-                # We normalize the keys first
-                normalized_row = {}
-                for k, v in row.items():
-                    if k:
-                        normalized_row[k.strip().lower()] = v
+                normalized_row = {k.strip().lower(): v for k, v in row.items() if k}
                 
-                date_str = normalized_row.get('date') or normalized_row.get('tanggal')
-                close_str = normalized_row.get('price') or normalized_row.get('terakhir')
+                date_str = normalized_row.get('date') or normalized_row.get('tanggal') or normalized_row.get('time')
+                close_str = normalized_row.get('close') or normalized_row.get('price') or normalized_row.get('last') or normalized_row.get('terakhir')
                 open_str = normalized_row.get('open') or normalized_row.get('pembukaan')
                 high_str = normalized_row.get('high') or normalized_row.get('tertinggi')
                 low_str = normalized_row.get('low') or normalized_row.get('terendah')
@@ -51,11 +167,9 @@ def calculate_price_trend(csv_path):
                 if not date_str or not close_str:
                     continue
                     
-                # Parse date gracefully
                 date_str = date_str.strip()
                 date_obj = None
-                formats_to_try = ['%m/%d/%Y', '%Y-%m-%d', '%d/%m/%Y']
-                for fmt in formats_to_try:
+                for fmt in ['%m/%d/%Y', '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y']:
                     try:
                         date_obj = datetime.strptime(date_str, fmt)
                         break
@@ -63,19 +177,17 @@ def calculate_price_trend(csv_path):
                         pass
                 
                 if not date_obj:
-                    continue # skip unparseable date
+                    continue
                     
-                def to_float(val_str):
-                    if not val_str: return 0.0
-                    try:
-                        return float(val_str.replace(',', ''))
-                    except:
-                        return 0.0
-                        
-                close = to_float(close_str)
-                high = to_float(high_str) if high_str else close
-                low = to_float(low_str) if low_str else close
-                vol = parse_volume(vol_str)
+                close = parse_number(close_str)
+                if is_na(close):
+                    continue
+                    
+                high = parse_number(high_str)
+                if is_na(high): high = close
+                low = parse_number(low_str)
+                if is_na(low): low = close
+                vol = parse_number(vol_str) or 0.0
                 
                 data.append({
                     'Date': date_obj,
@@ -88,7 +200,13 @@ def calculate_price_trend(csv_path):
         if len(data) < 5:
             return {"error": "Not enough data points. Minimum 5 days required."}
             
-        # Sort values by Date ascending
+        data.sort(key=lambda x: x['Date'])
+        
+        # We need to drop duplicates by Date, keeping the last (similar to pandas drop_duplicates keep='last')
+        unique_data = {}
+        for d in data:
+            unique_data[d['Date']] = d
+        data = list(unique_data.values())
         data.sort(key=lambda x: x['Date'])
         
         results = []
@@ -100,86 +218,87 @@ def calculate_price_trend(csv_path):
             low = data[i]['Low']
             volume = data[i]['Volume']
             
+            # Moving Average 20
             start_20 = max(0, i - 19)
+            if (i - start_20 + 1) >= 20: # min_periods=20
+                closes_20d = [row['Close'] for row in data[start_20:i+1]]
+                ma20 = sum(closes_20d) / len(closes_20d)
+            else:
+                ma20 = None
+                
+            # Moving Average 60
             start_60 = max(0, i - 59)
-            
-            # MAs
-            closes_20d = [row['Close'] for row in data[start_20:i+1]]
-            ma20 = sum(closes_20d) / len(closes_20d) if closes_20d else close
-            
-            closes_60d = [row['Close'] for row in data[start_60:i+1]]
-            ma60 = sum(closes_60d) / len(closes_60d) if closes_60d else close
-            
-            prices_60d = closes_60d
+            if (i - start_60 + 1) >= 60: # min_periods=60
+                closes_60d = [row['Close'] for row in data[start_60:i+1]]
+                ma60 = sum(closes_60d) / len(closes_60d)
+            else:
+                ma60 = None
+                
+            # Sparkline prices
+            prices_60d = [row['Close'] for row in data[max(0, i-59):i+1]]
             
             # Returns
-            if i >= 5:
-                ret_5d = (close - data[i-5]['Close']) / data[i-5]['Close']
-            else:
-                ret_5d = (close - data[0]['Close']) / data[0]['Close']
-                
-            if i >= 20:
-                ret_20d = (close - data[i-20]['Close']) / data[i-20]['Close']
-            else:
-                ret_20d = (close - data[0]['Close']) / data[0]['Close']
-                
-            # Drawdown
-            highs_20d = [row['High'] for row in data[start_20:i+1]]
-            max_high_20d = max(highs_20d) if highs_20d else close
-            drawdown_20d = (close - max_high_20d) / max_high_20d if max_high_20d > 0 else 0
+            ret_1d = (close - data[i-1]['Close']) / data[i-1]['Close'] if i >= 1 else None
+            ret_5d = (close - data[i-5]['Close']) / data[i-5]['Close'] if i >= 5 else None
+            ret_20d = (close - data[i-20]['Close']) / data[i-20]['Close'] if i >= 20 else None
             
-            # Volatility features
+            # Drawdown
+            if (i - start_20 + 1) >= 20:
+                highs_20d = [row['High'] for row in data[start_20:i+1]]
+                max_high_20d = max(highs_20d)
+                drawdown_20d = (close / max_high_20d) - 1 if max_high_20d > 0 else 0
+            else:
+                drawdown_20d = None
+                
+            # Component scores & Final Score
+            row_dict = {
+                "close": close,
+                "ma20": ma20,
+                "ma60": ma60,
+                "ret_5d": ret_5d,
+                "ret_20d": ret_20d,
+                "drawdown_20d": drawdown_20d
+            }
+            score = calculate_price_trend_score(row_dict)
+            
+            # Volatility feature (keeping our volume logic so Laravel gets the rupiah_score)
             vols_20d = [row['Volume'] for row in data[start_20:i+1]]
             vol_ma20 = sum(vols_20d) / len(vols_20d) if vols_20d else volume
-            
             range_val = high - low
             ranges = [row['High'] - row['Low'] for row in data[start_20:i+1]]
             range_ma20 = sum(ranges) / len(ranges) if ranges else range_val
             
-            # Calculate Price Trend Score (0-100)
-            score = 0
-            if close > ma20: score += 30
-            if ma20 > ma60: score += 25
-            if ret_5d > 0: score += 20
-            if ret_20d > 0: score += 15
-            if drawdown_20d > -0.03: score += 10
-            score = max(0, min(100, score))
-            
-            # Calculate Volatility & Liquidity Score (0-100)
             vol_score = 50
-            if vol_ma20 > 0:
-                if volume > vol_ma20:
-                    vol_score += 30 # Good liquidity
-                    
+            if vol_ma20 > 0 and volume > vol_ma20:
+                vol_score += 30
             if range_ma20 > 0:
                 if range_val < (1.5 * range_ma20):
-                    vol_score += 20 # Stable volatility
+                    vol_score += 20
                 else:
-                    vol_score -= 20 # High volatility (bad)
-                    
+                    vol_score -= 20
             vol_score = max(0, min(100, int(vol_score)))
             
-            # Calculate change
-            change_abs = 0.0
-            change_pct = 0.0
-            if i > 0:
-                prev_close = data[i-1]['Close']
-                change_abs = close - prev_close
-                if prev_close > 0:
-                    change_pct = (change_abs / prev_close) * 100
+            # Laravel wants change_abs and change_pct
+            change_abs = (close - data[i-1]['Close']) if i >= 1 else 0.0
+            change_pct = ret_1d * 100 if ret_1d is not None else 0.0
             
             results.append({
                 "date": current_date,
-                "close": round(close, 2),
-                "ma20": round(ma20, 2),
-                "ma60": round(ma60, 2),
-                "ret_5d": round(ret_5d, 4),
-                "ret_20d": round(ret_20d, 4),
-                "score": score,
-                "volatility_score": vol_score,
+                "close": close,
+                "ma20": ma20,
+                "ma60": ma60,
+                "ret_1d": ret_1d,
+                "ret_5d": ret_5d,
+                "ret_20d": ret_20d,
+                "drawdown_20d": drawdown_20d,
+                "ret_5d_pct": ret_5d * 100 if ret_5d is not None else None,
+                "ret_20d_pct": ret_20d * 100 if ret_20d is not None else None,
+                "drawdown_20d_pct": drawdown_20d * 100 if drawdown_20d is not None else None,
+                "score": score if score is not None else 0, # Mapped to momentum in Laravel
+                "volatility_score": vol_score,              # Mapped to rupiah_score in Laravel
                 "prices_60d": prices_60d,
-                "change_abs": round(change_abs, 4),
-                "change_pct": round(change_pct, 4)
+                "change_abs": change_abs,
+                "change_pct": change_pct
             })
             
         return {

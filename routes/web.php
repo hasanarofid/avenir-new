@@ -16,6 +16,7 @@ use App\Http\Controllers\Auth\MigratedPasswordController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/katalog', [HomeController::class, 'katalog'])->name('katalog');
 Route::get('/katalog/{slug}', [HomeController::class, 'katalogDetail'])->name('katalog.detail');
+Route::get('/katalog/{id}/download', [HomeController::class, 'downloadKatalogPdf'])->name('katalog.download');
 Route::post('/katalog/{id}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
 Route::get('/artikel', [HomeController::class, 'artikel'])->name('artikel');
 Route::get('/artikel/{slug}', [HomeController::class, 'artikelDetail'])->name('artikel.detail');
