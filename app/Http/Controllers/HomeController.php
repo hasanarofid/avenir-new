@@ -1071,6 +1071,7 @@ class HomeController extends Controller
         }
 
         $pdf = new \App\Services\AlphaFpdi();
+        $pdf->SetAutoPageBreak(false);
         
         try {
             $pageCount = $pdf->setSourceFile($absolutePath);
