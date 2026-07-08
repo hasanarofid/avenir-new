@@ -221,4 +221,70 @@ class DeskBriefController extends Controller
             return back()->withErrors(['pdf_file' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
         }
     }
+
+    public function uploadIhsgCsv(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:10240'
+        ]);
+
+        try {
+            $path = $request->file('csv_file')->store('ihsg_csvs');
+            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+
+            $scriptPath = base_path('scripts/python/ihsg_price_trend.py');
+            
+            $process = new \Symfony\Component\Process\Process(['python3', $scriptPath, $fullPath]);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new \Exception('Python Script Error: ' . ($process->getErrorOutput() ?: 'Command failed without error output.'));
+            }
+
+            $output = $process->getOutput();
+            $parsed = json_decode($output, true);
+
+            if (!$parsed || isset($parsed['error'])) {
+                return back()->withErrors(['csv_file' => 'Gagal memproses CSV: ' . ($parsed['error'] ?? 'Output bukan JSON yang valid.')]);
+            }
+            
+            $date = \Carbon\Carbon::parse($parsed['date'])->toDateString();
+
+            // Overwrite MarketSnapshot for IHSG
+            if (isset($parsed['prices_60d'])) {
+                \App\Models\MarketSnapshot::updateOrCreate(
+                    ['date' => $date, 'symbol_or_metric' => 'IHSG'],
+                    [
+                        'value' => $parsed['close'],
+                        'change_abs' => $parsed['change_abs'],
+                        'change_pct' => $parsed['change_pct'],
+                        'sparkline_json' => $parsed['prices_60d'],
+                        'source' => 'csv_upload'
+                    ]
+                );
+            }
+
+            // Update Momentum Score in MarketStanceDaily
+            $stance = \App\Models\MarketStanceDaily::whereDate('date', $date)->first();
+            if ($stance) {
+                $stance->momentum_score = $parsed['score'];
+                
+                // Recalculate Total Score
+                $totalScore = ($stance->momentum_score * 0.3) +
+                              ($stance->breadth_score * 0.25) +
+                              ($stance->foreign_score * 0.2) +
+                              ($stance->sector_score * 0.15) +
+                              ($stance->rupiah_score * 0.1);
+                              
+                $stance->score = round($totalScore);
+                $stance->save();
+            }
+
+            // Return the summary to be displayed on the frontend
+            return back()->with('ihsg_trend_summary', $parsed)->with('success', 'CSV berhasil diproses dan database untuk tanggal ' . $date . ' telah diperbarui.');
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['csv_file' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
+        }
+    }
 }

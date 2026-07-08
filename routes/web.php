@@ -149,6 +149,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Desk Brief
         Route::get('/desk-brief', [\App\Http\Controllers\Admin\DeskBriefController::class, 'index'])->name('desk-brief.index');
         Route::post('/desk-brief/upload-pdf', [\App\Http\Controllers\Admin\DeskBriefController::class, 'uploadPdf'])->name('desk-brief.upload-pdf');
+        Route::post('/desk-brief/upload-ihsg-csv', [\App\Http\Controllers\Admin\DeskBriefController::class, 'uploadIhsgCsv'])->name('desk-brief.upload-ihsg-csv');
         Route::get('/desk-brief/{id}/edit', [\App\Http\Controllers\Admin\DeskBriefController::class, 'edit'])->name('desk-brief.edit');
         Route::put('/desk-brief/{id}', [\App\Http\Controllers\Admin\DeskBriefController::class, 'update'])->name('desk-brief.update');
         Route::post('/desk-brief/{id}/publish', [\App\Http\Controllers\Admin\DeskBriefController::class, 'publish'])->name('desk-brief.publish');

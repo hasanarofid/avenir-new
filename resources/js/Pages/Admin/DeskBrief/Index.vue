@@ -15,14 +15,25 @@ const props = defineProps({
 });
 
 const showUploadModal = ref(false);
+const showUploadCsvModal = ref(false);
 
 const form = useForm({
   pdf_file: null,
 });
 
+const csvForm = useForm({
+  csv_file: null,
+});
+
 const handleFileChange = (e) => {
   if (e.target.files.length > 0) {
     form.pdf_file = e.target.files[0];
+  }
+};
+
+const handleCsvFileChange = (e) => {
+  if (e.target.files.length > 0) {
+    csvForm.csv_file = e.target.files[0];
   }
 };
 
@@ -40,6 +51,50 @@ const submitUpload = () => {
     },
     onError: (errors) => {
       Swal.fire('Gagal', errors.pdf_file || 'Terjadi kesalahan saat memproses file.', 'error');
+    }
+  });
+};
+
+const submitCsvUpload = () => {
+  if (!csvForm.csv_file) {
+    Swal.fire('Error', 'Pilih file CSV terlebih dahulu', 'error');
+    return;
+  }
+  csvForm.post(route('admin.desk-brief.upload-ihsg-csv'), {
+    preserveScroll: true,
+    onSuccess: (page) => {
+      showUploadCsvModal.value = false;
+      csvForm.reset();
+      
+      const summary = page.props.flash?.ihsg_trend_summary;
+      if (summary) {
+        const html = `
+          <div class="text-left font-mono text-sm bg-[#111] p-4 rounded-lg border border-gray-800 text-gray-300">
+            <div class="text-white font-bold mb-2">AVENIR IHSG PRICE TREND ENGINE</div>
+            <div>Latest Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${summary.date}</div>
+            <div>Close &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${summary.close}</div>
+            <div>MA20 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${summary.ma20}</div>
+            <div>MA60 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${summary.ma60}</div>
+            <div>Return 5D &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${(summary.ret_5d * 100).toFixed(2)}%</div>
+            <div>Return 20D &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${(summary.ret_20d * 100).toFixed(2)}%</div>
+            <div>Drawdown 20D &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${(summary.drawdown_20d * 100).toFixed(2)}%</div>
+            <div class="mt-2 pt-2 border-t border-gray-700 text-blue-400 font-bold">Price Trend Score &nbsp;: ${summary.score} / 100</div>
+          </div>
+        `;
+        Swal.fire({
+          title: '<span class="text-white">Hasil Analisis Trend IHSG</span>',
+          html: html,
+          background: '#1A1A1A',
+          width: '500px',
+          showConfirmButton: true,
+          confirmButtonColor: '#3B82F6'
+        });
+      } else {
+        Swal.fire('Berhasil!', 'CSV berhasil diproses.', 'success');
+      }
+    },
+    onError: (errors) => {
+      Swal.fire('Gagal', errors.csv_file || 'Terjadi kesalahan saat memproses file CSV.', 'error');
     }
   });
 };
@@ -177,7 +232,14 @@ const showBreakdown = (stance) => {
         <h2 class="text-2xl font-bold text-white">Desk Brief</h2>
         <p class="text-gray-400 mt-1">Kelola data market intelligence harian</p>
       </div>
-      <div>
+      <div class="flex items-center gap-3">
+        <button 
+          @click="showUploadCsvModal = true"
+          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors shadow-lg shadow-emerald-900/20"
+        >
+          <Upload class="w-4 h-4" />
+          IHSG Price Trend (CSV)
+        </button>
         <button 
           @click="showUploadModal = true"
           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors shadow-lg shadow-blue-900/20"
@@ -231,6 +293,55 @@ const showBreakdown = (stance) => {
             <button type="submit" :disabled="form.processing || !form.pdf_file" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
               <span v-if="form.processing" class="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></span>
               {{ form.processing ? 'Memproses...' : 'Proses & Buat Draft' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Upload CSV Modal -->
+    <div v-if="showUploadCsvModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-[#1A1A1A] border border-gray-800 rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222]">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <Upload class="w-5 h-5 text-emerald-400" />
+            Upload CSV IHSG Historical
+          </h3>
+          <button @click="showUploadCsvModal = false" class="text-gray-400 hover:text-white transition-colors">
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+        
+        <form @submit.prevent="submitCsvUpload" class="p-6">
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-2">File CSV (investing.com)</label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700 border-dashed rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all">
+              <div class="space-y-1 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div class="flex text-sm text-gray-400 justify-center">
+                  <label for="csv-upload" class="relative cursor-pointer bg-[#1A1A1A] rounded-md font-medium text-emerald-400 hover:text-emerald-300 focus-within:outline-none">
+                    <span>Upload a file</span>
+                    <input id="csv-upload" name="csv-upload" type="file" accept=".csv" class="sr-only" @change="handleCsvFileChange" />
+                  </label>
+                  <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  {{ csvForm.csv_file ? csvForm.csv_file.name : 'CSV up to 10MB' }}
+                </p>
+              </div>
+            </div>
+            <p v-if="csvForm.errors.csv_file" class="mt-2 text-sm text-red-500">{{ csvForm.errors.csv_file }}</p>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-8">
+            <button type="button" @click="showUploadCsvModal = false" class="px-4 py-2 bg-transparent text-gray-400 hover:text-white transition-colors">
+              Batal
+            </button>
+            <button type="submit" :disabled="csvForm.processing || !csvForm.csv_file" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+              <span v-if="csvForm.processing" class="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></span>
+              {{ csvForm.processing ? 'Memproses...' : 'Proses CSV' }}
             </button>
           </div>
         </form>

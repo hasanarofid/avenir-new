@@ -79,6 +79,7 @@ class ScoringEngine
 
         $marketData['advancers'] = (int) ($snapshots->get('ADVANCERS')->value ?? 0);
         $marketData['decliners'] = (int) ($snapshots->get('DECLINERS')->value ?? 0);
+        $marketData['stable'] = (int) ($snapshots->get('STABLE')->value ?? 0);
         $marketData['value_traded'] = (float) ($snapshots->get('VALUE_TRADED_BN_IDR')->value ?? 0);
         $marketData['foreign_net_5d'] = (float) ($snapshots->get('FOREIGN_NET_TODAY')->value ?? 0);
 
@@ -253,8 +254,9 @@ class ScoringEngine
     {
         $advancers = $data['advancers'] ?? 0;
         $decliners = $data['decliners'] ?? 0;
+        $stable = $data['stable'] ?? 0;
 
-        $total = $advancers + $decliners;
+        $total = $advancers + $decliners + $stable;
         if ($total > 0) {
             $score = ($advancers / $total) * 100;
         } else {
