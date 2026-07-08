@@ -1097,23 +1097,24 @@ class HomeController extends Controller
             $pdf->SetFont('Arial', '', 9);
             $pdf->SetTextColor(100, 100, 100);
             $pdf->SetXY(15, $size['height'] - 15);
-            $pdf->Cell(0, 10, 'Licensed to: ' . $userName . ' (' . $userEmail . ') - Avenir Research', 0, 0, 'L');
+            $pdf->Cell(0, 10, 'Licensed to: ' . $userName . ' (' . $userEmail . ')', 0, 0, 'L');
 
-            // Logo watermark (Lynk.id style - diagonal repeating grid)
-            if (file_exists($logoPath)) {
-                $pdf->SetAlpha(0.08); // Sangat transparan
-                $pdf->Rotate(45, $size['width'] / 2, $size['height'] / 2);
-                
-                $logoWidth = 40;
-                
-                // Mulai dari luar batas halaman agar penuh
-                for ($x = -150; $x < $size['width'] + 150; $x += 80) {
-                    for ($y = -150; $y < $size['height'] + 150; $y += 60) {
-                        $pdf->Image($logoPath, $x, $y, $logoWidth);
-                    }
+            // Diagonal Email Watermark (menggantikan logo)
+            $pdf->SetAlpha(0.15); // Transparan agar tidak menutupi tulisan
+            $pdf->SetFont('Arial', 'B', 18);
+            $pdf->SetTextColor(120, 120, 120);
+            $pdf->Rotate(45, $size['width'] / 2, $size['height'] / 2);
+            
+            $watermarkText = $userEmail;
+            
+            // Mulai dari luar batas halaman agar penuh
+            for ($x = -200; $x < $size['width'] + 200; $x += 120) {
+                for ($y = -200; $y < $size['height'] + 200; $y += 80) {
+                    $pdf->SetXY($x, $y);
+                    $pdf->Cell(0, 10, $watermarkText, 0, 0, 'L');
                 }
-                $pdf->Rotate(0); // Reset rotasi
             }
+            $pdf->Rotate(0); // Reset rotasi
             
             $pdf->SetAlpha(1); // Reset alpha
         }
