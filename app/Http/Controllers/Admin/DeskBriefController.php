@@ -76,6 +76,19 @@ class DeskBriefController extends Controller
         return redirect()->route('admin.desk-brief.index')->with('success', 'Desk Brief updated successfully.');
     }
 
+    public function destroy($id)
+    {
+        $deskBrief = DeskBrief::findOrFail($id);
+        
+        if ($deskBrief->market_stance_id) {
+            \App\Models\MarketStanceDaily::where('id', $deskBrief->market_stance_id)->delete();
+        }
+        
+        $deskBrief->delete();
+
+        return redirect()->route('admin.desk-brief.index')->with('success', 'Desk Brief deleted successfully.');
+    }
+
     public function publish($id)
     {
         $deskBrief = DeskBrief::findOrFail($id);

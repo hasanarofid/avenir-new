@@ -4,7 +4,7 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
 import RegimeSimulator from './Components/RegimeSimulator.vue';
-import { Edit, Eye, CheckCircle, Upload, X } from '@lucide/vue';
+import { Edit, Eye, CheckCircle, Upload, X, Trash2 } from '@lucide/vue';
 import Swal from 'sweetalert2';
 
 const props = defineProps({
@@ -134,6 +134,32 @@ const handlePublish = (item) => {
           Swal.fire(
             'Berhasil!',
             'Desk Brief telah dipublish.',
+            'success'
+          );
+        }
+      });
+    }
+  });
+};
+
+const handleDelete = (item) => {
+  Swal.fire({
+    title: 'Hapus Desk Brief?',
+    text: "Data yang dihapus tidak dapat dikembalikan.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#EF4444',
+    cancelButtonColor: '#3B82F6',
+    confirmButtonText: 'Ya, Hapus!',
+    cancelButtonText: 'Batal'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      router.delete(route('admin.desk-brief.destroy', item.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+          Swal.fire(
+            'Terhapus!',
+            'Desk Brief telah dihapus.',
             'success'
           );
         }
@@ -442,6 +468,13 @@ const showBreakdown = (stance) => {
               title="Publish"
             >
               <CheckCircle class="w-4 h-4" />
+            </button>
+            <button
+              @click="handleDelete(item)"
+              class="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+              title="Hapus"
+            >
+              <Trash2 class="w-4 h-4" />
             </button>
           </div>
         </template>
