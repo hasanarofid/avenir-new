@@ -1092,28 +1092,23 @@ class HomeController extends Controller
             $pdf->AddPage($orientation, [$size['width'], $size['height']]);
             $pdf->useTemplate($templateId);
 
-            // Watermark text di bagian bawah
-            $pdf->SetAlpha(0.6);
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->SetTextColor(100, 100, 100);
-            $pdf->SetXY(15, $size['height'] - 15);
-            $pdf->Cell(0, 10, 'Licensed to: ' . $userName . ' (' . $userEmail . ')', 0, 0, 'L');
-
-            // Diagonal Email Watermark (menggantikan logo)
+            // Diagonal Email Watermark (Tengah Halaman)
             $pdf->SetAlpha(0.15); // Transparan agar tidak menutupi tulisan
             $pdf->SetFont('Arial', 'B', 18);
             $pdf->SetTextColor(120, 120, 120);
-            $pdf->Rotate(45, $size['width'] / 2, $size['height'] / 2);
+            
+            $centerX = $size['width'] / 2;
+            $centerY = $size['height'] / 2;
+            
+            $pdf->Rotate(45, $centerX, $centerY);
             
             $watermarkText = $userEmail;
+            $textWidth = $pdf->GetStringWidth($watermarkText);
             
-            // Mulai dari luar batas halaman agar penuh
-            for ($x = -200; $x < $size['width'] + 200; $x += 120) {
-                for ($y = -200; $y < $size['height'] + 200; $y += 80) {
-                    $pdf->SetXY($x, $y);
-                    $pdf->Cell(0, 10, $watermarkText, 0, 0, 'L');
-                }
-            }
+            // Posisikan text agar pas di tengah (X = tengah - setengah lebar text, Y = tengah)
+            $pdf->SetXY($centerX - ($textWidth / 2), $centerY);
+            $pdf->Cell($textWidth, 10, $watermarkText, 0, 0, 'C');
+            
             $pdf->Rotate(0); // Reset rotasi
             
             $pdf->SetAlpha(1); // Reset alpha
