@@ -287,16 +287,8 @@ class DeskBriefController extends Controller
                     $stance->score = round($totalScore);
                     $stance->save();
                 }
-
-                // Generate Draft automatically
-                try {
-                    \Illuminate\Support\Facades\Artisan::call('deskbrief:draft', [
-                        'date' => $itemDate,
-                        '--force' => true
-                    ]);
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error("Failed to generate desk brief for {$itemDate}: " . $e->getMessage());
-                }
+                // DO NOT generate draft for historical data as it causes 504 Gateway Timeout
+                // Drafts should only be generated for the latest day, or triggered manually/by PDF upload
             }
 
             $date = \Carbon\Carbon::parse($latest['date'])->toDateString();
