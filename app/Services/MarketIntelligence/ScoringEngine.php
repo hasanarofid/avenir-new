@@ -25,7 +25,7 @@ class ScoringEngine
 
         $marketData = [
             'close' => (float) $ihsg->value,
-            'ret_5d' => (float) $ihsg->change_pct,
+            'ret_5d' => null, // will be calculated below
             'ihsg_return_1d' => (float) $ihsg->change_pct,
             'ma20' => 0,
             'ma60' => 0,
@@ -57,16 +57,21 @@ class ScoringEngine
             $count = count($prices);
             
             if ($count > 0) {
-                $period = min(20, $count);
-                $lastN = array_slice($prices, -$period);
-                $marketData['ma20'] = array_sum($lastN) / $period;
+                $period20 = min(20, $count);
+                $last20 = array_slice($prices, -$period20);
+                $marketData['ma20'] = array_sum($last20) / $period20;
                 
-                $firstOfN = $lastN[0];
-                $lastOfN = end($lastN);
-                $marketData['ret_20d'] = $firstOfN > 0 ? ($lastOfN - $firstOfN) / $firstOfN : 0;
+                $first20 = $last20[0];
+                $lastVal = end($last20);
+                $marketData['ret_20d'] = $first20 > 0 ? ($lastVal - $first20) / $first20 : 0;
                 
-                $maxOfN = max($lastN);
-                $marketData['drawdown_20d'] = $maxOfN > 0 ? ($lastOfN - $maxOfN) / $maxOfN : 0;
+                $max20 = max($last20);
+                $marketData['drawdown_20d'] = $max20 > 0 ? ($lastVal - $max20) / $max20 : 0;
+                
+                $period5 = min(5, $count);
+                $last5 = array_slice($prices, -$period5);
+                $first5 = $last5[0];
+                $marketData['ret_5d'] = $first5 > 0 ? ($lastVal - $first5) / $first5 : 0;
             }
             
             if ($count >= 60) {
@@ -211,43 +216,99 @@ class ScoringEngine
         return (int) max($minValue, min($value, $maxValue));
     }
 
+    protected function scorePiecewise(?float $value, array $points): ?float
+    {
+        if ($value === null || is_nan($value) || is_infinite($value)) {
+            return null;
+        }
+
+        // Sort points by X
+        usort($points, function($a, $b) {
+            return $a[0] <=> $b[0];
+        });
+
+        if ($value <= $points[0][0]) return $points[0][1];
+        
+        $lastIdx = count($points) - 1;
+        if ($value >= $points[$lastIdx][0]) return $points[$lastIdx][1];
+
+        for ($i = 0; $i < $lastIdx; $i++) {
+            $x0 = $points[$i][0];
+            $y0 = $points[$i][1];
+            $x1 = $points[$i+1][0];
+            $y1 = $points[$i+1][1];
+
+            if ($value >= $x0 && $value <= $x1) {
+                if ($x1 == $x0) return $y0; // prevent div by zero
+                $ratio = ($value - $x0) / ($x1 - $x0);
+                return $y0 + $ratio * ($y1 - $y0);
+            }
+        }
+
+        return null;
+    }
+
     public function calculatePriceTrendScore(array $data): int
     {
-        $close = $data['close'] ?? 0;
-        $ma20 = $data['ma20'] ?? 0;
-        $ma60 = $data['ma60'] ?? 0;
-        $ret_5d = $data['ret_5d'] ?? 0;
-        $ret_20d = $data['ret_20d'] ?? 0;
-        $drawdown_20d = $data['drawdown_20d'] ?? 0;
+        $close = $data['close'] ?? null;
+        $ma20 = $data['ma20'] ?? null;
+        $ma60 = $data['ma60'] ?? null;
+        $ret_5d = $data['ret_5d'] ?? null;
+        $ret_20d = $data['ret_20d'] ?? null;
+        $drawdown_20d = $data['drawdown_20d'] ?? null;
 
-        $score = 0;
+        // Note: For ret_5d, since gatherMarketData didn't fetch it, we should calculate it from sparkline_json if possible.
+        // Actually, let's try to calculate it if we have ma20 and close. But wait, ret_5d is just the return over 5 days.
+        // gatherMarketData currently sets ret_5d to 1-day return incorrectly!
+        // We will fix gatherMarketData separately. Here we just use the provided values.
 
-        // IHSG di atas MA20 = trend pendek sehat
-        if ($close > $ma20) {
-            $score += 30;
+        $c_ma20 = ($close !== null && $ma20 !== null && $ma20 > 0) ? ($close / $ma20) - 1 : null;
+        $m_ma60 = ($ma20 !== null && $ma60 !== null && $ma60 > 0) ? ($ma20 / $ma60) - 1 : null;
+
+        $scores = [
+            'close_vs_ma20' => $this->scorePiecewise($c_ma20, [
+                [-0.15, 5], [-0.10, 12], [-0.07, 22], [-0.03, 38],
+                [0.00, 60], [0.02, 75], [0.05, 90], [0.08, 100],
+            ]),
+            'ma20_vs_ma60' => $this->scorePiecewise($m_ma60, [
+                [-0.15, 5], [-0.10, 15], [-0.07, 25], [-0.03, 40],
+                [0.00, 60], [0.02, 75], [0.05, 90], [0.08, 100],
+            ]),
+            'return_5d' => $this->scorePiecewise($ret_5d, [
+                [-0.12, 5], [-0.08, 12], [-0.05, 25], [-0.02, 40],
+                [0.00, 52], [0.02, 65], [0.05, 85], [0.08, 100],
+            ]),
+            'return_20d' => $this->scorePiecewise($ret_20d, [
+                [-0.20, 5], [-0.12, 15], [-0.08, 25], [-0.05, 35],
+                [0.00, 52], [0.03, 65], [0.08, 85], [0.12, 100],
+            ]),
+            'drawdown_20d' => $this->scorePiecewise($drawdown_20d, [
+                [-0.25, 5], [-0.18, 15], [-0.12, 30], [-0.08, 45],
+                [-0.05, 60], [-0.03, 75], [-0.01, 90], [0.00, 100],
+            ])
+        ];
+
+        $weights = [
+            'close_vs_ma20' => 0.30,
+            'ma20_vs_ma60' => 0.25,
+            'return_5d' => 0.20,
+            'return_20d' => 0.15,
+            'drawdown_20d' => 0.10,
+        ];
+
+        $valid_score = 0;
+        $valid_weight = 0;
+
+        foreach ($scores as $key => $s) {
+            if ($s !== null) {
+                $valid_score += $s * $weights[$key];
+                $valid_weight += $weights[$key];
+            }
         }
 
-        // MA20 di atas MA60 = trend menengah sehat
-        if ($ma20 > $ma60) {
-            $score += 25;
-        }
+        if ($valid_weight == 0) return 0;
 
-        // Return 5 hari positif = short-term momentum positif
-        if ($ret_5d > 0) {
-            $score += 20;
-        }
-
-        // Return 20 hari positif = monthly momentum positif
-        if ($ret_20d > 0) {
-            $score += 15;
-        }
-
-        // Drawdown dari high 20 hari tidak terlalu dalam
-        if ($drawdown_20d > -0.03) {
-            $score += 10;
-        }
-
-        return $this->clamp($score);
+        return (int) round($this->clamp($valid_score / $valid_weight));
     }
 
     public function calculateBreadthScore(array $data): int
