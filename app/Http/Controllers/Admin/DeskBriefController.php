@@ -284,6 +284,16 @@ class DeskBriefController extends Controller
                     $stance->score = round($totalScore);
                     $stance->save();
                 }
+
+                // Generate Draft automatically
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('deskbrief:draft', [
+                        'date' => $itemDate,
+                        '--force' => true
+                    ]);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to generate desk brief for {$itemDate}: " . $e->getMessage());
+                }
             }
 
             $date = \Carbon\Carbon::parse($latest['date'])->toDateString();
