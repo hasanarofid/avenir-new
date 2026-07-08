@@ -57,21 +57,27 @@ class ScoringEngine
             $count = count($prices);
             
             if ($count > 0) {
+                // ma20 uses 20 items
                 $period20 = min(20, $count);
                 $last20 = array_slice($prices, -$period20);
                 $marketData['ma20'] = array_sum($last20) / $period20;
                 
-                $first20 = $last20[0];
+                // drawdown uses 20 items
                 $lastVal = end($last20);
-                $marketData['ret_20d'] = $first20 > 0 ? ($lastVal - $first20) / $first20 : 0;
-                
                 $max20 = max($last20);
                 $marketData['drawdown_20d'] = $max20 > 0 ? ($lastVal - $max20) / $max20 : 0;
                 
-                $period5 = min(5, $count);
-                $last5 = array_slice($prices, -$period5);
-                $first5 = $last5[0];
-                $marketData['ret_5d'] = $first5 > 0 ? ($lastVal - $first5) / $first5 : 0;
+                // ret_20d needs 21 items (today vs 20 days ago)
+                $period21 = min(21, $count);
+                $last21 = array_slice($prices, -$period21);
+                $first21 = $last21[0];
+                $marketData['ret_20d'] = $first21 > 0 ? ($lastVal - $first21) / $first21 : 0;
+                
+                // ret_5d needs 6 items (today vs 5 days ago)
+                $period6 = min(6, $count);
+                $last6 = array_slice($prices, -$period6);
+                $first6 = $last6[0];
+                $marketData['ret_5d'] = $first6 > 0 ? ($lastVal - $first6) / $first6 : 0;
             }
             
             if ($count >= 60) {
