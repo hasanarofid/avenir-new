@@ -248,40 +248,48 @@ class DeskBriefController extends Controller
                 return back()->withErrors(['csv_file' => 'Gagal memproses CSV: ' . ($parsed['error'] ?? 'Output bukan JSON yang valid.')]);
             }
             
-            $date = \Carbon\Carbon::parse($parsed['date'])->toDateString();
+            $history = $parsed['history'] ?? (isset($parsed['date']) ? [$parsed] : []);
+            $latest = $parsed['latest'] ?? $parsed;
 
-            // Overwrite MarketSnapshot for IHSG
-            if (isset($parsed['prices_60d'])) {
-                \App\Models\MarketSnapshot::updateOrCreate(
-                    ['date' => $date, 'symbol_or_metric' => 'IHSG'],
-                    [
-                        'value' => $parsed['close'],
-                        'change_abs' => $parsed['change_abs'],
-                        'change_pct' => $parsed['change_pct'],
-                        'sparkline_json' => $parsed['prices_60d'],
-                        'source' => 'csv_upload'
-                    ]
-                );
+            foreach ($history as $dataItem) {
+                if (!isset($dataItem['date'])) continue;
+                $itemDate = \Carbon\Carbon::parse($dataItem['date'])->toDateString();
+
+                // Overwrite MarketSnapshot for IHSG
+                if (isset($dataItem['prices_60d'])) {
+                    \App\Models\MarketSnapshot::updateOrCreate(
+                        ['date' => $itemDate, 'symbol_or_metric' => 'IHSG'],
+                        [
+                            'value' => $dataItem['close'],
+                            'change_abs' => $dataItem['change_abs'],
+                            'change_pct' => $dataItem['change_pct'],
+                            'sparkline_json' => $dataItem['prices_60d'],
+                            'source' => 'csv_upload'
+                        ]
+                    );
+                }
+
+                // Update Momentum Score in MarketStanceDaily
+                $stance = \App\Models\MarketStanceDaily::whereDate('date', $itemDate)->first();
+                if ($stance) {
+                    $stance->momentum_score = $dataItem['score'];
+                    
+                    // Recalculate Total Score
+                    $totalScore = ($stance->momentum_score * 0.3) +
+                                  ($stance->breadth_score * 0.25) +
+                                  ($stance->foreign_score * 0.2) +
+                                  ($stance->sector_score * 0.15) +
+                                  ($stance->rupiah_score * 0.1);
+                                  
+                    $stance->score = round($totalScore);
+                    $stance->save();
+                }
             }
 
-            // Update Momentum Score in MarketStanceDaily
-            $stance = \App\Models\MarketStanceDaily::whereDate('date', $date)->first();
-            if ($stance) {
-                $stance->momentum_score = $parsed['score'];
-                
-                // Recalculate Total Score
-                $totalScore = ($stance->momentum_score * 0.3) +
-                              ($stance->breadth_score * 0.25) +
-                              ($stance->foreign_score * 0.2) +
-                              ($stance->sector_score * 0.15) +
-                              ($stance->rupiah_score * 0.1);
-                              
-                $stance->score = round($totalScore);
-                $stance->save();
-            }
+            $date = \Carbon\Carbon::parse($latest['date'])->toDateString();
 
             // Return the summary to be displayed on the frontend
-            return back()->with('ihsg_trend_summary', $parsed)->with('success', 'CSV berhasil diproses dan database untuk tanggal ' . $date . ' telah diperbarui.');
+            return back()->with('ihsg_trend_summary', $latest)->with('success', 'CSV historis berhasil diproses dan database hingga tanggal ' . $date . ' telah diperbarui.');
 
         } catch (\Exception $e) {
             return back()->withErrors(['csv_file' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);

@@ -56,75 +56,75 @@ def calculate_price_trend(csv_path):
         prices = [row['Price'] for row in data]
         highs = [row['High'] for row in data]
         
-        latest_date = data[-1]['Date'].strftime('%Y-%m-%d')
-        close = prices[-1]
-        
-        # MA20
-        ma20_slice = prices[-20:] if len(prices) >= 20 else prices
-        ma20 = sum(ma20_slice) / len(ma20_slice)
-        
-        # MA60
-        ma60_slice = prices[-60:] if len(prices) >= 60 else prices
-        ma60 = sum(ma60_slice) / len(ma60_slice)
-        
-        # Sparkline (last 60 days)
-        prices_60d = prices[-60:]
-        
-        # Change for latest date
-        if len(prices) >= 2:
-            change_abs = close - prices[-2]
-            change_pct = (change_abs / prices[-2]) * 100
-        else:
-            change_abs = 0
-            change_pct = 0
+        results = []
+        for i in range(len(data)):
+            current_date = data[i]['Date'].strftime('%Y-%m-%d')
+            close = prices[i]
             
-        # Return 5D
-        if len(prices) >= 6:
-            ret_5d = (close - prices[-6]) / prices[-6]
-        else:
-            ret_5d = (close - prices[0]) / prices[0]
+            # MA20
+            start_20 = max(0, i - 19)
+            ma20_slice = prices[start_20:i+1]
+            ma20 = sum(ma20_slice) / len(ma20_slice)
             
-        # Return 20D
-        if len(prices) >= 21:
-            ret_20d = (close - prices[-21]) / prices[-21]
-        else:
-            ret_20d = (close - prices[0]) / prices[0]
+            # MA60
+            start_60 = max(0, i - 59)
+            ma60_slice = prices[start_60:i+1]
+            ma60 = sum(ma60_slice) / len(ma60_slice)
             
-        # Drawdown 20D
-        high_20d_slice = highs[-20:] if len(highs) >= 20 else highs
-        max_high_20d = max(high_20d_slice) if high_20d_slice else 0
-        
-        drawdown_20d = (close - max_high_20d) / max_high_20d if max_high_20d > 0 else 0
-        
-        # Calculate Score
-        score = 0
-        if close > ma20:
-            score += 30
-        if ma20 > ma60:
-            score += 25
-        if ret_5d > 0:
-            score += 20
-        if ret_20d > 0:
-            score += 15
-        if drawdown_20d > -0.03:
-            score += 10
+            # Sparkline (last 60 days)
+            prices_60d = prices[start_60:i+1]
             
-        score = max(0, min(score, 100))
-        
-        result = {
-            "date": latest_date,
-            "close": round(close, 2),
-            "ma20": round(ma20, 2),
-            "ma60": round(ma60, 2),
-            "ret_5d": round(ret_5d, 4),
-            "ret_20d": round(ret_20d, 4),
-            "score": score,
-            "prices_60d": prices_60d,
-            "change_abs": round(change_abs, 4),
-            "change_pct": round(change_pct, 4)
+            # Change for current date
+            if i >= 1:
+                change_abs = close - prices[i-1]
+                change_pct = (change_abs / prices[i-1]) * 100
+            else:
+                change_abs = 0
+                change_pct = 0
+                
+            # Return 5D
+            if i >= 5:
+                ret_5d = (close - prices[i-5]) / prices[i-5]
+            else:
+                ret_5d = (close - prices[0]) / prices[0]
+                
+            # Return 20D
+            if i >= 20:
+                ret_20d = (close - prices[i-20]) / prices[i-20]
+            else:
+                ret_20d = (close - prices[0]) / prices[0]
+                
+            # Drawdown 20D
+            high_20d_slice = highs[start_20:i+1]
+            max_high_20d = max(high_20d_slice) if high_20d_slice else close
+            drawdown_20d = (close - max_high_20d) / max_high_20d if max_high_20d > 0 else 0
+            
+            # Calculate Score
+            score = 0
+            if close > ma20: score += 30
+            if ma20 > ma60: score += 25
+            if ret_5d > 0: score += 20
+            if ret_20d > 0: score += 15
+            if drawdown_20d > -0.03: score += 10
+            score = max(0, min(score, 100))
+            
+            results.append({
+                "date": current_date,
+                "close": round(close, 2),
+                "ma20": round(ma20, 2),
+                "ma60": round(ma60, 2),
+                "ret_5d": round(ret_5d, 4),
+                "ret_20d": round(ret_20d, 4),
+                "score": score,
+                "prices_60d": prices_60d,
+                "change_abs": round(change_abs, 4),
+                "change_pct": round(change_pct, 4)
+            })
+            
+        return {
+            "latest": results[-1] if results else {},
+            "history": results
         }
-        
-        return result
 
     except Exception as e:
         import traceback
