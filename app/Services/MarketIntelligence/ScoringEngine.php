@@ -27,10 +27,10 @@ class ScoringEngine
             'close' => (float) $ihsg->value,
             'ret_5d' => null, // will be calculated below
             'ihsg_return_1d' => (float) $ihsg->change_pct,
-            'ma20' => 0,
-            'ma60' => 0,
-            'ret_20d' => 0,
-            'drawdown_20d' => 0,
+            'ma20' => null,
+            'ma60' => null,
+            'ret_20d' => null,
+            'drawdown_20d' => null,
             'advancers' => 0,
             'decliners' => 0,
             'pct_above_ma20' => 0,
@@ -52,8 +52,24 @@ class ScoringEngine
             'daily_range_pct' => 0,
         ];
 
+        $prices = [];
         if (!empty($ihsg->sparkline_json) && is_array($ihsg->sparkline_json)) {
             $prices = $ihsg->sparkline_json;
+        } else {
+            // Fallback: get previous day's sparkline and append today's close
+            $prevIhsg = \App\Models\MarketSnapshot::where('symbol_or_metric', 'IHSG')
+                ->whereNotNull('sparkline_json')
+                ->whereDate('date', '<', $latestDate ?: $date)
+                ->orderBy('date', 'desc')
+                ->first();
+                
+            if ($prevIhsg && !empty($prevIhsg->sparkline_json) && is_array($prevIhsg->sparkline_json)) {
+                $prices = $prevIhsg->sparkline_json;
+                $prices[] = (float) $ihsg->value;
+            }
+        }
+
+        if (count($prices) > 0) {
             $count = count($prices);
             
             if ($count > 0) {
