@@ -335,51 +335,26 @@ class ScoringEngine
 
     public function calculateFlowScore(array $data): int
     {
-        $foreignNet = $data['foreign_net_5d'] ?? 0;
-        $institutionalNet = $data['institutional_net_5d'] ?? 0;
-        $positiveFlowDays = $data['positive_flow_days_5d'] ?? 0;
-        $totalMarketValue = $data['total_market_value_5d'] ?? 0;
+        $foreignNet = $data['foreign_net_5d'] ?? 0; // In gatherMarketData, this is actually FOREIGN_NET_TODAY
 
-        $totalNetFlow = $foreignNet + $institutionalNet;
-        $flowIntensity = $totalMarketValue > 0 ? ($totalNetFlow / $totalMarketValue) : 0;
-
-        $score = 0;
-        if ($foreignNet > 0) $score += 35;
-        if ($institutionalNet > 0) $score += 25;
-        if ($positiveFlowDays >= 3) $score += 20;
-        if ($flowIntensity > 0) $score += 20;
-
-        return $this->clamp($score);
+        if ($foreignNet >= 500) return 100;
+        if ($foreignNet >= 100) return 75;
+        if ($foreignNet >= 0) return 50;
+        if ($foreignNet >= -250) return 25;
+        
+        return 0;
     }
 
     public function calculateSectorRotationScore(array $data): int
     {
         $positiveSectors = $data['positive_sectors'] ?? 0;
         $totalSectors = $data['total_sectors'] ?? 0;
-        $cyclicalPositiveRatio = $data['cyclical_positive_ratio'] ?? 0;
-        $leadershipConcentration = $data['leadership_concentration'] ?? 0;
-        $leadershipConsistency = $data['leadership_consistency_days'] ?? 0;
 
-        $sectorRatio = $totalSectors > 0 ? $positiveSectors / $totalSectors : 0;
-        
-        $score = 0;
-        if ($sectorRatio > 0.55) {
-            $score += 35;
-        }
+        if ($totalSectors == 0) return 50;
 
-        if ($cyclicalPositiveRatio > 0.5) {
-            $score += 30;
-        }
+        $score = ($positiveSectors / $totalSectors) * 100;
 
-        if ($leadershipConcentration < 0.4) {
-            $score += 20; 
-        }
-
-        if ($leadershipConsistency >= 2) {
-            $score += 15;
-        }
-
-        return $this->clamp($score);
+        return $this->clamp((int)round($score));
     }
 
     public function calculateVolatilityLiquidityScore(array $data): int
