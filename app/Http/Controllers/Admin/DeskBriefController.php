@@ -371,8 +371,7 @@ class DeskBriefController extends Controller
             );
             
             // Provide default values if new
-            $stance->bias = $stance->bias ?? 'neutral';
-            $stance->regime = $stance->regime ?? 'Unknown';
+            $stance->label = $stance->label ?? 'Unknown';
             $stance->momentum_score = $stance->momentum_score ?? 50;
             $stance->foreign_score = $stance->foreign_score ?? 50;
             $stance->sector_score = $stance->sector_score ?? 50;
