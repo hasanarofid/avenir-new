@@ -47,10 +47,26 @@ def parse_idx_pdf(pdf_path):
         # 5. Market Breadth (Advancers / Decliners)
         breadth_match = re.search(r'By Number\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)', layout_text)
         if breadth_match:
-            # >2%, 0-2%, stable, 0-(-2%), <-2%
-            data['advancers'] = int(breadth_match.group(1)) + int(breadth_match.group(2))
-            data['stable'] = int(breadth_match.group(3))
-            data['decliners'] = int(breadth_match.group(4)) + int(breadth_match.group(5))
+            # Format in PDF: down >2%, down 0-2%, stable, up 0-2%, up >2%
+            down_gt2 = int(breadth_match.group(1))
+            down_0_2 = int(breadth_match.group(2))
+            stable = int(breadth_match.group(3))
+            up_0_2 = int(breadth_match.group(4))
+            up_gt2 = int(breadth_match.group(5))
+            
+            data['decliners'] = down_gt2 + down_0_2
+            data['stable'] = stable
+            data['advancers'] = up_0_2 + up_gt2
+            
+            total_active = data['advancers'] + data['decliners']
+            total = total_active + data['stable']
+            
+            # Approximated Breadth Score from PDF numbers
+            if total_active > 0 and total > 0:
+                ad_score = (data['advancers'] / total_active) * 100
+                strong_movers = (up_gt2 / (up_gt2 + down_gt2)) * 100 if (up_gt2 + down_gt2) > 0 else 50
+                active_participation = (total_active / total) * 100
+                data['breadth_score'] = round(0.40 * ad_score + 0.30 * strong_movers + 0.30 * active_participation)
             
         # 6. Sector Indices
         sectors = ['Energy', 'Basic Materials', 'Industrials', 'Consumer Non-Cyclicals', 'Consumer Cyclicals', 'Healthcare', 'Financials', 'Properties & Real Estate', 'Technology', 'Infrastructures', 'Transportation & Logistic']

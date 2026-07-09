@@ -202,6 +202,9 @@ class DeskBriefController extends Controller
                 ],
                 'STABLE' => [
                     'value' => $parsed['stable'] ?? 0
+                ],
+                'BREADTH_SCORE' => [
+                    'value' => $parsed['breadth_score'] ?? 0
                 ]
             ];
 
