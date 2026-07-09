@@ -87,16 +87,44 @@ class ScoringEngine
                 $marketData['ma60'] = array_sum($prices) / $count;
             }
         }
+        
+        // Fetch all relevant snapshots up to date
+        $allSnapshots = \App\Models\MarketSnapshot::whereDate('date', '<=', $date)
+            ->whereIn('symbol_or_metric', [
+                'IHSG', 'FOREIGN_NET_TODAY', 'VALUE_TRADED_BN_IDR', 'USD_IDR_PROXY',
+                'ADVANCERS', 'DECLINERS', 'STABLE'
+            ])
+            ->orderBy('date', 'desc')
+            ->get();
 
-        $marketData['advancers'] = (int) ($snapshots->get('ADVANCERS')->value ?? 0);
-        $marketData['decliners'] = (int) ($snapshots->get('DECLINERS')->value ?? 0);
-        $marketData['stable'] = (int) ($snapshots->get('STABLE')->value ?? 0);
-        $marketData['value_traded'] = (float) ($snapshots->get('VALUE_TRADED_BN_IDR')->value ?? 0);
-        $marketData['foreign_net_5d'] = (float) ($snapshots->get('FOREIGN_NET_TODAY')->value ?? 0);
+        $latestSnapshots = $allSnapshots->groupBy('symbol_or_metric')->map(fn($g) => $g->first());
 
-        $flowDriver = collect($driversData)->firstWhere('rank', 1);
-        if ($flowDriver && !empty($flowDriver['components']['data_quality']) && $flowDriver['components']['data_quality'] === 'live_sectors') {
-            // Only override if we have live data from API, but since API is out, we rely on PDF above
+        $latestDate = $latestSnapshots->get('IHSG')->date ?? $date;
+
+        // Populate basic market data from latest snapshots
+        $marketData['advancers'] = (int) ($latestSnapshots->get('ADVANCERS')->value ?? 0);
+        $marketData['decliners'] = (int) ($latestSnapshots->get('DECLINERS')->value ?? 0);
+        $marketData['stable']    = (int) ($latestSnapshots->get('STABLE')->value ?? 0);
+        $marketData['value_traded'] = (float) ($latestSnapshots->get('VALUE_TRADED_BN_IDR')->value ?? 0);
+        
+        // Group by date for Flow history (up to 20 days)
+        $dates = $allSnapshots->whereIn('symbol_or_metric', ['FOREIGN_NET_TODAY', 'VALUE_TRADED_BN_IDR'])
+            ->pluck('date')->unique()->values()->take(20);
+            
+        $flowHistory = [];
+        foreach ($dates as $d) {
+            $daySnaps = $allSnapshots->where('date', $d);
+            $flowHistory[] = [
+                'date' => $d,
+                'foreign_net' => (float) ($daySnaps->firstWhere('symbol_or_metric', 'FOREIGN_NET_TODAY')->value ?? 0),
+                'market_value' => (float) ($daySnaps->firstWhere('symbol_or_metric', 'VALUE_TRADED_BN_IDR')->value ?? 0),
+            ];
+        }
+        $marketData['flow_history'] = $flowHistory;
+
+        $flowDriver = collect($driversData)->firstWhere('rank', 2);
+        if ($flowDriver && !empty($flowDriver['components']['data_quality']) && $flowDriver['components']['data_quality'] === 'live_flow') {
+            $marketData['foreign_net_5d'] = (float) ($flowDriver['components']['foreign_net_5d'] ?? 0);
             $marketData['institutional_net_5d'] = (float) ($flowDriver['components']['institutional_net_5d'] ?? 0);
             $marketData['positive_flow_days_5d'] = (int) ($flowDriver['components']['positive_flow_days_5d'] ?? 0);
             $marketData['total_market_value_5d'] = (float) ($flowDriver['components']['market_gross_5d'] ?? 0);
@@ -335,14 +363,91 @@ class ScoringEngine
 
     public function calculateFlowScore(array $data): int
     {
-        $foreignNet = $data['foreign_net_5d'] ?? 0; // In gatherMarketData, this is actually FOREIGN_NET_TODAY
+        $history = $data['flow_history'] ?? [];
+        if (empty($history)) {
+            return 50;
+        }
 
-        if ($foreignNet >= 500) return 100;
-        if ($foreignNet >= 100) return 75;
-        if ($foreignNet >= 0) return 50;
-        if ($foreignNet >= -250) return 25;
-        
-        return 0;
+        // Calculate sums and averages
+        $foreign_net_1d = $history[0]['foreign_net'] ?? 0;
+        $market_value_1d = $history[0]['market_value'] ?? 0;
+
+        $foreign_net_5d = 0;
+        $total_market_value_5d = 0;
+        $positive_days_5d = 0;
+        $count_5d = min(5, count($history));
+        for ($i = 0; $i < $count_5d; $i++) {
+            $foreign_net_5d += $history[$i]['foreign_net'];
+            $total_market_value_5d += $history[$i]['market_value'];
+            if ($history[$i]['foreign_net'] > 0) $positive_days_5d++;
+        }
+
+        $foreign_net_20d = 0;
+        $total_market_value_20d = 0;
+        $count_20d = min(20, count($history));
+        for ($i = 0; $i < $count_20d; $i++) {
+            $foreign_net_20d += $history[$i]['foreign_net'];
+            $total_market_value_20d += $history[$i]['market_value'];
+        }
+        $avg_market_value_20d = $count_20d > 0 ? $total_market_value_20d / $count_20d : 0;
+
+        // Intensity
+        $foreign_intensity_1d = $market_value_1d > 0 ? $foreign_net_1d / $market_value_1d : 0;
+        $foreign_intensity_5d = $total_market_value_5d > 0 ? $foreign_net_5d / $total_market_value_5d : 0;
+        $foreign_intensity_20d = $total_market_value_20d > 0 ? $foreign_net_20d / $total_market_value_20d : 0;
+
+        // Liquidity ratio
+        $normal_5d_value = $avg_market_value_20d * 5;
+        $liquidity_ratio = $normal_5d_value > 0 ? $total_market_value_5d / $normal_5d_value : 0;
+
+        // Scoring functions
+        $scorePiecewise = function($val, $points) {
+            if ($val <= $points[0][0]) return $points[0][1];
+            $last = end($points);
+            if ($val >= $last[0]) return $last[1];
+            for ($i = 0; $i < count($points) - 1; $i++) {
+                if ($val >= $points[$i][0] && $val <= $points[$i+1][0]) {
+                    $ratio = ($val - $points[$i][0]) / ($points[$i+1][0] - $points[$i][0]);
+                    return $points[$i][1] + $ratio * ($points[$i+1][1] - $points[$i][1]);
+                }
+            }
+            return 50;
+        };
+
+        $scoreIntensity = function($intensity) use ($scorePiecewise) {
+            return $scorePiecewise($intensity, [
+                [-0.050, 5], [-0.030, 15], [-0.015, 30], [-0.005, 42],
+                [0.000, 50], [0.005, 60], [0.015, 75], [0.030, 90], [0.050, 100],
+            ]);
+        };
+
+        $scoreConsistency = function($days) {
+            if ($days >= 5) return 100;
+            if ($days == 4) return 85;
+            if ($days == 3) return 65;
+            if ($days == 2) return 45;
+            if ($days == 1) return 25;
+            return 10;
+        };
+
+        $scoreLiquidity = function($ratio) use ($scorePiecewise) {
+            return $scorePiecewise($ratio, [
+                [0.30, 15], [0.50, 30], [0.70, 45], [0.90, 60],
+                [1.00, 70], [1.20, 85], [1.50, 100],
+            ]);
+        };
+
+        $trend_score = (0.20 * $scoreIntensity($foreign_intensity_1d)) + 
+                       (0.50 * $scoreIntensity($foreign_intensity_5d)) + 
+                       (0.30 * $scoreIntensity($foreign_intensity_20d));
+                       
+        $consistency_score = $scoreConsistency($positive_days_5d);
+        $liquidity_score = $scoreLiquidity($liquidity_ratio);
+
+        $final_score = ($trend_score * 0.40) + ($consistency_score * 0.25) + ($liquidity_score * 0.25) /* broker_pulse is omitted, total weight 0.90 */;
+        $final_score = $final_score / 0.90;
+
+        return $this->clamp((int)round($final_score));
     }
 
     public function calculateSectorRotationScore(array $data): int
