@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('master_stocks');
         Schema::create('master_stocks', function (Blueprint $table) {
             $table->string('code')->primary();
             $table->string('name')->nullable();
