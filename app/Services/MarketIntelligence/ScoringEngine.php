@@ -375,19 +375,30 @@ class ScoringEngine
         $foreign_net_5d = 0;
         $total_market_value_5d = 0;
         $positive_days_5d = 0;
-        $count_5d = min(5, count($history));
-        for ($i = 0; $i < $count_5d; $i++) {
-            $foreign_net_5d += $history[$i]['foreign_net'];
-            $total_market_value_5d += $history[$i]['market_value'];
-            if ($history[$i]['foreign_net'] > 0) $positive_days_5d++;
+        $count_5d = 0;
+        
+        $targetDate = \Carbon\Carbon::parse($data['latestDate'] ?? today());
+
+        foreach ($history as $h) {
+            $hDate = \Carbon\Carbon::parse($h['date']);
+            if ($targetDate->diffInDays($hDate, true) <= 7 && $count_5d < 5) {
+                $foreign_net_5d += $h['foreign_net'];
+                $total_market_value_5d += $h['market_value'];
+                if ($h['foreign_net'] > 0) $positive_days_5d++;
+                $count_5d++;
+            }
         }
 
         $foreign_net_20d = 0;
         $total_market_value_20d = 0;
-        $count_20d = min(20, count($history));
-        for ($i = 0; $i < $count_20d; $i++) {
-            $foreign_net_20d += $history[$i]['foreign_net'];
-            $total_market_value_20d += $history[$i]['market_value'];
+        $count_20d = 0;
+        foreach ($history as $h) {
+            $hDate = \Carbon\Carbon::parse($h['date']);
+            if ($targetDate->diffInDays($hDate, true) <= 30 && $count_20d < 20) {
+                $foreign_net_20d += $h['foreign_net'];
+                $total_market_value_20d += $h['market_value'];
+                $count_20d++;
+            }
         }
         $avg_market_value_20d = $count_20d > 0 ? $total_market_value_20d / $count_20d : 0;
 
