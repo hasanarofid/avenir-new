@@ -498,15 +498,18 @@ function sectorBg(change) {
     <!-- 1. REGIME SUMMARY -->
     <div class="card span3">
       <div class="chd"><div class="t"><b>1.</b>REGIME SUMMARY</div></div>
-      <div class="regime-ring" style="align-self:center">
-        <div class="rw">
-          <svg width="92" height="92" viewBox="0 0 96 96">
-            <circle cx="48" cy="48" r="40" fill="none" stroke="#222" stroke-width="8"/>
-            <circle cx="48" cy="48" r="40" fill="none" stroke="#46C46E" stroke-width="8" stroke-linecap="round" stroke-dasharray="251.3" :stroke-dashoffset="251.3 - ((todayStance ? todayStance.score : 0) / 100 * 251.3)" transform="rotate(-90 48 48)"/>
+      <div class="regime-ring" style="align-self:center; display:flex; flex-direction:column; align-items:center; position:relative; margin-top:8px">
+        <div class="rw" style="position:relative; width:120px; height:70px; display:flex; justify-content:center">
+          <svg width="120" height="70" viewBox="0 0 96 60" style="overflow:visible">
+            <circle cx="48" cy="48" r="40" fill="none" stroke="#222" stroke-width="8" stroke-dasharray="125.66 251.32" transform="rotate(180 48 48)"/>
+            <circle cx="48" cy="48" r="40" fill="none" :stroke="todayStance && todayStance.score < 40 ? '#E2705C' : (todayStance && todayStance.score < 60 ? '#D99B3E' : '#46C46E')" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.66 251.32" :stroke-dashoffset="125.66 - ((todayStance ? todayStance.score : 0) / 100 * 125.66)" transform="rotate(180 48 48)"/>
           </svg>
-          <div class="rv"><div class="n">{{ todayStance ? todayStance.score : 0 }}</div><div class="o">/100</div></div>
+          <div class="rv" style="position:absolute; bottom:0; left:0; right:0; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:4px">
+            <div class="n" style="font-size:28px; font-weight:700; color:#fff; line-height:1">{{ todayStance ? todayStance.score : 0 }}</div>
+            <div class="o" style="font-size:10px; color:#888; font-weight:600">/100</div>
+          </div>
         </div>
-        <div class="rl pos" style="color:var(--green)">{{ todayStance ? todayStance.label.toUpperCase() : 'UNKNOWN' }}</div>
+        <div class="rl pos" :style="{ color: todayStance && todayStance.score < 40 ? '#E2705C' : (todayStance && todayStance.score < 60 ? '#D99B3E' : '#46C46E'), marginTop: '4px', fontSize: '13px', fontWeight: '700', letterSpacing: '0.5px' }">{{ todayStance ? todayStance.label.toUpperCase() : 'UNKNOWN' }}</div>
       </div>
       <div style="font-size:8.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin-top:14px;font-weight:600">Komponen skor</div>
       <div class="rcomp">
