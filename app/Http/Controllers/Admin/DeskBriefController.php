@@ -366,11 +366,18 @@ class DeskBriefController extends Controller
             }
 
             // Update Breadth Score in MarketStanceDaily
-            $stance = \App\Models\MarketStanceDaily::firstOrCreate(
-                ['date' => $date],
-                ['bias' => 'neutral', 'regime' => 'Unknown']
+            $stance = \App\Models\MarketStanceDaily::firstOrNew(
+                ['date' => $date]
             );
             
+            // Provide default values if new
+            $stance->bias = $stance->bias ?? 'neutral';
+            $stance->regime = $stance->regime ?? 'Unknown';
+            $stance->momentum_score = $stance->momentum_score ?? 50;
+            $stance->foreign_score = $stance->foreign_score ?? 50;
+            $stance->sector_score = $stance->sector_score ?? 50;
+            $stance->rupiah_score = $stance->rupiah_score ?? 50;
+
             $stance->breadth_score = $parsed['market_breadth_score'] ?? 50;
             
             // Recalculate Total Score
