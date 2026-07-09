@@ -339,20 +339,14 @@ class DeskBriefController extends Controller
             $path = $request->file('ringkasan_saham')->store('ringkasan_saham');
             $fullPath = \Illuminate\Support\Facades\Storage::path($path);
 
-            $scriptPath = base_path('scripts/python/market_breadth.py');
-            
-            $process = new \Symfony\Component\Process\Process(['python3', $scriptPath, $fullPath]);
-            $process->run();
+            // Run Market Breadth Import directly in PHP to avoid python dependency issues
+            $import = new \App\Imports\MarketBreadthImport();
+            \Maatwebsite\Excel\Facades\Excel::import($import, $fullPath);
 
-            if (!$process->isSuccessful()) {
-                throw new \Exception('Python Script Error: ' . ($process->getErrorOutput() ?: 'Command failed without error output.'));
-            }
+            $parsed = $import->results;
 
-            $output = $process->getOutput();
-            $parsed = json_decode($output, true);
-
-            if (!$parsed || isset($parsed['error'])) {
-                return back()->withErrors(['ringkasan_saham' => 'Gagal memproses Ringkasan Saham: ' . ($parsed['error'] ?? 'Output bukan JSON yang valid.')]);
+            if (empty($parsed)) {
+                return back()->withErrors(['ringkasan_saham' => 'Gagal memproses Ringkasan Saham: Data tidak valid atau kosong.']);
             }
             
             $date = \Carbon\Carbon::parse($request->date)->toDateString();
