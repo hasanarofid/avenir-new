@@ -209,6 +209,25 @@ def calculate_price_trend(csv_path):
         data = list(unique_data.values())
         data.sort(key=lambda x: x['Date'])
         
+        # Pre-calculate daily returns
+        for i in range(len(data)):
+            if i == 0:
+                data[i]['ret_1d'] = 0.0
+            else:
+                data[i]['ret_1d'] = (data[i]['Close'] - data[i-1]['Close']) / data[i-1]['Close']
+        
+        # Pre-calculate 20d realized volatility
+        import math
+        for i in range(len(data)):
+            start_20 = max(0, i - 19)
+            if (i - start_20 + 1) >= 20:
+                returns_20d = [row['ret_1d'] for row in data[start_20:i+1]]
+                mean_ret = sum(returns_20d) / len(returns_20d)
+                variance = sum((r - mean_ret) ** 2 for r in returns_20d) / len(returns_20d)
+                data[i]['vol_20d'] = math.sqrt(variance)
+            else:
+                data[i]['vol_20d'] = None
+        
         results = []
         
         for i in range(len(data)):
@@ -250,6 +269,18 @@ def calculate_price_trend(csv_path):
             else:
                 drawdown_20d = None
                 
+            # Volatility Percentile
+            current_vol = data[i]['vol_20d']
+            start_252 = max(0, i - 251)
+            vols_252 = [row['vol_20d'] for row in data[start_252:i] if row['vol_20d'] is not None]
+            
+            if current_vol is not None and len(vols_252) > 0:
+                # Calculate percentile rank
+                count_below = sum(1 for v in vols_252 if v <= current_vol)
+                volatility_percentile = count_below / len(vols_252)
+            else:
+                volatility_percentile = None
+                
             # Component scores & Final Score
             row_dict = {
                 "close": close,
@@ -262,8 +293,8 @@ def calculate_price_trend(csv_path):
             score = calculate_price_trend_score(row_dict)
             
             # Volatility feature (keeping our volume logic so Laravel gets the rupiah_score)
-            vols_20d = [row['Volume'] for row in data[start_20:i+1]]
-            vol_ma20 = sum(vols_20d) / len(vols_20d) if vols_20d else volume
+            vols_20d_list = [row['Volume'] for row in data[start_20:i+1]]
+            vol_ma20 = sum(vols_20d_list) / len(vols_20d_list) if vols_20d_list else volume
             range_val = high - low
             ranges = [row['High'] - row['Low'] for row in data[start_20:i+1]]
             range_ma20 = sum(ranges) / len(ranges) if ranges else range_val
@@ -294,6 +325,7 @@ def calculate_price_trend(csv_path):
                 "ret_5d": ret_5d,
                 "ret_20d": ret_20d,
                 "drawdown_20d": drawdown_20d,
+                "volatility_percentile": volatility_percentile,
                 "ret_5d_pct": ret_5d * 100 if ret_5d is not None else None,
                 "ret_20d_pct": ret_20d * 100 if ret_20d is not None else None,
                 "drawdown_20d_pct": drawdown_20d * 100 if drawdown_20d is not None else None,

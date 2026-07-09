@@ -109,7 +109,7 @@ class ScoringEngine
             ->whereIn('symbol_or_metric', [
                 'IHSG', 'FOREIGN_NET_TODAY', 'VALUE_TRADED_BN_IDR', 'USD_IDR_PROXY',
                 'ADVANCERS', 'DECLINERS', 'STABLE', 'BREADTH_SCORE',
-                'OPEN', 'HIGH', 'LOW'
+                'OPEN', 'HIGH', 'LOW', 'VOLATILITY_PERCENTILE'
             ])
             ->orderBy('date', 'desc')
             ->get();
@@ -128,6 +128,7 @@ class ScoringEngine
         $marketData['open'] = (float) ($latestSnapshots->get('OPEN')->value ?? 0);
         $marketData['high'] = (float) ($latestSnapshots->get('HIGH')->value ?? 0);
         $marketData['low'] = (float) ($latestSnapshots->get('LOW')->value ?? 0);
+        $marketData['volatility_percentile'] = isset($latestSnapshots->get('VOLATILITY_PERCENTILE')->value) ? (float) $latestSnapshots->get('VOLATILITY_PERCENTILE')->value : null;
         
         // Group by date for Flow history (up to 20 days)
         $dates = $allSnapshots->whereIn('symbol_or_metric', ['FOREIGN_NET_TODAY', 'VALUE_TRADED_BN_IDR'])

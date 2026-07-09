@@ -285,6 +285,25 @@ class DeskBriefController extends Controller
                     );
                 }
 
+                $metrics = [
+                    'OPEN' => $dataItem['open'] ?? 0,
+                    'HIGH' => $dataItem['high'] ?? 0,
+                    'LOW' => $dataItem['low'] ?? 0,
+                    'VOLATILITY_PERCENTILE' => $dataItem['volatility_percentile'] ?? null
+                ];
+
+                foreach ($metrics as $metricName => $metricValue) {
+                    if ($metricValue !== null) {
+                        \App\Models\MarketSnapshot::updateOrCreate(
+                            ['date' => $itemDate, 'symbol_or_metric' => $metricName],
+                            [
+                                'value' => $metricValue,
+                                'source' => 'csv_upload'
+                            ]
+                        );
+                    }
+                }
+
                 // Update Momentum and Volatility Scores in MarketStanceDaily
                 $stance = \App\Models\MarketStanceDaily::whereDate('date', $itemDate)->first();
                 if ($stance) {
