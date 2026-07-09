@@ -284,6 +284,9 @@ def calculate_price_trend(csv_path):
             
             results.append({
                 "date": current_date,
+                "open": row.get('Open', close),
+                "high": high,
+                "low": low,
                 "close": close,
                 "ma20": ma20,
                 "ma60": ma60,

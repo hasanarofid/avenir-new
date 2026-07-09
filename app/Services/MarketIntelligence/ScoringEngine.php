@@ -108,7 +108,8 @@ class ScoringEngine
         $allSnapshots = \App\Models\MarketSnapshot::whereDate('date', '<=', $date)
             ->whereIn('symbol_or_metric', [
                 'IHSG', 'FOREIGN_NET_TODAY', 'VALUE_TRADED_BN_IDR', 'USD_IDR_PROXY',
-                'ADVANCERS', 'DECLINERS', 'STABLE', 'BREADTH_SCORE'
+                'ADVANCERS', 'DECLINERS', 'STABLE', 'BREADTH_SCORE',
+                'OPEN', 'HIGH', 'LOW'
             ])
             ->orderBy('date', 'desc')
             ->get();
@@ -123,6 +124,10 @@ class ScoringEngine
         $marketData['stable']    = (int) ($latestSnapshots->get('STABLE')->value ?? 0);
         $marketData['breadth_score_snapshot'] = (int) ($latestSnapshots->get('BREADTH_SCORE')->value ?? 0);
         $marketData['value_traded'] = (float) ($latestSnapshots->get('VALUE_TRADED_BN_IDR')->value ?? 0);
+        
+        $marketData['open'] = (float) ($latestSnapshots->get('OPEN')->value ?? 0);
+        $marketData['high'] = (float) ($latestSnapshots->get('HIGH')->value ?? 0);
+        $marketData['low'] = (float) ($latestSnapshots->get('LOW')->value ?? 0);
         
         // Group by date for Flow history (up to 20 days)
         $dates = $allSnapshots->whereIn('symbol_or_metric', ['FOREIGN_NET_TODAY', 'VALUE_TRADED_BN_IDR'])
@@ -496,26 +501,97 @@ class ScoringEngine
 
     public function calculateVolatilityLiquidityScore(array $data): int
     {
-        $volatilityPercentile = $data['volatility_percentile'] ?? 0;
+        $volatilityPercentile = $data['volatility_percentile'] ?? null;
         $valueTraded = $data['value_traded'] ?? 0;
         $avgValue20d = $data['avg_value_20d'] ?? 0;
         $ihsgReturn1d = $data['ihsg_return_1d'] ?? 0;
+        $open = $data['open'] ?? null;
+        $high = $data['high'] ?? null;
+        $low = $data['low'] ?? null;
+        $close = $data['close'] ?? null;
+        $previousClose = $data['previous_close'] ?? null;
 
-        $score = 0;
+        if ($close && $previousClose) {
+            $ihsgReturn1d = ($close / $previousClose) - 1;
+            $dailyRangePct = ($high && $low) ? ($high - $low) / $previousClose : 0;
+        } else {
+            $dailyRangePct = 0;
+        }
+
+        $scorePiecewise = function($val, $points) {
+            if ($val === null) return null;
+            if ($val <= $points[0][0]) return $points[0][1];
+            $last = end($points);
+            if ($val >= $last[0]) return $last[1];
+            for ($i = 0; $i < count($points) - 1; $i++) {
+                if ($val >= $points[$i][0] && $val <= $points[$i+1][0]) {
+                    $ratio = ($val - $points[$i][0]) / ($points[$i+1][0] - $points[$i][0]);
+                    return $points[$i][1] + $ratio * ($points[$i+1][1] - $points[$i][1]);
+                }
+            }
+            return null;
+        };
+
+        $volScore = $scorePiecewise($volatilityPercentile, [
+            [0.00, 45], [0.10, 60], [0.25, 85], [0.50, 100], [0.70, 75], [0.85, 45], [1.00, 15],
+        ]);
+
+        $liquidityRatio = $avgValue20d > 0 ? $valueTraded / $avgValue20d : null;
+        $liqScore = null;
+        if ($liquidityRatio !== null) {
+            if ($ihsgReturn1d >= 0) {
+                $liqScore = $scorePiecewise($liquidityRatio, [
+                    [0.30, 20], [0.50, 35], [0.70, 50], [0.90, 65], [1.10, 80], [1.30, 90], [1.50, 100],
+                ]);
+            } else {
+                $liqScore = $scorePiecewise($liquidityRatio, [
+                    [0.30, 55], [0.50, 50], [0.70, 42], [0.90, 35], [1.10, 25], [1.30, 15], [1.50, 10],
+                ]);
+            }
+        }
+
+        $rangeScore = $scorePiecewise($dailyRangePct, [
+            [0.000, 70], [0.005, 90], [0.010, 85], [0.015, 75], [0.020, 60], [0.030, 40], [0.050, 20], [0.080, 10],
+        ]);
+
+        $shockScore = $scorePiecewise($ihsgReturn1d, [
+            [-0.060, 5], [-0.040, 15], [-0.025, 30], [-0.015, 45], [-0.005, 60], [0.000, 70], [0.010, 80], [0.020, 90], [0.040, 100],
+        ]);
+
+        $closeLocScore = null;
+        if ($high !== null && $low !== null && $close !== null) {
+            $dayRange = $high - $low;
+            if ($dayRange <= 0) {
+                $closeLocScore = 50;
+            } else {
+                $closeLoc = ($close - $low) / $dayRange;
+                $closeLocScore = $scorePiecewise($closeLoc, [
+                    [0.00, 10], [0.20, 25], [0.40, 45], [0.50, 55], [0.60, 65], [0.80, 85], [1.00, 100],
+                ]);
+            }
+        }
+
+        $weights = [
+            'vol' => 0.30,
+            'liq' => 0.25,
+            'range' => 0.20,
+            'shock' => 0.15,
+            'closeLoc' => 0.10,
+        ];
+
+        $validScore = 0;
+        $validWeight = 0;
+
+        if ($volScore !== null) { $validScore += $volScore * $weights['vol']; $validWeight += $weights['vol']; }
+        if ($liqScore !== null) { $validScore += $liqScore * $weights['liq']; $validWeight += $weights['liq']; }
+        if ($rangeScore !== null) { $validScore += $rangeScore * $weights['range']; $validWeight += $weights['range']; }
+        if ($shockScore !== null) { $validScore += $shockScore * $weights['shock']; $validWeight += $weights['shock']; }
+        if ($closeLocScore !== null) { $validScore += $closeLocScore * $weights['closeLoc']; $validWeight += $weights['closeLoc']; }
+
+        if ($validWeight == 0) return 50;
         
-        // Volatilitas normal, tidak terlalu mati dan tidak terlalu panik
-        if ($volatilityPercentile >= 0.25 && $volatilityPercentile <= 0.75) {
-            $score += 30;
-        }
-
-        // Value transaksi di atas rata-rata dan IHSG naik
-        if ($valueTraded > $avgValue20d && $ihsgReturn1d > 0) {
-            $score += 40;
-        } elseif ($valueTraded >= $avgValue20d * 0.8) {
-            $score += 30;
-        }
-
-        return $this->clamp($score);
+        $finalScore = $validScore / $validWeight;
+        return $this->clamp((int) round($finalScore));
     }
 
     public function calculateFinalRegimeScore(array $scores): float
