@@ -9,11 +9,11 @@ use Illuminate\Support\Collection;
 class PeriodConclusionEngine
 {
     const COMPONENT_LABELS = [
-        'momentum_score' => 'price trend',
-        'breadth_score' => 'breadth',
-        'foreign_score' => 'foreign flow',
-        'sector_score' => 'sector rotation',
-        'rupiah_score' => 'market stability',
+        'momentum_score' => 'tren harga',
+        'breadth_score' => 'market breadth',
+        'foreign_score' => 'aliran dana asing',
+        'sector_score' => 'rotasi sektor',
+        'rupiah_score' => 'stabilitas pasar',
     ];
 
     public function generateConclusion(string $endDate = null): string
@@ -28,7 +28,7 @@ class PeriodConclusionEngine
             ->get();
             
         if ($stances->isEmpty()) {
-            return "Insufficient data to generate period conclusion.";
+            return "Data tidak cukup untuk menghasilkan kesimpulan periode.";
         }
         
         return $this->buildPeriodConclusion($stances);
@@ -54,25 +54,31 @@ class PeriodConclusionEngine
     
     public function regimeStateFromScore(float $score): string
     {
-        if ($score < 35) return "stress conditions";
-        if ($score < 45) return "risk-off pressure";
-        if ($score < 55) return "a defensive neutral phase";
-        if ($score < 65) return "a tactical recovery attempt";
-        if ($score < 75) return "a constructive rotation phase";
-        return "a risk-on accumulation phase";
+        if ($score < 35) return "kondisi tertekan";
+        if ($score < 45) return "fase tekanan risk-off";
+        if ($score < 55) return "fase defensif netral";
+        if ($score < 65) return "fase pemulihan taktikal";
+        if ($score < 75) return "fase rotasi konstruktif";
+        return "fase akumulasi risk-on";
     }
     
     public function monthPhase(Carbon $date): string
     {
         $day = $date->day;
-        $month = $date->format('F'); // Full month name
+        
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $month = $months[$date->month];
         
         if ($day <= 10) {
-            $phase = "early";
+            $phase = "awal";
         } elseif ($day <= 20) {
-            $phase = "mid";
+            $phase = "pertengahan";
         } else {
-            $phase = "late";
+            $phase = "akhir";
         }
         
         return "{$phase} {$month}";
@@ -80,7 +86,12 @@ class PeriodConclusionEngine
     
     public function formatDate(Carbon $date): string
     {
-        return $date->format('j F');
+        $months = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ];
+        return $date->day . ' ' . $months[$date->month];
     }
     
     public function getComponentColumns(Collection $stances): array
@@ -160,7 +171,7 @@ class PeriodConclusionEngine
             $flowAvg = $flowScores->average();
             $flowMax = $flowScores->max();
             if ($flowAvg < 45 || $flowMax < 50) {
-                return "foreign flow never confirmed the rebound";
+                return "aliran dana asing tidak mengonfirmasi rebound tersebut";
             }
         }
         
@@ -179,7 +190,7 @@ class PeriodConclusionEngine
         if (!empty($weakComponents)) {
             usort($weakComponents, fn($a, $b) => $a['avg'] <=> $b['avg']);
             $label = self::COMPONENT_LABELS[$weakComponents[0]['col']];
-            return "{$label} never fully confirmed the move";
+            return "{$label} tidak sepenuhnya mengonfirmasi pergerakan tersebut";
         }
         
         return null;
@@ -189,10 +200,10 @@ class PeriodConclusionEngine
     {
         if (empty($items)) return "";
         if (count($items) === 1) return $items[0];
-        if (count($items) === 2) return "{$items[0]} and {$items[1]}";
+        if (count($items) === 2) return "{$items[0]} dan {$items[1]}";
         
         $last = array_pop($items);
-        return implode(", ", $items) . ", and {$last}";
+        return implode(", ", $items) . ", dan {$last}";
     }
     
     public function buildPeriodConclusion(Collection $df): string
@@ -234,33 +245,33 @@ class PeriodConclusionEngine
         $lastLabel = $this->cleanRegimeLabel($lastRow->label);
         
         // Sentence 1
-        $sentence1 = "The market moved from {$initialState} in {$initialPeriod} into {$recoveryState} in {$recoveryPeriod}.";
+        $sentence1 = "Pasar bergerak dari {$initialState} pada {$initialPeriod} menjadi {$recoveryState} di {$recoveryPeriod}.";
         
         // Sentence 2
         if ($supportText) {
-            $sentence2 = "The strongest confirmation appeared on {$this->formatDate($peakDate)}, supported by {$supportText}.";
+            $sentence2 = "Konfirmasi terkuat terlihat pada {$this->formatDate($peakDate)}, yang didukung oleh {$supportText}.";
         } else {
-            $sentence2 = "The strongest confirmation appeared on {$this->formatDate($peakDate)}.";
+            $sentence2 = "Konfirmasi terkuat terlihat pada {$this->formatDate($peakDate)}.";
         }
         
         // Sentence 3
         if ($persistentDrag) {
-            $sentence3 = "However, {$persistentDrag}.";
+            $sentence3 = "Namun, {$persistentDrag}.";
         } else {
-            $sentence3 = "However, confirmation was not strong enough to sustain a full regime upgrade.";
+            $sentence3 = "Namun, konfirmasi tersebut belum cukup kuat untuk mempertahankan peningkatan rezim secara penuh.";
         }
         
         // Sentence 4
         if ($lastScore <= $peakScore - 15 && $lastScore < 45) {
             if ($brokenText) {
-                $sentence4 = "On {$this->formatDate($lastDate)}, {$brokenText} broke down sharply, pushing the regime back into {$lastLabel}.";
+                $sentence4 = "Pada {$this->formatDate($lastDate)}, {$brokenText} melemah tajam, menekan rezim kembali ke {$lastLabel}.";
             } else {
-                $sentence4 = "On {$this->formatDate($lastDate)}, the regime deteriorated sharply, pushing the market back into {$lastLabel}.";
+                $sentence4 = "Pada {$this->formatDate($lastDate)}, rezim melemah tajam, menekan pasar kembali ke {$lastLabel}.";
             }
         } elseif ($lastScore < $peakScore - 10) {
-            $sentence4 = "By {$this->formatDate($lastDate)}, the regime had weakened from its peak, ending the period in {$lastLabel}.";
+            $sentence4 = "Menjelang {$this->formatDate($lastDate)}, rezim telah melemah dari titik puncaknya, mengakhiri periode ini di {$lastLabel}.";
         } else {
-            $sentence4 = "By {$this->formatDate($lastDate)}, the regime remained in {$lastLabel}.";
+            $sentence4 = "Menjelang {$this->formatDate($lastDate)}, rezim bertahan di {$lastLabel}.";
         }
         
         return trim("{$sentence1} {$sentence2} {$sentence3} {$sentence4}");
