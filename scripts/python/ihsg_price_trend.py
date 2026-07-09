@@ -183,6 +183,8 @@ def calculate_price_trend(csv_path):
                 if is_na(close):
                     continue
                     
+                open_val = parse_number(open_str)
+                if is_na(open_val): open_val = close
                 high = parse_number(high_str)
                 if is_na(high): high = close
                 low = parse_number(low_str)
@@ -191,6 +193,7 @@ def calculate_price_trend(csv_path):
                 
                 data.append({
                     'Date': date_obj,
+                    'Open': open_val,
                     'Close': close,
                     'High': high,
                     'Low': low,
@@ -315,7 +318,7 @@ def calculate_price_trend(csv_path):
             
             results.append({
                 "date": current_date,
-                "open": row.get('Open', close),
+                "open": data[i]['Open'],
                 "high": high,
                 "low": low,
                 "close": close,
