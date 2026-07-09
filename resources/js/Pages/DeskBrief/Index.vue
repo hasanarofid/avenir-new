@@ -22,6 +22,7 @@ const props = defineProps({
   delta:       { type: Object, default: () => ({}) },
   todayStance: { type: Object, default: null },
   yesterdayStance: { type: Object, default: null },
+  periodConclusion: { type: String, default: null },
 });
 
 // ──────────────────────────────────────────────
@@ -125,7 +126,7 @@ const brief = computed(() => {
         ? new Date(data.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace('.', ':') + ' WIB' 
         : (props.date ? new Date(props.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' 17:00 WIB' : mockData.lastUpdate),
     headline: data.title || mockData.headline,
-    subHeadline: data.market_read || mockData.subHeadline,
+    subHeadline: props.periodConclusion || data.market_read || mockData.subHeadline,
     regimeText: data.so_what || mockData.regimeText,
     macroCards: props.macroCards?.length ? props.macroCards.map(mc => ({
       title: mc.symbol_or_metric.replace('_', ' '),

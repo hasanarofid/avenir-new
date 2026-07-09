@@ -66,6 +66,9 @@ class DeskBriefController extends Controller
             'new_lows' => rand(10, 30),
         ];
 
+        $periodConclusionEngine = app(\App\Services\MarketIntelligence\PeriodConclusionEngine::class);
+        $periodConclusion = $periodConclusionEngine->generateConclusion($date);
+
         return Inertia::render('DeskBrief/Index', [
             'date'         => $date,
             'isPreview'    => $previewId && $latestBrief && $latestBrief->status !== 'published',
@@ -84,6 +87,7 @@ class DeskBriefController extends Controller
             'delta'        => $delta,
             'todayStance'  => $todayStance,
             'yesterdayStance' => $yesterdayStance,
+            'periodConclusion' => $periodConclusion,
         ])->withViewData([
             'meta' => [
                 'title' => 'Desk Brief | Avenir Research',
