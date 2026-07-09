@@ -108,7 +108,7 @@ class ScoringEngine
         $allSnapshots = \App\Models\MarketSnapshot::whereDate('date', '<=', $date)
             ->whereIn('symbol_or_metric', [
                 'IHSG', 'FOREIGN_NET_TODAY', 'VALUE_TRADED_BN_IDR', 'USD_IDR_PROXY',
-                'ADVANCERS', 'DECLINERS', 'STABLE'
+                'ADVANCERS', 'DECLINERS', 'STABLE', 'BREADTH_SCORE'
             ])
             ->orderBy('date', 'desc')
             ->get();
@@ -121,6 +121,7 @@ class ScoringEngine
         $marketData['advancers'] = (int) ($latestSnapshots->get('ADVANCERS')->value ?? 0);
         $marketData['decliners'] = (int) ($latestSnapshots->get('DECLINERS')->value ?? 0);
         $marketData['stable']    = (int) ($latestSnapshots->get('STABLE')->value ?? 0);
+        $marketData['breadth_score_snapshot'] = (int) ($latestSnapshots->get('BREADTH_SCORE')->value ?? 0);
         $marketData['value_traded'] = (float) ($latestSnapshots->get('VALUE_TRADED_BN_IDR')->value ?? 0);
         
         // Group by date for Flow history (up to 20 days)
@@ -363,6 +364,10 @@ class ScoringEngine
 
     public function calculateBreadthScore(array $data): int
     {
+        if (!empty($data['breadth_score_snapshot']) && $data['breadth_score_snapshot'] > 0) {
+            return $this->clamp((int)$data['breadth_score_snapshot']);
+        }
+
         $advancers = $data['advancers'] ?? 0;
         $decliners = $data['decliners'] ?? 0;
         $stable = $data['stable'] ?? 0;

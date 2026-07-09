@@ -355,7 +355,8 @@ class DeskBriefController extends Controller
             $metrics = [
                 'ADVANCERS' => ['value' => $parsed['advancers'] ?? 0],
                 'DECLINERS' => ['value' => $parsed['decliners'] ?? 0],
-                'STABLE' => ['value' => $parsed['stable'] ?? 0]
+                'STABLE' => ['value' => $parsed['stable'] ?? 0],
+                'BREADTH_SCORE' => ['value' => $parsed['market_breadth_score'] ?? 0]
             ];
 
             foreach ($metrics as $metric => $data) {
