@@ -313,4 +313,86 @@ class DeskBriefController extends Controller
             return back()->withErrors(['csv_file' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
         }
     }
+
+    public function uploadMasterlist(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:10240'
+        ]);
+
+        try {
+            \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\MasterStockImport, $request->file('excel_file'));
+            return back()->with('success', 'Masterlist Saham berhasil diupdate!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['excel_file' => 'Gagal mengupload Masterlist: ' . $e->getMessage()]);
+        }
+    }
+
+    public function uploadRingkasanSaham(Request $request)
+    {
+        $request->validate([
+            'ringkasan_saham' => 'required|file|mimes:xlsx,xls,csv|max:51200',
+            'date' => 'required|date'
+        ]);
+
+        try {
+            $path = $request->file('ringkasan_saham')->store('ringkasan_saham');
+            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+
+            $scriptPath = base_path('scripts/python/market_breadth.py');
+            
+            $process = new \Symfony\Component\Process\Process(['python3', $scriptPath, $fullPath]);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new \Exception('Python Script Error: ' . ($process->getErrorOutput() ?: 'Command failed without error output.'));
+            }
+
+            $output = $process->getOutput();
+            $parsed = json_decode($output, true);
+
+            if (!$parsed || isset($parsed['error'])) {
+                return back()->withErrors(['ringkasan_saham' => 'Gagal memproses Ringkasan Saham: ' . ($parsed['error'] ?? 'Output bukan JSON yang valid.')]);
+            }
+            
+            $date = \Carbon\Carbon::parse($request->date)->toDateString();
+
+            // Insert to MarketSnapshots
+            $metrics = [
+                'ADVANCERS' => ['value' => $parsed['advancers'] ?? 0],
+                'DECLINERS' => ['value' => $parsed['decliners'] ?? 0],
+                'STABLE' => ['value' => $parsed['stable'] ?? 0]
+            ];
+
+            foreach ($metrics as $metric => $data) {
+                \App\Models\MarketSnapshot::updateOrCreate(
+                    ['date' => $date, 'symbol_or_metric' => $metric],
+                    array_merge($data, ['source' => 'ringkasan_saham'])
+                );
+            }
+
+            // Update Breadth Score in MarketStanceDaily
+            $stance = \App\Models\MarketStanceDaily::firstOrCreate(
+                ['date' => $date],
+                ['bias' => 'neutral', 'regime' => 'Unknown']
+            );
+            
+            $stance->breadth_score = $parsed['market_breadth_score'] ?? 50;
+            
+            // Recalculate Total Score
+            $totalScore = ($stance->momentum_score * 0.3) +
+                          ($stance->breadth_score * 0.25) +
+                          ($stance->foreign_score * 0.2) +
+                          ($stance->sector_score * 0.15) +
+                          ($stance->rupiah_score * 0.1);
+                          
+            $stance->score = round($totalScore);
+            $stance->save();
+
+            return back()->with('market_breadth_summary', $parsed)->with('success', 'File Ringkasan Saham berhasil diproses dan Breadth Score diperbarui.');
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['ringkasan_saham' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
+        }
+    }
 }

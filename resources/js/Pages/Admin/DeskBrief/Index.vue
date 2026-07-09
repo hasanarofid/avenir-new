@@ -16,6 +16,8 @@ const props = defineProps({
 
 const showUploadModal = ref(false);
 const showUploadCsvModal = ref(false);
+const showMasterlistModal = ref(false);
+const showRingkasanSahamModal = ref(false);
 
 const form = useForm({
   pdf_file: null,
@@ -23,6 +25,15 @@ const form = useForm({
 
 const csvForm = useForm({
   csv_file: null,
+});
+
+const masterlistForm = useForm({
+  excel_file: null,
+});
+
+const ringkasanSahamForm = useForm({
+  ringkasan_saham: null,
+  date: new Date().toISOString().split('T')[0],
 });
 
 const handleFileChange = (e) => {
@@ -34,6 +45,18 @@ const handleFileChange = (e) => {
 const handleCsvFileChange = (e) => {
   if (e.target.files.length > 0) {
     csvForm.csv_file = e.target.files[0];
+  }
+};
+
+const handleMasterlistChange = (e) => {
+  if (e.target.files.length > 0) {
+    masterlistForm.excel_file = e.target.files[0];
+  }
+};
+
+const handleRingkasanSahamChange = (e) => {
+  if (e.target.files.length > 0) {
+    ringkasanSahamForm.ringkasan_saham = e.target.files[0];
   }
 };
 
@@ -95,6 +118,64 @@ const submitCsvUpload = () => {
     },
     onError: (errors) => {
       Swal.fire('Gagal', errors.csv_file || 'Terjadi kesalahan saat memproses file CSV.', 'error');
+    }
+  });
+};
+
+const submitMasterlistUpload = () => {
+  if (!masterlistForm.excel_file) {
+    Swal.fire('Error', 'Pilih file Excel terlebih dahulu', 'error');
+    return;
+  }
+  masterlistForm.post(route('admin.desk-brief.upload-masterlist'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      showMasterlistModal.value = false;
+      masterlistForm.reset();
+      Swal.fire('Berhasil!', 'Masterlist berhasil diupdate.', 'success');
+    },
+    onError: (errors) => {
+      Swal.fire('Gagal', errors.excel_file || 'Terjadi kesalahan saat memproses masterlist.', 'error');
+    }
+  });
+};
+
+const submitRingkasanSahamUpload = () => {
+  if (!ringkasanSahamForm.ringkasan_saham || !ringkasanSahamForm.date) {
+    Swal.fire('Error', 'Lengkapi file dan tanggal terlebih dahulu', 'error');
+    return;
+  }
+  ringkasanSahamForm.post(route('admin.desk-brief.upload-ringkasan-saham'), {
+    preserveScroll: true,
+    onSuccess: (page) => {
+      showRingkasanSahamModal.value = false;
+      ringkasanSahamForm.reset();
+      
+      const summary = page.props.flash?.market_breadth_summary;
+      if (summary) {
+        const html = `
+          <div class="text-left font-mono text-sm bg-[#111] p-4 rounded-lg border border-gray-800 text-gray-300">
+            <div class="text-white font-bold mb-2">MARKET BREADTH SUMMARY</div>
+            <div>Advancers / Decliners: ${summary.advancers} / ${summary.decliners}</div>
+            <div>Score Raw: ${summary.market_breadth_score_raw}</div>
+            <div>Score Final: ${summary.market_breadth_score}</div>
+            <div class="text-blue-400 font-bold">${summary.market_breadth_label}</div>
+          </div>
+        `;
+        Swal.fire({
+          title: '<span class="text-white">Hasil Analisis Market Breadth</span>',
+          html: html,
+          background: '#1A1A1A',
+          width: '500px',
+          showConfirmButton: true,
+          confirmButtonColor: '#3B82F6'
+        });
+      } else {
+        Swal.fire('Berhasil!', 'File Ringkasan Saham berhasil diproses.', 'success');
+      }
+    },
+    onError: (errors) => {
+      Swal.fire('Gagal', errors.ringkasan_saham || 'Terjadi kesalahan saat memproses file.', 'error');
     }
   });
 };
@@ -258,21 +339,64 @@ const showBreakdown = (stance) => {
         <h2 class="text-2xl font-bold text-white">Desk Brief</h2>
         <p class="text-gray-400 mt-1">Kelola data market intelligence harian</p>
       </div>
-      <div class="flex items-center gap-3">
-        <button 
-          @click="showUploadCsvModal = true"
-          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors shadow-lg shadow-emerald-900/20"
-        >
-          <Upload class="w-4 h-4" />
-          IHSG Price Trend (CSV)
-        </button>
-        <button 
-          @click="showUploadModal = true"
-          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors shadow-lg shadow-blue-900/20"
-        >
-          <Upload class="w-4 h-4" />
-          Upload PDF Data & Draft
-        </button>
+    </div>
+
+    <!-- Upload Workflow Steps -->
+    <div class="mb-8 bg-[#1A1A1A] p-6 rounded-xl border border-gray-800 shadow-xl">
+      <h3 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Alur Upload Data Harian (Regime Engine)
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        
+        <!-- Step 1: Masterlist -->
+        <div class="bg-[#222] p-4 rounded-lg border border-indigo-500/30 relative flex flex-col justify-between">
+          <div>
+            <div class="absolute -top-3 -left-3 w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">1</div>
+            <div class="text-indigo-400 font-bold mb-1">Masterlist Saham</div>
+            <p class="text-xs text-gray-400 mb-4 leading-relaxed">Daftar Indeks & Sektor Saham. <span class="text-gray-300 font-medium">Upload cukup 1x sebulan</span> saat ada update konstituen.</p>
+          </div>
+          <button @click="showMasterlistModal = true" class="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+            <Upload class="w-4 h-4" /> Upload Masterlist
+          </button>
+        </div>
+
+        <!-- Step 2: Price Trend -->
+        <div class="bg-[#222] p-4 rounded-lg border border-emerald-500/30 relative flex flex-col justify-between">
+          <div>
+            <div class="absolute -top-3 -left-3 w-6 h-6 bg-emerald-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">2</div>
+            <div class="text-emerald-400 font-bold mb-1">IHSG Price Trend</div>
+            <p class="text-xs text-gray-400 mb-4 leading-relaxed">Data riwayat IHSG dari investing.com (format CSV). Diperlukan untuk <span class="text-gray-300 font-medium">Moving Average & Momentum</span>.</p>
+          </div>
+          <button @click="showUploadCsvModal = true" class="w-full py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+            <Upload class="w-4 h-4" /> Upload CSV Trend
+          </button>
+        </div>
+
+        <!-- Step 3: Market Breadth -->
+        <div class="bg-[#222] p-4 rounded-lg border border-purple-500/30 relative flex flex-col justify-between">
+          <div>
+            <div class="absolute -top-3 -left-3 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">3</div>
+            <div class="text-purple-400 font-bold mb-1">Market Breadth</div>
+            <p class="text-xs text-gray-400 mb-4 leading-relaxed">File <span class="text-gray-300 font-medium">"Ringkasan Saham"</span> (Excel). Diperlukan untuk menghitung Advancers/Decliners score harian.</p>
+          </div>
+          <button @click="showRingkasanSahamModal = true" class="w-full py-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border border-purple-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+            <Upload class="w-4 h-4" /> Upload Ringkasan
+          </button>
+        </div>
+
+        <!-- Step 4: Flow, Sector & Final Draft -->
+        <div class="bg-[#222] p-4 rounded-lg border border-blue-500/30 relative flex flex-col justify-between">
+          <div>
+            <div class="absolute -top-3 -left-3 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">4</div>
+            <div class="text-blue-400 font-bold mb-1">PDF Harian & Draft</div>
+            <p class="text-xs text-gray-400 mb-4 leading-relaxed">Langkah terakhir! Upload <span class="text-gray-300 font-medium">Daily Statistics PDF</span> untuk auto-extract Sektor, Flow, dan generate AI Draft.</p>
+          </div>
+          <button @click="showUploadModal = true" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-blue-900/20 flex justify-center items-center gap-2">
+            <Upload class="w-4 h-4" /> Upload PDF & Finalize
+          </button>
+        </div>
+
       </div>
     </div>
 
@@ -368,6 +492,102 @@ const showBreakdown = (stance) => {
             <button type="submit" :disabled="csvForm.processing || !csvForm.csv_file" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
               <span v-if="csvForm.processing" class="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></span>
               {{ csvForm.processing ? 'Memproses...' : 'Proses CSV' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Upload Masterlist Modal -->
+    <div v-if="showMasterlistModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-[#1A1A1A] border border-gray-800 rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222]">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <Upload class="w-5 h-5 text-indigo-400" />
+            Upload Masterlist Saham
+          </h3>
+          <button @click="showMasterlistModal = false" class="text-gray-400 hover:text-white transition-colors">
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+        
+        <form @submit.prevent="submitMasterlistUpload" class="p-6">
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-2">File Excel (Financial Data & Ratio)</label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700 border-dashed rounded-lg hover:border-indigo-500 hover:bg-indigo-500/5 transition-all">
+              <div class="space-y-1 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div class="flex text-sm text-gray-400 justify-center">
+                  <label for="masterlist-upload" class="relative cursor-pointer bg-[#1A1A1A] rounded-md font-medium text-indigo-400 hover:text-indigo-300 focus-within:outline-none">
+                    <span>Upload a file</span>
+                    <input id="masterlist-upload" name="masterlist-upload" type="file" accept=".xlsx,.xls,.csv" class="sr-only" @change="handleMasterlistChange" />
+                  </label>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  {{ masterlistForm.excel_file ? masterlistForm.excel_file.name : 'Excel up to 10MB' }}
+                </p>
+              </div>
+            </div>
+            <p v-if="masterlistForm.errors.excel_file" class="mt-2 text-sm text-red-500">{{ masterlistForm.errors.excel_file }}</p>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-8">
+            <button type="button" @click="showMasterlistModal = false" class="px-4 py-2 bg-transparent text-gray-400 hover:text-white transition-colors">Batal</button>
+            <button type="submit" :disabled="masterlistForm.processing || !masterlistForm.excel_file" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+              <span v-if="masterlistForm.processing" class="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></span>
+              {{ masterlistForm.processing ? 'Memproses...' : 'Proses Masterlist' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Upload Ringkasan Saham Modal -->
+    <div v-if="showRingkasanSahamModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-[#1A1A1A] border border-gray-800 rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222]">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <Upload class="w-5 h-5 text-purple-400" />
+            Upload Ringkasan Saham (Market Breadth)
+          </h3>
+          <button @click="showRingkasanSahamModal = false" class="text-gray-400 hover:text-white transition-colors">
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+        
+        <form @submit.prevent="submitRingkasanSahamUpload" class="p-6">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-300 mb-2">Tanggal Data</label>
+            <input type="date" v-model="ringkasanSahamForm.date" class="w-full bg-[#111] border border-gray-700 rounded-lg text-white px-4 py-2" required>
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-2">File Excel (Ringkasan Saham)</label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700 border-dashed rounded-lg hover:border-purple-500 hover:bg-purple-500/5 transition-all">
+              <div class="space-y-1 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div class="flex text-sm text-gray-400 justify-center">
+                  <label for="ringkasan-upload" class="relative cursor-pointer bg-[#1A1A1A] rounded-md font-medium text-purple-400 hover:text-purple-300 focus-within:outline-none">
+                    <span>Upload a file</span>
+                    <input id="ringkasan-upload" name="ringkasan-upload" type="file" accept=".xlsx,.xls,.csv" class="sr-only" @change="handleRingkasanSahamChange" />
+                  </label>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  {{ ringkasanSahamForm.ringkasan_saham ? ringkasanSahamForm.ringkasan_saham.name : 'Excel up to 50MB' }}
+                </p>
+              </div>
+            </div>
+            <p v-if="ringkasanSahamForm.errors.ringkasan_saham" class="mt-2 text-sm text-red-500">{{ ringkasanSahamForm.errors.ringkasan_saham }}</p>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-8">
+            <button type="button" @click="showRingkasanSahamModal = false" class="px-4 py-2 bg-transparent text-gray-400 hover:text-white transition-colors">Batal</button>
+            <button type="submit" :disabled="ringkasanSahamForm.processing || !ringkasanSahamForm.ringkasan_saham" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+              <span v-if="ringkasanSahamForm.processing" class="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></span>
+              {{ ringkasanSahamForm.processing ? 'Memproses...' : 'Proses Ringkasan Saham' }}
             </button>
           </div>
         </form>

@@ -151,6 +151,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/desk-brief', [\App\Http\Controllers\Admin\DeskBriefController::class, 'index'])->name('desk-brief.index');
         Route::post('/desk-brief/upload-pdf', [\App\Http\Controllers\Admin\DeskBriefController::class, 'uploadPdf'])->name('desk-brief.upload-pdf');
         Route::post('/desk-brief/upload-ihsg-csv', [\App\Http\Controllers\Admin\DeskBriefController::class, 'uploadIhsgCsv'])->name('desk-brief.upload-ihsg-csv');
+        Route::post('/desk-brief/upload-masterlist', [\App\Http\Controllers\Admin\DeskBriefController::class, 'uploadMasterlist'])->name('desk-brief.upload-masterlist');
+        Route::post('/desk-brief/upload-ringkasan-saham', [\App\Http\Controllers\Admin\DeskBriefController::class, 'uploadRingkasanSaham'])->name('desk-brief.upload-ringkasan-saham');
+
         Route::get('/desk-brief/{id}/edit', [\App\Http\Controllers\Admin\DeskBriefController::class, 'edit'])->name('desk-brief.edit');
         Route::put('/desk-brief/{id}', [\App\Http\Controllers\Admin\DeskBriefController::class, 'update'])->name('desk-brief.update');
         Route::delete('/desk-brief/{id}', [\App\Http\Controllers\Admin\DeskBriefController::class, 'destroy'])->name('desk-brief.destroy');
