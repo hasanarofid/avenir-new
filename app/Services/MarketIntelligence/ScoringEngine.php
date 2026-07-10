@@ -220,31 +220,147 @@ class ScoringEngine
     }
 
     /**
-     * Hitung Regime Score berdasarkan bobot PRD.
-     * regime = 0.25*flow + 0.20*breadth + 0.15*momentum + 0.15*rupiah + 0.15*yield + 0.10*rotasi
+     * Hitung Regime Score — delegates semua 5 komponen ke Python scripts client.
+     * Weights: price_trend 30%, market_breadth 25%, flow 20%, sector_rotation 15%, volatility_stability 10%
      */
     public function calculateRegimeScore(string $date, array $driversData = []): MarketStanceDaily
     {
-        $gathered = $this->gatherMarketData($date, $driversData);
-        $result = $this->calculateMarketRegime($gathered['marketData']);
-        $scores = $result['component_scores'];
+        $scores = $this->runPythonScoring($date);
+
+        $finalScore = $this->calculateFinalRegimeScore($scores);
+        $regime     = $this->classifyMarketRegime($scores, $finalScore);
 
         $stance = MarketStanceDaily::updateOrCreate(
             ['date' => $date],
             [
-                'score' => round($result['final_score']),
-                'label' => str_replace('_', ' ', $result['regime']),
-                'foreign_score' => $scores['flow'],
-                'breadth_score' => $scores['breadth'],
-                'momentum_score' => $scores['price_trend'],
-                'rupiah_score' => $scores['volatility_liquidity'],
-                'yield_score' => 0, // Unused but kept for DB compatibility
-                'sector_score' => $scores['sector_rotation'],
+                'score'          => round($finalScore),
+                'label'          => $regime,
+                'foreign_score'  => $scores['flow']                ?? 0,
+                'breadth_score'  => $scores['breadth']             ?? 0,
+                'momentum_score' => $scores['price_trend']         ?? 0,
+                'rupiah_score'   => $scores['volatility_stability'] ?? 0,
+                'yield_score'    => 0,
+                'sector_score'   => $scores['sector_rotation']     ?? 0,
             ]
         );
 
         return $stance;
     }
+
+    /**
+     * Run all 5 Python scoring scripts and return component scores.
+     * Falls back to DB-cached component scores if Python scripts fail.
+     */
+    public function runPythonScoring(string $date): array
+    {
+        $bridge  = new \App\Services\MarketIntelligence\PythonBridge();
+        $tempDir = $bridge->getTempDir();
+        $cleanup = [];
+        $scores  = [];
+
+        try {
+            // ---- Price Trend ----------------------------------------
+            $ohlcCsv = $bridge->exportOhlcCsv($date, 300);
+            $cleanup[] = $ohlcCsv;
+
+            $ptOutDir = $tempDir . "/pt_{$date}";
+            @mkdir($ptOutDir, 0755, true);
+            $ptJson = $ptOutDir . '/latest_price_trend_score.json';
+
+            $ptPayload = $bridge->run('price_trend.py', [
+                '--input'      => $ohlcCsv,
+                '--output-dir' => $ptOutDir,
+            ], $ptJson);
+
+            $scores['price_trend'] = $ptPayload ? (int) ($ptPayload['price_trend_score'] ?? 50) : $this->getFallbackScore($date, 'PT_SCORE', 50);
+
+            if ($ptPayload) {
+                \App\Models\MarketSnapshot::updateOrCreate(
+                    ['date' => $date, 'symbol_or_metric' => 'PT_SCORE'],
+                    ['value' => $scores['price_trend'], 'source' => 'python_engine']
+                );
+            }
+
+            // ---- Foreign Flow ----------------------------------------
+            $flowCsv   = $bridge->exportFlowCsv($date, 60);
+            $cleanup[] = $flowCsv;
+
+            $flOutDir = $tempDir . "/fl_{$date}";
+            @mkdir($flOutDir, 0755, true);
+            $flJson = $flOutDir . '/latest_flow_score.json';
+
+            $flPayload = $bridge->run('flow.py', [
+                '--input'      => $flowCsv,
+                '--output-dir' => $flOutDir,
+            ], $flJson);
+
+            $scores['flow'] = $flPayload ? (int) ($flPayload['flow_score'] ?? 50) : $this->getFallbackScore($date, 'FLOW_SCORE', 50);
+
+            if ($flPayload) {
+                \App\Models\MarketSnapshot::updateOrCreate(
+                    ['date' => $date, 'symbol_or_metric' => 'FLOW_SCORE'],
+                    ['value' => $scores['flow'], 'source' => 'python_engine']
+                );
+            }
+
+            // ---- Volatility / Stability ----------------------------------------
+            $vsOutDir = $tempDir . "/vs_{$date}";
+            @mkdir($vsOutDir, 0755, true);
+            $vsJson = $vsOutDir . '/latest_volatility_stability_score.json';
+
+            $vsPayload = $bridge->run('volatility.py', [
+                '--input'      => $ohlcCsv,
+                '--output-dir' => $vsOutDir,
+            ], $vsJson);
+
+            $scores['volatility_stability'] = $vsPayload ? (int) ($vsPayload['volatility_stability_score'] ?? 50) : $this->getFallbackScore($date, 'VS_SCORE', 50);
+
+            if ($vsPayload) {
+                \App\Models\MarketSnapshot::updateOrCreate(
+                    ['date' => $date, 'symbol_or_metric' => 'VS_SCORE'],
+                    ['value' => $scores['volatility_stability'], 'source' => 'python_engine']
+                );
+            }
+
+            // ---- Market Breadth (from DB-stored Python output) ----------------------------------------
+            $mbSnap = \App\Models\MarketSnapshot::where('symbol_or_metric', 'MB_SCORE')
+                ->whereDate('date', '<=', $date)
+                ->orderBy('date', 'desc')
+                ->first();
+
+            $scores['breadth'] = $mbSnap ? (int) $mbSnap->value : $this->getFallbackScore($date, 'BREADTH_SCORE', 40);
+
+            // ---- Sector Rotation (from DB-stored Python output) ----------------------------------------
+            $srSnap = \App\Models\MarketSnapshot::where('symbol_or_metric', 'SR_SCORE')
+                ->whereDate('date', '<=', $date)
+                ->orderBy('date', 'desc')
+                ->first();
+
+            $scores['sector_rotation'] = $srSnap ? (int) $srSnap->value : $this->getFallbackScore($date, 'SR_SCORE', 40);
+
+        } catch (\Exception $e) {
+            Log::error('[ScoringEngine] runPythonScoring failed: ' . $e->getMessage());
+        } finally {
+            $bridge->cleanup($cleanup);
+        }
+
+        return $scores;
+    }
+
+    /**
+     * Retrieve the most recently cached component score from market_snapshots.
+     */
+    private function getFallbackScore(string $date, string $metric, int $default = 50): int
+    {
+        $snap = \App\Models\MarketSnapshot::where('symbol_or_metric', $metric)
+            ->whereDate('date', '<=', $date)
+            ->orderBy('date', 'desc')
+            ->first();
+
+        return $snap ? (int) $snap->value : $default;
+    }
+
+
 
     /**
      * Hitung Confluence Score untuk setiap sektor di hari tersebut.
@@ -596,11 +712,11 @@ class ScoringEngine
     public function calculateFinalRegimeScore(array $scores): float
     {
         $finalScore = (
-            ($scores['price_trend'] ?? 0) * 0.30 +
-            ($scores['breadth'] ?? 0) * 0.25 +
-            ($scores['flow'] ?? 0) * 0.20 +
-            ($scores['sector_rotation'] ?? 0) * 0.15 +
-            ($scores['volatility_liquidity'] ?? 0) * 0.10
+            ($scores['price_trend']          ?? 0) * 0.30 +
+            ($scores['breadth']              ?? 0) * 0.25 +
+            ($scores['flow']                 ?? 0) * 0.20 +
+            ($scores['sector_rotation']      ?? 0) * 0.15 +
+            ($scores['volatility_stability'] ?? $scores['volatility_liquidity'] ?? 0) * 0.10
         );
 
         return round($finalScore, 2);

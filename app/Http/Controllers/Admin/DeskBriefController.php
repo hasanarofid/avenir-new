@@ -352,79 +352,128 @@ class DeskBriefController extends Controller
         ]);
 
         try {
-            \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\MasterStockImport, $request->file('excel_file'));
+            $path     = $request->file('excel_file')->store('masterlist');
+            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+
+            \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\MasterStockImport, $fullPath);
+
+            // Regenerate sector_master.csv for Python sector_rotation.py
+            $this->rebuildSectorMasterCsv($fullPath);
+
             return back()->with('success', 'Masterlist Saham berhasil diupdate!');
         } catch (\Exception $e) {
             return back()->withErrors(['excel_file' => 'Gagal mengupload Masterlist: ' . $e->getMessage()]);
         }
     }
 
+    /**
+     * Build sector_master.csv from Financial Data Excel for Python sector_rotation.py
+     */
+    private function rebuildSectorMasterCsv(string $xlsxPath): void
+    {
+        $script = <<<PYTHON
+import openpyxl, csv, sys
+wb = openpyxl.load_workbook(sys.argv[1], data_only=True)
+ws = wb.active
+out = sys.argv[2]
+with open(out, 'w', newline='') as f:
+    w = csv.writer(f)
+    w.writerow(['code','sector'])
+    for row in ws.iter_rows(min_row=6, values_only=True):
+        code   = row[5]
+        sector = row[2]
+        if code and sector and str(code).strip() not in ['None','']:
+            w.writerow([str(code).strip().upper(), str(sector).strip()])
+PYTHON;
+
+        $tmpScript = storage_path('app/rebuild_sector_master.py');
+        file_put_contents($tmpScript, $script);
+        $outCsv = storage_path('app/sector_master.csv');
+        shell_exec("python3 " . escapeshellarg($tmpScript) . " " . escapeshellarg($xlsxPath) . " " . escapeshellarg($outCsv) . " 2>&1");
+        @unlink($tmpScript);
+    }
+
+
+
     public function uploadRingkasanSaham(Request $request)
     {
         $request->validate([
             'ringkasan_saham' => 'required|file|mimes:xlsx,xls,csv|max:51200',
-            'date' => 'required|date'
+            'date'            => 'required|date'
         ]);
 
         try {
-            $path = $request->file('ringkasan_saham')->store('ringkasan_saham');
+            $path     = $request->file('ringkasan_saham')->store('ringkasan_saham');
             $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+            $date     = \Carbon\Carbon::parse($request->date)->toDateString();
 
-            // Run Market Breadth Import directly in PHP to avoid python dependency issues
-            $import = new \App\Imports\MarketBreadthImport();
-            \Maatwebsite\Excel\Facades\Excel::import($import, $fullPath);
+            // Find the latest uploaded masterlist (Financial Data) for sector mapping
+            $masterPath = $this->findLatestMasterlist();
 
-            $parsed = $import->results;
-
-            if (empty($parsed)) {
-                return back()->withErrors(['ringkasan_saham' => 'Gagal memproses Ringkasan Saham: Data tidak valid atau kosong.']);
-            }
-            
-            $date = \Carbon\Carbon::parse($request->date)->toDateString();
-
-            // Insert to MarketSnapshots
-            $metrics = [
-                'ADVANCERS' => ['value' => $parsed['advancers'] ?? 0],
-                'DECLINERS' => ['value' => $parsed['decliners'] ?? 0],
-                'STABLE' => ['value' => $parsed['stable'] ?? 0],
-                'BREADTH_SCORE' => ['value' => $parsed['market_breadth_score'] ?? 0]
-            ];
-
-            foreach ($metrics as $metric => $data) {
-                \App\Models\MarketSnapshot::updateOrCreate(
-                    ['date' => $date, 'symbol_or_metric' => $metric],
-                    array_merge($data, ['source' => 'ringkasan_saham'])
-                );
-            }
-
-            // Update Breadth Score in MarketStanceDaily
-            $stance = \App\Models\MarketStanceDaily::firstOrNew(
-                ['date' => $date]
+            // Run Python market_breadth.py + sector_rotation.py via BreadthService
+            $breadthService = new \App\Services\MarketIntelligence\BreadthService(
+                new \App\Services\MarketIntelligence\PythonBridge()
             );
-            
-            // Provide default values if new
-            $stance->label = $stance->label ?? 'Unknown';
-            $stance->momentum_score = $stance->momentum_score ?? 50;
-            $stance->foreign_score = $stance->foreign_score ?? 50;
-            $stance->sector_score = $stance->sector_score ?? 50;
-            $stance->rupiah_score = $stance->rupiah_score ?? 50;
+            $results = $breadthService->calculateAndStore($date, $fullPath, $masterPath);
 
-            $stance->breadth_score = $parsed['market_breadth_score'] ?? 50;
-            
-            // Recalculate Total Score
-            $totalScore = ($stance->momentum_score * 0.3) +
-                          ($stance->breadth_score * 0.25) +
-                          ($stance->foreign_score * 0.2) +
-                          ($stance->sector_score * 0.15) +
-                          ($stance->rupiah_score * 0.1);
-                          
+            if (empty($results)) {
+                return back()->withErrors(['ringkasan_saham' => 'Gagal memproses Ringkasan Saham: Data tidak valid atau Python script gagal.']);
+            }
+
+            $mbPayload = $results['market_breadth'] ?? [];
+            $srPayload = $results['sector_rotation'] ?? [];
+
+            // Also update MarketStanceDaily breadth_score so dashboard reflects immediately
+            $stance = \App\Models\MarketStanceDaily::firstOrNew(['date' => $date]);
+            $stance->label          = $stance->label          ?? 'Unknown';
+            $stance->momentum_score = $stance->momentum_score ?? 50;
+            $stance->foreign_score  = $stance->foreign_score  ?? 50;
+            $stance->sector_score   = isset($srPayload['sector_rotation_score']) ? (int)$srPayload['sector_rotation_score'] : ($stance->sector_score ?? 50);
+            $stance->rupiah_score   = $stance->rupiah_score   ?? 50;
+            $stance->breadth_score  = isset($mbPayload['market_breadth_score']) ? (int)$mbPayload['market_breadth_score'] : ($stance->breadth_score ?? 50);
+
+            $totalScore = ($stance->momentum_score * 0.30) +
+                          ($stance->breadth_score  * 0.25) +
+                          ($stance->foreign_score  * 0.20) +
+                          ($stance->sector_score   * 0.15) +
+                          ($stance->rupiah_score   * 0.10);
             $stance->score = round($totalScore);
             $stance->save();
 
-            return back()->with('market_breadth_summary', $parsed)->with('success', 'File Ringkasan Saham berhasil diproses dan Breadth Score diperbarui.');
+            $summary = array_merge($mbPayload, [
+                'sector_rotation_score' => $srPayload['sector_rotation_score'] ?? null,
+                'sector_rotation_label' => $srPayload['sector_rotation_label'] ?? null,
+            ]);
+
+            return back()
+                ->with('market_breadth_summary', $summary)
+                ->with('success', 'File Ringkasan Saham berhasil diproses menggunakan Python Engine.');
 
         } catch (\Exception $e) {
             return back()->withErrors(['ringkasan_saham' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Find the latest uploaded Financial Data masterlist for sector mapping.
+     */
+    private function findLatestMasterlist(): string
+    {
+        $latest = \App\Models\MarketSnapshot::where('symbol_or_metric', 'MASTERLIST_PATH')
+            ->orderBy('date', 'desc')
+            ->first();
+
+        if ($latest && file_exists($latest->source)) {
+            return $latest->source;
+        }
+
+        // Fallback: scan the ready-upload folder
+        $readyUploadDir = '/home/hasanarofid/Documents/hasanarofid/avenir/ready-upload';
+        $files = glob($readyUploadDir . '/Financial Data*.xlsx');
+        if ($files) {
+            return end($files);
+        }
+
+        return '';
     }
 }

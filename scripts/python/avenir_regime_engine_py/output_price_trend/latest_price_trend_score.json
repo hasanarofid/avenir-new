@@ -1,0 +1,13 @@
+{
+  "date": "2026-07-07",
+  "price_trend": 62.0,
+  "price_trend_score": 62.0,
+  "price_trend_score_raw": 62.2,
+  "price_trend_label": "Recovery / Constructive Trend",
+  "close": 5986.5,
+  "ma20": 5952.3495,
+  "ma60": 6553.726833333333,
+  "ret_5d": 0.06083615827218303,
+  "ret_20d": 0.12061832898426461,
+  "drawdown_20d": -0.061263660013266
+}
