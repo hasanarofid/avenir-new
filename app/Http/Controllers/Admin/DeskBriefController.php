@@ -395,6 +395,50 @@ PYTHON;
 
 
 
+    public function uploadForeignFlow(Request $request)
+    {
+        $request->validate([
+            'foreign_flow' => 'required|file|mimes:xlsx,xls|max:51200',
+            'date'         => 'required|date'
+        ]);
+
+        try {
+            $path     = $request->file('foreign_flow')->store('foreign_flow');
+            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+            $date     = \Carbon\Carbon::parse($request->date)->toDateString();
+
+            $bridge = new \App\Services\MarketIntelligence\PythonBridge();
+            $tempDir = $bridge->getTempDir();
+            $outJson = $tempDir . "/ff_{$date}.json";
+            
+            $payload = $bridge->run('parse_foreign_flow.py', [
+                '--input' => $fullPath,
+                '--date'  => $date,
+                '--output'=> $outJson
+            ], $outJson);
+
+            if (empty($payload)) {
+                return back()->withErrors(['foreign_flow' => 'Gagal memproses Data Foreign Flow.']);
+            }
+            
+            if (isset($payload['error'])) {
+                return back()->withErrors(['foreign_flow' => $payload['error']]);
+            }
+
+            foreach ($payload as $metric => $val) {
+                \App\Models\MarketSnapshot::updateOrCreate(
+                    ['date' => $date, 'symbol_or_metric' => $metric],
+                    ['value' => $val, 'source' => 'foreign_flow_excel']
+                );
+            }
+
+            return back()->with('success', 'Data Foreign Flow berhasil diupload & diproses.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error($e);
+            return back()->withErrors(['foreign_flow' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
+    }
+
     public function uploadRingkasanSaham(Request $request)
     {
         $request->validate([

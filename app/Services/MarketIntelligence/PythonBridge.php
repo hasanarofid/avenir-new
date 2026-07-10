@@ -43,12 +43,18 @@ class PythonBridge
 
         foreach ($rows as $d => $snaps) {
             $map = $snaps->keyBy('symbol_or_metric');
+            $close = (float) ($map->get('IHSG')->value  ?? 0);
+            $open  = (float) ($map->get('OPEN')->value  ?? 0);
+            $high  = (float) ($map->get('HIGH')->value  ?? 0);
+            $low   = (float) ($map->get('LOW')->value   ?? 0);
+
+            // Fallback to close if OHLC is incomplete
             $byDate[$d] = [
                 'date'        => substr((string)$d, 0, 10), // YYYY-MM-DD only
-                'open'        => (float) ($map->get('OPEN')->value  ?? 0),
-                'high'        => (float) ($map->get('HIGH')->value  ?? 0),
-                'low'         => (float) ($map->get('LOW')->value   ?? 0),
-                'close'       => (float) ($map->get('IHSG')->value  ?? 0),
+                'open'        => $open > 0 ? $open : $close,
+                'high'        => $high > 0 ? $high : $close,
+                'low'         => $low > 0  ? $low  : $close,
+                'close'       => $close,
                 'market_value'  => (float) ($map->get('VALUE_TRADED_BN_IDR')->value ?? 0),
                 'foreign_net'   => (float) ($map->get('FOREIGN_NET_TODAY')->value   ?? 0),
             ];
