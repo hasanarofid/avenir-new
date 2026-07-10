@@ -193,7 +193,7 @@ const handleForeignFlowChange = (e) => {
 };
 
 const submitForeignFlowUpload = () => {
-  foreignFlowForm.post(route('desk-brief.upload-foreign-flow'), {
+  foreignFlowForm.post(route('admin.desk-brief.upload-foreign-flow'), {
     preserveScroll: true,
     onSuccess: () => {
       showForeignFlowModal.value = false;
