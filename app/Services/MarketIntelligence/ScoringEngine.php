@@ -145,6 +145,13 @@ class ScoringEngine
         }
         $marketData['flow_history'] = $flowHistory;
 
+        // Calculate average market value over the last 20 days
+        $values20 = array_column(array_slice($flowHistory, 0, 20), 'market_value');
+        $values20 = array_filter($values20, fn($v) => $v > 0);
+        $marketData['avg_value_20d'] = count($values20) > 0
+            ? array_sum($values20) / count($values20)
+            : 0;
+
         $flowDriver = collect($driversData)->firstWhere('rank', 2);
         if ($flowDriver && !empty($flowDriver['components']['data_quality']) && $flowDriver['components']['data_quality'] === 'live_flow') {
             $marketData['foreign_net_5d'] = (float) ($flowDriver['components']['foreign_net_5d'] ?? 0);
@@ -402,32 +409,23 @@ class ScoringEngine
         $foreign_net_5d = 0;
         $total_market_value_5d = 0;
         $positive_days_5d = 0;
-        $count_5d = 0;
         
-        $targetDate = \Carbon\Carbon::parse($data['latestDate'] ?? today());
-
-        foreach ($history as $h) {
-            $hDate = \Carbon\Carbon::parse($h['date']);
-            if ($targetDate->diffInDays($hDate, true) <= 7 && $count_5d < 5) {
-                $foreign_net_5d += $h['foreign_net'];
-                $total_market_value_5d += $h['market_value'];
-                if ($h['foreign_net'] > 0) $positive_days_5d++;
-                $count_5d++;
-            }
+        $last5 = array_slice($history, 0, 5);
+        foreach ($last5 as $h) {
+            $foreign_net_5d += $h['foreign_net'];
+            $total_market_value_5d += $h['market_value'];
+            if ($h['foreign_net'] > 0) $positive_days_5d++;
         }
 
         $foreign_net_20d = 0;
         $total_market_value_20d = 0;
-        $count_20d = 0;
-        foreach ($history as $h) {
-            $hDate = \Carbon\Carbon::parse($h['date']);
-            if ($targetDate->diffInDays($hDate, true) <= 30 && $count_20d < 20) {
-                $foreign_net_20d += $h['foreign_net'];
-                $total_market_value_20d += $h['market_value'];
-                $count_20d++;
-            }
+        
+        $last20 = array_slice($history, 0, 20);
+        foreach ($last20 as $h) {
+            $foreign_net_20d += $h['foreign_net'];
+            $total_market_value_20d += $h['market_value'];
         }
-        $avg_market_value_20d = $count_20d > 0 ? $total_market_value_20d / $count_20d : 0;
+        $avg_market_value_20d = count($last20) > 0 ? $total_market_value_20d / count($last20) : 0;
 
         // Intensity
         $foreign_intensity_1d = $market_value_1d > 0 ? $foreign_net_1d / $market_value_1d : 0;
@@ -610,32 +608,22 @@ class ScoringEngine
 
     public function classifyMarketRegime(array $scores, float $finalScore): string
     {
-        $price = $scores['price_trend'] ?? 0;
-        $breadth = $scores['breadth'] ?? 0;
-        $flow = $scores['flow'] ?? 0;
-        $sector = $scores['sector_rotation'] ?? 0;
-        $volatility = $scores['volatility_liquidity'] ?? 0;
-
-        // Trend, breadth, dan flow sama-sama kuat
-        if ($price >= 70 && $breadth >= 60 && $flow >= 60) {
-            return "RISK_ON_CONFIRMATION";
+        if ($finalScore < 35) {
+            return "Stress / Risk-Off Pressure";
         }
-
-        // Harga belum kuat, tapi flow mulai masuk
-        if ($price <= 50 && $flow >= 60 && $volatility >= 50) {
-            return "QUIET_ACCUMULATION";
+        if ($finalScore < 45) {
+            return "Risk-Off";
         }
-
-        // IHSG terlihat kuat, tapi breadth dan flow lemah
-        if ($price >= 60 && $breadth < 50 && $flow < 50) {
-            return "VULNERABLE_RALLY";
+        if ($finalScore < 55) {
+            return "Defensive Neutral";
         }
-        
-        if ($price < 40 && $flow < 40) {
-            return "DISTRIBUTION";
+        if ($finalScore < 65) {
+            return "Neutral Rotation / Tactical Rebound";
         }
-
-        return "NEUTRAL_ROTATION";
+        if ($finalScore < 75) {
+            return "Constructive Rotation";
+        }
+        return "Risk-On Accumulation";
     }
 
     public function calculateMarketRegime(array $data): array
@@ -662,5 +650,57 @@ class ScoringEngine
             'regime' => $regime,
             'component_scores' => $scores,
         ];
+    }
+
+    public function generatePeriodConclusion(string $date): string
+    {
+        // Get last 14 trading days of regime scores
+        $stances = \App\Models\MarketStanceDaily::whereDate('date', '<=', $date)
+            ->orderBy('date', 'desc')
+            ->limit(14)
+            ->get()
+            ->reverse(); // chronological order
+
+        if ($stances->isEmpty()) {
+            return '';
+        }
+
+        $csvPath = storage_path('app/temp_regime_scores_' . time() . '.csv');
+        $fp = fopen($csvPath, 'w');
+        fputcsv($fp, ['date', 'price_trend', 'market_breadth', 'flow', 'sector_rotation', 'volatility_stability', 'regime_score', 'regime_label']);
+        
+        foreach ($stances as $s) {
+            fputcsv($fp, [
+                $s->date,
+                $s->momentum_score,
+                $s->breadth_score,
+                $s->foreign_score,
+                $s->sector_score,
+                $s->rupiah_score,
+                $s->score,
+                $s->label
+            ]);
+        }
+        fclose($fp);
+
+        $pythonScript = base_path('scripts/python/period_conclusion.py');
+        $output = shell_exec("python3 " . escapeshellarg($pythonScript) . " " . escapeshellarg($csvPath) . " 2>&1");
+        
+        @unlink($csvPath);
+
+        if (!$output) {
+            return '';
+        }
+
+        $jsonStart = strpos($output, '{');
+        if ($jsonStart !== false) {
+            $jsonStr = substr($output, $jsonStart);
+            $parsed = json_decode($jsonStr, true);
+            if ($parsed && isset($parsed['period_conclusion'])) {
+                return $parsed['period_conclusion'];
+            }
+        }
+
+        return '';
     }
 }

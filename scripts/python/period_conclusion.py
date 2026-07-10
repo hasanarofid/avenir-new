@@ -8,11 +8,13 @@ import pandas as pd
 import numpy as np
 
 
+import sys
+
 # =========================================================
 # 1. CONFIG
 # =========================================================
 
-INPUT_PATH = "regime_scores.csv"
+INPUT_PATH = sys.argv[1] if len(sys.argv) > 1 else "regime_scores.csv"
 
 # Required columns:
 # date
@@ -337,17 +339,12 @@ def build_period_conclusion(df):
 # 5. MAIN
 # =========================================================
 
+import json
+
 def main():
     df = pd.read_csv(INPUT_PATH)
-
     payload = build_period_conclusion(df)
-
-    print("\n=== PERIOD CONCLUSION ===")
-    print(payload["period_conclusion"])
-
-    print("\n=== PAYLOAD ===")
-    print(payload)
-
+    print(json.dumps(payload))
 
 if __name__ == "__main__":
     main()

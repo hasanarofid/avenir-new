@@ -209,6 +209,15 @@ class DeskBriefController extends Controller
             ];
 
             foreach ($metrics as $metric => $data) {
+                if ($metric === 'BREADTH_SCORE') {
+                    $existing = \App\Models\MarketSnapshot::where('date', $date)
+                                ->where('symbol_or_metric', 'BREADTH_SCORE')
+                                ->first();
+                    if ($existing && $existing->source === 'ringkasan_saham') {
+                        continue; // Skip overwriting higher quality stock-level score
+                    }
+                }
+
                 \App\Models\MarketSnapshot::updateOrCreate(
                     ['date' => $date, 'symbol_or_metric' => $metric],
                     array_merge($data, ['source' => 'pdf_upload'])

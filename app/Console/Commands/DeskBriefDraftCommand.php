@@ -90,6 +90,9 @@ class DeskBriefDraftCommand extends Command
         // You would typically save $delta array as JSON to a 'what_changed_json' column in desk_briefs, 
         // but since we haven't added it to schema yet, we just generate it to ensure the engine works.
 
+        $this->info("  → Generating Period Conclusion...");
+        $conclusion = $scoringEngine->generatePeriodConclusion($date);
+
         $this->info("  → Creating Desk Brief draft...");
 
         $brief = DeskBrief::create([
@@ -99,7 +102,7 @@ class DeskBriefDraftCommand extends Command
             'status' => 'published', // Client request: Auto publish
             'published_at' => now(),
             'title' => 'Desk Brief - ' . Carbon::parse($date)->format('d M Y'),
-            'market_read' => '',
+            'market_read' => $conclusion,
             'so_what' => '',
             'what_to_do' => '',
         ]);
