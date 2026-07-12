@@ -28,16 +28,16 @@ def prepare(raw):
     df=df.dropna(subset=['date','previous_close','high','low','close','market_value']); df=df[(df.previous_close>0)&(df.high>0)&(df.low>0)&(df.close>0)&(df.market_value>0)].sort_values('date').drop_duplicates('date',keep='last').reset_index(drop=True); return df
 
 def add_vol_pct(df):
-    df=df.sort_values('date').copy(); df['daily_return_for_vol']=df.close.pct_change(); df['realized_vol_20d']=df.daily_return_for_vol.rolling(20,min_periods=20).std()*np.sqrt(252)
+    df=df.sort_values('date').copy(); df['daily_return_for_vol']=df.close.pct_change(); df['realized_vol_20d']=df.daily_return_for_vol.rolling(20,min_periods=1).std()*np.sqrt(252)
     def pct(win):
         s=pd.Series(win).dropna()
         if len(s)==0: return np.nan
         return (s<=s.iloc[-1]).mean()*100
-    df['volatility_percentile_calc']=df.realized_vol_20d.rolling(252,min_periods=60).apply(pct,raw=False)
+    df['volatility_percentile_calc']=df.realized_vol_20d.rolling(252,min_periods=1).apply(pct,raw=False)
     return df
 
 def add_features(df):
-    df=add_vol_pct(df); df['volatility_percentile']=df.volatility_percentile.fillna(df.volatility_percentile_calc); df['ihsg_return_1d']=df.close/df.previous_close-1; df['intraday_range_pct']=(df.high-df.low)/df.previous_close; df['close_location']=df.apply(lambda r:safe_div(r.close-r.low,r.high-r.low,default=.5),axis=1); df['avg_market_value_20d_calc']=df.market_value.rolling(20,min_periods=20).mean(); df['avg_market_value_20d']=df.avg_market_value_20d_input.fillna(df.avg_market_value_20d_calc); df['liquidity_ratio']=df.apply(lambda r:safe_div(r.market_value,r.avg_market_value_20d),axis=1)
+    df=add_vol_pct(df); df['volatility_percentile']=df.volatility_percentile.fillna(df.volatility_percentile_calc); df['ihsg_return_1d']=df.close/df.previous_close-1; df['intraday_range_pct']=(df.high-df.low)/df.previous_close; df['close_location']=df.apply(lambda r:safe_div(r.close-r.low,r.high-r.low,default=.5),axis=1); df['avg_market_value_20d_calc']=df.market_value.rolling(20,min_periods=1).mean(); df['avg_market_value_20d']=df.avg_market_value_20d_input.fillna(df.avg_market_value_20d_calc); df['liquidity_ratio']=df.apply(lambda r:safe_div(r.market_value,r.avg_market_value_20d),axis=1)
     df['volatility_regime_score']=df.volatility_percentile.apply(s_vol); df['liquidity_quality_score']=df.apply(lambda r:s_liq(r.liquidity_ratio,r.ihsg_return_1d),axis=1); df['intraday_range_score']=df.intraday_range_pct.apply(s_range); df['return_shock_score']=df.ihsg_return_1d.apply(s_ret); df['close_location_score']=df.close_location.apply(s_close)
     wt={'volatility_regime_score':.30,'liquidity_quality_score':.25,'intraday_range_score':.20,'return_shock_score':.15,'close_location_score':.10}
     df['volatility_stability_score_raw']=df.apply(lambda r:weighted_score({k:r[k] for k in wt},wt),axis=1); df['volatility_stability_score']=df.volatility_stability_score_raw.apply(round_score); df['volatility_stability_label']=df.volatility_stability_score.apply(label); return df

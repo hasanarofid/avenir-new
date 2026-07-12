@@ -37,6 +37,8 @@ class DeskBriefDraftCommand extends Command
         if ($existing) {
             if ($this->option('force')) {
                 $this->info("  ! A Desk Brief for {$date} already exists (ID: {$existing->id}). Force deleting...");
+                $existing->drivers()->delete();
+                $existing->radarStocks()->delete();
                 $existing->delete();
             } else {
                 $this->warn("  ✗ A Desk Brief for {$date} already exists (ID: {$existing->id}). Skipping creation. Use --force to overwrite.");

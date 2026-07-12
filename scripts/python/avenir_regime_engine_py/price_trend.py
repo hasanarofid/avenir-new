@@ -30,9 +30,9 @@ def prepare(raw):
 
 def add_features(df):
     df=df.sort_values('date').copy()
-    df['ma20']=df.close.rolling(20,min_periods=20).mean(); df['ma60']=df.close.rolling(60,min_periods=60).mean()
+    df['ma20']=df.close.rolling(20,min_periods=1).mean(); df['ma60']=df.close.rolling(60,min_periods=1).mean()
     df['ret_1d']=df.close.pct_change(1); df['ret_5d']=df.close.pct_change(5); df['ret_20d']=df.close.pct_change(20)
-    df['rolling_high_20d']=df.high.rolling(20,min_periods=20).max(); df['drawdown_20d']=df.close/df.rolling_high_20d-1
+    df['rolling_high_20d']=df.high.rolling(20,min_periods=1).max(); df['drawdown_20d']=df.close/df.rolling_high_20d-1
     df['close_vs_ma20_score']=(df.close/df.ma20-1).apply(s_close)
     df['ma20_vs_ma60_score']=(df.ma20/df.ma60-1).apply(s_ma)
     df['return_5d_score']=df.ret_5d.apply(s_ret5); df['return_20d_score']=df.ret_20d.apply(s_ret20); df['drawdown_20d_score']=df.drawdown_20d.apply(s_dd)
