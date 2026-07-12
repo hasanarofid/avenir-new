@@ -368,73 +368,88 @@ const showBreakdown = (stance) => {
     </div>
 
     <!-- Upload Workflow Steps -->
-    <div class="mb-8 bg-[#1A1A1A] p-6 rounded-xl border border-gray-800 shadow-xl">
-      <h3 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Alur Upload Data Harian (Regime Engine)
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="mb-8 space-y-6">
+      
+      <!-- Wajib Harian -->
+      <div class="bg-[#1A1A1A] p-6 rounded-xl border border-gray-800 shadow-xl">
+        <h3 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Wajib Harian (Setiap Bursa Tutup)
+        </h3>
+        <p class="text-sm text-gray-400 mb-6">Data Price Trend dan Volatility otomatis ditarik via API. Silakan upload 2 data berikut untuk melengkapi perhitungan Regime Engine:</p>
         
-        <!-- Step 1: Masterlist -->
-        <div class="bg-[#222] p-4 rounded-lg border border-indigo-500/30 relative flex flex-col justify-between">
-          <div>
-            <div class="absolute -top-3 -left-3 w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">1</div>
-            <div class="text-indigo-400 font-bold mb-1">Masterlist Saham</div>
-            <p class="text-xs text-gray-400 mb-4 leading-relaxed">Daftar Indeks & Sektor Saham. <span class="text-gray-300 font-medium">Upload cukup 1x sebulan</span> saat ada update konstituen.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Step 1: Market Breadth -->
+          <div class="bg-[#222] p-4 rounded-lg border border-purple-500/30 relative flex flex-col justify-between">
+            <div>
+              <div class="absolute -top-3 -left-3 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">1</div>
+              <div class="text-purple-400 font-bold mb-1">Upload Ringkasan Saham</div>
+              <p class="text-xs text-gray-400 mb-4 leading-relaxed">Format: <span class="text-gray-300 font-medium">.xlsx</span> (Untuk menghitung Market Breadth & Sector Rotation).</p>
+            </div>
+            <button @click="showRingkasanSahamModal = true" class="w-full py-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border border-purple-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+              <Upload class="w-4 h-4" /> Pilih File Ringkasan
+            </button>
           </div>
-          <button @click="showMasterlistModal = true" class="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
-            <Upload class="w-4 h-4" /> Upload Masterlist
-          </button>
-        </div>
 
-        <!-- Step 2: Price Trend -->
-        <div class="bg-[#222] p-4 rounded-lg border border-emerald-500/30 relative flex flex-col justify-between">
-          <div>
-            <div class="absolute -top-3 -left-3 w-6 h-6 bg-emerald-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">2</div>
-            <div class="text-emerald-400 font-bold mb-1">IHSG Price Trend</div>
-            <p class="text-xs text-gray-400 mb-4 leading-relaxed">Data riwayat IHSG dari investing.com (format CSV). Diperlukan untuk <span class="text-gray-300 font-medium">Moving Average & Momentum</span>.</p>
+          <!-- Step 2: Foreign Flow -->
+          <div class="bg-[#222] p-4 rounded-lg border border-pink-500/30 relative flex flex-col justify-between">
+            <div>
+              <div class="absolute -top-3 -left-3 w-6 h-6 bg-pink-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">2</div>
+              <div class="text-pink-400 font-bold mb-1">Upload Data Foreign Flow</div>
+              <p class="text-xs text-gray-400 mb-4 leading-relaxed">Format: <span class="text-gray-300 font-medium">.xlsx</span> (Untuk menghitung Foreign Net Flow & Value Traded).</p>
+            </div>
+            <button @click="showForeignFlowModal = true" class="w-full py-2 bg-pink-600/10 hover:bg-pink-600/20 text-pink-400 border border-pink-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+              <Upload class="w-4 h-4" /> Pilih File Flow
+            </button>
           </div>
-          <button @click="showUploadCsvModal = true" class="w-full py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
-            <Upload class="w-4 h-4" /> Upload CSV Trend
-          </button>
         </div>
-
-        <!-- Step 3: Market Breadth -->
-        <div class="bg-[#222] p-4 rounded-lg border border-purple-500/30 relative flex flex-col justify-between">
-          <div>
-            <div class="absolute -top-3 -left-3 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">3</div>
-            <div class="text-purple-400 font-bold mb-1">Market Breadth</div>
-            <p class="text-xs text-gray-400 mb-4 leading-relaxed">File <span class="text-gray-300 font-medium">"Ringkasan Saham"</span> (Excel). Diperlukan untuk menghitung Advancers/Decliners score harian.</p>
-          </div>
-          <button @click="showRingkasanSahamModal = true" class="w-full py-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border border-purple-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
-            <Upload class="w-4 h-4" /> Upload Ringkasan
-          </button>
-        </div>
-
-        <!-- Step 3.5: Foreign Flow -->
-        <div class="bg-[#222] p-4 rounded-lg border border-pink-500/30 relative flex flex-col justify-between">
-          <div>
-            <div class="text-pink-400 font-bold mb-1">Foreign Flow</div>
-            <p class="text-xs text-gray-400 mb-4 leading-relaxed">File <span class="text-gray-300 font-medium">"Data Foreign Flow"</span> (Excel). Diperlukan untuk menghitung Foreign Flow score harian.</p>
-          </div>
-          <button @click="showForeignFlowModal = true" class="w-full py-2 bg-pink-600/10 hover:bg-pink-600/20 text-pink-400 border border-pink-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
-            <Upload class="w-4 h-4" /> Upload Flow
-          </button>
-        </div>
-
-        <!-- Step 4: Flow, Sector & Final Draft -->
-        <div class="bg-[#222] p-4 rounded-lg border border-blue-500/30 relative flex flex-col justify-between">
-          <div>
-            <div class="absolute -top-3 -left-3 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">4</div>
-            <div class="text-blue-400 font-bold mb-1">PDF Harian & Draft</div>
-            <p class="text-xs text-gray-400 mb-4 leading-relaxed">Langkah terakhir! Upload <span class="text-gray-300 font-medium">Daily Statistics PDF</span> untuk auto-extract Sektor, Flow, dan generate AI Draft.</p>
-          </div>
-          <button @click="showUploadModal = true" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-blue-900/20 flex justify-center items-center gap-2">
-            <Upload class="w-4 h-4" /> Upload PDF & Finalize
-          </button>
-        </div>
-
       </div>
+
+      <!-- Opsional / Data Master -->
+      <details class="group bg-[#1A1A1A] rounded-xl border border-gray-800 shadow-xl overflow-hidden cursor-pointer">
+        <summary class="p-4 bg-[#222] text-gray-300 font-medium flex items-center justify-between outline-none">
+          <span class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Menu Data Master & Upload Opsional
+          </span>
+          <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </summary>
+        
+        <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 cursor-default">
+          <!-- Masterlist -->
+          <div class="bg-[#2a2a2a] p-4 rounded-lg border border-indigo-500/20 flex flex-col justify-between">
+            <div>
+              <div class="text-indigo-400 font-bold mb-1">Masterlist Saham</div>
+              <p class="text-xs text-gray-400 mb-4 leading-relaxed">Update daftar Indeks & Sektor Saham (Jarang dilakukan).</p>
+            </div>
+            <button @click.stop="showMasterlistModal = true" class="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+              <Upload class="w-4 h-4" /> Upload Masterlist
+            </button>
+          </div>
+
+          <!-- Price Trend Manual -->
+          <div class="bg-[#2a2a2a] p-4 rounded-lg border border-emerald-500/20 flex flex-col justify-between">
+            <div>
+              <div class="text-emerald-400 font-bold mb-1">IHSG Historis (Manual)</div>
+              <p class="text-xs text-gray-400 mb-4 leading-relaxed">Jika API Sectors gagal, gunakan file CSV Investing.com.</p>
+            </div>
+            <button @click.stop="showUploadCsvModal = true" class="w-full py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+              <Upload class="w-4 h-4" /> Upload CSV IHSG
+            </button>
+          </div>
+
+          <!-- Upload PDF Harian (Legacy) -->
+          <div class="bg-[#2a2a2a] p-4 rounded-lg border border-blue-500/20 flex flex-col justify-between">
+            <div>
+              <div class="text-blue-400 font-bold mb-1">PDF Harian & Draft</div>
+              <p class="text-xs text-gray-400 mb-4 leading-relaxed">Upload Daily Statistics PDF untuk generate AI Draft.</p>
+            </div>
+            <button @click.stop="showUploadModal = true" class="w-full py-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+              <Upload class="w-4 h-4" /> Upload PDF
+            </button>
+          </div>
+        </div>
+      </details>
     </div>
 
     <!-- Upload PDF Modal -->
