@@ -36,7 +36,7 @@ def run(input_path, date, output_path):
         l    = float(row[low_col]) if not pd.isna(row[low_col]) else 0
 
         res = {
-            "FOREIGN_NET_TODAY": fnet,
+            "FOREIGN_NET_TODAY": fnet / 1e9 if fnet != 0 else 0,
             "VALUE_TRADED_BN_IDR": val / 1e9 if val > 0 else 0,
             "OPEN": o,
             "HIGH": h,
