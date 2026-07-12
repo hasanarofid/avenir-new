@@ -432,7 +432,13 @@ PYTHON;
                 );
             }
 
-            return back()->with('success', 'Data Foreign Flow berhasil diupload & diproses.');
+            // Generate Draft automatically
+            \Illuminate\Support\Facades\Artisan::call('deskbrief:draft', [
+                'date' => $date,
+                '--force' => true
+            ]);
+
+            return back()->with('success', 'Data Foreign Flow berhasil diupload & Draft otomatis diperbarui.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error($e);
             return back()->withErrors(['foreign_flow' => 'Terjadi kesalahan: ' . $e->getMessage()]);
@@ -489,9 +495,15 @@ PYTHON;
                 'sector_rotation_label' => $srPayload['sector_rotation_label'] ?? null,
             ]);
 
+            // Generate Draft automatically
+            \Illuminate\Support\Facades\Artisan::call('deskbrief:draft', [
+                'date' => $date,
+                '--force' => true
+            ]);
+
             return back()
                 ->with('market_breadth_summary', $summary)
-                ->with('success', 'File Ringkasan Saham berhasil diproses menggunakan Python Engine.');
+                ->with('success', 'File Ringkasan Saham berhasil diproses & Draft otomatis diperbarui.');
 
         } catch (\Exception $e) {
             return back()->withErrors(['ringkasan_saham' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
