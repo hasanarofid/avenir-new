@@ -112,16 +112,31 @@ class OwnershipController extends Controller
 
     public function getOwnershipData()
     {
-        // Find latest snapshot
+        // Find latest valid snapshot
         $latestSnapshot = DB::table('ownership_snapshots')
+                            ->whereExists(function ($query) {
+                                $query->select(DB::raw(1))
+                                      ->from('ownership_edges')
+                                      ->whereColumn('ownership_edges.snapshot_id', 'ownership_snapshots.id');
+                            })
                             ->orderBy('period_date', 'desc')
+                            ->orderBy('id', 'desc')
                             ->first();
 
-        // Find previous snapshot
-        $prevSnapshot = DB::table('ownership_snapshots')
-                            ->orderBy('period_date', 'desc')
-                            ->skip(1)
-                            ->first();
+        // Find previous valid snapshot
+        $prevSnapshot = null;
+        if ($latestSnapshot) {
+            $prevSnapshot = DB::table('ownership_snapshots')
+                                ->whereExists(function ($query) {
+                                    $query->select(DB::raw(1))
+                                          ->from('ownership_edges')
+                                          ->whereColumn('ownership_edges.snapshot_id', 'ownership_snapshots.id');
+                                })
+                                ->where('id', '!=', $latestSnapshot->id)
+                                ->orderBy('period_date', 'desc')
+                                ->orderBy('id', 'desc')
+                                ->first();
+        }
 
         if (!$latestSnapshot) {
             return response()->json([
