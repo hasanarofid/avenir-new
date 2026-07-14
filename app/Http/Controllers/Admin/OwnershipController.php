@@ -91,7 +91,7 @@ class OwnershipController extends Controller
         try {
             DB::table('ownership_edges')->where('snapshot_id', $id)->delete();
             DB::table('ownership_changes')->where('snapshot_id', $id)->delete();
-            DB::table('ownership_stats')->where('snapshot_id', $id)->delete();
+            DB::table('ownership_audits')->where('snapshot_id', $id)->delete();
             DB::table('ownership_snapshots')->where('id', $id)->delete();
             DB::commit();
             
