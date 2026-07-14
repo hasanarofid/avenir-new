@@ -36,7 +36,7 @@ class ExtractKseiOwnershipJob implements ShouldQueue
         }
 
         // 1. Run Python Parser for Current Snapshot
-        $filePath = storage_path('app/private/' . $currentSnapshot->file_path);
+        $filePath = storage_path('app/' . $currentSnapshot->file_path);
         
         // If it's a CSV, we should handle it differently. But for now, we assume the user uploaded the KSEI PDF.
         // Or if it's CSV, the python script or PHP could parse it directly. 
@@ -149,7 +149,7 @@ class ExtractKseiOwnershipJob implements ShouldQueue
             if ($this->previousSnapshotId) {
                 $prevSnapshot = DB::table('ownership_snapshots')->find($this->previousSnapshotId);
                 if ($prevSnapshot && $prevSnapshot->file_path) {
-                    $prevPath = storage_path('app/private/' . $prevSnapshot->file_path);
+                    $prevPath = storage_path('app/' . $prevSnapshot->file_path);
                     if (file_exists($prevPath)) {
                         unlink($prevPath);
                         Log::info("Deleted processed previous file: {$prevPath}");
