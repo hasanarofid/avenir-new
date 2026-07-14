@@ -24,6 +24,7 @@ import {
   BrainCircuit,
   Globe,
   Activity,
+  Database,
   TrendingUp,
   ShieldAlert,
   Coins
@@ -78,7 +79,8 @@ const navigationGroups = [
     title: 'CONTENT MANAGEMENT',
     roles: ['admin', 'tim_internal'],
     items: [
-      { name: 'Desk Brief', href: route('admin.desk-brief.index'), icon: Activity, current: route().current('admin.desk-brief.*') },
+      { name: 'Desk Brief', href: route('admin.desk-brief.index'), icon: Activity, current: route().current('admin.desk-brief.index') || route().current('admin.desk-brief.edit') },
+      { name: 'Ownership Intel', href: route('admin.desk-brief.ownership.index'), icon: Database, current: route().current('admin.desk-brief.ownership.*') },
       { name: 'Katalog Riset', href: route('admin.katalog-riset.index'), icon: FileText, current: route().current('admin.katalog-riset.*') },
       { name: 'News (Berita Pasar)', href: route('admin.news.index'), icon: Newspaper, current: route().current('admin.news.*') },
       { name: 'Artikel Edukasi', href: route('admin.articles.index'), icon: LibraryBig, current: route().current('admin.articles.*') },
