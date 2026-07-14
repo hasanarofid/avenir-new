@@ -42,7 +42,7 @@ return new class extends Migration
             $table->string('issuer_name')->nullable();
             $table->string('investor_name')->nullable();
             $table->string('investor_raw')->nullable();
-            $table->decimal('pct', 8, 4)->nullable(); // e.g., 5.1234
+            $table->decimal('pct', 10, 4)->nullable(); // e.g., 5.1234
             $table->bigInteger('shares')->default(0);
             $table->string('classification')->nullable();
             $table->char('local_foreign', 1)->nullable(); // L or F

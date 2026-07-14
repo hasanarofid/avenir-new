@@ -36,7 +36,7 @@ class ExtractKseiOwnershipJob implements ShouldQueue
         }
 
         // 1. Run Python Parser for Current Snapshot
-        $filePath = storage_path('app/public/' . $currentSnapshot->file_path);
+        $filePath = storage_path('app/private/' . $currentSnapshot->file_path);
         
         // If it's a CSV, we should handle it differently. But for now, we assume the user uploaded the KSEI PDF.
         // Or if it's CSV, the python script or PHP could parse it directly. 
@@ -73,11 +73,14 @@ class ExtractKseiOwnershipJob implements ShouldQueue
             DB::table('ownership_edges')->where('snapshot_id', $this->currentSnapshotId)->delete();
 
             foreach ($records as $record) {
-                $ticker = $record['ticker'];
-                $investorName = $record['investor_name'];
-                $shares = $record['shares'];
-                $pct = $record['pct'];
-                $lf = $record['local_foreign'];
+                $ticker = substr(trim($record['ticker']), 0, 20);
+                $investorName = preg_replace('/\s+/', ' ', trim($record['investor_name']));
+                $investorName = substr($investorName, 0, 150);
+                $shares = (int) $record['shares'];
+                $pct = (float) $record['pct'];
+                if ($pct > 100) $pct = 100;
+                if ($pct < 0) $pct = 0;
+                $lf = substr(trim($record['local_foreign']), 0, 10);
 
                 $issuerKey = "E:" . $ticker;
                 
@@ -116,7 +119,7 @@ class ExtractKseiOwnershipJob implements ShouldQueue
                     'ticker' => $ticker,
                     'issuer_name' => $ticker,
                     'investor_name' => $investorName,
-                    'investor_raw' => $investorName,
+                    'investor_raw' => substr(trim($record['investor_name']), 0, 255),
                     'shares' => $shares,
                     'pct' => $pct,
                     'local_foreign' => $lf,
@@ -146,7 +149,7 @@ class ExtractKseiOwnershipJob implements ShouldQueue
             if ($this->previousSnapshotId) {
                 $prevSnapshot = DB::table('ownership_snapshots')->find($this->previousSnapshotId);
                 if ($prevSnapshot && $prevSnapshot->file_path) {
-                    $prevPath = storage_path('app/public/' . $prevSnapshot->file_path);
+                    $prevPath = storage_path('app/private/' . $prevSnapshot->file_path);
                     if (file_exists($prevPath)) {
                         unlink($prevPath);
                         Log::info("Deleted processed previous file: {$prevPath}");

@@ -65,7 +65,7 @@ export const relatedChanges = computed(() => {
 export async function loadOwnershipData() {
     if (dataLoaded.value) return;
     try {
-        const res = await fetch('/data/ownership-data.json');
+        const res = await fetch('/admin/desk-brief/ownership/data');
         const DATA = await res.json();
 
         entities.value = DATA.entities;

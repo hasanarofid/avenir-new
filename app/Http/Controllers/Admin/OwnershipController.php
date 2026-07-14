@@ -59,9 +59,18 @@ class OwnershipController extends Controller
                 ]);
             }
 
-            // Dispatch a job to parse the PDF using python script
-            ExtractKseiOwnershipJob::dispatch($snapshotId, $previousSnapshotId);
-            Log::info("ExtractKseiOwnershipJob Dispatched. Snapshot ID: $snapshotId");
+            // Dispatch jobs to parse the PDF using python script
+            // If previous file exists, we must chain them to ensure previous is processed first before current calculates deltas
+            if ($previousSnapshotId) {
+                \Illuminate\Support\Facades\Bus::chain([
+                    new ExtractKseiOwnershipJob($previousSnapshotId, null),
+                    new ExtractKseiOwnershipJob($snapshotId, $previousSnapshotId)
+                ])->dispatch();
+                Log::info("Chained ExtractKseiOwnershipJob Dispatched. Snapshot IDs: $previousSnapshotId then $snapshotId");
+            } else {
+                ExtractKseiOwnershipJob::dispatch($snapshotId, null);
+                Log::info("ExtractKseiOwnershipJob Dispatched. Snapshot ID: $snapshotId");
+            }
 
             return back()->with('success', 'File berhasil diunggah. Proses ekstraksi data berjalan di latar belakang (Mendukung PDF KSEI Konsisten & CSV). Anda dapat merefresh halaman dalam 1-2 menit untuk melihat Snapshot.');
             
@@ -69,5 +78,107 @@ class OwnershipController extends Controller
             Log::error("Error uploading ownership file: " . $e->getMessage());
             return back()->withErrors(['message' => 'Terjadi kesalahan saat mengunggah file.']);
         }
+    }
+
+    public function getOwnershipData()
+    {
+        // Find latest snapshot
+        $latestSnapshot = DB::table('ownership_snapshots')
+                            ->orderBy('period_date', 'desc')
+                            ->first();
+
+        // Find previous snapshot
+        $prevSnapshot = DB::table('ownership_snapshots')
+                            ->orderBy('period_date', 'desc')
+                            ->skip(1)
+                            ->first();
+
+        if (!$latestSnapshot) {
+            return response()->json([
+                'stats' => [],
+                'entities' => new \stdClass(),
+                'edges' => [],
+                'changes' => [],
+                'audits' => new \stdClass(),
+                'investorSummaries' => new \stdClass(),
+            ]);
+        }
+
+        $sid = $latestSnapshot->id;
+
+        // Entities
+        $entitiesRaw = DB::table('ownership_entities')->get();
+        $entities = [];
+        foreach ($entitiesRaw as $e) {
+            $entities[$e->key] = [
+                'key' => $e->key,
+                'label' => $e->label,
+                'ticker' => $e->ticker,
+                'kind' => $e->kind,
+                'norm' => $e->norm,
+                'listed' => (bool) $e->listed,
+                'alsoInvestor' => (bool) $e->also_investor,
+            ];
+        }
+
+        // Edges
+        $edgesRaw = DB::table('ownership_edges')->where('snapshot_id', $sid)->get();
+        $edges = [];
+        foreach ($edgesRaw as $e) {
+            $edges[] = [
+                'from' => $e->from_key,
+                'to' => $e->to_key,
+                'ticker' => $e->ticker,
+                'issuer' => $e->issuer_name,
+                'investor' => $e->investor_name,
+                'pct' => (float) $e->pct,
+                'shares' => (int) $e->shares,
+                'direction' => $e->direction,
+                'deltaShares' => (int) $e->delta_shares,
+                'deltaPct' => (float) $e->delta_pct,
+                'local_foreign' => $e->local_foreign,
+            ];
+        }
+
+        // Changes
+        $changesRaw = DB::table('ownership_changes')->where('snapshot_id', $sid)->get();
+        $changes = [];
+        foreach ($changesRaw as $c) {
+            $changes[] = [
+                'from' => $c->from_key,
+                'to' => $c->to_key,
+                'investor' => $c->investor_name,
+                'ticker' => $c->ticker,
+                'direction' => $c->direction,
+                'deltaShares' => (int) $c->delta_shares,
+                'deltaPct' => (float) $c->delta_pct,
+            ];
+        }
+
+        // Audits
+        $auditsRaw = DB::table('ownership_audits')->where('snapshot_id', $sid)->get();
+        $audits = [];
+        foreach ($auditsRaw as $a) {
+            $audits[$a->issuer_key] = [
+                'hhi' => (float) $a->hhi,
+                'residual' => (float) $a->residual,
+                'floatProxy' => (float) $a->float_proxy,
+                'controlLabel' => $a->control_label,
+            ];
+        }
+
+        return response()->json([
+            'stats' => [
+                'latestDate' => $latestSnapshot->period_date,
+                'prevDate' => $prevSnapshot ? $prevSnapshot->period_date : null,
+                'issuersLatest' => count($audits),
+                'defaultKey' => count($entities) > 0 ? (isset($entities['E:BREN']) ? 'E:BREN' : array_keys($entities)[0]) : null,
+            ],
+            'entities' => (object) $entities,
+            'edges' => $edges,
+            'changes' => $changes,
+            'audits' => (object) $audits,
+            'investorSummaries' => new \stdClass(),
+        ]);
     }
 }
