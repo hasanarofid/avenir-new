@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\ExtractKseiOwnershipJob;
 
 class OwnershipController extends Controller
 {
@@ -38,7 +39,7 @@ class OwnershipController extends Controller
                 $previousPath = $request->file('file_previous')->store('ownership_pdfs');
             }
 
-            // Create snapshot entry for current period
+            // Store snapshot
             $snapshotId = DB::table('ownership_snapshots')->insertGetId([
                 'period_date' => $request->date_current,
                 'file_path' => $currentPath,
@@ -46,11 +47,23 @@ class OwnershipController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Here we would dispatch a job to parse the PDF using python/spatie
-            // e.g. ExtractKseiOwnershipJob::dispatch($snapshotId, $currentPath, $previousPath);
-            Log::info("Ownership Data uploaded. Snapshot ID: $snapshotId");
+            $previousSnapshotId = null;
+            if ($previousPath) {
+                // Determine if we need to link a previous snapshot
+                // For simplicity, we can create a temporary snapshot record for the previous file
+                $previousSnapshotId = DB::table('ownership_snapshots')->insertGetId([
+                    'period_date' => $request->date_previous,
+                    'file_path' => $previousPath,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
-            return back()->with('success', 'File berhasil diunggah. Proses ekstraksi data berjalan di latar belakang (Mendukung PDF KSEI Konsisten & CSV).');
+            // Dispatch a job to parse the PDF using python script
+            ExtractKseiOwnershipJob::dispatch($snapshotId, $previousSnapshotId);
+            Log::info("ExtractKseiOwnershipJob Dispatched. Snapshot ID: $snapshotId");
+
+            return back()->with('success', 'File berhasil diunggah. Proses ekstraksi data berjalan di latar belakang (Mendukung PDF KSEI Konsisten & CSV). Anda dapat merefresh halaman dalam 1-2 menit untuk melihat Snapshot.');
             
         } catch (\Exception $e) {
             Log::error("Error uploading ownership file: " . $e->getMessage());
