@@ -20,7 +20,7 @@ def parse_ksei_pdf(pdf_path):
         if not line.strip(): continue
         
         # New record starts with spaces and Ticker
-        match = re.match(r'^ {1,12}([A-Z0-9]{4,5})\s', line)
+        match = re.match(r'^\s{0,35}([A-Z0-9]{4,5})\s', line)
         if match:
             if current_record:
                 records.append(current_record)
