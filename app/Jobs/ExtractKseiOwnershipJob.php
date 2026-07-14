@@ -137,6 +137,23 @@ class ExtractKseiOwnershipJob implements ShouldQueue
             DB::commit();
             Log::info("KSEI Ownership Extraction completed for snapshot {$this->currentSnapshotId}.");
 
+            // Auto-delete the file to save server storage
+            if (file_exists($filePath)) {
+                unlink($filePath);
+                Log::info("Deleted processed file: {$filePath}");
+            }
+            // If there's a previous snapshot, delete that file too
+            if ($this->previousSnapshotId) {
+                $prevSnapshot = DB::table('ownership_snapshots')->find($this->previousSnapshotId);
+                if ($prevSnapshot && $prevSnapshot->file_path) {
+                    $prevPath = storage_path('app/public/' . $prevSnapshot->file_path);
+                    if (file_exists($prevPath)) {
+                        unlink($prevPath);
+                        Log::info("Deleted processed previous file: {$prevPath}");
+                    }
+                }
+            }
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error saving ownership data: " . $e->getMessage() . " at " . $e->getLine());

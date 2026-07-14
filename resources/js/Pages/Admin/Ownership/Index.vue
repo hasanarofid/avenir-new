@@ -17,6 +17,29 @@ const form = useForm({
 });
 
 const submit = () => {
+    // Client-side file size validation to prevent PHP post_max_size silent drops
+    const maxSizeBytes = 10 * 1024 * 1024; // 10MB
+    
+    if (form.file_current && form.file_current.size > maxSizeBytes) {
+        Swal.fire({
+            icon: 'error',
+            title: 'File Terlalu Besar!',
+            text: 'Ukuran file Current melebihi batas 10MB. Silakan kompres PDF atau perbesar konfigurasi upload_max_filesize di server Anda.',
+            background: '#1A1A1A', color: '#fff', confirmButtonColor: '#dc2626'
+        });
+        return;
+    }
+    
+    if (form.file_previous && form.file_previous.size > maxSizeBytes) {
+        Swal.fire({
+            icon: 'error',
+            title: 'File Terlalu Besar!',
+            text: 'Ukuran file Previous melebihi batas 10MB. Silakan kompres PDF atau perbesar konfigurasi upload_max_filesize di server Anda.',
+            background: '#1A1A1A', color: '#fff', confirmButtonColor: '#dc2626'
+        });
+        return;
+    }
+
     form.post(route('admin.desk-brief.ownership.upload'), {
         preserveScroll: true,
         onSuccess: (page) => {
@@ -33,7 +56,7 @@ const submit = () => {
             form.reset('file_current', 'file_previous');
         },
         onError: (errors) => {
-            let errorMsg = 'Pastikan semua kolom terisi dengan benar atau ukuran file tidak melebihi batas (Max 10MB).';
+            let errorMsg = 'Pastikan semua kolom terisi dengan benar.';
             if (errors.message) errorMsg = errors.message;
             else if (errors.file_current) errorMsg = errors.file_current;
             else if (errors.file_previous) errorMsg = errors.file_previous;
