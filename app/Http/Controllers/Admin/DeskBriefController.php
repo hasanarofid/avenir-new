@@ -204,9 +204,23 @@ class DeskBriefController extends Controller
                     'value' => $parsed['stable'] ?? 0
                 ],
                 'BREADTH_SCORE' => [
-                    'value' => $parsed['breadth_score'] ?? 0
+                    'value' => $parsed['breadth_score_pdf'] ?? $parsed['breadth_score'] ?? 0
                 ]
             ];
+
+            $pdfComponentKeys = [
+                'PT_SCORE' => 'pt_score_pdf',
+                'MB_SCORE' => 'breadth_score_pdf',
+                'FLOW_SCORE' => 'flow_score_pdf',
+                'SR_SCORE' => 'sr_score_pdf',
+                'VS_SCORE' => 'vs_score_pdf'
+            ];
+
+            foreach ($pdfComponentKeys as $dbKey => $parsedKey) {
+                if (isset($parsed[$parsedKey])) {
+                    $metrics[$dbKey] = ['value' => $parsed[$parsedKey]];
+                }
+            }
 
             foreach ($metrics as $metric => $data) {
                 if ($metric === 'BREADTH_SCORE') {

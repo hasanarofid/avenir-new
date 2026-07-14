@@ -68,7 +68,19 @@ def parse_idx_pdf(pdf_path):
                 active_participation = (total_active / total) * 100
                 data['breadth_score'] = round(0.40 * ad_score + 0.30 * strong_movers + 0.30 * active_participation)
             
-        # 6. Sector Indices
+        # 6. Component Scores Table (Price Trend, Breadth, Flow, Sector, Volatility, Regime)
+        # Table format: 14 Jul   50   61   22   90   67   55
+        component_match = re.findall(r'(\d{1,2}\s+[A-Za-z]{3})\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)', layout_text)
+        if component_match:
+            latest_row = component_match[-1]
+            data['pt_score_pdf'] = int(latest_row[1])
+            data['breadth_score_pdf'] = int(latest_row[2])
+            data['flow_score_pdf'] = int(latest_row[3])
+            data['sr_score_pdf'] = int(latest_row[4])
+            data['vs_score_pdf'] = int(latest_row[5])
+            data['regime_score_pdf'] = int(latest_row[6])
+
+        # 7. Sector Indices
         sectors = ['Energy', 'Basic Materials', 'Industrials', 'Consumer Non-Cyclicals', 'Consumer Cyclicals', 'Healthcare', 'Financials', 'Properties & Real Estate', 'Technology', 'Infrastructures', 'Transportation & Logistic']
         data['sectors'] = {}
         for sector in sectors:

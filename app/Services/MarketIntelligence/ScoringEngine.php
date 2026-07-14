@@ -260,66 +260,95 @@ class ScoringEngine
 
         try {
             // ---- Price Trend ----------------------------------------
-            $ohlcCsv = $bridge->exportOhlcCsv($date, 300);
-            $cleanup[] = $ohlcCsv;
+            $ptPdfSnap = \App\Models\MarketSnapshot::where('symbol_or_metric', 'PT_SCORE')
+                ->where('date', $date)
+                ->where('source', 'pdf_upload')
+                ->first();
 
-            $ptOutDir = $tempDir . "/pt_{$date}";
-            @mkdir($ptOutDir, 0755, true);
-            $ptJson = $ptOutDir . '/latest_price_trend_score.json';
+            if ($ptPdfSnap) {
+                $scores['price_trend'] = (int) $ptPdfSnap->value;
+                $ohlcCsv = $bridge->exportOhlcCsv($date, 300); // Need this for volatility if it runs
+                $cleanup[] = $ohlcCsv;
+            } else {
+                $ohlcCsv = $bridge->exportOhlcCsv($date, 300);
+                $cleanup[] = $ohlcCsv;
 
-            $ptPayload = $bridge->run('price_trend.py', [
-                '--input'      => $ohlcCsv,
-                '--output-dir' => $ptOutDir,
-            ], $ptJson);
+                $ptOutDir = $tempDir . "/pt_{$date}";
+                @mkdir($ptOutDir, 0755, true);
+                $ptJson = $ptOutDir . '/latest_price_trend_score.json';
 
-            $scores['price_trend'] = $ptPayload ? (int) ($ptPayload['price_trend_score'] ?? 50) : $this->getFallbackScore($date, 'PT_SCORE', 50);
+                $ptPayload = $bridge->run('price_trend.py', [
+                    '--input'      => $ohlcCsv,
+                    '--output-dir' => $ptOutDir,
+                ], $ptJson);
 
-            if ($ptPayload) {
-                \App\Models\MarketSnapshot::updateOrCreate(
-                    ['date' => $date, 'symbol_or_metric' => 'PT_SCORE'],
-                    ['value' => $scores['price_trend'], 'source' => 'python_engine']
-                );
+                $scores['price_trend'] = $ptPayload ? (int) ($ptPayload['price_trend_score'] ?? 50) : $this->getFallbackScore($date, 'PT_SCORE', 50);
+
+                if ($ptPayload) {
+                    \App\Models\MarketSnapshot::updateOrCreate(
+                        ['date' => $date, 'symbol_or_metric' => 'PT_SCORE'],
+                        ['value' => $scores['price_trend'], 'source' => 'python_engine']
+                    );
+                }
             }
 
             // ---- Foreign Flow ----------------------------------------
-            $flowCsv   = $bridge->exportFlowCsv($date, 60);
-            $cleanup[] = $flowCsv;
+            $flowPdfSnap = \App\Models\MarketSnapshot::where('symbol_or_metric', 'FLOW_SCORE')
+                ->where('date', $date)
+                ->where('source', 'pdf_upload')
+                ->first();
 
-            $flOutDir = $tempDir . "/fl_{$date}";
-            @mkdir($flOutDir, 0755, true);
-            $flJson = $flOutDir . '/latest_flow_score.json';
+            if ($flowPdfSnap) {
+                $scores['flow'] = (int) $flowPdfSnap->value;
+            } else {
+                $flowCsv   = $bridge->exportFlowCsv($date, 60);
+                $cleanup[] = $flowCsv;
 
-            $flPayload = $bridge->run('flow.py', [
-                '--input'      => $flowCsv,
-                '--output-dir' => $flOutDir,
-            ], $flJson);
+                $flOutDir = $tempDir . "/fl_{$date}";
+                @mkdir($flOutDir, 0755, true);
+                $flJson = $flOutDir . '/latest_flow_score.json';
 
-            $scores['flow'] = $flPayload ? (int) ($flPayload['flow_score'] ?? 50) : $this->getFallbackScore($date, 'FLOW_SCORE', 50);
+                $flPayload = $bridge->run('flow.py', [
+                    '--input'      => $flowCsv,
+                    '--output-dir' => $flOutDir,
+                ], $flJson);
 
-            if ($flPayload) {
-                \App\Models\MarketSnapshot::updateOrCreate(
-                    ['date' => $date, 'symbol_or_metric' => 'FLOW_SCORE'],
-                    ['value' => $scores['flow'], 'source' => 'python_engine']
-                );
+                $scores['flow'] = $flPayload ? (int) ($flPayload['flow_score'] ?? 50) : $this->getFallbackScore($date, 'FLOW_SCORE', 50);
+
+                if ($flPayload) {
+                    \App\Models\MarketSnapshot::updateOrCreate(
+                        ['date' => $date, 'symbol_or_metric' => 'FLOW_SCORE'],
+                        ['value' => $scores['flow'], 'source' => 'python_engine']
+                    );
+                }
             }
 
             // ---- Volatility / Stability ----------------------------------------
-            $vsOutDir = $tempDir . "/vs_{$date}";
-            @mkdir($vsOutDir, 0755, true);
-            $vsJson = $vsOutDir . '/latest_volatility_stability_score.json';
+            $vsPdfSnap = \App\Models\MarketSnapshot::where('symbol_or_metric', 'VS_SCORE')
+                ->where('date', $date)
+                ->where('source', 'pdf_upload')
+                ->first();
 
-            $vsPayload = $bridge->run('volatility.py', [
-                '--input'      => $ohlcCsv,
-                '--output-dir' => $vsOutDir,
-            ], $vsJson);
+            if ($vsPdfSnap) {
+                $scores['volatility_stability'] = (int) $vsPdfSnap->value;
+            } else {
+                $vsOutDir = $tempDir . "/vs_{$date}";
+                @mkdir($vsOutDir, 0755, true);
+                $vsJson = $vsOutDir . '/latest_volatility_stability_score.json';
 
-            $scores['volatility_stability'] = $vsPayload ? (int) ($vsPayload['volatility_stability_score'] ?? 50) : $this->getFallbackScore($date, 'VS_SCORE', 50);
+                $vsPayload = $bridge->run('volatility.py', [
+                    '--input'      => $ohlcCsv,
+                    '--output-dir' => $vsOutDir,
+                ], $vsJson);
 
-            if ($vsPayload) {
-                \App\Models\MarketSnapshot::updateOrCreate(
-                    ['date' => $date, 'symbol_or_metric' => 'VS_SCORE'],
-                    ['value' => $scores['volatility_stability'], 'source' => 'python_engine']
-                );
+                $scores['volatility_stability'] = $vsPayload ? (int) ($vsPayload['volatility_stability_score'] ?? 50) : $this->getFallbackScore($date, 'VS_SCORE', 50);
+
+                if ($vsPayload) {
+                    \App\Models\MarketSnapshot::updateOrCreate(
+                        ['date' => $date, 'symbol_or_metric' => 'VS_SCORE'],
+                        ['value' => $scores['volatility_stability'], 'source' => 'python_engine']
+                    );
+                }
             }
 
             // ---- Market Breadth (from DB-stored Python output) ----------------------------------------
