@@ -67,15 +67,16 @@ def parse_ksei_pdf(pdf_path):
         
         for line in lines:
             # Replace numbers and L/F at the end with spaces to preserve offsets
-            clean_line = re.sub(r'(\s+[LF]?\s*[\d,]+\s*[\d\.]+\s*)$', lambda m: ' ' * len(m.group(1)), line)
-            clean_line = re.sub(r'(\s+[LF]?\s*[\d,]+\s*)$', lambda m: ' ' * len(m.group(1)), clean_line)
-            clean_line = re.sub(r'(\s+[LF]\s*)$', lambda m: ' ' * len(m.group(1)), clean_line)
+            # Instead of complex regex which causes backtracking, use simpler ones
+            clean_line = re.sub(r'\s+[LF]?\s*[\d,]+\s*[\d\.]+\s*$', lambda m: ' ' * len(m.group(0)), line)
+            clean_line = re.sub(r'\s+[LF]?\s*[\d,]+\s*$', lambda m: ' ' * len(m.group(0)), clean_line)
+            clean_line = re.sub(r'\s+[LF]\s*$', lambda m: ' ' * len(m.group(0)), clean_line)
                 
             # Replace Ticker at the start with spaces
-            clean_line = re.sub(r'^(\s{0,35}' + ticker + r'\b)', lambda m: ' ' * len(m.group(1)), clean_line)
+            clean_line = re.sub(r'^\s{0,35}' + re.escape(ticker) + r'\b', lambda m: ' ' * len(m.group(0)), clean_line)
             
-            # Find blocks of text separated by >= 2 spaces
-            for match in re.finditer(r'(?:(?!\s{2}).)+', clean_line):
+            # Find blocks of text separated by spaces
+            for match in re.finditer(r'\S+(?:\s\S+)*', clean_line):
                 chunk = match.group(0).strip()
                 if not chunk: continue
                 
