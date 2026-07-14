@@ -3,6 +3,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import { Upload, Database, FileSpreadsheet } from '@lucide/vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     recentSnapshots: Array,
