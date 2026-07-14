@@ -66,30 +66,58 @@ class ExtractKseiOwnershipJob implements ShouldQueue
         $records = $result['data'];
         Log::info("Extracted " . count($records) . " records from PDF.");
 
+        // Aggregate records by investorKey - issuerKey
+        $aggregatedRecords = [];
+        
+        foreach ($records as $record) {
+            $ticker = substr(trim($record['ticker']), 0, 20);
+            $investorName = preg_replace('/\s+/', ' ', trim($record['investor_name']));
+            $investorName = substr($investorName, 0, 150);
+            
+            $investorClean = preg_replace('/[^a-zA-Z0-9]/', '', strtoupper($investorName));
+            $investorKey = "I:" . substr($investorClean, 0, 150); // Increased from 20 to 150 chars
+            $issuerKey = "E:" . $ticker;
+            
+            $aggKey = $investorKey . '-' . $issuerKey;
+            
+            $shares = (int) $record['shares'];
+            $pct = (float) $record['pct'];
+            
+            if (!isset($aggregatedRecords[$aggKey])) {
+                $aggregatedRecords[$aggKey] = [
+                    'ticker' => $ticker,
+                    'investor_name' => $investorName,
+                    'investor_raw' => substr(trim($record['investor_name']), 0, 255),
+                    'shares' => 0,
+                    'pct' => 0.0,
+                    'local_foreign' => substr(trim($record['local_foreign']), 0, 10),
+                    'investor_key' => $investorKey,
+                    'issuer_key' => $issuerKey,
+                    'investor_clean' => $investorClean
+                ];
+            }
+            
+            $aggregatedRecords[$aggKey]['shares'] += $shares;
+            $aggregatedRecords[$aggKey]['pct'] += $pct;
+        }
+
         // 2. Insert Data into DB
         DB::beginTransaction();
         try {
             // Delete old edges for this snapshot just in case it's a retry
             DB::table('ownership_edges')->where('snapshot_id', $this->currentSnapshotId)->delete();
 
-            foreach ($records as $record) {
-                $ticker = substr(trim($record['ticker']), 0, 20);
-                $investorName = preg_replace('/\s+/', ' ', trim($record['investor_name']));
-                $investorName = substr($investorName, 0, 150);
-                $shares = (int) $record['shares'];
-                $pct = (float) $record['pct'];
+            foreach ($aggregatedRecords as $record) {
+                $pct = $record['pct'];
                 if ($pct > 100) $pct = 100;
                 if ($pct < 0) $pct = 0;
-                $lf = substr(trim($record['local_foreign']), 0, 10);
 
-                $issuerKey = "E:" . $ticker;
-                
                 // Create or update Issuer Entity
                 DB::table('ownership_entities')->updateOrInsert(
-                    ['key' => $issuerKey],
+                    ['key' => $record['issuer_key']],
                     [
-                        'label' => $ticker . ' (Issuer)',
-                        'ticker' => $ticker,
+                        'label' => $record['ticker'] . ' (Issuer)',
+                        'ticker' => $record['ticker'],
                         'kind' => 'issuer',
                         'listed' => true,
                         'updated_at' => now(),
@@ -97,16 +125,12 @@ class ExtractKseiOwnershipJob implements ShouldQueue
                 );
 
                 // Create or update Investor Entity
-                // We generate a deterministic key based on the sanitized investor name
-                $investorClean = preg_replace('/[^a-zA-Z0-9]/', '', strtoupper($investorName));
-                $investorKey = "I:" . substr($investorClean, 0, 20);
-
                 DB::table('ownership_entities')->updateOrInsert(
-                    ['key' => $investorKey],
+                    ['key' => $record['investor_key']],
                     [
-                        'label' => $investorName,
+                        'label' => $record['investor_name'],
                         'kind' => 'investor',
-                        'norm' => $investorClean,
+                        'norm' => $record['investor_clean'],
                         'updated_at' => now(),
                     ]
                 );
@@ -114,15 +138,15 @@ class ExtractKseiOwnershipJob implements ShouldQueue
                 // Insert Edge
                 DB::table('ownership_edges')->insert([
                     'snapshot_id' => $this->currentSnapshotId,
-                    'from_key' => $investorKey,
-                    'to_key' => $issuerKey,
-                    'ticker' => $ticker,
-                    'issuer_name' => $ticker,
-                    'investor_name' => $investorName,
-                    'investor_raw' => substr(trim($record['investor_name']), 0, 255),
-                    'shares' => $shares,
+                    'from_key' => $record['investor_key'],
+                    'to_key' => $record['issuer_key'],
+                    'ticker' => $record['ticker'],
+                    'issuer_name' => $record['ticker'],
+                    'investor_name' => $record['investor_name'],
+                    'investor_raw' => $record['investor_raw'],
+                    'shares' => $record['shares'],
                     'pct' => $pct,
-                    'local_foreign' => $lf,
+                    'local_foreign' => $record['local_foreign'],
                     'direction' => 'NEW', // Default, will update during Delta calculation
                     'created_at' => now(),
                     'updated_at' => now(),
