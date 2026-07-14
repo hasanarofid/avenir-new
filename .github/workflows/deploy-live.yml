@@ -50,5 +50,5 @@ jobs:
             php artisan storage:link || true
 
             # 7. Rapikan kembali hak akses
-            chown -R avenir:avenir /home/avenir/live_html
-            chmod -R 775 /home/avenir/live_html/storage /home/avenir/live_html/bootstrap/cache
+            chown -R avenir:avenir /home/avenir/live_html || true
+            chmod -R 775 /home/avenir/live_html/storage /home/avenir/live_html/bootstrap/cache || true
