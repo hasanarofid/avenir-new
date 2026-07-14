@@ -62,16 +62,42 @@ def parse_ksei_pdf(pdf_path):
                     break
         
         # Extract investor name
-        potential_names = []
-        for line in lines:
-            if len(line) > 50:
-                chunk = line[50:].strip()
-                if chunk and not re.search(r'^[\d,\.]+$', chunk):
-                    clean_chunk = re.sub(r'[^a-zA-Z0-9\s,\.\-&/]+$', '', chunk).strip()
-                    if len(clean_chunk) > 4 and clean_chunk != 'INDONESIA' and not re.search(r'\d{6,}', clean_chunk):
-                        potential_names.append(clean_chunk)
+        right_column_parts = []
+        left_column_parts = []
         
-        investor_name = potential_names[-1] if potential_names else f"INVESTOR OF {ticker}"
+        for line in lines:
+            # Replace numbers and L/F at the end with spaces to preserve offsets
+            clean_line = re.sub(r'(\s+[LF]?\s*[\d,]+\s*[\d\.]+\s*)$', lambda m: ' ' * len(m.group(1)), line)
+            clean_line = re.sub(r'(\s+[LF]?\s*[\d,]+\s*)$', lambda m: ' ' * len(m.group(1)), clean_line)
+            clean_line = re.sub(r'(\s+[LF]\s*)$', lambda m: ' ' * len(m.group(1)), clean_line)
+                
+            # Replace Ticker at the start with spaces
+            clean_line = re.sub(r'^(\s{0,35}' + ticker + r'\b)', lambda m: ' ' * len(m.group(1)), clean_line)
+            
+            # Find blocks of text separated by >= 2 spaces
+            for match in re.finditer(r'(?:(?!\s{2}).)+', clean_line):
+                chunk = match.group(0).strip()
+                if not chunk: continue
+                
+                # Filter out standalone numbers or garbage
+                if re.match(r'^[\d,\.\-]+$', chunk) or chunk == 'INDONESIA': 
+                    continue
+                
+                start_idx = match.start()
+                # The right column (Pemegang Saham) usually starts after offset 45
+                if start_idx >= 45:
+                    right_column_parts.append(chunk)
+                else:
+                    left_column_parts.append(chunk)
+                    
+        if right_column_parts:
+            investor_name = " ".join(right_column_parts)
+        elif left_column_parts:
+            investor_name = " ".join(left_column_parts)
+        else:
+            investor_name = f"INVESTOR OF {ticker}"
+            
+        investor_name = re.sub(r'[^a-zA-Z0-9\s,\.\-&/()]+$', '', investor_name).strip()
         
         parsed_records.append({
             'ticker': ticker,

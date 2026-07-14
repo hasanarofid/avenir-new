@@ -190,7 +190,10 @@ class OwnershipController extends Controller
         $audits = [];
         foreach ($auditsRaw as $a) {
             $audits[$a->issuer_key] = [
+                'confidence' => (int) $a->confidence,
+                'top1' => (float) $a->top1,
                 'hhi' => (float) $a->hhi,
+                'nakamoto50' => (int) $a->nakamoto50,
                 'residual' => (float) $a->residual,
                 'floatProxy' => (float) $a->float_proxy,
                 'controlLabel' => $a->control_label,
