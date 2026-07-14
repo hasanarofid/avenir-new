@@ -25,10 +25,15 @@ class DeskBriefController extends Controller
         return Inertia::render('OwnershipIntelligence/Index');
     }
 
+    public function ownershipMockup()
+    {
+        return Inertia::render('OwnershipIntelligence/IndexMockup');
+    }
+
     public function index(Request $request, \App\Services\MarketIntelligence\DeltaEngine $deltaEngine)
     {
         $previewId = $request->query('preview_id');
-        
+
         $latestBriefQuery = DeskBrief::with(['marketStance', 'drivers', 'radarStocks']);
 
         // Check if user is requesting a preview and is authorized
@@ -45,7 +50,7 @@ class DeskBriefController extends Controller
         $latestTwoStances = \App\Models\MarketStanceDaily::orderBy('date', 'desc')->take(2)->get();
         $todayStance = $latestTwoStances->first();
         $yesterdayStance = $latestTwoStances->last();
-        
+
         $delta = $deltaEngine->getWhatChanged($date);
 
         $yesterdaySmart = SmartMoneyFlow::orderBy('date', 'desc')->skip(1)->first();
@@ -70,31 +75,31 @@ class DeskBriefController extends Controller
         $periodConclusion = $periodConclusionEngine->generateConclusion($date);
 
         return Inertia::render('DeskBrief/Index', [
-            'date'         => $date,
-            'isPreview'    => $previewId && $latestBrief && $latestBrief->status !== 'published',
-            'deskBrief'    => $latestBrief,
-            'snapshots'    => $this->getSnapshots(),
-            'topMovers'    => $this->getTopMovers(),
-            'mostTraded'   => $this->getMostTraded(),
-            'apiStatus'    => $this->getApiStatus(),
-            'sectorBias'   => SectorBiasDaily::whereDate('date', $date)->get(),
-            'riskAlerts'   => RiskAlert::whereDate('date', $date)->get(),
-            'smartMoney'   => SmartMoneyFlow::whereDate('date', $date)->first(),
-            'internals'    => $internalsData,
-            'events'       => EconomicEvent::orderBy('date', 'desc')->take(10)->get(),
-            'macroCards'   => MarketSnapshot::whereIn('symbol_or_metric', ['GLOBAL_GROWTH', 'US_INFLATION', 'G3_LIQUIDITY'])
-                                ->orderBy('date', 'desc')->get()->unique('symbol_or_metric')->values(),
-            'delta'        => $delta,
-            'todayStance'  => $todayStance,
+            'date' => $date,
+            'isPreview' => $previewId && $latestBrief && $latestBrief->status !== 'published',
+            'deskBrief' => $latestBrief,
+            'snapshots' => $this->getSnapshots(),
+            'topMovers' => $this->getTopMovers(),
+            'mostTraded' => $this->getMostTraded(),
+            'apiStatus' => $this->getApiStatus(),
+            'sectorBias' => SectorBiasDaily::whereDate('date', $date)->get(),
+            'riskAlerts' => RiskAlert::whereDate('date', $date)->get(),
+            'smartMoney' => SmartMoneyFlow::whereDate('date', $date)->first(),
+            'internals' => $internalsData,
+            'events' => EconomicEvent::orderBy('date', 'desc')->take(10)->get(),
+            'macroCards' => MarketSnapshot::whereIn('symbol_or_metric', ['GLOBAL_GROWTH', 'US_INFLATION', 'G3_LIQUIDITY'])
+                ->orderBy('date', 'desc')->get()->unique('symbol_or_metric')->values(),
+            'delta' => $delta,
+            'todayStance' => $todayStance,
             'yesterdayStance' => $yesterdayStance,
             'periodConclusion' => $periodConclusion,
         ])->withViewData([
-            'meta' => [
-                'title' => 'Desk Brief | Avenir Research',
-                'description' => 'Rangkuman intelijen pasar, rotasi sektor, smart money flow, dan katalis harian (real-time).',
-                'image' => asset('favicon.png')
-            ]
-        ]);
+                    'meta' => [
+                        'title' => 'Desk Brief | Avenir Research',
+                        'description' => 'Rangkuman intelijen pasar, rotasi sektor, smart money flow, dan katalis harian (real-time).',
+                        'image' => asset('favicon.png')
+                    ]
+                ]);
     }
 
     public function whatChanged(\App\Services\MarketIntelligence\DeltaEngine $deltaEngine)
@@ -102,7 +107,7 @@ class DeskBriefController extends Controller
         $latestTwoStances = \App\Models\MarketStanceDaily::orderBy('date', 'desc')->take(2)->get();
         $todayStance = $latestTwoStances->first();
         $yesterdayStance = $latestTwoStances->last();
-        
+
         $date = $todayStance ? $todayStance->date : today()->toDateString();
         $delta = $deltaEngine->getWhatChanged($date);
 
@@ -141,23 +146,23 @@ class DeskBriefController extends Controller
             $snap = $dbSnaps->get($sym);
 
             if ($snap) {
-                $pct      = (float) $snap->change_pct;
-                $abs      = (float) $snap->change_abs;
-                $value    = (float) $snap->value;
-                $ytdPct   = null; // YTD bisa di-extend nanti
+                $pct = (float) $snap->change_pct;
+                $abs = (float) $snap->change_abs;
+                $value = (float) $snap->value;
+                $ytdPct = null; // YTD bisa di-extend nanti
 
                 // Format value sesuai range (IHSG ribuan, LQ45/IDX30 ratusan)
                 $formatted[] = [
-                    'symbol'    => $sym,
-                    'value'     => number_format($value, 2, '.', ','),
-                    'change'    => ($pct >= 0 ? '+' : '') . number_format($pct, 2) . '%',
+                    'symbol' => $sym,
+                    'value' => number_format($value, 2, '.', ','),
+                    'change' => ($pct >= 0 ? '+' : '') . number_format($pct, 2) . '%',
                     'changeAbs' => ($abs >= 0 ? '+' : '') . number_format($abs, 2),
-                    'isUp'      => $pct >= 0,
-                    'ytd'       => '—',
+                    'isUp' => $pct >= 0,
+                    'ytd' => '—',
                     'sparkline' => $snap->sparkline_json ?? [],
-                    'lastSync'  => $snap->last_sync?->format('d M Y H:i') . ' WIB',
-                    'isLive'    => true,
-                    'date'      => $snap->date?->format('Y-m-d'),
+                    'lastSync' => $snap->last_sync?->format('d M Y H:i') . ' WIB',
+                    'isLive' => true,
+                    'date' => $snap->date?->format('Y-m-d'),
                 ];
             }
         }
@@ -168,14 +173,14 @@ class DeskBriefController extends Controller
             return $service->getQuotes(['IDR=X', '^TNX', 'ID10YT=RR', 'BZ=F', 'GC=F']);
         });
 
-        $formatCard = function($symbol, $defaultLabel) use ($marketSummary) {
+        $formatCard = function ($symbol, $defaultLabel) use ($marketSummary) {
             $data = $marketSummary[$symbol] ?? null;
             if (!$data || !isset($data['price']) || $data['price'] == 0) {
                 return ['symbol' => $defaultLabel, 'value' => '—', 'change' => '—', 'changeAbs' => '—', 'isUp' => null, 'ytd' => '—', 'sparkline' => [], 'lastSync' => null, 'isLive' => false, 'date' => null];
             }
-            $price = (float)$data['price'];
-            $changePct = (float)$data['changePercent'];
-            $changeAbs = (float)$data['change'];
+            $price = (float) $data['price'];
+            $changePct = (float) $data['changePercent'];
+            $changeAbs = (float) $data['change'];
             return [
                 'symbol' => $defaultLabel,
                 'value' => number_format($price, 2, '.', ','),
@@ -247,14 +252,14 @@ class DeskBriefController extends Controller
         }
 
         return [
-            'provider'     => 'Sectors.app',
-            'lastSync'     => $lastSync?->completed_at?->format('d M Y H:i') . ' WIB',
+            'provider' => 'Sectors.app',
+            'lastSync' => $lastSync?->completed_at?->format('d M Y H:i') . ' WIB',
             'creditsToday' => (int) $creditsToday,
-            'latestDate'   => $latestSnap,
-            'status'       => match(true) {
-                !$lastSync            => 'no_data',
-                $isStale              => 'stale',
-                default               => 'fresh',
+            'latestDate' => $latestSnap,
+            'status' => match (true) {
+                !$lastSync => 'no_data',
+                $isStale => 'stale',
+                default => 'fresh',
             },
         ];
     }

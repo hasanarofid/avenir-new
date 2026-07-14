@@ -239,7 +239,10 @@ export function ownershipIntel() {
         const members = holds.map(x => ({ key: x.to, ticker: x.ticker, issuer: x.issuer, pct: x.pct })).filter(m => m.key !== selectedKey.value);
         if (members.length) group = { controller: top.investor, members: members.slice(0, 8) };
     }
-    return { flags, narrative, group };
+    
+    const affiliation = affiliationAudit(selectedKey.value);
+    
+    return { flags, narrative, group, affiliation };
 }
 
 export function exportChanges() {
@@ -252,6 +255,108 @@ export function exportChanges() {
     a.href = URL.createObjectURL(blob);
     a.download = 'avenir_ownership_changes_selected.csv';
     a.click();
+}
+
+class UnionFind {
+    constructor(n) {
+        this.parent = Array.from({ length: n }, (_, i) => i);
+    }
+    find(i) {
+        if (this.parent[i] === i) return i;
+        return this.parent[i] = this.find(this.parent[i]);
+    }
+    union(i, j) {
+        const rootI = this.find(i);
+        const rootJ = this.find(j);
+        if (rootI !== rootJ) {
+            this.parent[rootI] = rootJ;
+        }
+    }
+}
+
+export function affiliationAudit(issuerKey) {
+    const owners = filteredInEdges.value.filter(e => e.pct > 0);
+    if (owners.length < 2) return null;
+    
+    const STOPWORDS = new Set(["PT", "TBK", "INVESTAMA", "PERKASA", "JAYA", "PRATAMA", "HOLDING", "SEKURITAS", "CAPITAL", "INDONESIA", "CORP", "CORPORATION", "PERSERO", "LIMITED", "LTD", "INC", "GRP", "GROUP", "BANK", "ASURANSI", "DANA", "PENSIUN", "YAYASAN", "KOPERASI", "TERBATAS"]);
+    
+    const tokensList = owners.map(o => {
+        const name = o.investor || ent(o.from).label || o.from;
+        const words = name.toUpperCase().replace(/[^A-Z0-9\s]/g, '').split(/\s+/);
+        return new Set(words.filter(w => w.length >= 4 && !STOPWORDS.has(w)));
+    });
+    
+    const uf = new UnionFind(owners.length);
+    
+    for (let i = 0; i < owners.length; i++) {
+        for (let j = i + 1; j < owners.length; j++) {
+            const intersection = [...tokensList[i]].filter(x => tokensList[j].has(x));
+            if (intersection.length > 0) {
+                uf.union(i, j);
+            } else {
+                const fromI = outEdges.value[owners[i].from] || [];
+                const fromJ = outEdges.value[owners[j].from] || [];
+                if (fromI.some(e => e.to === owners[j].from) || fromJ.some(e => e.to === owners[i].from)) {
+                    uf.union(i, j);
+                }
+            }
+        }
+    }
+    
+    const clusters = {};
+    for (let i = 0; i < owners.length; i++) {
+        const root = uf.find(i);
+        if (!clusters[root]) clusters[root] = [];
+        clusters[root].push(i);
+    }
+    
+    let bloc = null;
+    let maxBlocSum = 0;
+    
+    for (const root in clusters) {
+        if (clusters[root].length >= 2) {
+            let sum = 0;
+            for (const idx of clusters[root]) sum += owners[idx].pct;
+            if (sum > maxBlocSum) {
+                maxBlocSum = sum;
+                const allTokens = [];
+                for (const idx of clusters[root]) {
+                    allTokens.push(...tokensList[idx]);
+                }
+                const tokenCounts = {};
+                for (const t of allTokens) tokenCounts[t] = (tokenCounts[t] || 0) + 1;
+                let mostShared = null;
+                let mostCount = 0;
+                for (const t in tokenCounts) {
+                    if (tokenCounts[t] > mostCount) {
+                        mostShared = t;
+                        mostCount = tokenCounts[t];
+                    }
+                }
+                
+                bloc = {
+                    members: clusters[root].map(idx => ({ investor: owners[idx].investor, pct: owners[idx].pct, from: owners[idx].from })),
+                    sum: sum,
+                    token: mostShared
+                };
+            }
+        }
+    }
+    
+    if (!bloc) return null;
+    
+    let largest = null;
+    let maxPct = 0;
+    for (const o of owners) {
+        if (o.pct > maxPct) {
+            maxPct = o.pct;
+            largest = { investor: o.investor, pct: o.pct };
+        }
+    }
+    
+    bloc.members.sort((a, b) => b.pct - a.pct);
+    const hidden = bloc.sum > maxPct;
+    return { bloc, largest, hidden };
 }
 
 export { dataLoaded, entities, edges, changes, audits, investorSummaries, stats, entityArr, outEdges, inEdges, changeByFrom, changeByTo };

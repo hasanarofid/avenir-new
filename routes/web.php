@@ -33,6 +33,7 @@ Route::get('/desk-brief', [\App\Http\Controllers\DeskBriefController::class, 'in
 Route::get('/desk-brief-mockup', [\App\Http\Controllers\DeskBriefController::class, 'mockup'])->name('desk-brief.mockup');
 Route::get('/desk-brief/what-changed', [\App\Http\Controllers\DeskBriefController::class, 'whatChanged'])->name('desk-brief.what-changed');
 Route::get('/desk-brief/ownership-intelligence', [\App\Http\Controllers\DeskBriefController::class, 'ownership'])->name('desk-brief.ownership');
+Route::get('/desk-brief/ownership-intelligence-mockup', [\App\Http\Controllers\DeskBriefController::class, 'ownershipMockup'])->name('desk-brief.ownership-mockup');
 
 // Market Tickers API for News Marquee
 Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
@@ -109,7 +110,7 @@ Route::middleware(['auth'])->prefix('mitra')->name('mitra.')->group(function () 
 
 // Admin CMS Routes
 Route::prefix('admin')->name('admin.')->group(function () {
-    
+
     // Shared Routes for Admin & Tim Internal
     Route::middleware(['auth', 'role:admin|tim_internal'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -117,7 +118,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Katalog Riset
         Route::delete('katalog-riset/bulk-delete', [\App\Http\Controllers\Admin\ResearchController::class, 'bulkDestroy'])->name('katalog-riset.bulk-destroy');
         Route::resource('katalog-riset', \App\Http\Controllers\Admin\ResearchController::class);
-        
+
         // News (Berita Pasar)
         Route::delete('news/bulk-delete', [\App\Http\Controllers\Admin\NewsController::class, 'bulkDestroy'])->name('news.bulk-destroy');
         Route::patch('news/{news}/toggle-featured', [\App\Http\Controllers\Admin\NewsController::class, 'toggleFeatured'])->name('news.toggle-featured');
@@ -160,6 +161,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/desk-brief/{id}', [\App\Http\Controllers\Admin\DeskBriefController::class, 'destroy'])->name('desk-brief.destroy');
         Route::post('/desk-brief/{id}/publish', [\App\Http\Controllers\Admin\DeskBriefController::class, 'publish'])->name('desk-brief.publish');
         Route::post('/desk-brief/tester/run', [\App\Http\Controllers\Admin\DeskBriefController::class, 'runTester'])->name('desk-brief.tester.run');
+
+        // Desk Brief - Ownership Intelligence
+        Route::get('/desk-brief/ownership', [\App\Http\Controllers\Admin\OwnershipController::class, 'index'])->name('desk-brief.ownership.index');
+        Route::post('/desk-brief/ownership/upload', [\App\Http\Controllers\Admin\OwnershipController::class, 'upload'])->name('desk-brief.ownership.upload');
     });
 
     // Admin Only Routes
@@ -170,7 +175,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Activity Logs
         Route::get('/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activity-logs.index');
 
-        
+
         // Payments
         Route::get('/payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
         Route::post('/payments/{id}/verify', [\App\Http\Controllers\Admin\PaymentController::class, 'verify'])->name('payments.verify');
@@ -219,7 +224,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 Route::get('/mitra-pool-simulator', function () {
     $service = new \App\Services\Mitra\MitraPayoutService();
@@ -259,7 +264,7 @@ Route::get('/mitra-pool-simulator', function () {
     $html .= "<hr><table border='1' cellpadding='10' cellspacing='0' style='width: 100%; text-align: left;'>";
     $html .= "<tr style='background: #f4f4f4;'><th>Mitra Name</th><th>Analyst Level</th><th>Partner Score</th><th>Payout Amount</th></tr>";
 
-    foreach($payouts as $payout) {
+    foreach ($payouts as $payout) {
         $html .= "<tr>";
         $html .= "<td>" . $payout->partner->display_name . "</td>";
         $html .= "<td>" . $payout->partner->analyst_level . "</td>";
@@ -267,8 +272,8 @@ Route::get('/mitra-pool-simulator', function () {
         $html .= "<td><b>Rp " . number_format($payout->payout_amount, 0, ',', '.') . "</b></td>";
         $html .= "</tr>";
     }
-    
+
     $html .= "</table></div>";
-    
+
     return $html;
 });

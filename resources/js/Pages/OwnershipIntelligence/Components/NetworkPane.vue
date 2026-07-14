@@ -404,6 +404,15 @@ function renderInsightCards() {
         const mem = intel.group.members.map(m => `<span class="gchip" data-key="${m.key}">${m.ticker || shortLabel(m.issuer, 10)} <b>${fmtPct(m.pct)}</b></span>`).join('');
         html += `<div class="readCard"><h4>◷ Grup / Afiliasi — ${intel.group.controller}</h4><p class="muted">Entitas lain yang dimiliki pengendali sama (≥5%) — klik untuk telusuri:</p><div class="gchips">${mem}</div></div>`;
     }
+    if (intel.affiliation && (intel.affiliation.hidden || intel.affiliation.bloc.members.length >= 2)) {
+        const mem = intel.affiliation.bloc.members.map(m => `<span class="gchip" data-key="${m.from}">${m.investor ? shortLabel(m.investor, 15) : shortLabel(m.from, 15)} <b>${fmtPct(m.pct)}</b></span>`).join('');
+        const title = intel.affiliation.hidden ? '<span class="iflag fbad">Hidden Control Detected</span>' : 'Blok Afiliasi Terdeteksi';
+        const p = intel.affiliation.hidden 
+            ? `Total gabungan (${fmtPct(intel.affiliation.bloc.sum)}) melebihi pemegang tunggal terbesar (${fmtPct(intel.affiliation.largest.pct)}). Terdapat indikasi pemecahan kepemilikan di bawah ambang pengendali.`
+            : `Ditemukan grup afiliasi dengan total kepemilikan ${fmtPct(intel.affiliation.bloc.sum)}.`;
+        
+        html += `<div class="readCard intel"><h4>${title}</h4><p class="muted">${p} (Bukti: token "<b>${intel.affiliation.bloc.token}</b>" atau tautan silang)</p><div class="gchips">${mem}</div></div>`;
+    }
     if (insightCards.value) {
         insightCards.value.innerHTML = html;
         // Re-attach event listeners to injected HTML
