@@ -1,8 +1,8 @@
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import InputError from '@/Components/InputError.vue';
-import { Upload, Database, FileSpreadsheet } from '@lucide/vue';
+import { Upload, Database, FileSpreadsheet, Trash2 } from '@lucide/vue';
 import Swal from 'sweetalert2';
 
 const props = defineProps({
@@ -68,6 +68,49 @@ const submit = () => {
                 background: '#1A1A1A',
                 color: '#fff',
                 confirmButtonColor: '#dc2626'
+            });
+        }
+    });
+};
+
+const deleteSnapshot = (id) => {
+    Swal.fire({
+        title: 'Hapus Snapshot?',
+        text: "Semua data kepemilikan dan relasi (edges) yang terikat dengan snapshot ini akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#4b5563',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        background: '#1A1A1A',
+        color: '#fff',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('admin.desk-brief.ownership.destroy', id), {
+                preserveScroll: true,
+                onSuccess: (page) => {
+                    if (page.props.flash && page.props.flash.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: page.props.flash.success,
+                            background: '#1A1A1A',
+                            color: '#fff',
+                            confirmButtonColor: '#059669'
+                        });
+                    }
+                },
+                onError: (errors) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Menghapus!',
+                        text: errors.message || 'Terjadi kesalahan sistem.',
+                        background: '#1A1A1A',
+                        color: '#fff',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
             });
         }
     });
@@ -178,6 +221,7 @@ const submit = () => {
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Snapshot ID</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Tanggal Periode</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Waktu Unggah</th>
+                                <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-800 bg-[#1A1A1A]">
@@ -185,9 +229,15 @@ const submit = () => {
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-medium">#{{ snapshot.id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-400 font-bold">{{ snapshot.period_date }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ new Date(snapshot.created_at).toLocaleString('id-ID') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button @click="deleteSnapshot(snapshot.id)" class="text-red-400 hover:text-red-300 transition-colors p-2 hover:bg-red-400/10 rounded-lg inline-flex items-center gap-1" title="Hapus Snapshot">
+                                        <Trash2 class="w-4 h-4" />
+                                        <span class="text-xs">Hapus</span>
+                                    </button>
+                                </td>
                             </tr>
                             <tr v-if="recentSnapshots.length === 0">
-                                <td colspan="3" class="px-6 py-8 whitespace-nowrap text-sm text-gray-500 text-center italic">
+                                <td colspan="4" class="px-6 py-8 whitespace-nowrap text-sm text-gray-500 text-center italic">
                                     Belum ada data snapshot yang diunggah.
                                 </td>
                             </tr>

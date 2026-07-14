@@ -80,6 +80,36 @@ class OwnershipController extends Controller
         }
     }
 
+    public function destroy($id)
+    {
+        $snapshot = DB::table('ownership_snapshots')->find($id);
+        if (!$snapshot) {
+            return back()->withErrors(['message' => 'Snapshot tidak ditemukan.']);
+        }
+        
+        DB::beginTransaction();
+        try {
+            DB::table('ownership_edges')->where('snapshot_id', $id)->delete();
+            DB::table('ownership_changes')->where('snapshot_id', $id)->delete();
+            DB::table('ownership_stats')->where('snapshot_id', $id)->delete();
+            DB::table('ownership_snapshots')->where('id', $id)->delete();
+            DB::commit();
+            
+            // Delete file
+            if ($snapshot->file_path && file_exists(storage_path('app/' . $snapshot->file_path))) {
+                @unlink(storage_path('app/' . $snapshot->file_path));
+            } elseif ($snapshot->file_path && file_exists(storage_path('app/private/' . $snapshot->file_path))) {
+                @unlink(storage_path('app/private/' . $snapshot->file_path));
+            }
+            
+            return back()->with('success', 'Snapshot berhasil dihapus.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Error deleting snapshot: " . $e->getMessage());
+            return back()->withErrors(['message' => 'Gagal menghapus snapshot.']);
+        }
+    }
+
     public function getOwnershipData()
     {
         // Find latest snapshot

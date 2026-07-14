@@ -166,6 +166,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/desk-brief/ownership', [\App\Http\Controllers\Admin\OwnershipController::class, 'index'])->name('desk-brief.ownership.index');
         Route::get('/desk-brief/ownership/data', [\App\Http\Controllers\Admin\OwnershipController::class, 'getOwnershipData'])->name('desk-brief.ownership.data');
         Route::post('/desk-brief/ownership/upload', [\App\Http\Controllers\Admin\OwnershipController::class, 'upload'])->name('desk-brief.ownership.upload');
+        Route::delete('/desk-brief/ownership/{id}', [\App\Http\Controllers\Admin\OwnershipController::class, 'destroy'])->name('desk-brief.ownership.destroy');
     });
 
     // Admin Only Routes
