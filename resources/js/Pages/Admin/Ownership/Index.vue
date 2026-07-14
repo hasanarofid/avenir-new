@@ -18,8 +18,33 @@ const form = useForm({
 const submit = () => {
     form.post(route('admin.desk-brief.ownership.upload'), {
         preserveScroll: true,
-        onSuccess: () => {
-            form.reset();
+        onSuccess: (page) => {
+            if (page.props.flash && page.props.flash.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: page.props.flash.success,
+                    background: '#1A1A1A',
+                    color: '#fff',
+                    confirmButtonColor: '#059669'
+                });
+            }
+            form.reset('file_current', 'file_previous');
+        },
+        onError: (errors) => {
+            let errorMsg = 'Pastikan semua kolom terisi dengan benar atau ukuran file tidak melebihi batas (Max 10MB).';
+            if (errors.message) errorMsg = errors.message;
+            else if (errors.file_current) errorMsg = errors.file_current;
+            else if (errors.file_previous) errorMsg = errors.file_previous;
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload Gagal!',
+                text: errorMsg,
+                background: '#1A1A1A',
+                color: '#fff',
+                confirmButtonColor: '#dc2626'
+            });
         }
     });
 };
