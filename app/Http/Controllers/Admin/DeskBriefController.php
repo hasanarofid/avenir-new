@@ -440,10 +440,36 @@ PYTHON;
             }
 
             foreach ($payload as $metric => $val) {
-                \App\Models\MarketSnapshot::updateOrCreate(
-                    ['date' => $date, 'symbol_or_metric' => $metric],
-                    ['value' => $val, 'source' => 'foreign_flow_excel']
-                );
+                if ($metric === 'PRICE') {
+                    $ihsg = \App\Models\MarketSnapshot::firstOrNew([
+                        'date' => $date, 'symbol_or_metric' => 'IHSG'
+                    ]);
+                    $ihsg->value = $val;
+
+                    $prevIhsg = \App\Models\MarketSnapshot::where('symbol_or_metric', 'IHSG')
+                        ->whereDate('date', '<', $date)
+                        ->orderBy('date', 'desc')
+                        ->first();
+
+                    if ($prevIhsg) {
+                        $ihsg->change_abs = $ihsg->value - $prevIhsg->value;
+                        $ihsg->change_pct = $prevIhsg->value > 0 ? ($ihsg->change_abs / $prevIhsg->value) : 0;
+
+                        $sparkline = $prevIhsg->sparkline_json ?? [];
+                        if (is_array($sparkline)) {
+                            $sparkline[] = (float) $ihsg->value;
+                            $ihsg->sparkline_json = $sparkline;
+                        }
+                    }
+
+                    $ihsg->source = 'foreign_flow_excel';
+                    $ihsg->save();
+                } else {
+                    \App\Models\MarketSnapshot::updateOrCreate(
+                        ['date' => $date, 'symbol_or_metric' => $metric],
+                        ['value' => $val, 'source' => 'foreign_flow_excel']
+                    );
+                }
             }
 
             // Generate Draft automatically

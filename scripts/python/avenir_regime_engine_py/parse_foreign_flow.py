@@ -11,6 +11,7 @@ def run(input_path, date, output_path):
     open_col = [c for c in df.columns if 'open' == c][0]
     high_col = [c for c in df.columns if 'high' == c][0]
     low_col  = [c for c in df.columns if 'low' == c][0]
+    price_col = [c for c in df.columns if 'price' == c or 'close' == c][0]
     
     df[date_col] = pd.to_datetime(df[date_col], format='mixed', dayfirst=True).dt.strftime('%Y-%m-%d')
     row = df[df[date_col] == date]
@@ -19,34 +20,31 @@ def run(input_path, date, output_path):
         res = {"error": f"Date {date} not found in Excel"}
     else:
         row = row.iloc[0]
-        def parse_value(val_str):
-            if pd.isna(val_str): return 0
-            s = str(val_str).upper().strip().replace(',', '')
-            mult = 1
-            if 'T' in s: mult = 1e12; s = s.replace('T', '')
-            elif 'B' in s: mult = 1e9; s = s.replace('B', '')
-            elif 'M' in s: mult = 1e6; s = s.replace('M', '')
-            try: return float(s) * mult
-            except: return 0
+        from common import parse_number
 
-        fnet = parse_value(row[fnet_col])
-        val  = parse_value(row[val_col])
+        fnet = parse_number(row[fnet_col])
+        val  = parse_number(row[val_col])
         
-        def safe_float(v):
-            if pd.isna(v): return 0
-            try: return float(str(v).replace(',', ''))
-            except: return 0
+        o    = parse_number(row[open_col])
+        h    = parse_number(row[high_col])
+        l    = parse_number(row[low_col])
+        p    = parse_number(row[price_col])
 
-        o    = safe_float(row[open_col])
-        h    = safe_float(row[high_col])
-        l    = safe_float(row[low_col])
+        # Fill NaNs with 0
+        fnet = fnet if not pd.isna(fnet) else 0
+        val = val if not pd.isna(val) else 0
+        o = o if not pd.isna(o) else 0
+        h = h if not pd.isna(h) else 0
+        l = l if not pd.isna(l) else 0
+        p = p if not pd.isna(p) else 0
 
         res = {
             "FOREIGN_NET_TODAY": fnet / 1e9 if fnet != 0 else 0,
             "VALUE_TRADED_BN_IDR": val / 1e9 if val > 0 else 0,
             "OPEN": o,
             "HIGH": h,
-            "LOW": l
+            "LOW": l,
+            "PRICE": p
         }
 
     with open(output_path, 'w') as f:
