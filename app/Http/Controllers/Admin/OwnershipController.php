@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\ExtractKseiOwnershipJob;
+use App\Jobs\ProcessOwnershipCsvJob;
 
 class OwnershipController extends Controller
 {
@@ -26,56 +27,32 @@ class OwnershipController extends Controller
     {
         $request->validate([
             'date_current' => 'required|date',
-            'file_current' => 'required|file|mimes:pdf,csv,xlsx,xls|max:10240', // Max 10MB
-            'date_previous' => 'nullable|date',
-            'file_previous' => 'nullable|file|mimes:pdf,csv,xlsx,xls|max:10240',
+            'file_full' => 'required|file|mimes:csv,txt|max:50240', // Max 50MB
+            'file_movement' => 'required|file|mimes:csv,txt|max:50240',
+            'file_gov' => 'required|file|mimes:csv,txt|max:50240',
         ]);
 
         try {
-            $currentPath = $request->file('file_current')->store('ownership_pdfs');
+            $fullPath = $request->file('file_full')->store('ownership_csvs');
+            $movPath = $request->file('file_movement')->store('ownership_csvs');
+            $govPath = $request->file('file_gov')->store('ownership_csvs');
             
-            $previousPath = null;
-            if ($request->hasFile('file_previous')) {
-                $previousPath = $request->file('file_previous')->store('ownership_pdfs');
-            }
-
             // Store snapshot
             $snapshotId = DB::table('ownership_snapshots')->insertGetId([
                 'period_date' => $request->date_current,
-                'file_path' => $currentPath,
+                'file_path' => null, // Will be updated by the Job to point to JSON
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            $previousSnapshotId = null;
-            if ($previousPath) {
-                // Determine if we need to link a previous snapshot
-                // For simplicity, we can create a temporary snapshot record for the previous file
-                $previousSnapshotId = DB::table('ownership_snapshots')->insertGetId([
-                    'period_date' => $request->date_previous,
-                    'file_path' => $previousPath,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
+            // Dispatch job to process the 3 CSVs
+            ProcessOwnershipCsvJob::dispatch($snapshotId, $fullPath, $movPath, $govPath);
+            Log::info("ProcessOwnershipCsvJob Dispatched. Snapshot ID: $snapshotId");
 
-            // Dispatch jobs to parse the PDF using python script
-            // If previous file exists, we must chain them to ensure previous is processed first before current calculates deltas
-            if ($previousSnapshotId) {
-                \Illuminate\Support\Facades\Bus::chain([
-                    new ExtractKseiOwnershipJob($previousSnapshotId, null),
-                    new ExtractKseiOwnershipJob($snapshotId, $previousSnapshotId)
-                ])->dispatch();
-                Log::info("Chained ExtractKseiOwnershipJob Dispatched. Snapshot IDs: $previousSnapshotId then $snapshotId");
-            } else {
-                ExtractKseiOwnershipJob::dispatch($snapshotId, null);
-                Log::info("ExtractKseiOwnershipJob Dispatched. Snapshot ID: $snapshotId");
-            }
-
-            return back()->with('success', 'File berhasil diunggah. Proses ekstraksi data berjalan di latar belakang (Mendukung PDF KSEI Konsisten & CSV). Anda dapat merefresh halaman dalam 1-2 menit untuk melihat Snapshot.');
+            return back()->with('success', 'File CSV berhasil diunggah. Sistem sedang membangun Data Graph Ownership di latar belakang. Silakan refresh halaman dalam 1 menit.');
             
         } catch (\Exception $e) {
-            Log::error("Error uploading ownership file: " . $e->getMessage());
+            Log::error("Error uploading ownership files: " . $e->getMessage());
             return back()->withErrors(['message' => 'Terjadi kesalahan saat mengunggah file.']);
         }
     }

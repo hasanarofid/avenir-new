@@ -11,30 +11,20 @@ const props = defineProps({
 
 const form = useForm({
     date_current: '',
-    file_current: null,
-    date_previous: '',
-    file_previous: null,
+    file_full: null,
+    file_movement: null,
+    file_gov: null,
 });
 
 const submit = () => {
     // Client-side file size validation to prevent PHP post_max_size silent drops
-    const maxSizeBytes = 10 * 1024 * 1024; // 10MB
+    const maxSizeBytes = 50 * 1024 * 1024; // 50MB
     
-    if (form.file_current && form.file_current.size > maxSizeBytes) {
+    if (form.file_full && form.file_full.size > maxSizeBytes) {
         Swal.fire({
             icon: 'error',
             title: 'File Terlalu Besar!',
-            text: 'Ukuran file Current melebihi batas 10MB. Silakan kompres PDF atau perbesar konfigurasi upload_max_filesize di server Anda.',
-            background: '#1A1A1A', color: '#fff', confirmButtonColor: '#dc2626'
-        });
-        return;
-    }
-    
-    if (form.file_previous && form.file_previous.size > maxSizeBytes) {
-        Swal.fire({
-            icon: 'error',
-            title: 'File Terlalu Besar!',
-            text: 'Ukuran file Previous melebihi batas 10MB. Silakan kompres PDF atau perbesar konfigurasi upload_max_filesize di server Anda.',
+            text: 'Ukuran file Snapshot melebihi batas 50MB.',
             background: '#1A1A1A', color: '#fff', confirmButtonColor: '#dc2626'
         });
         return;
@@ -53,13 +43,14 @@ const submit = () => {
                     confirmButtonColor: '#059669'
                 });
             }
-            form.reset('file_current', 'file_previous');
+            form.reset('file_full', 'file_movement', 'file_gov');
         },
         onError: (errors) => {
             let errorMsg = 'Pastikan semua kolom terisi dengan benar.';
             if (errors.message) errorMsg = errors.message;
-            else if (errors.file_current) errorMsg = errors.file_current;
-            else if (errors.file_previous) errorMsg = errors.file_previous;
+            else if (errors.file_full) errorMsg = errors.file_full;
+            else if (errors.file_movement) errorMsg = errors.file_movement;
+            else if (errors.file_gov) errorMsg = errors.file_gov;
             
             Swal.fire({
                 icon: 'error',
@@ -121,12 +112,16 @@ const deleteSnapshot = (id) => {
     <Head title="Ownership Intelligence Admin" />
 
     <AdminLayout>
-        <div class="mb-6 flex justify-between items-center">
-            <div>
-                <h2 class="text-2xl font-bold text-white">Ownership Intelligence</h2>
-                <p class="text-gray-400 mt-1">Kelola sinkronisasi data kepemilikan KSEI / BEI</p>
+        <template #header>
+            <div class="flex justify-between items-center">
+                <h2 class="font-semibold text-xl text-white leading-tight">
+                    Ownership Intelligence (Upload KSEI)
+                </h2>
+                <a :href="route('admin.ownership.manual.index')" class="bg-[#222] border border-gray-700 hover:border-emerald-500 text-gray-300 hover:text-emerald-400 font-semibold py-2 px-4 rounded-lg transition-colors text-sm">
+                    Manual Inputs (UBO) &rarr;
+                </a>
             </div>
-        </div>
+        </template>
 
         <div class="space-y-6">
             <!-- Success Message -->
@@ -147,50 +142,42 @@ const deleteSnapshot = (id) => {
                 
                 <div class="p-6">
                     <p class="text-sm text-gray-400 mb-6">
-                        Unggah pengumuman bursa (KSEI) untuk periode saat ini dan sebelumnya. Sistem menerima format PDF (otomasi parser) maupun CSV/Excel (hasil konversi manual).
+                        Unggah 3 file CSV KSEI (Snapshot Kepemilikan, Pergerakan, dan Kepemilikan Pemerintah) untuk meng-generate graph dan metriks analitik.
                     </p>
 
                     <form @submit.prevent="submit" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Current Period -->
-                            <div class="bg-[#222] p-5 rounded-xl border border-emerald-500/20 relative flex flex-col justify-between">
+                            <!-- Input Files -->
+                            <div class="bg-[#222] p-5 rounded-xl border border-emerald-500/20 relative flex flex-col justify-between col-span-1 md:col-span-2">
                                 <div class="absolute -top-3 -left-3 w-6 h-6 bg-emerald-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">1</div>
                                 
                                 <div>
-                                    <h4 class="font-bold text-emerald-400 mb-4">Data Periode Saat Ini</h4>
+                                    <h4 class="font-bold text-emerald-400 mb-4">Data CSV KSEI</h4>
                                     
-                                    <div class="mb-5">
-                                        <label class="block text-sm font-medium text-gray-300 mb-2">Tanggal Data (Current)</label>
-                                        <input type="date" v-model="form.date_current" class="w-full bg-[#111] border border-gray-700 rounded-lg text-white px-4 py-2 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
-                                        <InputError :message="form.errors.date_current" class="mt-2" />
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div class="mb-5">
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Tanggal Periode</label>
+                                            <input type="date" v-model="form.date_current" class="w-full bg-[#111] border border-gray-700 rounded-lg text-white px-4 py-2 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+                                            <InputError :message="form.errors.date_current" class="mt-2" />
+                                        </div>
                                     </div>
                                     
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-300 mb-2">File KSEI (Current)</label>
-                                        <input type="file" @input="form.file_current = $event.target.files[0]" accept="application/pdf, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-600/10 file:text-emerald-400 hover:file:bg-emerald-600/20" required>
-                                        <InputError :message="form.errors.file_current" class="mt-2" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Previous Period -->
-                            <div class="bg-[#222] p-5 rounded-xl border border-gray-700 relative flex flex-col justify-between">
-                                <div class="absolute -top-3 -left-3 w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">2</div>
-                                
-                                <div>
-                                    <h4 class="font-bold text-gray-300 mb-2">Data Periode Sebelumnya (Opsional)</h4>
-                                    <p class="text-xs text-gray-500 mb-4">Dibutuhkan jika ingin menghitung akumulasi/distribusi (perubahan saham).</p>
-                                    
-                                    <div class="mb-5">
-                                        <label class="block text-sm font-medium text-gray-300 mb-2">Tanggal Data (Previous)</label>
-                                        <input type="date" v-model="form.date_previous" class="w-full bg-[#111] border border-gray-700 rounded-lg text-white px-4 py-2 focus:border-gray-500 focus:ring-1 focus:ring-gray-500">
-                                        <InputError :message="form.errors.date_previous" class="mt-2" />
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-300 mb-2">File KSEI (Previous)</label>
-                                        <input type="file" @input="form.file_previous = $event.target.files[0]" accept="application/pdf, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-gray-300 hover:file:bg-gray-600">
-                                        <InputError :message="form.errors.file_previous" class="mt-2" />
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Snapshot Kepemilikan (Full)</label>
+                                            <input type="file" @input="form.file_full = $event.target.files[0]" accept=".csv,.txt" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-600/10 file:text-emerald-400 hover:file:bg-emerald-600/20" required>
+                                            <InputError :message="form.errors.file_full" class="mt-2" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Pergerakan (Movement)</label>
+                                            <input type="file" @input="form.file_movement = $event.target.files[0]" accept=".csv,.txt" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600/10 file:text-blue-400 hover:file:bg-blue-600/20" required>
+                                            <InputError :message="form.errors.file_movement" class="mt-2" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Pemerintah (Government)</label>
+                                            <input type="file" @input="form.file_gov = $event.target.files[0]" accept=".csv,.txt" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600/10 file:text-purple-400 hover:file:bg-purple-600/20" required>
+                                            <InputError :message="form.errors.file_gov" class="mt-2" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

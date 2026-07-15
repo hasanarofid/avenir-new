@@ -22,7 +22,23 @@ class DeskBriefController extends Controller
 
     public function ownership()
     {
-        return Inertia::render('OwnershipIntelligence/Index');
+        $latestSnapshot = \Illuminate\Support\Facades\DB::table('ownership_snapshots')
+                            ->whereNotNull('file_path')
+                            ->orderBy('period_date', 'desc')
+                            ->orderBy('id', 'desc')
+                            ->first();
+                            
+        $dataUrl = null;
+        if ($latestSnapshot && $latestSnapshot->file_path) {
+            $dataUrl = \Illuminate\Support\Facades\Storage::url($latestSnapshot->file_path);
+        }
+
+        $manualInputs = \App\Models\OwnershipManualInput::all()->keyBy('ticker');
+
+        return Inertia::render('OwnershipIntelligence/Index', [
+            'dataUrl' => $dataUrl,
+            'manualInputs' => $manualInputs,
+        ]);
     }
 
     public function ownershipMockup()
