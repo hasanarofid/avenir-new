@@ -27,15 +27,17 @@ class OwnershipController extends Controller
     {
         $request->validate([
             'date_current' => 'required|date',
-            'file_full' => 'required|file|mimes:csv,txt|max:50240', // Max 50MB
-            'file_movement' => 'required|file|mimes:csv,txt|max:50240',
-            'file_gov' => 'required|file|mimes:csv,txt|max:50240',
+            'file_daily_5pct' => 'required|file|mimes:xlsx,xls|max:50240', // Max 50MB
+            'file_monthly_type' => 'required|file|mimes:xlsx,xls|max:50240',
+            'file_monthly_classification' => 'required|file|mimes:xlsx,xls|max:50240',
+            'file_monthly_1pct' => 'required|file|mimes:xlsx,xls|max:50240',
         ]);
 
         try {
-            $fullPath = $request->file('file_full')->store('ownership_csvs');
-            $movPath = $request->file('file_movement')->store('ownership_csvs');
-            $govPath = $request->file('file_gov')->store('ownership_csvs');
+            $daily5pctPath = $request->file('file_daily_5pct')->store('ownership_excel');
+            $monthlyTypePath = $request->file('file_monthly_type')->store('ownership_excel');
+            $monthlyClassificationPath = $request->file('file_monthly_classification')->store('ownership_excel');
+            $monthly1pctPath = $request->file('file_monthly_1pct')->store('ownership_excel');
             
             // Store snapshot
             $snapshotId = DB::table('ownership_snapshots')->insertGetId([
@@ -45,11 +47,11 @@ class OwnershipController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Dispatch job to process the 3 CSVs
-            ProcessOwnershipCsvJob::dispatch($snapshotId, $fullPath, $movPath, $govPath);
+            // Dispatch job to process the 4 Excel files
+            ProcessOwnershipCsvJob::dispatch($snapshotId, $daily5pctPath, $monthlyTypePath, $monthlyClassificationPath, $monthly1pctPath);
             Log::info("ProcessOwnershipCsvJob Dispatched. Snapshot ID: $snapshotId");
 
-            return back()->with('success', 'File CSV berhasil diunggah. Sistem sedang membangun Data Graph Ownership di latar belakang. Silakan refresh halaman dalam 1 menit.');
+            return back()->with('success', 'File Excel KSEI berhasil diunggah. Sistem sedang memproses data di latar belakang. Silakan refresh halaman dalam 1 menit.');
             
         } catch (\Exception $e) {
             Log::error("Error uploading ownership files: " . $e->getMessage());
@@ -91,11 +93,7 @@ class OwnershipController extends Controller
     {
         // Find latest valid snapshot
         $latestSnapshot = DB::table('ownership_snapshots')
-                            ->whereExists(function ($query) {
-                                $query->select(DB::raw(1))
-                                      ->from('ownership_edges')
-                                      ->whereColumn('ownership_edges.snapshot_id', 'ownership_snapshots.id');
-                            })
+                            ->whereNotNull('file_path')
                             ->orderBy('period_date', 'desc')
                             ->orderBy('id', 'desc')
                             ->first();
@@ -104,106 +102,29 @@ class OwnershipController extends Controller
         $prevSnapshot = null;
         if ($latestSnapshot) {
             $prevSnapshot = DB::table('ownership_snapshots')
-                                ->whereExists(function ($query) {
-                                    $query->select(DB::raw(1))
-                                          ->from('ownership_edges')
-                                          ->whereColumn('ownership_edges.snapshot_id', 'ownership_snapshots.id');
-                                })
+                                ->whereNotNull('file_path')
                                 ->where('id', '!=', $latestSnapshot->id)
                                 ->orderBy('period_date', 'desc')
                                 ->orderBy('id', 'desc')
                                 ->first();
         }
 
-        if (!$latestSnapshot) {
+        if (!$latestSnapshot || !Storage::disk('public')->exists($latestSnapshot->file_path)) {
             return response()->json([
                 'stats' => [],
                 'entities' => new \stdClass(),
                 'edges' => [],
                 'changes' => [],
                 'audits' => new \stdClass(),
+                'groups' => new \stdClass(),
+                'shadow' => new \stdClass(),
+                'institutions' => new \stdClass(),
+                'govHoldings' => [],
                 'investorSummaries' => new \stdClass(),
             ]);
         }
 
-        $sid = $latestSnapshot->id;
-
-        // Entities
-        $entitiesRaw = DB::table('ownership_entities')->get();
-        $entities = [];
-        foreach ($entitiesRaw as $e) {
-            $entities[$e->key] = [
-                'key' => $e->key,
-                'label' => $e->label,
-                'ticker' => $e->ticker,
-                'kind' => $e->kind,
-                'norm' => $e->norm,
-                'listed' => (bool) $e->listed,
-                'alsoInvestor' => (bool) $e->also_investor,
-            ];
-        }
-
-        // Edges
-        $edgesRaw = DB::table('ownership_edges')->where('snapshot_id', $sid)->get();
-        $edges = [];
-        foreach ($edgesRaw as $e) {
-            $edges[] = [
-                'from' => $e->from_key,
-                'to' => $e->to_key,
-                'ticker' => $e->ticker,
-                'issuer' => $e->issuer_name,
-                'investor' => $e->investor_name,
-                'pct' => (float) $e->pct,
-                'shares' => (int) $e->shares,
-                'direction' => $e->direction,
-                'deltaShares' => (int) $e->delta_shares,
-                'deltaPct' => (float) $e->delta_pct,
-                'local_foreign' => $e->local_foreign,
-            ];
-        }
-
-        // Changes
-        $changesRaw = DB::table('ownership_changes')->where('snapshot_id', $sid)->get();
-        $changes = [];
-        foreach ($changesRaw as $c) {
-            $changes[] = [
-                'from' => $c->from_key,
-                'to' => $c->to_key,
-                'investor' => $c->investor_name,
-                'ticker' => $c->ticker,
-                'direction' => $c->direction,
-                'deltaShares' => (int) $c->delta_shares,
-                'deltaPct' => (float) $c->delta_pct,
-            ];
-        }
-
-        // Audits
-        $auditsRaw = DB::table('ownership_audits')->where('snapshot_id', $sid)->get();
-        $audits = [];
-        foreach ($auditsRaw as $a) {
-            $audits[$a->issuer_key] = [
-                'confidence' => (int) $a->confidence,
-                'top1' => (float) $a->top1,
-                'hhi' => (float) $a->hhi,
-                'nakamoto50' => (int) $a->nakamoto50,
-                'residual' => (float) $a->residual,
-                'floatProxy' => (float) $a->float_proxy,
-                'controlLabel' => $a->control_label,
-            ];
-        }
-
-        return response()->json([
-            'stats' => [
-                'latestDate' => $latestSnapshot->period_date,
-                'prevDate' => $prevSnapshot ? $prevSnapshot->period_date : null,
-                'issuersLatest' => count($audits),
-                'defaultKey' => count($entities) > 0 ? (isset($entities['E:BREN']) ? 'E:BREN' : array_keys($entities)[0]) : null,
-            ],
-            'entities' => (object) $entities,
-            'edges' => $edges,
-            'changes' => $changes,
-            'audits' => (object) $audits,
-            'investorSummaries' => new \stdClass(),
-        ]);
+        $jsonContent = Storage::disk('public')->get($latestSnapshot->file_path);
+        return response($jsonContent, 200, ['Content-Type' => 'application/json']);
     }
 }

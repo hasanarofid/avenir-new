@@ -18,16 +18,18 @@ class ProcessOwnershipCsvJob implements ShouldQueue
     public $timeout = 600;
 
     protected $snapshotId;
-    protected $fullPath;
-    protected $movPath;
-    protected $govPath;
+    protected $daily5pctPath;
+    protected $monthlyTypePath;
+    protected $monthlyClassificationPath;
+    protected $monthly1pctPath;
 
-    public function __construct($snapshotId, $fullPath, $movPath, $govPath)
+    public function __construct($snapshotId, $daily5pctPath, $monthlyTypePath, $monthlyClassificationPath, $monthly1pctPath)
     {
         $this->snapshotId = $snapshotId;
-        $this->fullPath = $fullPath;
-        $this->movPath = $movPath;
-        $this->govPath = $govPath;
+        $this->daily5pctPath = $daily5pctPath;
+        $this->monthlyTypePath = $monthlyTypePath;
+        $this->monthlyClassificationPath = $monthlyClassificationPath;
+        $this->monthly1pctPath = $monthly1pctPath;
     }
 
     public function handle(): void
@@ -40,12 +42,17 @@ class ProcessOwnershipCsvJob implements ShouldQueue
             return;
         }
 
-        $fullCsv = storage_path('app/private/' . $this->fullPath);
-        $movCsv = storage_path('app/private/' . $this->movPath);
-        $govCsv = storage_path('app/private/' . $this->govPath);
+        $daily5pctFile = storage_path('app/private/' . $this->daily5pctPath);
+        $monthlyTypeFile = storage_path('app/private/' . $this->monthlyTypePath);
+        $monthlyClassificationFile = storage_path('app/private/' . $this->monthlyClassificationPath);
+        $monthly1pctFile = storage_path('app/private/' . $this->monthly1pctPath);
         
-        $scriptPath = base_path('scripts/build_ownership_data.py');
-        $command = escapeshellcmd("python3 " . escapeshellarg($scriptPath) . " " . escapeshellarg($fullCsv) . " " . escapeshellarg($movCsv) . " " . escapeshellarg($govCsv));
+        $brokers = \App\Models\Broker::pluck('name', 'code')->toArray();
+        $brokersFile = storage_path('app/private/temp_brokers_' . uniqid() . '.json');
+        file_put_contents($brokersFile, json_encode(['byCode' => $brokers]));
+
+        $scriptPath = base_path('scripts/build_ownership_excel.py');
+        $command = escapeshellcmd("python3 " . escapeshellarg($scriptPath) . " " . escapeshellarg($daily5pctFile) . " " . escapeshellarg($monthlyTypeFile) . " " . escapeshellarg($monthlyClassificationFile) . " " . escapeshellarg($monthly1pctFile) . " " . escapeshellarg($brokersFile));
         
         Log::info("Running command: $command");
         $output = shell_exec($command);
@@ -58,6 +65,7 @@ class ProcessOwnershipCsvJob implements ShouldQueue
         $result = json_decode($output, true);
         if (!$result || !isset($result['status']) || $result['status'] !== 'success') {
             Log::error("Python script failed. Output: " . substr($output, 0, 500));
+            @unlink($brokersFile);
             return;
         }
 
@@ -74,5 +82,6 @@ class ProcessOwnershipCsvJob implements ShouldQueue
             ]);
 
         Log::info("Successfully built JSON for snapshot {$this->snapshotId}");
+        @unlink($brokersFile);
     }
 }
