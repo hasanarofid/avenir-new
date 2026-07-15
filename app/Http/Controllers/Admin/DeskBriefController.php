@@ -439,36 +439,52 @@ PYTHON;
                 return back()->withErrors(['foreign_flow' => $payload['error']]);
             }
 
-            foreach ($payload as $metric => $val) {
-                if ($metric === 'PRICE') {
-                    $ihsg = \App\Models\MarketSnapshot::firstOrNew([
-                        'date' => $date, 'symbol_or_metric' => 'IHSG'
-                    ]);
-                    $ihsg->value = $val;
+            // payload is now a dictionary of { date_string => { FOREIGN_NET_TODAY, OPEN, HIGH, LOW, PRICE, VALUE_TRADED_BN_IDR } }
+            // To properly calculate change and sparklines, we should sort the dates
+            ksort($payload);
+            
+            $sparkline = [];
+            $lastIhsg = null;
 
-                    $prevIhsg = \App\Models\MarketSnapshot::where('symbol_or_metric', 'IHSG')
-                        ->whereDate('date', '<', $date)
-                        ->orderBy('date', 'desc')
-                        ->first();
-
-                    if ($prevIhsg) {
-                        $ihsg->change_abs = $ihsg->value - $prevIhsg->value;
-                        $ihsg->change_pct = $prevIhsg->value > 0 ? ($ihsg->change_abs / $prevIhsg->value) : 0;
-
-                        $sparkline = $prevIhsg->sparkline_json ?? [];
-                        if (is_array($sparkline)) {
-                            $sparkline[] = (float) $ihsg->value;
-                            $ihsg->sparkline_json = $sparkline;
+            foreach ($payload as $d => $metrics) {
+                foreach ($metrics as $metric => $val) {
+                    if ($metric === 'PRICE') {
+                        $ihsg = \App\Models\MarketSnapshot::firstOrNew([
+                            'date' => $d, 'symbol_or_metric' => 'IHSG'
+                        ]);
+                        $ihsg->value = $val;
+                        
+                        // Because we're iterating in chronological order, $lastIhsg is the previous trading day's data
+                        if (!$lastIhsg) {
+                            $lastIhsg = \App\Models\MarketSnapshot::where('symbol_or_metric', 'IHSG')
+                                ->whereDate('date', '<', $d)
+                                ->orderBy('date', 'desc')
+                                ->first();
+                            if ($lastIhsg && is_array($lastIhsg->sparkline_json)) {
+                                $sparkline = $lastIhsg->sparkline_json;
+                            }
                         }
-                    }
 
-                    $ihsg->source = 'foreign_flow_excel';
-                    $ihsg->save();
-                } else {
-                    \App\Models\MarketSnapshot::updateOrCreate(
-                        ['date' => $date, 'symbol_or_metric' => $metric],
-                        ['value' => $val, 'source' => 'foreign_flow_excel']
-                    );
+                        if ($lastIhsg) {
+                            $ihsg->change_abs = $ihsg->value - ($lastIhsg->value ?? $lastIhsg['value'] ?? 0);
+                            $ihsg->change_pct = ($lastIhsg->value ?? $lastIhsg['value'] ?? 0) > 0 ? ($ihsg->change_abs / ($lastIhsg->value ?? $lastIhsg['value'])) : 0;
+                        }
+                        
+                        $sparkline[] = (float) $ihsg->value;
+                        if (count($sparkline) > 30) {
+                            $sparkline = array_slice($sparkline, -30);
+                        }
+                        $ihsg->sparkline_json = $sparkline;
+                        $ihsg->source = 'foreign_flow_excel';
+                        $ihsg->save();
+                        
+                        $lastIhsg = $ihsg;
+                    } else {
+                        \App\Models\MarketSnapshot::updateOrCreate(
+                            ['date' => $d, 'symbol_or_metric' => $metric],
+                            ['value' => $val, 'source' => 'foreign_flow_excel']
+                        );
+                    }
                 }
             }
 

@@ -41,6 +41,17 @@ const handleFileSelect = (e, field) => {
 };
 
 const submit = () => {
+    if (!form.file_daily_5pct && !form.file_monthly_1pct && !form.file_monthly_classification && !form.file_monthly_type) {
+        Swal.fire({
+            icon: 'error',
+            title: 'File Kosong',
+            text: 'Silakan unggah minimal satu file Excel.',
+            background: '#0b1210',
+            color: '#fff',
+            confirmButtonColor: '#dc2626'
+        });
+        return;
+    }
     form.post(route('admin.desk-brief.ownership.upload'), {
         preserveScroll: true,
         onSuccess: (page) => {
@@ -122,7 +133,7 @@ const deleteSnapshot = (id) => {
                             <p class="adminHint">Unggah file Excel "Kepemilikan Efek ≥5%" (Balance_SID) dari KSEI setiap hari. Sistem membaca perbandingan dua tanggal & kolom perubahan.</p>
                         </div>
                         <div>
-                            <input type="date" v-model="form.date_current" class="bg-[#0a100f] border border-[#26352f] rounded-lg text-white px-3 py-1.5 text-sm focus:border-[#42e579] focus:ring-1 focus:ring-[#42e579]" required title="Tanggal Snapshot">
+                            <input type="date" v-model="form.date_current" class="bg-[#0a100f] border border-[#26352f] rounded-lg text-white px-3 py-1.5 text-sm focus:border-[#42e579] focus:ring-1 focus:ring-[#42e579]" title="Tanggal Snapshot">
                         </div>
                     </div>
                     
@@ -137,7 +148,7 @@ const deleteSnapshot = (id) => {
                             <span v-if="form.file_daily_5pct" class="text-[#6dff9d] font-bold">{{ form.file_daily_5pct.name }}</span>
                             <span v-else><b>Klik untuk upload</b> atau tarik file Excel KSEI Harian ke sini — .xlsx</span>
                         </div>
-                        <input type="file" id="dailyFile" @change="handleFileSelect($event, 'file_daily_5pct')" accept=".xlsx,.xls" class="hidden" required/>
+                        <input type="file" id="dailyFile" @change="handleFileSelect($event, 'file_daily_5pct')" accept=".xlsx,.xls" class="hidden" />
                     </label>
 
                     <!-- Snapshot List -->
@@ -174,7 +185,7 @@ const deleteSnapshot = (id) => {
                                 <span v-if="form.file_monthly_1pct" class="text-[#6dff9d] font-bold block truncate" :title="form.file_monthly_1pct.name">{{ form.file_monthly_1pct.name }}</span>
                                 <span v-else><b>Satu Persen</b> (.xlsx)</span>
                             </div>
-                            <input type="file" id="monthly1Pct" @change="handleFileSelect($event, 'file_monthly_1pct')" accept=".xlsx,.xls" class="hidden" required/>
+                            <input type="file" id="monthly1Pct" @change="handleFileSelect($event, 'file_monthly_1pct')" accept=".xlsx,.xls" class="hidden" />
                         </label>
                         
                         <label for="monthlyClass" 
@@ -188,7 +199,7 @@ const deleteSnapshot = (id) => {
                                 <span v-if="form.file_monthly_classification" class="text-[#6dff9d] font-bold block truncate" :title="form.file_monthly_classification.name">{{ form.file_monthly_classification.name }}</span>
                                 <span v-else><b>Klasifikasi</b> (.xlsx)</span>
                             </div>
-                            <input type="file" id="monthlyClass" @change="handleFileSelect($event, 'file_monthly_classification')" accept=".xlsx,.xls" class="hidden" required/>
+                            <input type="file" id="monthlyClass" @change="handleFileSelect($event, 'file_monthly_classification')" accept=".xlsx,.xls" class="hidden" />
                         </label>
                         
                         <label for="monthlyType" 
@@ -202,7 +213,7 @@ const deleteSnapshot = (id) => {
                                 <span v-if="form.file_monthly_type" class="text-[#6dff9d] font-bold block truncate" :title="form.file_monthly_type.name">{{ form.file_monthly_type.name }}</span>
                                 <span v-else><b>Tipe Domestik</b> (.xlsx)</span>
                             </div>
-                            <input type="file" id="monthlyType" @change="handleFileSelect($event, 'file_monthly_type')" accept=".xlsx,.xls" class="hidden" required/>
+                            <input type="file" id="monthlyType" @change="handleFileSelect($event, 'file_monthly_type')" accept=".xlsx,.xls" class="hidden" />
                         </label>
                     </div>
                     

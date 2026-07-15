@@ -14,10 +14,11 @@ from pathlib import Path
 # 1. CONFIG
 # =========================================================
 
-SECTOR_CSV_PATH = None
-OUTPUT_DIR = None
-OUTPUT_FEATURES_CSV = None
-OUTPUT_LATEST_JSON = None
+SECTOR_CSV_PATH = Path("ISI_FILE_SECTOR_RETURN.csv")
+
+OUTPUT_DIR = Path("output_sector_rotation")
+OUTPUT_FEATURES_CSV = OUTPUT_DIR / "sector_rotation_features.csv"
+OUTPUT_LATEST_JSON = OUTPUT_DIR / "latest_sector_rotation.json"
 
 
 # =========================================================
@@ -551,19 +552,32 @@ def build_latest_payload(feature_df):
 # 9. MAIN PIPELINE
 # =========================================================
 
-def run_pipeline(input_file, output_dir):
-    out = Path(output_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    
-    df = load_sector_file(Path(input_file))
+def run_pipeline():
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    df = load_sector_file(SECTOR_CSV_PATH)
     feature_df = add_sector_rotation_features(df)
-    feature_df.to_csv(out / "sector_rotation_features.csv", index=False)
-    
+
+    feature_df.to_csv(OUTPUT_FEATURES_CSV, index=False)
+
     latest_payload = build_latest_payload(feature_df)
-    
-    with open(out / "latest_sector_rotation_score.json", "w", encoding="utf-8") as f:
+
+    with open(OUTPUT_LATEST_JSON, "w", encoding="utf-8") as f:
         json.dump(latest_payload, f, indent=2, ensure_ascii=False)
-        
+
+    print("=================================================")
+    print("AVENIR SECTOR ROTATION SCORE ENGINE")
+    print("=================================================")
+    print(f"Latest Date          : {latest_payload['date']}")
+    print(f"Score                : {latest_payload['sector_rotation_score']:.0f} / 100")
+    print(f"Label                : {latest_payload['sector_rotation_label']}")
+    print(f"Positive Sectors     : {latest_payload['positive_sector_count']:.0f}/{latest_payload['total_sector_count']:.0f}")
+    print(f"Risk-On Positive     : {latest_payload['risk_on_positive_count']:.0f}/{latest_payload['risk_on_total_count']:.0f}")
+    print(f"Leading Sector       : {latest_payload['leading_sector']}")
+    print(f"Avg Sector Return    : {latest_payload['avg_sector_return']:.2f}%")
+    print(f"Risk-On vs Defensive : {latest_payload['risk_on_vs_defensive_spread']:.2f} pct point")
+    print("=================================================")
+
     return latest_payload, feature_df
 
 
@@ -572,15 +586,4 @@ def run_pipeline(input_file, output_dir):
 # =========================================================
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input', required=True)
-    parser.add_argument('--output-dir', required=True)
-    # ignore other old arguments that breadthservice might send
-    parser.add_argument('--stocks', required=False)
-    parser.add_argument('--sector-master', required=False)
-    parser.add_argument('--stock-sheet-name', required=False)
-    parser.add_argument('--sector-sheet-name', required=False)
-    args = parser.parse_args()
-    
-    latest_payload, feature_df = run_pipeline(args.input, args.output_dir)
+    latest_payload, feature_df = run_pipeline()
