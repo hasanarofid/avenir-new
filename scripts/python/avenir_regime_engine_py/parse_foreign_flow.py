@@ -31,9 +31,15 @@ def run(input_path, date, output_path):
 
         fnet = parse_value(row[fnet_col])
         val  = parse_value(row[val_col])
-        o    = float(row[open_col]) if not pd.isna(row[open_col]) else 0
-        h    = float(row[high_col]) if not pd.isna(row[high_col]) else 0
-        l    = float(row[low_col]) if not pd.isna(row[low_col]) else 0
+        
+        def safe_float(v):
+            if pd.isna(v): return 0
+            try: return float(str(v).replace(',', ''))
+            except: return 0
+
+        o    = safe_float(row[open_col])
+        h    = safe_float(row[high_col])
+        l    = safe_float(row[low_col])
 
         res = {
             "FOREIGN_NET_TODAY": fnet / 1e9 if fnet != 0 else 0,

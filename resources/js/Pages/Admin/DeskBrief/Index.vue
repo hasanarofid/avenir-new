@@ -34,6 +34,7 @@ const masterlistForm = useForm({
 
 const ringkasanSahamForm = useForm({
   ringkasan_saham: null,
+  index_summary: null,
   date: new Date().toISOString().split('T')[0],
 });
 
@@ -63,6 +64,12 @@ const handleMasterlistChange = (e) => {
 const handleRingkasanSahamChange = (e) => {
   if (e.target.files.length > 0) {
     ringkasanSahamForm.ringkasan_saham = e.target.files[0];
+  }
+};
+
+const handleIndexSummaryChange = (e) => {
+  if (e.target.files.length > 0) {
+    ringkasanSahamForm.index_summary = e.target.files[0];
   }
 };
 
@@ -147,8 +154,8 @@ const submitMasterlistUpload = () => {
 };
 
 const submitRingkasanSahamUpload = () => {
-  if (!ringkasanSahamForm.ringkasan_saham || !ringkasanSahamForm.date) {
-    Swal.fire('Error', 'Lengkapi file dan tanggal terlebih dahulu', 'error');
+  if (!ringkasanSahamForm.ringkasan_saham || !ringkasanSahamForm.index_summary || !ringkasanSahamForm.date) {
+    Swal.fire('Error', 'Lengkapi kedua file dan tanggal terlebih dahulu', 'error');
     return;
   }
   ringkasanSahamForm.post(route('admin.desk-brief.upload-ringkasan-saham'), {
@@ -383,11 +390,11 @@ const showBreakdown = (stance) => {
           <div class="bg-[#222] p-4 rounded-lg border border-purple-500/30 relative flex flex-col justify-between">
             <div>
               <div class="absolute -top-3 -left-3 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-[#1A1A1A]">1</div>
-              <div class="text-purple-400 font-bold mb-1">Upload Ringkasan Saham</div>
+              <div class="text-purple-400 font-bold mb-1">Upload Ringkasan Saham & Index Summary</div>
               <p class="text-xs text-gray-400 mb-4 leading-relaxed">Format: <span class="text-gray-300 font-medium">.xlsx</span> (Untuk menghitung Market Breadth & Sector Rotation).</p>
             </div>
             <button @click="showRingkasanSahamModal = true" class="w-full py-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border border-purple-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
-              <Upload class="w-4 h-4" /> Pilih File Ringkasan
+              <Upload class="w-4 h-4" /> Pilih File Ringkasan & Index Summary
             </button>
           </div>
 
@@ -602,7 +609,7 @@ const showBreakdown = (stance) => {
         <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222]">
           <h3 class="text-lg font-bold text-white flex items-center gap-2">
             <Upload class="w-5 h-5 text-purple-400" />
-            Upload Ringkasan Saham (Market Breadth)
+            Upload Ringkasan Saham & Index Summary (Breadth & Sector Rotation)
           </h3>
           <button @click="showRingkasanSahamModal = false" class="text-gray-400 hover:text-white transition-colors">
             <X class="w-5 h-5" />
@@ -635,11 +642,32 @@ const showBreakdown = (stance) => {
             <p v-if="ringkasanSahamForm.errors.ringkasan_saham" class="mt-2 text-sm text-red-500">{{ ringkasanSahamForm.errors.ringkasan_saham }}</p>
           </div>
 
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-2">File Excel (Index Summary)</label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700 border-dashed rounded-lg hover:border-purple-500 hover:bg-purple-500/5 transition-all">
+              <div class="space-y-1 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div class="flex text-sm text-gray-400 justify-center">
+                  <label for="index-summary-upload" class="relative cursor-pointer bg-[#1A1A1A] rounded-md font-medium text-purple-400 hover:text-purple-300 focus-within:outline-none">
+                    <span>Upload a file</span>
+                    <input id="index-summary-upload" name="index-summary-upload" type="file" accept=".xlsx,.xls,.csv" class="sr-only" @change="handleIndexSummaryChange" />
+                  </label>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  {{ ringkasanSahamForm.index_summary ? ringkasanSahamForm.index_summary.name : 'Excel up to 50MB' }}
+                </p>
+              </div>
+            </div>
+            <p v-if="ringkasanSahamForm.errors.index_summary" class="mt-2 text-sm text-red-500">{{ ringkasanSahamForm.errors.index_summary }}</p>
+          </div>
+
           <div class="flex justify-end gap-3 mt-8">
             <button type="button" @click="showRingkasanSahamModal = false" class="px-4 py-2 bg-transparent text-gray-400 hover:text-white transition-colors">Batal</button>
-            <button type="submit" :disabled="ringkasanSahamForm.processing || !ringkasanSahamForm.ringkasan_saham" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+            <button type="submit" :disabled="ringkasanSahamForm.processing || !ringkasanSahamForm.ringkasan_saham || !ringkasanSahamForm.index_summary" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
               <span v-if="ringkasanSahamForm.processing" class="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></span>
-              {{ ringkasanSahamForm.processing ? 'Memproses...' : 'Proses Ringkasan Saham' }}
+              {{ ringkasanSahamForm.processing ? 'Memproses...' : 'Proses Data' }}
             </button>
           </div>
         </form>

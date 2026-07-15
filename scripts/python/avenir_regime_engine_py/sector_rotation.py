@@ -40,10 +40,44 @@ def leader_score(sec_ret):
 
 def s_spread(x): return score_piecewise(x,[(-.03,10),(-.02,20),(-.01,35),(0,50),(.005,65),(.01,75),(.02,90),(.03,100)])
 
-def calculate(stock, master):
+def calculate(stock, master, index_df=None):
     merged=stock.merge(master,on='code',how='left'); missing=int(merged.sector.isna().sum()); merged=merged.dropna(subset=['sector']).copy()
     if merged.empty: raise ValueError('tidak ada saham match sector master')
     detail=merged.groupby('sector').apply(lambda g:pd.Series({'sector_return':wavg(g),'sector_value':g.trading_value.sum(),'sector_market_cap':g.market_cap.sum(skipna=True),'advancers':(g.stock_return>0).sum(),'decliners':(g.stock_return<0).sum(),'stable':(g.stock_return==0).sum(),'stock_count':len(g)})).reset_index()
+    
+    if index_df is not None:
+        sector_map = {
+            'IDXENERGY': 'Energy', 'IDXBASIC': 'Basic Materials', 'IDXINDUST': 'Industrials',
+            'IDXCYCLIC': 'Consumer Cyclicals', 'IDXFINANCE': 'Financials', 'IDXPROPERT': 'Properties & Real Estate',
+            'IDXTECHNO': 'Technology', 'IDXINFRA': 'Infrastructures', 'IDXTRANS': 'Transportation & Logistic',
+            'IDXNONCYC': 'Consumer Non-Cyclicals', 'IDXHEALTH': 'Healthcare'
+        }
+        idx_returns = {}
+        idx_values = {}
+        # Columns might be 'index_code', 'change', 'previous', 'value'
+        code_col = find_col(index_df, ['index_code', 'index', 'code', 'indeks'])
+        prev_col = find_col(index_df, ['previous', 'prev', 'sebelumnya'])
+        chg_col = find_col(index_df, ['change', 'perubahan'])
+        val_col = find_col(index_df, ['value', 'nilai', 'trading_value'])
+        
+        if code_col and prev_col and chg_col and val_col:
+            for _, row in index_df.iterrows():
+                c = str(row[code_col]).upper().strip()
+                if c in sector_map:
+                    try:
+                        p = float(str(row[prev_col]).replace(',', ''))
+                        chg = float(str(row[chg_col]).replace(',', ''))
+                        val = float(str(row[val_col]).replace(',', ''))
+                        if p > 0:
+                            idx_returns[sector_map[c]] = chg / p
+                            idx_values[sector_map[c]] = val
+                    except: pass
+        
+        if idx_returns:
+            detail['sector_return'] = detail['sector'].apply(lambda s: idx_returns.get(s, detail.loc[detail.sector == s, 'sector_return'].values[0] if len(detail.loc[detail.sector == s, 'sector_return'].values) > 0 else 0))
+        if idx_values:
+            detail['sector_value'] = detail['sector'].apply(lambda s: idx_values.get(s, detail.loc[detail.sector == s, 'sector_value'].values[0] if len(detail.loc[detail.sector == s, 'sector_value'].values) > 0 else 0))
+
     detail['sector_breadth_ratio']=detail.apply(lambda r:safe_div(r.advancers,r.advancers+r.decliners),axis=1)
     total=len(detail); pos=int((detail.sector_return>0).sum()); risk=detail[detail.sector.isin(RISK_ON)]; defensive=detail[detail.sector.isin(DEF)]
     risk_pos=int((risk.sector_return>0).sum()); val_pos=detail.loc[detail.sector_return>0,'sector_value'].sum(); val_neg=detail.loc[detail.sector_return<0,'sector_value'].sum(); spread=risk.sector_return.mean()-defensive.sector_return.mean()
@@ -53,7 +87,10 @@ def calculate(stock, master):
     p.update({k:round(v,1) for k,v in comp.items()})
     return p,detail,merged
 
-def run(stocks_path, sector_master_path, output_dir='output_sector_rotation', stock_sheet_name=0, sector_sheet_name=0):
-    out=Path(output_dir); out.mkdir(exist_ok=True,parents=True); p,d,m=calculate(prep_stock(load_table(stocks_path,stock_sheet_name)),prep_master(load_table(sector_master_path,sector_sheet_name))); d.to_csv(out/'sector_rotation_detail.csv',index=False); m.to_csv(out/'sector_rotation_stock_merged.csv',index=False); save_json(p,out/'latest_sector_rotation_score.json'); print('Sector Rotation:',p['sector_rotation_score'],p['sector_rotation_label']); return p,d,m
+def run(stocks_path, sector_master_path, output_dir='output_sector_rotation', stock_sheet_name=0, sector_sheet_name=0, index_summary_path=None):
+    out=Path(output_dir); out.mkdir(exist_ok=True,parents=True); 
+    index_df = load_table(index_summary_path) if index_summary_path else None
+    p,d,m=calculate(prep_stock(load_table(stocks_path,stock_sheet_name)),prep_master(load_table(sector_master_path,sector_sheet_name)), index_df)
+    d.to_csv(out/'sector_rotation_detail.csv',index=False); m.to_csv(out/'sector_rotation_stock_merged.csv',index=False); save_json(p,out/'latest_sector_rotation_score.json'); print('Sector Rotation:',p['sector_rotation_score'],p['sector_rotation_label']); return p,d,m
 if __name__=='__main__':
-    ap=argparse.ArgumentParser(); ap.add_argument('--stocks',required=True); ap.add_argument('--sector-master',required=True); ap.add_argument('--output-dir',default='output_sector_rotation'); ap.add_argument('--stock-sheet-name',default=0); ap.add_argument('--sector-sheet-name',default=0); a=ap.parse_args(); run(a.stocks,a.sector_master,a.output_dir,a.stock_sheet_name,a.sector_sheet_name)
+    ap=argparse.ArgumentParser(); ap.add_argument('--stocks',required=True); ap.add_argument('--sector-master',required=True); ap.add_argument('--output-dir',default='output_sector_rotation'); ap.add_argument('--stock-sheet-name',default=0); ap.add_argument('--sector-sheet-name',default=0); ap.add_argument('--index-summary', default=None); a=ap.parse_args(); run(a.stocks,a.sector_master,a.output_dir,a.stock_sheet_name,a.sector_sheet_name, a.index_summary)

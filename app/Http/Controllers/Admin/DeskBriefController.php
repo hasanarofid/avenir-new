@@ -463,12 +463,17 @@ PYTHON;
     {
         $request->validate([
             'ringkasan_saham' => 'required|file|mimes:xlsx,xls,csv|max:51200',
+            'index_summary'   => 'required|file|mimes:xlsx,xls,csv|max:51200',
             'date'            => 'required|date'
         ]);
 
         try {
             $path     = $request->file('ringkasan_saham')->store('ringkasan_saham');
             $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+            
+            $indexPath = $request->file('index_summary')->store('index_summary');
+            $indexFullPath = \Illuminate\Support\Facades\Storage::path($indexPath);
+
             $date     = \Carbon\Carbon::parse($request->date)->toDateString();
 
             // Find the latest uploaded masterlist (Financial Data) for sector mapping
@@ -478,7 +483,7 @@ PYTHON;
             $breadthService = new \App\Services\MarketIntelligence\BreadthService(
                 new \App\Services\MarketIntelligence\PythonBridge()
             );
-            $results = $breadthService->calculateAndStore($date, $fullPath, $masterPath);
+            $results = $breadthService->calculateAndStore($date, $fullPath, $masterPath, $indexFullPath);
 
             if (empty($results)) {
                 return back()->withErrors(['ringkasan_saham' => 'Gagal memproses Ringkasan Saham: Data tidak valid atau Python script gagal.']);

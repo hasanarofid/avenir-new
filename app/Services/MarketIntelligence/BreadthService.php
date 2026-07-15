@@ -20,7 +20,7 @@ class BreadthService
      * @param string $excelPath  Absolute path to Ringkasan Saham .xlsx
      * @param string $masterPath Absolute path to Financial Data masterlist .xlsx
      */
-    public function calculateAndStore(string $date, string $excelPath, string $masterPath = ''): array
+    public function calculateAndStore(string $date, string $excelPath, string $masterPath = '', string $indexFullPath = ''): array
     {
         $tempDir = $this->bridge->getTempDir();
         $results = [];
@@ -83,11 +83,17 @@ class BreadthService
             @mkdir($srOutDir, 0755, true);
             $srJson = $srOutDir . '/latest_sector_rotation_score.json';
 
-            $srPayload = $this->bridge->run('sector_rotation.py', [
+            $srArgs = [
                 '--stocks'        => $excelPath,
                 '--sector-master' => $sectorMasterCsv,
                 '--output-dir'    => $srOutDir,
-            ], $srJson);
+            ];
+            
+            if (!empty($indexFullPath)) {
+                $srArgs['--index-summary'] = $indexFullPath;
+            }
+
+            $srPayload = $this->bridge->run('sector_rotation.py', $srArgs, $srJson);
 
             if ($srPayload) {
                 $score = (int) ($srPayload['sector_rotation_score'] ?? 0);
