@@ -115,7 +115,7 @@ def parse_number(x):
 
 
 def parse_date_column(series):
-    return pd.to_datetime(series, errors="coerce", dayfirst=True)
+    return pd.to_datetime(series, errors="coerce", format="%Y-%m-%d")
 
 
 def score_piecewise(value, points):

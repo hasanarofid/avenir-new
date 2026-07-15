@@ -110,27 +110,37 @@ class BreadthService
                 "Technology", "Infrastructures", "Transportation & Logistic"
             ];
             
-            // Fetch historical dates
-            $pastDates = MarketSnapshot::where('symbol_or_metric', 'like', 'SECTOR_%')
+            // Fetch historical dates from both MarketSnapshot and SectorBiasDaily
+            $pastDates1 = MarketSnapshot::where('symbol_or_metric', 'like', 'SECTOR_%')
                 ->where('date', '<=', $date)
-                ->orderBy('date', 'desc')
-                ->select('date')
-                ->distinct()
-                ->limit(10)
                 ->pluck('date')
+                ->map(fn($d) => substr((string)$d, 0, 10))
                 ->toArray();
-            
-            sort($pastDates); // chronological order
+                
+            $pastDates2 = \App\Models\SectorBiasDaily::where('date', '<=', $date)
+                ->pluck('date')
+                ->map(fn($d) => substr((string)$d, 0, 10))
+                ->toArray();
+
+            $allDates = array_unique(array_merge($pastDates1, $pastDates2));
+            rsort($allDates);
+            $allDates = array_slice($allDates, 0, 10);
+            sort($allDates); // chronological order
             
             $fp = fopen($sectorReturnsCsv, 'w');
             $headers = array_merge(['date'], $sectors);
             fputcsv($fp, $headers);
             
-            foreach ($pastDates as $d) {
+            foreach ($allDates as $d) {
                 $row = [$d];
                 foreach ($sectors as $s) {
-                    $snap = MarketSnapshot::where('date', $d)->where('symbol_or_metric', 'SECTOR_' . $s)->first();
-                    $row[] = $snap ? $snap->value : '';
+                    $snap = MarketSnapshot::whereDate('date', $d)->where('symbol_or_metric', 'SECTOR_' . $s)->first();
+                    if ($snap) {
+                        $row[] = $snap->value;
+                    } else {
+                        $bias = \App\Models\SectorBiasDaily::whereDate('date', $d)->where('sector', $s)->first();
+                        $row[] = $bias ? $bias->return_1d : '';
+                    }
                 }
                 fputcsv($fp, $row);
             }
