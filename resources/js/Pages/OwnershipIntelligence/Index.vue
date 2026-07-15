@@ -1,6 +1,21 @@
 
 <template>
-  <Head title="Ownership Intelligence" />
+  <Head>
+        <title>Ownership Intelligence | Avenir</title>
+        <meta name="description" content="Ownership Intelligence - Avenir Research Market Intelligence." />
+        <meta property="og:title" content="Ownership Intelligence | Avenir" />
+        <meta property="og:description" content="Ownership Intelligence - Avenir Research Market Intelligence." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        
+        <!-- GEO Tags -->
+        <meta name="geo.region" content="ID" />
+        <meta name="geo.placename" content="Indonesia" />
+        <meta name="geo.position" content="-0.789275;113.921327" />
+        <meta name="ICBM" content="-0.789275, 113.921327" />
+        <meta name="language" content="id-ID" />
+        <meta name="view-transition" content="same-origin" />
+  </Head>
   <div v-if="loading" class="min-h-screen bg-[#070b0a] flex items-center justify-center text-emerald-500 font-bold text-xl">
      Memuat Data Ownership Graph...
   </div>
@@ -10,7 +25,7 @@
   <div class="app">
 
 <aside class="side">
-  <div class="brand"><div class="logo">A</div><div><h1>AVENIR</h1><p>RESEARCH</p></div></div>
+  <div class="brand"><img src="/favicon.png" class="logo" style="background: none;" alt="Avenir" /><div><h1>AVENIR</h1><p>RESEARCH</p></div></div>
   <div class="navTitle">Ownership Intelligence</div>
   <nav class="nav">
     <a class="active" data-nav="networkPane"><span class="ic">◎</span> Linked Network</a>
@@ -662,11 +677,11 @@ function renderTables(){
   document.getElementById('holdingsMeta').textContent=`${holdings.length} holdings`;
   document.getElementById('ownersTable').innerHTML=tableHtml(
     ['Investor','Stake','Shares','Type','Origin','Move'],
-    owners.length?owners.map(e=>`<tr><td><span class="linkish" onclick="setSelected('${e.from}')">${shortLabel(e.investor,30)}</span></td><td><b>${fmtPct(e.pct)}</b></td><td>${fmtShares(e.shares)}</td><td>${e.classification||'—'}</td><td>${lfTag(e.local_foreign)}${e.is_government?' <span class="tag gov">Gov</span>':''}</td><td>${e.direction!=='UNCHANGED'?dirTag(e.direction):'<span class="muted">—</span>'}</td></tr>`):['<tr><td colspan="6" class="muted">No owners disclosed under current filter.</td></tr>']
+    owners.length?owners.map(e=>`<tr><td><span class="linkish" onclick="setSelected('${e.from}')">${shortLabel(e.investor,30)}</span></td><td><b>${fmtPct(e.pct)}</b></td><td>${fmtShares(e.shares)}</td><td>${e.classification||'—'}</td><td>${lfTag(e.local_foreign)}${e.is_government?' <span class="tag gov">Gov</span>':''}</td><td>${(e.direction&&e.direction!=='UNCHANGED')?dirTag(e.direction):'<span class="muted">—</span>'}</td></tr>`):['<tr><td colspan="6" class="muted">No owners disclosed under current filter.</td></tr>']
   );
   document.getElementById('holdingsTable').innerHTML=tableHtml(
     ['Issuer','Stake','Shares','Origin','Move'],
-    holdings.length?holdings.map(e=>`<tr><td><span class="linkish" onclick="setSelected('${e.to}')">${e.ticker||shortLabel(e.issuer,22)}</span></td><td><b>${fmtPct(e.pct)}</b></td><td>${fmtShares(e.shares)}</td><td>${lfTag(e.local_foreign)}</td><td>${e.direction!=='UNCHANGED'?dirTag(e.direction):'<span class="muted">—</span>'}</td></tr>`):['<tr><td colspan="5" class="muted">This entity is not recorded holding other issuers.</td></tr>']
+    holdings.length?holdings.map(e=>`<tr><td><span class="linkish" onclick="setSelected('${e.to}')">${e.ticker||shortLabel(e.issuer,22)}</span></td><td><b>${fmtPct(e.pct)}</b></td><td>${fmtShares(e.shares)}</td><td>${lfTag(e.local_foreign)}</td><td>${(e.direction&&e.direction!=='UNCHANGED')?dirTag(e.direction):'<span class="muted">—</span>'}</td></tr>`):['<tr><td colspan="5" class="muted">This entity is not recorded holding other issuers.</td></tr>']
   );
 }
 
