@@ -18,14 +18,29 @@ def parse_number(x):
         return None
 
 def run(input_path, output_path, date_str):
-    df = pd.read_excel(input_path)
+    if str(input_path).endswith('.csv'):
+        df = pd.read_csv(input_path)
+    else:
+        df = pd.read_excel(input_path, header=None)
+        
+        # Find the header row by looking for 'code' or 'indeks' or 'index'
+        header_idx = 0
+        for i, row in df.iterrows():
+            row_strs = [str(x).lower().strip() for x in row.values]
+            if any(c in row_strs for c in ['index code', 'index', 'code', 'indeks', 'kode']):
+                header_idx = i
+                break
+        
+        df = pd.read_excel(input_path, header=header_idx)
+
     df.columns = [str(c).strip().lower() for c in df.columns]
 
-    code_col = find_col(df, ['index_code', 'index', 'code', 'indeks'])
+    code_col = find_col(df, ['index_code', 'index', 'code', 'indeks', 'kode'])
     prev_col = find_col(df, ['previous', 'prev', 'sebelumnya'])
     chg_col = find_col(df, ['change', 'perubahan'])
     
     if not code_col or not prev_col or not chg_col:
+        print(f"DEBUG: Found columns: {df.columns.tolist()}")
         raise ValueError("Cannot find required columns in Index Summary")
 
     results = {}

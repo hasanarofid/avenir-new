@@ -110,32 +110,32 @@ class DeskBriefController extends Controller
         
         $date = \Carbon\Carbon::parse($request->date)->toDateString();
         
-        // 1. Calculate Key Drivers (to get flow & breadth components)
-        $keyDriversEngine = app(\App\Services\MarketIntelligence\KeyDriversEngine::class);
-        
-        $usdIdrProxy = \App\Models\MarketSnapshot::where('date', '<=', $date)
-            ->where('symbol_or_metric', 'USD_IDR_PROXY')
-            ->orderBy('date', 'desc')
-            ->first();
-
-        $manualInputs = [
-            'RUPIAH_BI_SBN_YIELD' => [
-                'usd_idr_change_5d' => $usdIdrProxy ? (float) $usdIdrProxy->change_pct : null,
-                'sbn_10y' => null,
-                'sbn_10y_change_5d' => null,
-                'bi_stance' => 'neutral',
-            ]
-        ];
-
-        $driversData = $keyDriversEngine->buildIhsgKeyDrivers('LQ45', 5, $date, $manualInputs);
-        
         $scoringEngine = app(\App\Services\MarketIntelligence\ScoringEngine::class);
         
         try {
-            $gathered = $scoringEngine->gatherMarketData($date, $driversData);
-            $marketData = $gathered['marketData'];
-            $latestDate = $gathered['latestDate'];
-            $result = $scoringEngine->calculateMarketRegime($marketData);
+            $pythonResult = $scoringEngine->runPythonScoring($date);
+            $scores = $pythonResult['scores'];
+            $payloads = $pythonResult['payloads'];
+            
+            $finalScore = $scoringEngine->calculateFinalRegimeScore($scores);
+            $regime = $scoringEngine->classifyMarketRegime($scores, $finalScore);
+            
+            $marketData = [
+                'close' => $payloads['price_trend']['close'] ?? 0,
+                'ma20' => $payloads['price_trend']['ma20'] ?? 0,
+                'ma60' => $payloads['price_trend']['ma60'] ?? 0,
+                'ret_5d' => $payloads['price_trend']['ret_5d'] ?? 0,
+                'ret_20d' => $payloads['price_trend']['ret_20d'] ?? 0,
+                'drawdown_20d' => $payloads['price_trend']['drawdown_20d'] ?? 0,
+                
+                // Get breadth from snapshot if python payload is not available
+                'advancers' => \App\Models\MarketSnapshot::where('symbol_or_metric', 'ADVANCERS')->whereDate('date', '<=', $date)->orderBy('date', 'desc')->value('value') ?? 0,
+                'decliners' => \App\Models\MarketSnapshot::where('symbol_or_metric', 'DECLINERS')->whereDate('date', '<=', $date)->orderBy('date', 'desc')->value('value') ?? 0,
+                
+                'foreign_net_5d' => $payloads['flow']['foreign_net_5d'] ?? 0,
+                'institutional_net_5d' => $payloads['flow']['institutional_net_5d'] ?? 0,
+            ];
+            
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -145,11 +145,11 @@ class DeskBriefController extends Controller
         
         return response()->json([
             'date' => $date,
-            'latest_available_date' => $latestDate,
+            'latest_available_date' => $date,
             'raw_data' => $marketData,
-            'scores' => $result['component_scores'],
-            'final_score' => $result['final_score'],
-            'regime' => $result['regime'],
+            'scores' => $scores,
+            'final_score' => $finalScore,
+            'regime' => $regime,
         ]);
     }
 

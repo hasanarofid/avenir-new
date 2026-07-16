@@ -225,7 +225,8 @@ class ScoringEngine
      */
     public function calculateRegimeScore(string $date, array $driversData = []): MarketStanceDaily
     {
-        $scores = $this->runPythonScoring($date);
+        $pythonResult = $this->runPythonScoring($date);
+        $scores = $pythonResult['scores'];
 
         $finalScore = $this->calculateFinalRegimeScore($scores);
         $regime     = $this->classifyMarketRegime($scores, $finalScore);
@@ -257,6 +258,7 @@ class ScoringEngine
         $tempDir = $bridge->getTempDir();
         $cleanup = [];
         $scores  = [];
+        $payloads = [];
 
         try {
             // ---- Price Trend ----------------------------------------
@@ -274,7 +276,9 @@ class ScoringEngine
                 $cleanup[] = $ohlcCsv;
 
                 $ptOutDir = $tempDir . "/pt_{$date}";
-                @mkdir($ptOutDir, 0755, true);
+                if (!is_dir($ptOutDir)) {
+                    mkdir($ptOutDir, 0755, true);
+                }
                 $ptJson = $ptOutDir . '/latest_price_trend_score.json';
 
                 $ptPayload = $bridge->run('price_trend.py', [
@@ -283,6 +287,7 @@ class ScoringEngine
                 ], $ptJson);
 
                 $scores['price_trend'] = $ptPayload ? (int) ($ptPayload['price_trend_score'] ?? 50) : $this->getFallbackScore($date, 'PT_SCORE', 50);
+                $payloads['price_trend'] = $ptPayload;
 
                 if ($ptPayload) {
                     \App\Models\MarketSnapshot::updateOrCreate(
@@ -305,7 +310,9 @@ class ScoringEngine
                 $cleanup[] = $flowCsv;
 
                 $flOutDir = $tempDir . "/fl_{$date}";
-                @mkdir($flOutDir, 0755, true);
+                if (!is_dir($flOutDir)) {
+                    mkdir($flOutDir, 0755, true);
+                }
                 $flJson = $flOutDir . '/latest_flow_score.json';
 
                 $flPayload = $bridge->run('flow.py', [
@@ -314,6 +321,7 @@ class ScoringEngine
                 ], $flJson);
 
                 $scores['flow'] = $flPayload ? (int) ($flPayload['flow_score'] ?? 50) : $this->getFallbackScore($date, 'FLOW_SCORE', 50);
+                $payloads['flow'] = $flPayload;
 
                 if ($flPayload) {
                     \App\Models\MarketSnapshot::updateOrCreate(
@@ -333,7 +341,9 @@ class ScoringEngine
                 $scores['volatility_stability'] = (int) $vsPdfSnap->value;
             } else {
                 $vsOutDir = $tempDir . "/vs_{$date}";
-                @mkdir($vsOutDir, 0755, true);
+                if (!is_dir($vsOutDir)) {
+                    mkdir($vsOutDir, 0755, true);
+                }
                 $vsJson = $vsOutDir . '/latest_volatility_stability_score.json';
 
                 $vsPayload = $bridge->run('volatility.py', [
@@ -342,6 +352,7 @@ class ScoringEngine
                 ], $vsJson);
 
                 $scores['volatility_stability'] = $vsPayload ? (int) ($vsPayload['volatility_stability_score'] ?? 50) : $this->getFallbackScore($date, 'VS_SCORE', 50);
+                $payloads['volatility_stability'] = $vsPayload;
 
                 if ($vsPayload) {
                     \App\Models\MarketSnapshot::updateOrCreate(
@@ -373,7 +384,10 @@ class ScoringEngine
             $bridge->cleanup($cleanup);
         }
 
-        return $scores;
+        return [
+            'scores' => $scores,
+            'payloads' => $payloads
+        ];
     }
 
     /**
