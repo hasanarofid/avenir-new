@@ -27,7 +27,8 @@ import {
   Database,
   TrendingUp,
   ShieldAlert,
-  Coins
+  Coins,
+  Building2
 } from '@lucide/vue';
 
 const page = usePage();
@@ -114,6 +115,7 @@ const navigationGroups = [
     roles: ['admin'],
     items: [
       { name: 'Emiten Hub', href: route('admin.emitens.index'), icon: TrendingUp, current: route().current('admin.emitens.*') },
+      { name: 'Master Emiten', href: route('admin.master-stock.index'), icon: Building2, current: route().current('admin.master-stock.*') },
       { name: 'Web Settings', href: route('admin.settings.index'), icon: SettingsIcon, current: route().current('admin.settings.index') },
     ]
   }

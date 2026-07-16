@@ -44,6 +44,10 @@ Route::get('/desk-brief/ownership-intelligence-mockup', [\App\Http\Controllers\D
 // Market Tickers API for News Marquee
 Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
 
+// Master Stock API — emiten list dengan sektor, sub-industry, logo (publik, no auth)
+Route::get('/api/master-stocks', [\App\Http\Controllers\Admin\MasterStockController::class, 'apiList'])->name('master-stock.api-list');
+
+
 // Deprecated Market Hub Routes
 // Emiten Hub (V1)
 Route::get('/emiten', [\App\Http\Controllers\EmitenHubController::class, 'index'])->name('emiten.index');
@@ -173,7 +177,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/desk-brief/ownership/data', [\App\Http\Controllers\Admin\OwnershipController::class, 'getOwnershipData'])->name('desk-brief.ownership.data');
         Route::post('/desk-brief/ownership/upload', [\App\Http\Controllers\Admin\OwnershipController::class, 'upload'])->name('desk-brief.ownership.upload');
         Route::delete('/desk-brief/ownership/{id}', [\App\Http\Controllers\Admin\OwnershipController::class, 'destroy'])->name('desk-brief.ownership.destroy');
+
+        // Master Stock (Emiten)
+        Route::get('/master-stock', [\App\Http\Controllers\Admin\MasterStockController::class, 'index'])->name('master-stock.index');
+        Route::post('/master-stock/import', [\App\Http\Controllers\Admin\MasterStockController::class, 'import'])->name('master-stock.import');
+        Route::post('/master-stock/sync-logos', [\App\Http\Controllers\Admin\MasterStockController::class, 'syncLogos'])->name('master-stock.sync-logos');
+        Route::put('/master-stock/{code}', [\App\Http\Controllers\Admin\MasterStockController::class, 'update'])->name('master-stock.update');
+        Route::delete('/master-stock/{code}', [\App\Http\Controllers\Admin\MasterStockController::class, 'destroy'])->name('master-stock.destroy');
+
     });
+
 
     // Admin Only Routes
     Route::middleware(['auth', 'role:admin'])->group(function () {
