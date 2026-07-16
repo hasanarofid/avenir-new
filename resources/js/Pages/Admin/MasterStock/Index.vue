@@ -156,8 +156,10 @@ const goPage = (p) => { page.value = Math.max(1, Math.min(p, totalPages.value));
     <Head title="Master Emiten Admin" />
 
     <AdminLayout>
-        <template #header>
-            <div class="flex justify-between items-center">
+        <div class="admin-theme max-w-7xl mx-auto py-6">
+
+            <!-- Title & Actions -->
+            <div class="flex justify-between items-center mb-6 px-1">
                 <h2 class="font-semibold text-xl leading-tight" style="color: #6dff9d">
                     Master Emiten
                 </h2>
@@ -167,11 +169,9 @@ const goPage = (p) => { page.value = Math.max(1, Math.min(p, totalPages.value));
                     Sync Logo IDX
                 </button>
             </div>
-        </template>
-
-        <div class="admin-theme max-w-7xl mx-auto py-6">
 
             <!-- Stats -->
+
             <div class="statsGrid">
                 <div class="statCard">
                     <div class="statLabel">Total Emiten</div>
