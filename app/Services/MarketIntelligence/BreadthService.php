@@ -110,19 +110,16 @@ class BreadthService
                 "Technology", "Infrastructures", "Transportation & Logistic"
             ];
             
-            // Fetch historical dates ONLY from MarketSnapshot (hasil upload Excel)
-            // Sengaja TIDAK mengambil dari SectorBiasDaily agar window konsisten
-            // dengan data yang diinput manual (sesuai formula client)
-            $allDates = MarketSnapshot::where('symbol_or_metric', 'like', 'SECTOR_%')
+            // Fetch historical dates from both SectorBiasDaily and MarketSnapshot
+            $biasDates = \App\Models\SectorBiasDaily::where('date', '<=', $date)->pluck('date')->map(fn($d) => substr((string)$d, 0, 10))->toArray();
+            $snapDates = MarketSnapshot::where('symbol_or_metric', 'like', 'SECTOR_%')
                 ->where('date', '<=', $date)
                 ->pluck('date')
                 ->map(fn($d) => substr((string)$d, 0, 10))
-                ->unique()
-                ->sort()
-                ->values()
                 ->toArray();
             
-            // Ambil 10 hari terakhir
+            $allDates = array_values(array_unique(array_merge($biasDates, $snapDates)));
+            sort($allDates);
             $allDates = array_slice($allDates, -10);
             
             $fp = fopen($sectorReturnsCsv, 'w');
@@ -133,7 +130,12 @@ class BreadthService
                 $row = [$d];
                 foreach ($sectors as $s) {
                     $snap = MarketSnapshot::whereDate('date', $d)->where('symbol_or_metric', 'SECTOR_' . $s)->first();
-                    $row[] = $snap ? $snap->value : '';
+                    if ($snap) {
+                        $row[] = $snap->value;
+                    } else {
+                        $bias = \App\Models\SectorBiasDaily::whereDate('date', $d)->where('sector', $s)->first();
+                        $row[] = $bias ? $bias->return_1d : '';
+                    }
                 }
                 fputcsv($fp, $row);
             }
