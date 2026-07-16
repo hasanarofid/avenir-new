@@ -1,4 +1,5 @@
-import { ref, computed, reactive, shallowRef } from 'vue';
+import { ref, computed, reactive, shallowRef, watch, nextTick } from 'vue';
+import { initVanillaLogic } from './vanillaPrdLogic';
 
 // Global state so it's shared across components if imported multiple times
 const dataLoaded = ref(false);
@@ -21,6 +22,7 @@ export const minPct = ref(1);
 export const depth = ref(2);
 export const directionMode = ref('both');
 export const activeTab = ref('networkPane'); // For tab navigation
+export const activeMode = ref('detail'); // 'detail' | 'global'
 
 // D3/Network State
 export const NET = reactive({
@@ -61,48 +63,79 @@ export const relatedChanges = computed(() => {
         .sort((a, b) => Math.abs(b.deltaShares) - Math.abs(a.deltaShares));
 });
 
+export function setOwnershipData(DATA) {
+    entities.value = DATA.entities;
+    edges.value = DATA.edges;
+    changes.value = DATA.changes;
+    audits.value = DATA.audits;
+    investorSummaries.value = DATA.investorSummaries;
+    stats.value = DATA.stats;
+
+    entityArr.value = Object.values(entities.value);
+    
+    if (entities.value['E:BRPT']) selectedKey.value = 'E:BRPT';
+    else selectedKey.value = stats.value.defaultKey || Object.keys(entities.value)[0];
+
+    const oEdges = {};
+    const iEdges = {};
+    const cbFrom = {};
+    const cbTo = {};
+
+    for (const e of edges.value) {
+        (oEdges[e.from] || (oEdges[e.from] = [])).push(e);
+        (iEdges[e.to] || (iEdges[e.to] = [])).push(e);
+    }
+    for (const c of changes.value) {
+        (cbFrom[c.from] || (cbFrom[c.from] = [])).push(c);
+        (cbTo[c.to] || (cbTo[c.to] = [])).push(c);
+    }
+
+    for (const k in oEdges) oEdges[k].sort((a, b) => b.pct - a.pct);
+    for (const k in iEdges) iEdges[k].sort((a, b) => b.pct - a.pct);
+
+    outEdges.value = oEdges;
+    inEdges.value = iEdges;
+    changeByFrom.value = cbFrom;
+    changeByTo.value = cbTo;
+
+    dataLoaded.value = true;
+    
+    nextTick(() => {
+        // Initialize Vanilla PRD Logic after DOM is ready
+        initVanillaLogic(DATA, DATA);
+        window.onVanillaSelectedKey = (key) => {
+            selectedKey.value = key;
+        };
+    });
+
+    // Sync Vue state changes back to vanilla
+    watch(selectedKey, (val) => {
+        if (window._vanillaSelectedKey !== val) {
+            window._vanillaSelectedKey = val;
+            if (window.renderAll) window.renderAll();
+        }
+    });
+    watch(minPct, (val) => {
+        window._minPct = val;
+        if (window.renderAll) window.renderAll();
+    });
+    watch(depth, (val) => {
+        window._depth = val;
+        if (window.renderAll) window.renderAll();
+    });
+    watch(directionMode, (val) => {
+        window._directionMode = val;
+        if (window.renderAll) window.renderAll();
+    });
+}
+
 // Async Load Data
-export async function loadOwnershipData() {
+export async function loadOwnershipData(url = '/admin/desk-brief/ownership/data') {
     if (dataLoaded.value) return;
     try {
-        const res = await fetch('/admin/desk-brief/ownership/data');
+        const res = await fetch(url);
         const DATA = await res.json();
-
-        entities.value = DATA.entities;
-        edges.value = DATA.edges;
-        changes.value = DATA.changes;
-        audits.value = DATA.audits;
-        investorSummaries.value = DATA.investorSummaries;
-        stats.value = DATA.stats;
-
-        entityArr.value = Object.values(entities.value);
-        
-        if (entities.value['E:BRPT']) selectedKey.value = 'E:BRPT';
-        else selectedKey.value = stats.value.defaultKey || Object.keys(entities.value)[0];
-
-        const oEdges = {};
-        const iEdges = {};
-        const cbFrom = {};
-        const cbTo = {};
-
-        for (const e of edges.value) {
-            (oEdges[e.from] || (oEdges[e.from] = [])).push(e);
-            (iEdges[e.to] || (iEdges[e.to] = [])).push(e);
-        }
-        for (const c of changes.value) {
-            (cbFrom[c.from] || (cbFrom[c.from] = [])).push(c);
-            (cbTo[c.to] || (cbTo[c.to] = [])).push(c);
-        }
-
-        for (const k in oEdges) oEdges[k].sort((a, b) => b.pct - a.pct);
-        for (const k in iEdges) iEdges[k].sort((a, b) => b.pct - a.pct);
-
-        outEdges.value = oEdges;
-        inEdges.value = iEdges;
-        changeByFrom.value = cbFrom;
-        changeByTo.value = cbTo;
-
-        dataLoaded.value = true;
+        setOwnershipData(DATA);
     } catch (err) {
         console.error("Failed to load ownership data:", err);
     }
