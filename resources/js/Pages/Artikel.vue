@@ -67,7 +67,20 @@ const getReadTime = (article) => article.read_time || Math.floor(Math.random() *
 
 <template>
   <Head>
-    <title>Artikel | Avenir Research</title>
+    <title>Artikel & Insight | Avenir Research</title>
+    <meta name="description" content="Kumpulan artikel, edukasi investasi, dan analisis mendalam dari tim riset Avenir untuk membantu Anda memahami dinamika pasar modal Indonesia." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://researchavenir.com/artikel" />
+    
+    <meta property="og:title" content="Artikel & Insight | Avenir Research" />
+    <meta property="og:description" content="Kumpulan artikel, edukasi investasi, dan analisis mendalam pasar modal." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://researchavenir.com/artikel" />
+    <meta property="og:image" content="https://researchavenir.com/favicon.png" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Artikel & Insight | Avenir Research" />
+    <meta name="twitter:description" content="Kumpulan artikel, edukasi investasi, dan analisis mendalam pasar modal." />
   </Head>
 
   <AppLayout>

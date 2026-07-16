@@ -124,12 +124,21 @@ const submitComment = () => {
 
 <template>
     <Head>
-        <title>ArtikelDetail | Avenir</title>
-        <meta name="description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
-        <meta property="og:title" content="ArtikelDetail | Avenir" />
-        <meta property="og:description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
-        <meta property="og:type" content="website" />
+        <title>{{ article.title }} | Avenir</title>
+        <meta name="description" :content="article.excerpt || 'Artikel riset mendalam dari Avenir Research.'" />
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+        <link rel="canonical" :href="`https://researchavenir.com/artikel/${article.slug}`" />
+        
+        <meta property="og:title" :content="article.title" />
+        <meta property="og:description" :content="article.excerpt || 'Artikel riset mendalam dari Avenir Research.'" />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" :content="`https://researchavenir.com/artikel/${article.slug}`" />
+        <meta property="og:image" :content="article.cover_image || 'https://researchavenir.com/favicon.png'" />
+        
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" :content="article.title" />
+        <meta name="twitter:description" :content="article.excerpt || 'Artikel riset mendalam dari Avenir Research.'" />
+        <meta name="twitter:image" :content="article.cover_image || 'https://researchavenir.com/favicon.png'" />
         
         <!-- GEO Tags -->
         <meta name="geo.region" content="ID" />
@@ -138,9 +147,35 @@ const submitComment = () => {
         <meta name="ICBM" content="-0.789275, 113.921327" />
         <meta name="language" content="id-ID" />
         <meta name="view-transition" content="same-origin" />
+        
+        <!-- JSON-LD Article Schema -->
+        <component :is="'script'" type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": "{{ article.title.replace(/"/g, '\\"') }}",
+          "image": [
+            "{{ article.cover_image || 'https://researchavenir.com/favicon.png' }}"
+          ],
+          "datePublished": "{{ article.created_at }}",
+          "dateModified": "{{ article.updated_at || article.created_at }}",
+          "author": [{
+              "@type": "Person",
+              "name": "{{ article.author?.name || 'Tim Avenir Research' }}"
+          }],
+          "publisher": {
+            "@type": "Organization",
+            "name": "Avenir Research",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://researchavenir.com/favicon.png"
+            }
+          },
+          "description": "{{ (article.excerpt || '').replace(/"/g, '\\"') }}",
+          "isAccessibleForFree": "{{ !article.is_paid ? 'True' : 'False' }}"
+        }
+        </component>
     </Head>
-
-  <Head :title="article.title" />
 
   <AppLayout>
     <div class="article-detail-page">

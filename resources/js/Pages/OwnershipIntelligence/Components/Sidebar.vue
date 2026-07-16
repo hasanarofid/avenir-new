@@ -1,9 +1,12 @@
 <script setup>
-import { stats, activeTab, activeMode } from '../../../Composables/useOwnershipLogic';
+import { stats } from '../../../Composables/useOwnershipLogic';
 
-function nav(tab, mode) {
-    activeTab.value = tab;
-    activeMode.value = mode;
+function vSwitchTab(tab) {
+    if (window.switchTab) window.switchTab(tab);
+}
+
+function vSwitchMode(mode) {
+    if (window.switchMode) window.switchMode(mode);
 }
 </script>
 
@@ -15,57 +18,58 @@ function nav(tab, mode) {
     </div>
     <div class="navTitle">Ownership Intelligence</div>
     <nav class="nav">
-      <!-- Detail mode items: only show in detail mode -->
-      <a v-show="activeMode === 'detail'" :class="{ active: activeTab === 'networkPane' }" href="#" @click.prevent="nav('networkPane','detail')">
+      <!-- Detail mode items — vanilla switchMode controls display via data-mode -->
+      <a data-nav="networkPane" data-mode="detail" href="#" @click.prevent="vSwitchTab('networkPane')">
         <span class="ic">◎</span> Jaringan Emiten
       </a>
-      <a v-show="activeMode === 'detail'" :class="{ active: activeTab === 'auditPane' }" href="#" @click.prevent="nav('auditPane','detail')">
+      <a data-nav="auditPane" data-mode="detail" href="#" @click.prevent="vSwitchTab('auditPane')">
         <span class="ic">◌</span> Audit &amp; Detail
       </a>
 
-      <div v-show="activeMode === 'global'" class="navSep">Analisis Global</div>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'changesPane' }" href="#" @click.prevent="nav('changesPane','global')">
-          <span class="ic">↕</span> Change Monitor
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'groupPane' }" href="#" @click.prevent="nav('groupPane','global')">
-          <span class="ic">◈</span> Conglomerate Groups
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'govPane' }" href="#" @click.prevent="nav('govPane','global')">
-          <span class="ic">🏛</span> Government Layer
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'instPane' }" href="#" @click.prevent="nav('instPane','global')">
-          <span class="ic">▤</span> Institutional
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'shadowPane' }" href="#" @click.prevent="nav('shadowPane','global')">
-          <span class="ic">◇</span> Shadow Network
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'insiderPane' }" href="#" @click.prevent="nav('insiderPane','global')">
-          <span class="ic">⇅</span> Pergerakan 5%
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'komposisiPane' }" href="#" @click.prevent="nav('komposisiPane','global')">
-          <span class="ic">◧</span> Komposisi 1%
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'klasifikasiPane' }" href="#" @click.prevent="nav('klasifikasiPane','global')">
-          <span class="ic">▦</span> Klasifikasi
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'tipePane' }" href="#" @click.prevent="nav('tipePane','global')">
-          <span class="ic">◐</span> Domestik/Asing
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'proxyPane' }" href="#" @click.prevent="nav('proxyPane','global')">
-          <span class="ic">⛓</span> Proxy Explorer
-        </a>
-        <a v-show="activeMode === 'global'" :class="{ active: activeTab === 'methodPane' }" href="#" @click.prevent="nav('methodPane','global')">
-          <span class="ic">ⓘ</span> Methodology
-        </a>
+      <!-- Global mode items — initially hidden by vanilla switchMode('detail') -->
+      <div class="navSep">Analisis Global</div>
+      <a data-nav="changesPane" data-mode="global" href="#" @click.prevent="vSwitchTab('changesPane')">
+        <span class="ic">↕</span> Change Monitor
+      </a>
+      <a data-nav="groupPane" data-mode="global" href="#" @click.prevent="vSwitchTab('groupPane')">
+        <span class="ic">◈</span> Conglomerate Groups
+      </a>
+      <a data-nav="govPane" data-mode="global" href="#" @click.prevent="vSwitchTab('govPane')">
+        <span class="ic">🏛</span> Government Layer
+      </a>
+      <a data-nav="instPane" data-mode="global" href="#" @click.prevent="vSwitchTab('instPane')">
+        <span class="ic">▤</span> Institutional
+      </a>
+      <a data-nav="shadowPane" data-mode="global" href="#" @click.prevent="vSwitchTab('shadowPane')">
+        <span class="ic">◇</span> Shadow Network
+      </a>
+      <a data-nav="insiderPane" data-mode="global" href="#" @click.prevent="vSwitchTab('insiderPane')">
+        <span class="ic">⇅</span> Pergerakan 5%
+      </a>
+      <a data-nav="komposisiPane" data-mode="global" href="#" @click.prevent="vSwitchTab('komposisiPane')">
+        <span class="ic">◧</span> Komposisi 1%
+      </a>
+      <a data-nav="klasifikasiPane" data-mode="global" href="#" @click.prevent="vSwitchTab('klasifikasiPane')">
+        <span class="ic">▦</span> Klasifikasi
+      </a>
+      <a data-nav="tipePane" data-mode="global" href="#" @click.prevent="vSwitchTab('tipePane')">
+        <span class="ic">◐</span> Domestik/Asing
+      </a>
+      <a data-nav="proxyPane" data-mode="global" href="#" @click.prevent="vSwitchTab('proxyPane')">
+        <span class="ic">⛓</span> Proxy Explorer
+      </a>
+      <a data-nav="methodPane" data-mode="global" href="#" @click.prevent="vSwitchTab('methodPane')">
+        <span class="ic">ⓘ</span> Methodology
+      </a>
     </nav>
 
     <div class="dataCard">
       <div class="k">Latest source date</div>
-      <div class="v">{{ stats.latestDate || '-' }}</div>
+      <div class="v" id="sideDate">{{ stats.latestDate || '-' }}</div>
       <div class="k" style="margin-top:12px">Coverage</div>
-      <div class="v"><span>{{ stats.issuersLatest || 0 }}</span> issuers</div>
+      <div class="v"><span id="sideIssuers">{{ stats.issuersLatest || 0 }}</span> issuers</div>
       <div class="k" style="margin-top:12px">Gov-held issuers</div>
-      <div class="v"><span>{{ stats.govIssuers || 0 }}</span> issuers</div>
+      <div class="v"><span id="sideGov">{{ stats.govIssuers || 0 }}</span> issuers</div>
     </div>
     <div class="dataCard info">
       <div class="k">Proxy note</div>

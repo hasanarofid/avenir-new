@@ -1986,20 +1986,28 @@ window.admLoadExample=admLoadExample;
 
 function renderAll(){renderKpis(); renderNetwork(true); renderInsightCards(); renderTables(); renderChanges(); renderGroups(); renderGov(); renderInstitutions(); renderShadow(); renderInsider(); renderKomposisi(); renderKlasifikasi(); renderTipe(); renderAudit(); renderPaths(); renderAdmin();}
   renderAll();
-window.setSelected=setSelected; window.switchTab=switchTab; window.focusGroup=focusGroup;
+window.setSelected=setSelected; window.switchTab=switchTab; window.switchMode=switchMode; window.focusGroup=focusGroup;
 
 
     // Attach renderers to window so components can call them
     window.renderInsightCards = renderInsightCards;
     window.renderTables = renderTables;
     window.renderChanges = renderChanges;
-    window.renderGroup = renderGroup;
+    window.renderGroup = typeof renderGroups !== "undefined" ? renderGroups : () => {};
     window.renderGov = renderGov;
-    window.renderInst = renderInst;
+    window.renderInst = typeof renderInstitutions !== "undefined" ? renderInstitutions : () => {};
     window.renderShadow = renderShadow;
     window.renderProxy = renderProxy;
     window.renderAdmin = renderAdmin;
     window.renderNetwork = renderNetwork;
+    window.renderAudit = typeof renderAudit !== "undefined" ? renderAudit : () => {};
+    window.renderInsider = typeof renderInsider !== "undefined" ? renderInsider : () => {};
+    window.renderKomposisi = typeof renderKomposisi !== "undefined" ? renderKomposisi : () => {};
+    window.renderKlasifikasi = typeof renderKlasifikasi !== "undefined" ? renderKlasifikasi : () => {};
+    window.renderTipe = typeof renderTipe !== "undefined" ? renderTipe : () => {};
+    window.renderPaths = typeof renderPaths !== "undefined" ? renderPaths : () => {};
+    window.renderGroups = typeof renderGroups !== "undefined" ? renderGroups : () => {};
+    window.renderInstitutions = typeof renderInstitutions !== "undefined" ? renderInstitutions : () => {};
     window.renderAll = renderAll;
     window.initSearch = () => {};
     window.initControls = () => {};

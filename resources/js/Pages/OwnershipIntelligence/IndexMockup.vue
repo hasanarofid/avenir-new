@@ -3,7 +3,7 @@ import { onMounted, onUnmounted } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
-import { loadOwnershipData, dataLoaded, activeTab, activeMode } from '../../Composables/useOwnershipLogic';
+import { loadOwnershipData, dataLoaded } from '../../Composables/useOwnershipLogic';
 
 import Sidebar from './Components/Sidebar.vue';
 import HeaderPanel from './Components/HeaderPanel.vue';
@@ -24,32 +24,23 @@ import KlasifikasiPane from './Components/KlasifikasiPane.vue';
 import TipePane from './Components/TipePane.vue';
 import AdminPane from './Components/AdminPane.vue';
 
-const detailTabs = ['networkPane', 'auditPane'];
-const globalTabs = ['changesPane', 'groupPane', 'govPane', 'instPane', 'shadowPane', 'insiderPane', 'komposisiPane', 'klasifikasiPane', 'tipePane', 'proxyPane', 'methodPane', 'adminPane'];
-
-function switchMode(mode) {
-    activeMode.value = mode;
-    if (mode === 'detail' && !detailTabs.includes(activeTab.value)) {
-        activeTab.value = 'networkPane';
-    } else if (mode === 'global' && !globalTabs.includes(activeTab.value)) {
-        activeTab.value = 'changesPane';
-    }
+function vSwitchTab(tab) {
+    if (window.switchTab) window.switchTab(tab);
 }
 
-function switchTab(tab, mode) {
-    activeTab.value = tab;
-    activeMode.value = mode;
+function vSwitchMode(mode) {
+    if (window.switchMode) window.switchMode(mode);
 }
 
-onMounted(() => {
+onMounted(async () => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = '/css/ownership-intelligence.css';
     link.id = 'ownership-css';
     document.head.appendChild(link);
 
-    // Load real data
-    loadOwnershipData();
+    // Load mock data (force=true so it reloads even if production data was already loaded)
+    await loadOwnershipData('/ownership_mock.json', true);
 });
 
 onUnmounted(() => {
@@ -60,12 +51,8 @@ onUnmounted(() => {
 
 <template>
   <Head>
-    <title>Avenir Ownership Intelligence</title>
-    <meta name="description" content="Ownership Intelligence - Avenir Research Market Intelligence." />
-    <meta property="og:title" content="Avenir Ownership Intelligence" />
-    <meta property="og:description" content="Ownership Intelligence - Avenir Research Market Intelligence." />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <title>Avenir Ownership Intelligence (Mockup)</title>
+    <meta name="description" content="Ownership Intelligence Mockup - Avenir." />
   </Head>
 
   <AppLayout>
@@ -77,82 +64,45 @@ onUnmounted(() => {
       <main class="main">
         <HeaderPanel />
 
-        <!-- Mode Toggle -->
         <section class="modeToggle">
-          <button class="modeBtn" :class="{ on: activeMode === 'detail' }" @click="switchMode('detail')">🔍 Detail Emiten</button>
-          <button class="modeBtn" :class="{ on: activeMode === 'global' }" @click="switchMode('global')">🌐 Analisis Global</button>
+          <button class="modeBtn on" data-mode="detail" @click="vSwitchMode('detail')">🔍 Detail Emiten</button>
+          <button class="modeBtn" data-mode="global" @click="vSwitchMode('global')">🌐 Analisis Global</button>
         </section>
 
-        <SelectorPanel v-if="activeMode === 'detail'" />
-        <KpiGrid v-if="activeMode === 'detail'" />
+        <SelectorPanel />
+        <KpiGrid />
 
         <section class="panel">
-          <!-- Tabbar -->
           <div class="tabbar">
-            <!-- Detail mode tabs -->
-            <template v-if="activeMode === 'detail'">
-              <button :class="{ on: activeTab === 'networkPane' }" @click="switchTab('networkPane', 'detail')">Jaringan Emiten</button>
-              <button :class="{ on: activeTab === 'auditPane' }" @click="switchTab('auditPane', 'detail')">Audit &amp; Detail</button>
-            </template>
-            <!-- Global mode tabs -->
-            <template v-else>
-              <button :class="{ on: activeTab === 'changesPane' }" @click="switchTab('changesPane', 'global')">Change Monitor</button>
-              <button :class="{ on: activeTab === 'groupPane' }" @click="switchTab('groupPane', 'global')">Groups</button>
-              <button :class="{ on: activeTab === 'govPane' }" @click="switchTab('govPane', 'global')">Government Layer</button>
-              <button :class="{ on: activeTab === 'instPane' }" @click="switchTab('instPane', 'global')">Institutional</button>
-              <button :class="{ on: activeTab === 'shadowPane' }" @click="switchTab('shadowPane', 'global')">Shadow Network</button>
-              <button :class="{ on: activeTab === 'insiderPane' }" @click="switchTab('insiderPane', 'global')">Pergerakan 5%</button>
-              <button :class="{ on: activeTab === 'komposisiPane' }" @click="switchTab('komposisiPane', 'global')">Komposisi 1%</button>
-              <button :class="{ on: activeTab === 'klasifikasiPane' }" @click="switchTab('klasifikasiPane', 'global')">Klasifikasi</button>
-              <button :class="{ on: activeTab === 'tipePane' }" @click="switchTab('tipePane', 'global')">Domestik/Asing</button>
-              <button :class="{ on: activeTab === 'proxyPane' }" @click="switchTab('proxyPane', 'global')">Proxy Explorer</button>
-              <button :class="{ on: activeTab === 'methodPane' }" @click="switchTab('methodPane', 'global')">Methodology</button>
-            </template>
+            <button class="on" data-tab="networkPane" data-mode="detail" @click="vSwitchTab('networkPane')">Jaringan Emiten</button>
+            <button data-tab="auditPane" data-mode="detail" @click="vSwitchTab('auditPane')">Audit &amp; Detail</button>
+            <button data-tab="changesPane" data-mode="global" @click="vSwitchTab('changesPane')">Change Monitor</button>
+            <button data-tab="groupPane" data-mode="global" @click="vSwitchTab('groupPane')">Groups</button>
+            <button data-tab="govPane" data-mode="global" @click="vSwitchTab('govPane')">Government Layer</button>
+            <button data-tab="instPane" data-mode="global" @click="vSwitchTab('instPane')">Institutional</button>
+            <button data-tab="shadowPane" data-mode="global" @click="vSwitchTab('shadowPane')">Shadow Network</button>
+            <button data-tab="insiderPane" data-mode="global" @click="vSwitchTab('insiderPane')">Pergerakan 5%</button>
+            <button data-tab="komposisiPane" data-mode="global" @click="vSwitchTab('komposisiPane')">Komposisi 1%</button>
+            <button data-tab="klasifikasiPane" data-mode="global" @click="vSwitchTab('klasifikasiPane')">Klasifikasi</button>
+            <button data-tab="tipePane" data-mode="global" @click="vSwitchTab('tipePane')">Domestik/Asing</button>
+            <button data-tab="proxyPane" data-mode="global" @click="vSwitchTab('proxyPane')">Proxy Explorer</button>
+            <button data-tab="methodPane" data-mode="global" @click="vSwitchTab('methodPane')">Methodology</button>
           </div>
 
-          <!-- Detail panes -->
-          <div class="tabpane" :class="{ on: activeTab === 'networkPane' }">
-            <NetworkPane v-if="activeTab === 'networkPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'auditPane' }">
-            <IssuerAuditPane v-if="activeTab === 'auditPane'" />
-          </div>
-
-          <!-- Global panes -->
-          <div class="tabpane" :class="{ on: activeTab === 'changesPane' }">
-            <ChangeMonitorPane v-if="activeTab === 'changesPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'groupPane' }">
-            <GroupPane v-if="activeTab === 'groupPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'govPane' }">
-            <GovPane v-if="activeTab === 'govPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'instPane' }">
-            <InstitutionalPane v-if="activeTab === 'instPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'shadowPane' }">
-            <ShadowPane v-if="activeTab === 'shadowPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'insiderPane' }">
-            <InsiderPane v-if="activeTab === 'insiderPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'komposisiPane' }">
-            <KomposisiPane v-if="activeTab === 'komposisiPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'klasifikasiPane' }">
-            <KlasifikasiPane v-if="activeTab === 'klasifikasiPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'tipePane' }">
-            <TipePane v-if="activeTab === 'tipePane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'proxyPane' }">
-            <ProxyExplorerPane v-if="activeTab === 'proxyPane'" />
-          </div>
-          <div class="tabpane" :class="{ on: activeTab === 'methodPane' }">
-            <MethodologyPane v-if="activeTab === 'methodPane'" />
-          </div>
-         
+          <div class="tabpane on" id="networkPane"><NetworkPane /></div>
+          <div class="tabpane" id="auditPane"><IssuerAuditPane /></div>
+          <div class="tabpane" id="changesPane"><ChangeMonitorPane /></div>
+          <div class="tabpane" id="groupPane"><GroupPane /></div>
+          <div class="tabpane" id="govPane"><GovPane /></div>
+          <div class="tabpane" id="instPane"><InstitutionalPane /></div>
+          <div class="tabpane" id="shadowPane"><ShadowPane /></div>
+          <div class="tabpane" id="insiderPane"><InsiderPane /></div>
+          <div class="tabpane" id="komposisiPane"><KomposisiPane /></div>
+          <div class="tabpane" id="klasifikasiPane"><KlasifikasiPane /></div>
+          <div class="tabpane" id="tipePane"><TipePane /></div>
+          <div class="tabpane" id="proxyPane"><ProxyExplorerPane /></div>
+          <div class="tabpane" id="methodPane"><MethodologyPane /></div>
+          <div class="tabpane" id="adminPane"><AdminPane /></div>
         </section>
 
         <div class="footerNote">Source: KSEI/BEI ownership disclosure data. Avenir calculations are analytical proxies and should be verified against issuer filings and official free-float data before investment use.</div>

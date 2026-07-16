@@ -1120,4 +1120,32 @@ class HomeController extends Controller
         $pdf->Output('D', $filename);
         exit;
     }
+
+    /**
+     * Privacy Policy page (required for Google AdSense approval).
+     */
+    public function privacyPolicy()
+    {
+        $meta = [
+            'title'       => 'Kebijakan Privasi | Avenir Research',
+            'description' => 'Kebijakan privasi Avenir Research menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda serta penggunaan cookies dan layanan iklan Google AdSense.',
+            'type'        => 'website',
+        ];
+
+        return \Inertia\Inertia::render('PrivacyPolicy', compact('meta'));
+    }
+
+    /**
+     * Terms of Service page (required for Google AdSense approval).
+     */
+    public function syaratPenggunaan()
+    {
+        $meta = [
+            'title'       => 'Syarat & Ketentuan Penggunaan | Avenir Research',
+            'description' => 'Syarat dan ketentuan penggunaan layanan Avenir Research. Harap baca dengan seksama sebelum menggunakan platform riset pasar modal kami.',
+            'type'        => 'website',
+        ];
+
+        return \Inertia\Inertia::render('SyaratPenggunaan', compact('meta'));
+    }
 }

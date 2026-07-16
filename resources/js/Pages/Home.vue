@@ -157,10 +157,10 @@ const headlinesPasar = computed(() => {
 
 <template>
     <Head>
-        <title>Home | Avenir</title>
-        <meta name="description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
-        <meta property="og:title" content="Home | Avenir" />
-        <meta property="og:description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif." />
+        <title>Avenir Research | Riset Saham Kelas Institusi</title>
+        <meta name="description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif dengan standar institusi." />
+        <meta property="og:title" content="Avenir Research | Riset Saham Kelas Institusi" />
+        <meta property="og:description" content="Avenir - Platform riset dan direktori pasar modal Indonesia yang komprehensif dengan standar institusi." />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         
@@ -171,9 +171,33 @@ const headlinesPasar = computed(() => {
         <meta name="ICBM" content="-0.789275, 113.921327" />
         <meta name="language" content="id-ID" />
         <meta name="view-transition" content="same-origin" />
+        
+        <!-- JSON-LD WebSite -->
+        <component :is="'script'" type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Avenir Research",
+          "url": "https://researchavenir.com",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://researchavenir.com/artikel?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+        </component>
+        <!-- JSON-LD Organization -->
+        <component :is="'script'" type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "Avenir Research",
+          "url": "https://researchavenir.com",
+          "logo": "https://researchavenir.com/favicon.png"
+        }
+        </component>
     </Head>
 
-  <Head title="Riset Saham Kelas Institusi" />
   <AppLayout>
     <div class="landing-dark-wrapper">
       

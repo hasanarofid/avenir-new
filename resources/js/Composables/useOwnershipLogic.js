@@ -130,8 +130,10 @@ export function setOwnershipData(DATA) {
 }
 
 // Async Load Data
-export async function loadOwnershipData(url = '/admin/desk-brief/ownership/data') {
-    if (dataLoaded.value) return;
+export async function loadOwnershipData(url = '/admin/desk-brief/ownership/data', force = false) {
+    if (dataLoaded.value && !force) return;
+    // Reset if force-loading (e.g. mockup vs production)
+    if (force) dataLoaded.value = false;
     try {
         const res = await fetch(url);
         const DATA = await res.json();

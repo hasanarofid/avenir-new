@@ -12,6 +12,12 @@ use Inertia\Inertia;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\MigratedPasswordController;
+use App\Http\Controllers\SitemapController;
+
+// SEO & Legal Routes
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/privacy-policy', [HomeController::class, 'privacyPolicy'])->name('privacy-policy');
+Route::get('/syarat-penggunaan', [HomeController::class, 'syaratPenggunaan'])->name('syarat-penggunaan');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/katalog', [HomeController::class, 'katalog'])->name('katalog');

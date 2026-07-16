@@ -91,9 +91,9 @@ import { Link } from '@inertiajs/vue3';
           <div class="space-y-4">
             <h4 class="text-xs font-bold text-slate-300 uppercase tracking-widest">LEGAL</h4>
             <ul class="space-y-2.5 text-[13px] text-slate-500">
-              <li><Link href="/langganan" class="hover:text-emerald-400 transition-colors">Syarat &amp; Ketentuan</Link></li>
-              <li><Link href="/langganan" class="hover:text-emerald-400 transition-colors">Kebijakan Privasi</Link></li>
-              <li><Link href="/langganan" class="hover:text-emerald-400 transition-colors">Disclaimer</Link></li>
+              <li><Link href="/syarat-penggunaan" class="hover:text-emerald-400 transition-colors">Syarat &amp; Ketentuan</Link></li>
+              <li><Link href="/privacy-policy" class="hover:text-emerald-400 transition-colors">Kebijakan Privasi</Link></li>
+              <li><Link href="/syarat-penggunaan" class="hover:text-emerald-400 transition-colors">Disclaimer</Link></li>
               <li><Link href="/langganan" class="hover:text-emerald-400 transition-colors">Kode Etik Analis</Link></li>
             </ul>
           </div>
