@@ -51,14 +51,21 @@ class ProcessOwnershipCsvJob implements ShouldQueue
         $brokersFile = storage_path('app/private/temp_brokers_' . uniqid() . '.json');
         file_put_contents($brokersFile, json_encode(['byCode' => $brokers]));
 
+        $masterStocks = \App\Models\MasterStock::toMap();
+        $masterStocksFile = storage_path('app/private/temp_master_stocks_' . uniqid() . '.json');
+        file_put_contents($masterStocksFile, json_encode(['byCode' => $masterStocks]));
+
         $scriptPath = base_path('scripts/build_ownership_excel.py');
-        $command = escapeshellcmd("python3 " . escapeshellarg($scriptPath) . " " . escapeshellarg($daily5pctFile) . " " . escapeshellarg($monthlyTypeFile) . " " . escapeshellarg($monthlyClassificationFile) . " " . escapeshellarg($monthly1pctFile) . " " . escapeshellarg($brokersFile));
+        $command = escapeshellcmd("python3 " . escapeshellarg($scriptPath) . " " . escapeshellarg($daily5pctFile) . " " . escapeshellarg($monthlyTypeFile) . " " . escapeshellarg($monthlyClassificationFile) . " " . escapeshellarg($monthly1pctFile) . " " . escapeshellarg($brokersFile) . " " . escapeshellarg($masterStocksFile));
         
         Log::info("Running command: $command");
         $output = shell_exec($command);
 
         if (!$output) {
             Log::error("Python script returned no output.");
+            @unlink($brokersFile);
+        @unlink($masterStocksFile);
+            @unlink($masterStocksFile);
             return;
         }
 
@@ -66,6 +73,7 @@ class ProcessOwnershipCsvJob implements ShouldQueue
         if (!$result || !isset($result['status']) || $result['status'] !== 'success') {
             Log::error("Python script failed. Output: " . substr($output, 0, 500));
             @unlink($brokersFile);
+        @unlink($masterStocksFile);
             return;
         }
 
@@ -83,5 +91,6 @@ class ProcessOwnershipCsvJob implements ShouldQueue
 
         Log::info("Successfully built JSON for snapshot {$this->snapshotId}");
         @unlink($brokersFile);
+        @unlink($masterStocksFile);
     }
 }

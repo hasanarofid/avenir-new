@@ -13,6 +13,14 @@ export function initVanillaLogic(DATA, KSEI_SEED) {
 const entityArr = Object.values(entities);
 window._vanillaSelectedKey = (entities['E:BREN'] ? 'E:BREN' : (stats.defaultKey || Object.keys(entities)[0]));
 
+// Override with real data if provided
+if (DATA && DATA.insiderData && DATA.insiderData.snapshots && DATA.insiderData.snapshots.length > 0) {
+    insiderData = DATA.insiderData;
+}
+if (DATA && DATA.monthlyData) {
+    monthlyData = DATA.monthlyData;
+}
+
 /* ============ MANUAL OVERRIDES (Admin) ============ */
 const OVERRIDE_STORE_KEY = 'avenir_manual_overrides_v1';
 function loadOverrides(){
@@ -275,7 +283,22 @@ function initControls(){
 
 function renderKpis(){
   const e=ent(window._vanillaSelectedKey);
-  document.getElementById('selectedDisplay').value=(e.ticker?e.ticker+' - ':'')+e.label;
+  const dispEl = document.getElementById('selectedDisplay');
+  const logoEl = document.getElementById('selectedLogo');
+  if(dispEl) {
+    if(dispEl.tagName === 'INPUT') dispEl.value=(e.ticker?e.ticker+' - ':'')+e.label;
+    else dispEl.innerText=(e.ticker?e.ticker+' - ':'')+e.label;
+  }
+  if(logoEl) {
+    if(e.logo_url) {
+      logoEl.src = e.logo_url;
+      logoEl.style.display = 'block';
+    } else {
+      logoEl.src = '';
+      logoEl.style.display = 'none';
+    }
+  }
+  
   document.querySelectorAll('.chip[data-key]').forEach(c=>c.classList.toggle('on',c.dataset.key===window._vanillaSelectedKey));
   const audit=audits[window._vanillaSelectedKey], inv=investorSummaries[window._vanillaSelectedKey];
   const ownerCount=(inEdges[window._vanillaSelectedKey]||[]).length, holdCount=(outEdges[window._vanillaSelectedKey]||[]).length;

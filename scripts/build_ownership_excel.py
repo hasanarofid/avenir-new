@@ -222,8 +222,8 @@ def parse_monthly_workbook(file_path):
     raise ValueError('Jenis file bulanan tidak dikenali (bukan satu-persen/klasifikasi/tipe).')
 
 def main():
-    if len(sys.argv) < 6:
-        print("Usage: python3 build_ownership_excel.py <daily5pct.xlsx> <type.xlsx> <klasifikasi.xlsx> <1pct.xlsx> <brokers.json>")
+    if len(sys.argv) < 7:
+        print("Usage: python3 build_ownership_excel.py <daily5pct.xlsx> <type.xlsx> <klasifikasi.xlsx> <1pct.xlsx> <brokers.json> <master_stocks.json>")
         sys.exit(1)
 
     daily_path = sys.argv[1]
@@ -231,6 +231,7 @@ def main():
     klas_path = sys.argv[3]
     satu_path = sys.argv[4]
     brokers_path = sys.argv[5]
+    master_stocks_path = sys.argv[6]
 
     try:
         daily_res = parse_ksei_workbook(daily_path)
@@ -240,6 +241,10 @@ def main():
         
         with open(brokers_path, 'r') as f:
             brokers = json.load(f)
+            
+        with open(master_stocks_path, 'r') as f:
+            master_stocks_data = json.load(f)
+            master_stocks = master_stocks_data.get('byCode', {})
             
     except Exception as e:
         print(json.dumps({"status": "error", "message": f"Failed to parse files: {str(e)}"}))
@@ -271,9 +276,14 @@ def main():
     for ticker, holds in daily_res['issuers'].items():
         ek = get_entity_key('issuer', ticker)
         if ek not in entities:
+            ms = master_stocks.get(ticker, {})
             entities[ek] = {
                 "key": ek, "label": ticker, "ticker": ticker,
-                "kind": "issuer", "norm": ticker, "listed": True
+                "kind": "issuer", "norm": ticker, "listed": True,
+                "logo_url": ms.get("logo_url", ""),
+                "sector": ms.get("sector", ""),
+                "sub_industry": ms.get("sub_industry", ""),
+                "is_sharia": ms.get("is_sharia", False)
             }
         
         for h in holds:

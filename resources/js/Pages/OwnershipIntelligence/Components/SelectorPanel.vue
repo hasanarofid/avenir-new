@@ -4,7 +4,10 @@
       <!-- selectedDisplay: vanilla renderKpis() writes the selected entity name here -->
       <div class="field">
         <label>Selected entity</label>
-        <input id="selectedDisplay" readonly style="background:rgba(255,255,255,0.05); cursor:default;" placeholder="—" />
+        <div id="selectedDisplayContainer" style="display:flex; align-items:center; background:rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); height: 38px; cursor:default;">
+          <img id="selectedLogo" src="" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 8px; display: none; object-fit: contain;" />
+          <span id="selectedDisplay" style="color: #fff; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; outline: none;" contenteditable="false">—</span>
+        </div>
       </div>
       <div class="field">
         <label>Network depth</label>
