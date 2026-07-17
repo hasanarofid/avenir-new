@@ -1,0 +1,1 @@
+import{B as e,F as t,M as n,b as r}from"./app-zIB-y2v3.js";import{t as i}from"./useOwnershipLogic-D524WsG1.js";var a={class:`panelBody`,id:`govBody`},o={__name:`GovPane`,setup(o){return n(()=>{window.renderGov&&window.renderGov()}),e(i,e=>{e===`govPane`&&window.renderGov&&setTimeout(()=>window.renderGov(),50)}),(e,n)=>(t(),r(`div`,a))}};export{o as default};

@@ -1,0 +1,1 @@
+import{B as e,F as t,M as n,b as r}from"./app-zIB-y2v3.js";import{t as i}from"./useOwnershipLogic-D524WsG1.js";var a={class:`panelBody`,id:`auditBody`},o={__name:`IssuerAuditPane`,setup(o){return n(()=>{window.renderAudit&&window.renderAudit()}),e(i,e=>{e===`auditPane`&&window.renderAudit&&setTimeout(()=>window.renderAudit(),50)}),(e,n)=>(t(),r(`div`,a))}};export{o as default};

@@ -1,0 +1,1 @@
+import{B as e,F as t,M as n,b as r}from"./app-zIB-y2v3.js";import{t as i}from"./useOwnershipLogic-D524WsG1.js";var a={class:`panelBody`,id:`shadowBody`},o={__name:`ShadowPane`,setup(o){return n(()=>{window.renderShadow&&window.renderShadow()}),e(i,e=>{e===`shadowPane`&&window.renderShadow&&setTimeout(()=>window.renderShadow(),50)}),(e,n)=>(t(),r(`div`,a))}};export{o as default};
