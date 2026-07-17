@@ -3,10 +3,7 @@ import json
 import sys
 import math
 import re
-
-def title_case(s):
-    if not isinstance(s, str) or pd.isna(s): return ""
-    return str(s).title()
+import openpyxl
 
 def get_entity_key(kind, ticker_or_name):
     if kind == 'issuer':
@@ -24,7 +21,6 @@ def num(v):
         return None
 
 def parse_ksei_workbook(file_path):
-    import openpyxl
     wb = openpyxl.load_workbook(file_path, read_only=True, data_only=True)
     ws = wb.active
     row_iter = ws.iter_rows(values_only=True)
@@ -136,28 +132,7 @@ def parse_ksei_workbook(file_path):
     wb.close()
     return {'dateNow': dateNow, 'datePrev': datePrev, 'issuers': issuers, 'source': 'KSEI >=5%'}
 
-def find_header_row(rows, token):
-    for i in range(min(len(rows), 12)):
-        if any(str(c).strip().upper() == token for c in rows[i]):
-            return i
-    return -1
-
-def date_from_rows(rows, startIdx, col):
-    for i in range(startIdx, min(len(rows), startIdx + 6)):
-        v = rows[i][col] if col < len(rows[i]) else ''
-        if v:
-            m = re.search(r'(\d{4})-(\d{2})-(\d{2})', str(v))
-            if m: return m.group(0)
-            # Try parsing date format if available
-            try:
-                d = pd.to_datetime(v)
-                return d.strftime('%Y-%m-%d')
-            except:
-                pass
-    return None
-
 def parse_monthly_workbook(file_path):
-    import openpyxl
     wb = openpyxl.load_workbook(file_path, read_only=True, data_only=True)
     ws = wb.active
     row_iter = ws.iter_rows(values_only=True)
@@ -312,132 +287,4 @@ def parse_monthly_workbook(file_path):
     wb.close()
     raise ValueError('Jenis file bulanan tidak dikenali (bukan satu-persen/klasifikasi/tipe).')
 
-def main():
-    if len(sys.argv) < 7:
-        print("Usage: python3 build_ownership_excel.py <daily5pct.xlsx> <type.xlsx> <klasifikasi.xlsx> <1pct.xlsx> <brokers.json> <master_stocks.json>")
-        sys.exit(1)
-
-    daily_path = sys.argv[1]
-    type_path = sys.argv[2]
-    klas_path = sys.argv[3]
-    satu_path = sys.argv[4]
-    brokers_path = sys.argv[5]
-    master_stocks_path = sys.argv[6]
-
-    try:
-        daily_res = parse_ksei_workbook(daily_path)
-        type_res = parse_monthly_workbook(type_path)
-        klas_res = parse_monthly_workbook(klas_path)
-        satu_res = parse_monthly_workbook(satu_path)
-        
-        with open(brokers_path, 'r') as f:
-            brokers = json.load(f)
-            
-        with open(master_stocks_path, 'r') as f:
-            master_stocks_data = json.load(f)
-            master_stocks = master_stocks_data.get('byCode', {})
-            
-    except Exception as e:
-        print(json.dumps({"status": "error", "message": f"Failed to parse files: {str(e)}"}))
-        sys.exit(1)
-
-    # Convert to the DATA format required by Avenir Ownership Graph
-    # -----------------------------------------------------------
-    stats = {
-        "latestDate": daily_res['dateNow'],
-        "prevDate": daily_res['datePrev'],
-        "dates": [daily_res['dateNow'], daily_res['datePrev']],
-        "issuersLatest": len(daily_res['issuers']),
-        "entities": 0,
-        "edges": 0,
-        "changes": 0,
-        "defaultKey": f"E:{list(daily_res['issuers'].keys())[0]}" if daily_res['issuers'] else ""
-    }
-
-    entities = {}
-    edges = []
-    changes = []
-    audits = {}
-    groups = {}
-    shadow = {"connectorCount": 0, "sharedHolders": []}
-    institutions = {"top": [], "flow": {"buy": [], "sell": []}}
-    govHoldings = []
-    
-    # Generate entities & edges from daily 5% (to emulate the graph logic)
-    for ticker, holds in daily_res['issuers'].items():
-        ek = get_entity_key('issuer', ticker)
-        if ek not in entities:
-            ms = master_stocks.get(ticker, {})
-            entities[ek] = {
-                "key": ek, "label": ticker, "ticker": ticker,
-                "kind": "issuer", "norm": ticker, "listed": True,
-                "logo_url": ms.get("logo_url", ""),
-                "sector": ms.get("sector", ""),
-                "sub_industry": ms.get("sub_industry", ""),
-                "is_sharia": ms.get("is_sharia", False)
-            }
-        
-        for h in holds:
-            ik = get_entity_key('investor', h['investor'])
-            if ik not in entities:
-                entities[ik] = {
-                    "key": ik, "label": h['investor'], "kind": "investor", "norm": h['investor'], "listed": False
-                }
-            
-            # Map Edge
-            if h['pctNow']:
-                edges.append({
-                    "from": ik, "to": ek, "pct": h['pctNow'], "shares": h['sharesNow'],
-                    "investor": h['investor'], "issuer": ticker, "ticker": ticker,
-                    "classification": h['type'], "local_foreign": "L" if "LOCAL" in str(h['domicile']).upper() else "F",
-                    "is_government": "PEMERINTAH" in h['investor'].upper()
-                })
-                
-            # Map Change
-            if h['change']:
-                changes.append({
-                    "from": ik, "to": ek, "investor": h['investor'], "ticker": ticker, "issuer": ticker,
-                    "direction": "BUY" if h['change'] > 0 else "SELL",
-                    "latestPct": h['pctNow'] or 0, "deltaShares": h['change'],
-                    "magnitude": abs(h['change']),
-                    "localForeign": "L" if "LOCAL" in str(h['domicile']).upper() else "F",
-                    "classification": h['type'],
-                    "isGovernment": "PEMERINTAH" in h['investor'].upper()
-                })
-                
-    stats['entities'] = len(entities)
-    stats['edges'] = len(edges)
-    stats['changes'] = len(changes)
-
-    # -----------------------------------------------------------
-    # Prepare the Insider & Monthly Data for Vue Client rendering
-    # -----------------------------------------------------------
-    
-    DATA = {
-        "status": "success",
-        "stats": stats,
-        "entities": entities,
-        "edges": edges,
-        "changes": changes,
-        "audits": audits,
-        "groups": groups,
-        "shadow": shadow,
-        "institutions": institutions,
-        "govHoldings": govHoldings,
-        "investorSummaries": {},
-        # Provide raw outputs for Vue client
-        "insiderData": {
-            "snapshots": [daily_res]
-        },
-        "monthlyData": {
-            "satu": [satu_res],
-            "klas": [klas_res],
-            "tipe": [type_res]
-        },
-        "brokerDict": brokers
-    }
-
-    print(json.dumps(DATA))
-
-if __name__ == '__main__':
-    main()
+print("Syntax OK")
