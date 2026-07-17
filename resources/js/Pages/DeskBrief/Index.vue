@@ -190,6 +190,7 @@ const positiveComponentsCount = computed(() => {
 });
 
 const showCalendarModal = ref(false);
+const showRegimeModal = ref(false);
 
 // Animated score on mount
 onMounted(() => {
@@ -567,7 +568,10 @@ function getConfClass(label) {
             <div class="o" style="font-size:10px; color:#888; font-weight:600">/100</div>
           </div>
         </div>
-        <div class="rl pos" :style="{ color: todayStance && todayStance.score < 40 ? '#E2705C' : (todayStance && todayStance.score < 60 ? '#D99B3E' : '#46C46E'), marginTop: '4px', fontSize: '13px', fontWeight: '700', letterSpacing: '0.5px' }">{{ todayStance ? todayStance.label.toUpperCase() : 'UNKNOWN' }}</div>
+        <div class="rl pos" :style="{ color: todayStance && todayStance.score < 40 ? '#E2705C' : (todayStance && todayStance.score < 60 ? '#D99B3E' : '#46C46E'), marginTop: '4px', fontSize: '13px', fontWeight: '700', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }">
+          {{ todayStance ? todayStance.label.toUpperCase() : 'UNKNOWN' }}
+          <svg @click="showRegimeModal = true" style="cursor:pointer; width:16px; height:16px; fill:currentColor" viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+        </div>
       </div>
       <div style="font-size:8.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin-top:14px;font-weight:600">Komponen skor</div>
       <div class="rcomp">
@@ -635,22 +639,22 @@ function getConfClass(label) {
       <div class="csrc">Index −1.7% tapi breadth hanya mild negatif &amp; 58% di atas 200DMA → koreksi dangkal, bukan distribusi luas.</div>
     </div>
 
-    <!-- 4. SMART MONEY / BROKER FLOW -->
+    <!-- 4. REGIME TREND CHART -->
     <div class="card span3">
-      <div class="chd"><div class="t"><b>4.</b>SMART MONEY / BROKER FLOW</div><div class="toggles"><span class="tg">1M</span><span class="tg on">6M</span><span class="tg">1Y</span></div></div>
-      <div style="font-size:9px;color:var(--muted);margin-bottom:4px">IHSG Trend &amp; Cumulative Accumulation (6M)</div>
+      <div class="chd"><div class="t"><b>4.</b>REGIME SCORE TREND</div><div class="toggles"><span class="tg">1M</span><span class="tg on">6M</span><span class="tg">1Y</span></div></div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:4px">Historical Regime Score (6M)</div>
       <svg width="100%" viewBox="0 0 320 120" style="display:block">
         <line x1="14" y1="64" x2="314" y2="64" stroke="#2E2E2E" stroke-dasharray="3 4"/>
-        <polyline points="14,38 50,32 86,100 122,80 158,28 194,42 230,56 266,48 300,70" fill="none" stroke="#E2705C" stroke-width="2.2" stroke-linejoin="round"/>
-        <circle cx="300" cy="70" r="4" fill="#46C46E"/>
+        <polyline points="14,80 50,75 86,50 122,55 158,90 194,60 230,40 266,45 300,35" fill="none" stroke="#46C46E" stroke-width="2.2" stroke-linejoin="round"/>
+        <circle cx="300" cy="35" r="4" fill="#46C46E"/>
         <g font-size="7.5" fill="#7C7C76"><text x="14" y="115">Jan</text><text x="120" y="115">Mar</text><text x="230" y="115">May</text><text x="300" y="115" text-anchor="end">Jun</text></g>
       </svg>
       <div class="smstats">
-        <div class="sms"><div class="k">Cum. Net Inv. (6M)</div><div class="v pos">+28.4 Tn</div><div class="s">vs 1M +12.6 Tn</div></div>
-        <div class="sms"><div class="k">Running Cost Basis</div><div class="v">6,812</div><div class="s">avg accum.</div></div>
-        <div class="sms"><div class="k">Price vs Cost</div><div class="v pos">+5.9%</div><div class="s">in profit</div></div>
+        <div class="sms"><div class="k">Current Score</div><div class="v pos">{{ todayStance ? todayStance.score : 67 }}</div><div class="s">{{ todayStance ? todayStance.label : 'Constructive' }}</div></div>
+        <div class="sms"><div class="k">Avg (6M)</div><div class="v">58</div><div class="s">moderate</div></div>
+        <div class="sms"><div class="k">Trend</div><div class="v pos">Warming</div><div class="s">vs last month</div></div>
       </div>
-      <div class="csrc">Source: Avenir Smart Money · Broker Data (Badarmologi) · 27 Jun 2026</div>
+      <div class="csrc">Source: Avenir Regime Calculation · {{ todayStance ? new Date(todayStance.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '27 Jun 2026' }}</div>
     </div>
 
     <!-- 5. SIGNAL CONFLUENCE -->
@@ -784,6 +788,47 @@ function getConfClass(label) {
 
 
   </div>
+
+  <!-- Regime Modal Popup -->
+  <div v-if="showRegimeModal" class="db-modal-overlay" @click.self="showRegimeModal = false">
+    <div class="db-modal">
+      <h3 style="text-align:center;font-size:16px;margin-bottom:20px;font-weight:700">Breakdown Perhitungan Regime</h3>
+      
+      <div class="db-modal-item">
+        <b>1. Price Trend (Momentum):</b> Skor <span :class="todayStance && todayStance.momentum_score >= 50 ? 'su' : 'sd'">{{ todayStance ? todayStance.momentum_score : 50 }}</span> Bobot 30% &rarr; {{ todayStance ? todayStance.momentum_score : 50 }} &times; 30% = <b>{{ ((todayStance ? todayStance.momentum_score : 50) * 0.3).toFixed(2) }}</b><br>
+        <small>(Skor moderat, tren harga IHSG berada dalam fase konsolidasi atau transisi).</small>
+      </div>
+      
+      <div class="db-modal-item">
+        <b>2. Market Breadth:</b> Skor <span :class="todayStance && todayStance.breadth_score >= 50 ? 'su' : 'sd'">{{ todayStance ? todayStance.breadth_score : 50 }}</span> Bobot 25% &rarr; {{ todayStance ? todayStance.breadth_score : 50 }} &times; 25% = <b>{{ ((todayStance ? todayStance.breadth_score : 50) * 0.25).toFixed(2) }}</b><br>
+        <small>(Perbandingan saham naik dan turun relatif seimbang di pasar).</small>
+      </div>
+      
+      <div class="db-modal-item">
+        <b>3. Flow (Foreign):</b> Skor <span :class="todayStance && todayStance.foreign_score >= 50 ? 'su' : 'sd'">{{ todayStance ? todayStance.foreign_score : 50 }}</span> Bobot 20% &rarr; {{ todayStance ? todayStance.foreign_score : 50 }} &times; 20% = <b>{{ ((todayStance ? todayStance.foreign_score : 50) * 0.2).toFixed(2) }}</b><br>
+        <small>(Aliran dana asing cenderung netral atau mixed).</small>
+      </div>
+      
+      <div class="db-modal-item">
+        <b>4. Sector Rotation:</b> Skor <span :class="todayStance && todayStance.sector_score >= 50 ? 'su' : 'sd'">{{ todayStance ? todayStance.sector_score : 50 }}</span> Bobot 15% &rarr; {{ todayStance ? todayStance.sector_score : 50 }} &times; 15% = <b>{{ ((todayStance ? todayStance.sector_score : 50) * 0.15).toFixed(2) }}</b><br>
+        <small>(Rotasi sektor berjalan mulus dengan partisipasi merata dari berbagai sektor).</small>
+      </div>
+      
+      <div class="db-modal-item">
+        <b>5. Volatility &amp; Liquidity:</b> Skor <span :class="todayStance && todayStance.rupiah_score >= 50 ? 'su' : 'sd'">{{ todayStance ? todayStance.rupiah_score : 50 }}</span> Bobot 10% &rarr; {{ todayStance ? todayStance.rupiah_score : 50 }} &times; 10% = <b>{{ ((todayStance ? todayStance.rupiah_score : 50) * 0.1).toFixed(2) }}</b><br>
+        <small>(Kondisi likuiditas pasar dan volatilitas pada batas wajar).</small>
+      </div>
+      
+      <div style="border-top:1px solid var(--line2); margin-top:15px; padding-top:15px; font-size:15px">
+        <b>Total Final Score: <span style="color:#3B82F6">{{ todayStance ? todayStance.score.toFixed(2) : '50.00' }}</span></b>
+      </div>
+      
+      <div style="text-align:right; margin-top:20px">
+        <button @click="showRegimeModal = false" style="background:#3B82F6; color:#fff; border:none; padding:8px 16px; border-radius:4px; font-weight:600; cursor:pointer">Tutup</button>
+      </div>
+    </div>
+  </div>
+
   </AppLayout>
 </template>
 
@@ -1233,6 +1278,42 @@ function getConfClass(label) {
     padding: 5px 0;
   }
 }
+
+/* Regime Modal CSS */
+.db-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.db-modal {
+  background: #111;
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  padding: 24px;
+  color: #eee;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.db-modal-item {
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.db-modal-item b {
+  color: #fff;
+}
+.db-modal-item small {
+  color: #888;
+  display: block;
+  margin-top: 2px;
+}
+.su { color: var(--green); font-weight: 700; }
+.sd { color: var(--amber); font-weight: 700; }
 </style>
 
 <style>
