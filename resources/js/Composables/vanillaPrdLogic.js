@@ -2023,7 +2023,7 @@ window.setSelected=setSelected; window.switchTab=switchTab; window.switchMode=sw
     window.renderGov = renderGov;
     window.renderInst = typeof renderInstitutions !== "undefined" ? renderInstitutions : () => {};
     window.renderShadow = renderShadow;
-    window.renderProxy = renderProxy;
+    window.renderProxy = typeof renderProxy !== "undefined" ? renderProxy : () => {};
     window.renderAdmin = renderAdmin;
     window.renderNetwork = renderNetwork;
     window.renderAudit = typeof renderAudit !== "undefined" ? renderAudit : () => {};
