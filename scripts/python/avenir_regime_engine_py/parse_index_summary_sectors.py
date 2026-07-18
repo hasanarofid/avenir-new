@@ -37,7 +37,7 @@ def run(input_path, output_path, date_str):
 
     code_col = find_col(df, ['index_code', 'index', 'code', 'indeks', 'kode'])
     prev_col = find_col(df, ['previous', 'prev', 'sebelumnya'])
-    chg_col = find_col(df, ['change', 'perubahan'])
+    chg_col = find_col(df, ['change', 'perubahan', 'selisih'])
     
     if not code_col or not prev_col or not chg_col:
         print(f"DEBUG: Found columns: {df.columns.tolist()}")
