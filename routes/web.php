@@ -185,6 +185,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/master-stock/{code}', [\App\Http\Controllers\Admin\MasterStockController::class, 'update'])->name('master-stock.update');
         Route::delete('/master-stock/{code}', [\App\Http\Controllers\Admin\MasterStockController::class, 'destroy'])->name('master-stock.destroy');
 
+        // EOD Uploads
+        Route::get('/eod-uploads', [\App\Http\Controllers\Admin\EodUploadController::class, 'index'])->name('eod-uploads.index');
+        Route::post('/eod-uploads', [\App\Http\Controllers\Admin\EodUploadController::class, 'store'])->name('eod-uploads.store');
+
+        // Internal APIs
+        Route::get('/api/stocks/{code}/historical', [\App\Http\Controllers\Api\StockHistoricalController::class, 'show'])->name('api.stocks.historical');
+
+
     });
 
 

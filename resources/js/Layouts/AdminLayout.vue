@@ -28,7 +28,8 @@ import {
   TrendingUp,
   ShieldAlert,
   Coins,
-  Building2
+  Building2,
+  Upload
 } from '@lucide/vue';
 
 const page = usePage();
@@ -116,6 +117,7 @@ const navigationGroups = [
     items: [
       { name: 'Emiten Hub', href: route('admin.emitens.index'), icon: TrendingUp, current: route().current('admin.emitens.*') },
       { name: 'Master Emiten', href: route('admin.master-stock.index'), icon: Building2, current: route().current('admin.master-stock.*') },
+      { name: 'EOD Uploads', href: route('admin.eod-uploads.index'), icon: Upload, current: route().current('admin.eod-uploads.*') },
       { name: 'Web Settings', href: route('admin.settings.index'), icon: SettingsIcon, current: route().current('admin.settings.index') },
     ]
   }
