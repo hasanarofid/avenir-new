@@ -1,1 +1,0 @@
-import{F as e,H as t,Z as n,_ as r,b as i,d as a}from"./app-zIB-y2v3.js";var o={class:`text-sm text-red-600 dark:text-red-400`},s={__name:`InputError`,props:{message:{type:String}},setup(s){return(c,l)=>t((e(),i(`div`,null,[r(`p`,o,n(s.message),1)],512)),[[a,s.message]])}};export{s as t};

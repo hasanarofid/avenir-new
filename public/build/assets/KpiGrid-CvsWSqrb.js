@@ -1,1 +1,0 @@
-import{F as e,b as t}from"./app-zIB-y2v3.js";var n={class:`gridKpi`,id:`kpiGrid`},r={__name:`KpiGrid`,setup(r){return(r,i)=>(e(),t(`section`,n))}};export{r as default};

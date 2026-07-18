@@ -1,1 +1,0 @@
-import{B as e,F as t,M as n,b as r}from"./app-zIB-y2v3.js";import{t as i}from"./useOwnershipLogic-D524WsG1.js";var a={class:`panelBody`,id:`groupBody`},o={__name:`GroupPane`,setup(o){return n(()=>{window.renderGroup&&window.renderGroup()}),e(i,e=>{e===`groupPane`&&window.renderGroup&&setTimeout(()=>window.renderGroup(),50)}),(e,n)=>(t(),r(`div`,a))}};export{o as default};

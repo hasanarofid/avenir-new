@@ -95,7 +95,11 @@ class DeskBriefController extends Controller
             'isPreview' => $previewId && $latestBrief && $latestBrief->status !== 'published',
             'deskBrief' => $latestBrief,
             'snapshots' => $this->getSnapshots(),
-            'topMovers' => $this->getTopMovers(),
+            'topMovers' => $this->getTopMovers($date),
+            'historicalScores' => \App\Models\MarketStanceDaily::where('date', '>=', \Carbon\Carbon::parse($date)->subMonths(6))
+                ->where('date', '<=', $date)
+                ->orderBy('date', 'asc')
+                ->get(['date', 'score', 'label']),
             'mostTraded' => $this->getMostTraded(),
             'apiStatus' => $this->getApiStatus(),
             'sectorBias' => SectorBiasDaily::whereDate('date', $date)->get(),
@@ -225,11 +229,34 @@ class DeskBriefController extends Controller
     }
 
     /**
-     * Top gainers & losers from cache (populated by sectors:sync command).
+     * Top gainers & losers from DB (populated by BreadthService) or cache fallback.
      */
-    private function getTopMovers(): array
+    private function getTopMovers(string $date): array
     {
-        return Cache::get('sectors_top_movers', ['gainers' => [], 'losers' => []]);
+        $snap = MarketSnapshot::whereDate('date', $date)
+            ->where('symbol_or_metric', 'TOP_MOVERS')
+            ->first();
+            
+        $movers = ['gainers' => [], 'losers' => []];
+        if ($snap && is_array($snap->sparkline_json)) {
+            $movers = $snap->sparkline_json;
+        } else {
+            $movers = Cache::get('sectors_top_movers', ['gainers' => [], 'losers' => []]);
+        }
+        
+        // Attach logo_url from master_stocks
+        $symbols = collect(array_merge($movers['gainers'] ?? [], $movers['losers'] ?? []))->pluck('symbol')->unique()->toArray();
+        $logos = \DB::table('master_stocks')->whereIn('code', $symbols)->pluck('logo_url', 'code');
+        
+        foreach (['gainers', 'losers'] as $type) {
+            if (isset($movers[$type])) {
+                foreach ($movers[$type] as &$item) {
+                    $item['logo_url'] = $logos[$item['symbol']] ?? null;
+                }
+            }
+        }
+        
+        return $movers;
     }
 
     /**

@@ -1,1 +1,0 @@
-import{B as e,F as t,M as n,b as r}from"./app-zIB-y2v3.js";import{t as i}from"./useOwnershipLogic-D524WsG1.js";var a={class:`panelBody`,id:`instBody`},o={__name:`InstitutionalPane`,setup(o){return n(()=>{window.renderInst&&window.renderInst()}),e(i,e=>{e===`instPane`&&window.renderInst&&setTimeout(()=>window.renderInst(),50)}),(e,n)=>(t(),r(`div`,a))}};export{o as default};

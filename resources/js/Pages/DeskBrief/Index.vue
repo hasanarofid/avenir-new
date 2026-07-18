@@ -23,6 +23,7 @@ const props = defineProps({
   todayStance: { type: Object, default: null },
   yesterdayStance: { type: Object, default: null },
   periodConclusion: { type: String, default: null },
+  historicalScores: { type: Array, default: () => [] },
 });
 
 // ──────────────────────────────────────────────
@@ -370,9 +371,64 @@ const riskIndexColor = computed(() => {
 // ──────────────────────────────────────────────
 // Top Movers
 // ──────────────────────────────────────────────
-const gainers = computed(() => (props.topMovers?.gainers || []).slice(0, 5));
-const losers  = computed(() => (props.topMovers?.losers  || []).slice(0, 5));
+const expandMovers = ref(false);
+const gainers = computed(() => {
+  const all = props.topMovers?.gainers || [];
+  return expandMovers.value ? all.slice(0, 20) : all.slice(0, 10);
+});
+const losers  = computed(() => {
+  const all = props.topMovers?.losers || [];
+  return expandMovers.value ? all.slice(0, 20) : all.slice(0, 10);
+});
 const hasMovers = computed(() => gainers.value.length > 0 || losers.value.length > 0);
+
+// ──────────────────────────────────────────────
+// Historical Regime Chart
+// ──────────────────────────────────────────────
+const hoveredScore = ref(null);
+
+const activeScore = computed(() => {
+  if (hoveredScore.value) return hoveredScore.value;
+  return props.todayStance || { score: 67, label: 'Constructive', date: '2026-06-27' };
+});
+
+const chartData = computed(() => {
+  if (!props.historicalScores || props.historicalScores.length === 0) {
+    return { 
+      raw: [], 
+      points: '14,80 50,75 86,50 122,55 158,90 194,60 230,40 266,45 300,35', 
+      lastPoint: {x: 300, y: 35} 
+    };
+  }
+  
+  const scores = props.historicalScores;
+  const stepX = (300 - 14) / Math.max(1, scores.length - 1);
+  
+  const pts = scores.map((s, i) => {
+    const x = 14 + (i * stepX);
+    const y = 100 - (s.score / 100) * 80;
+    return { x, y, data: s };
+  });
+  
+  return {
+    raw: pts,
+    points: pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '),
+    lastPoint: pts[pts.length - 1]
+  };
+});
+
+const avgScore = computed(() => {
+  if (!props.historicalScores || props.historicalScores.length === 0) return 58;
+  const sum = props.historicalScores.reduce((acc, s) => acc + parseFloat(s.score), 0);
+  return Math.round(sum / props.historicalScores.length);
+});
+
+const trendLabel = computed(() => {
+  if (!props.historicalScores || props.historicalScores.length < 30) return 'Warming';
+  const recent = props.historicalScores[props.historicalScores.length - 1].score;
+  const old = props.historicalScores[props.historicalScores.length - 30].score;
+  return recent >= old ? 'Warming' : 'Cooling';
+});
 
 // ──────────────────────────────────────────────
 // Actions
@@ -643,18 +699,25 @@ function getConfClass(label) {
     <div class="card span3">
       <div class="chd"><div class="t"><b>4.</b>REGIME SCORE TREND</div><div class="toggles"><span class="tg">1M</span><span class="tg on">6M</span><span class="tg">1Y</span></div></div>
       <div style="font-size:9px;color:var(--muted);margin-bottom:4px">Historical Regime Score (6M)</div>
-      <svg width="100%" viewBox="0 0 320 120" style="display:block">
-        <line x1="14" y1="64" x2="314" y2="64" stroke="#2E2E2E" stroke-dasharray="3 4"/>
-        <polyline points="14,80 50,75 86,50 122,55 158,90 194,60 230,40 266,45 300,35" fill="none" stroke="#46C46E" stroke-width="2.2" stroke-linejoin="round"/>
-        <circle cx="300" cy="35" r="4" fill="#46C46E"/>
-        <g font-size="7.5" fill="#7C7C76"><text x="14" y="115">Jan</text><text x="120" y="115">Mar</text><text x="230" y="115">May</text><text x="300" y="115" text-anchor="end">Jun</text></g>
+      <svg width="100%" viewBox="0 0 320 120" style="display:block; overflow:visible" @mouseleave="hoveredScore = null">
+        <line x1="14" y1="60" x2="314" y2="60" stroke="#2E2E2E" stroke-dasharray="3 4"/>
+        <polyline :points="chartData.points" fill="none" stroke="#46C46E" stroke-width="2.2" stroke-linejoin="round"/>
+        <circle v-if="chartData.lastPoint" :cx="chartData.lastPoint.x" :cy="chartData.lastPoint.y" r="4" fill="#46C46E"/>
+        <circle v-for="(pt, i) in chartData.raw" :key="'hover_'+i"
+                :cx="pt.x" :cy="pt.y" r="8" fill="transparent"
+                style="cursor:crosshair"
+                @mouseenter="hoveredScore = pt.data" />
+        <g font-size="7.5" fill="#7C7C76">
+          <text x="14" y="115">6M Ago</text>
+          <text x="300" y="115" text-anchor="end">Now</text>
+        </g>
       </svg>
       <div class="smstats">
-        <div class="sms"><div class="k">Current Score</div><div class="v pos">{{ todayStance ? todayStance.score : 67 }}</div><div class="s">{{ todayStance ? todayStance.label : 'Constructive' }}</div></div>
-        <div class="sms"><div class="k">Avg (6M)</div><div class="v">58</div><div class="s">moderate</div></div>
-        <div class="sms"><div class="k">Trend</div><div class="v pos">Warming</div><div class="s">vs last month</div></div>
+        <div class="sms"><div class="k">Selected Score</div><div class="v pos">{{ activeScore.score }}</div><div class="s">{{ activeScore.label }}</div></div>
+        <div class="sms"><div class="k">Avg (6M)</div><div class="v">{{ avgScore }}</div><div class="s">moderate</div></div>
+        <div class="sms"><div class="k">Trend</div><div class="v pos" :class="trendLabel === 'Cooling' ? 'neg' : ''">{{ trendLabel }}</div><div class="s">vs last month</div></div>
       </div>
-      <div class="csrc">Source: Avenir Regime Calculation · {{ todayStance ? new Date(todayStance.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '27 Jun 2026' }}</div>
+      <div class="csrc">Source: Avenir Regime Calculation · {{ activeScore.date ? new Date(activeScore.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '27 Jun 2026' }}</div>
     </div>
 
     <!-- 5. SIGNAL CONFLUENCE -->
@@ -705,7 +768,7 @@ function getConfClass(label) {
           <div class="p">{{ sec.change > 0 ? '+' : '' }}{{ sec.change }}%</div>
         </div>
       </div>
-      <div class="scale"><span>−5%</span><span>Avenir · 27 Jun</span><span>+5%</span></div>
+      <div class="scale"><span>−5%</span><span>Avenir · {{ todayStance ? new Date(todayStance.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) : '27 Jun' }}</span><span>+5%</span></div>
     </div>
 
     <!-- 8. CATALYST CALENDAR -->
@@ -760,6 +823,8 @@ function getConfClass(label) {
           <div class="mvr" v-for="(g, idx) in gainers" :key="g.symbol">
             <span class="rk">{{ idx + 1 }}</span>
             <span :class="['ff', g.flow_confirmed !== false ? 'ff-ok' : 'ff-warn']">{{ g.flow_confirmed !== false ? '⚑' : '⚠' }}</span>
+            <img v-if="g.logo_url" :src="g.logo_url" :alt="g.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
+            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ g.symbol.substring(0,2) }}</span>
             <span class="tk">{{ g.symbol }}</span>
             <span class="nm">{{ g.name || g.symbol }}</span>
             <span class="pr">{{ g.last_close || '-' }}</span>
@@ -772,6 +837,8 @@ function getConfClass(label) {
           <div class="mvr" v-for="(l, idx) in losers" :key="l.symbol">
             <span class="rk">{{ idx + 1 }}</span>
             <span :class="['ff', l.flow_confirmed !== false ? 'ff-warn' : 'ff-ok']">{{ l.flow_confirmed !== false ? '⚠' : '⚑' }}</span>
+            <img v-if="l.logo_url" :src="l.logo_url" :alt="l.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
+            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ l.symbol.substring(0,2) }}</span>
             <span class="tk">{{ l.symbol }}</span>
             <span class="nm">{{ l.name || l.symbol }}</span>
             <span class="pr">{{ l.last_close || '-' }}</span>
@@ -779,6 +846,11 @@ function getConfClass(label) {
           </div>
           <div v-if="!losers.length" style="padding:10px;font-size:11px;color:var(--muted)">No losers data available.</div>
         </div>
+      </div>
+      <div v-if="hasMovers" style="text-align:center; padding: 10px; margin-top: 10px; grid-column: span 12;">
+        <button @click="expandMovers = !expandMovers" class="btn ghost" style="font-size:11px; cursor:pointer; padding: 6px 12px">
+          {{ expandMovers ? 'Lebih Sedikit ∧' : 'Selengkapnya (Top 20) ∨' }}
+        </button>
       </div>
     </div>
   </div>

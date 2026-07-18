@@ -73,6 +73,50 @@ class BreadthService
                     ['value' => $mbPayload['stable'], 'source' => 'ringkasan_saham']
                 );
             }
+            
+            // Extract Top Movers from market_breadth_stock_detail.csv
+            $mbCsvPath = $mbOutDir . '/market_breadth_stock_detail.csv';
+            if (file_exists($mbCsvPath)) {
+                $stocks = [];
+                if (($handle = fopen($mbCsvPath, 'r')) !== false) {
+                    $header = fgetcsv($handle);
+                    while (($row = fgetcsv($handle)) !== false) {
+                        $data = array_combine($header, $row);
+                        if (isset($data['symbol']) && isset($data['return_pct'])) {
+                            $pct = (float)$data['return_pct'] * 100;
+                            // Ensure realistic constraints for valid movers
+                            if ($pct > -100 && $pct < 500) {
+                                $stocks[] = [
+                                    'symbol' => $data['symbol'],
+                                    'price_pct' => round($pct, 2),
+                                    'last_close' => $data['close'],
+                                    'flow_confirmed' => true // Default true, can be enhanced with Foreign Flow later
+                                ];
+                            }
+                        }
+                    }
+                    fclose($handle);
+                }
+                
+                usort($stocks, fn($a, $b) => $b['price_pct'] <=> $a['price_pct']);
+                $gainers = array_filter($stocks, fn($s) => $s['price_pct'] > 0);
+                $gainers = array_slice($gainers, 0, 20);
+                
+                usort($stocks, fn($a, $b) => $a['price_pct'] <=> $b['price_pct']);
+                $losers = array_filter($stocks, fn($s) => $s['price_pct'] < 0);
+                $losers = array_slice($losers, 0, 20);
+                
+                $topMoversPayload = [
+                    'gainers' => array_values($gainers),
+                    'losers' => array_values($losers)
+                ];
+                
+                MarketSnapshot::updateOrCreate(
+                    ['date' => $date, 'symbol_or_metric' => 'TOP_MOVERS'],
+                    ['value' => 0, 'sparkline_json' => $topMoversPayload, 'source' => 'ringkasan_saham']
+                );
+            }
+
             $results['market_breadth'] = $mbPayload;
         }
 
