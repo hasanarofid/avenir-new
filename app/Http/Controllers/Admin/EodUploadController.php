@@ -24,26 +24,44 @@ class EodUploadController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
-            'trading_date' => 'required|date',
+            'files' => 'required|array',
+            'files.*' => 'required|mimes:xlsx,xls,csv|max:10240',
         ]);
 
-        $file = $request->file('file');
-        $filename = $file->getClientOriginalName();
-        
-        // Save the file temporarily or permanently
-        $path = $file->store('eod-uploads');
+        $files = $request->file('files');
+        $processedCount = 0;
+        $failedFiles = [];
 
-        // Estimate total rows (optional, or just set to 0 for now)
-        $upload = EodUpload::create([
-            'user_id' => auth()->id(),
-            'filename' => $filename,
-            'trading_date' => $request->trading_date,
-            'status' => 'processing',
-        ]);
+        foreach ($files as $file) {
+            $filename = $file->getClientOriginalName();
+            
+            // Extract date YYYYMMDD from filename
+            if (preg_match('/\d{8}/', $filename, $matches)) {
+                $dateString = $matches[0];
+                // Convert YYYYMMDD to Y-m-d
+                $tradingDate = substr($dateString, 0, 4) . '-' . substr($dateString, 4, 2) . '-' . substr($dateString, 6, 2);
+            } else {
+                $failedFiles[] = $filename . ' (Tidak ada angka YYYYMMDD)';
+                continue;
+            }
+            
+            $path = $file->store('eod-uploads');
 
-        Excel::import(new StockSummaryImport($upload), $path);
+            $upload = EodUpload::create([
+                'user_id' => auth()->id(),
+                'filename' => $filename,
+                'trading_date' => $tradingDate,
+                'status' => 'processing',
+            ]);
 
-        return back()->with('success', 'File is being processed in the background.');
+            Excel::import(new StockSummaryImport($upload), $path);
+            $processedCount++;
+        }
+
+        if (count($failedFiles) > 0) {
+            return back()->with('success', "$processedCount file(s) sedang diproses. Gagal memproses " . count($failedFiles) . " file: " . implode(', ', $failedFiles));
+        }
+
+        return back()->with('success', "$processedCount file(s) is being processed in the background.");
     }
 }

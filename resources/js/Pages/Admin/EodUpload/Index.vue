@@ -9,8 +9,7 @@ const props = defineProps({
 });
 
 const form = useForm({
-    file: null,
-    trading_date: '',
+    files: [],
 });
 
 const submit = () => {
@@ -24,7 +23,7 @@ const submit = () => {
 };
 
 const handleFileChange = (e) => {
-    form.file = e.target.files[0];
+    form.files = Array.from(e.target.files);
 };
 
 const getStatusBadgeClass = (status) => {
@@ -58,27 +57,22 @@ const getStatusIcon = (status) => {
                         <Upload class="w-6 h-6 text-emerald-500" />
                         EOD Stock Summary Upload
                     </h1>
-                    <p class="text-slate-400 text-sm mt-1">Upload file Excel data EOD harian untuk update grafik historis emiten.</p>
+                    <p class="text-slate-400 text-sm mt-1">Upload satu atau beberapa file Excel (Batch Upload). Tanggal akan dibaca otomatis dari nama file.</p>
                 </div>
             </div>
 
             <!-- Upload Form -->
             <div class="bg-[#121614] border border-slate-800 rounded-xl p-6">
                 <form @submit.prevent="submit" class="flex flex-col md:flex-row gap-4 items-end">
-                    <div class="w-full md:w-1/3">
-                        <label class="block text-sm font-medium text-slate-300 mb-2">Trading Date</label>
-                        <input type="date" v-model="form.trading_date" required class="w-full bg-[#0a0d0b] border border-slate-800 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500/50">
-                        <div v-if="form.errors.trading_date" class="text-red-500 text-xs mt-1">{{ form.errors.trading_date }}</div>
-                    </div>
-                    <div class="w-full md:w-1/3">
-                        <label class="block text-sm font-medium text-slate-300 mb-2">File Excel (.xlsx, .csv)</label>
-                        <input type="file" id="file-upload" @change="handleFileChange" accept=".xlsx,.xls,.csv" required class="w-full bg-[#0a0d0b] border border-slate-800 rounded-lg px-4 py-1.5 text-slate-200 focus:outline-none focus:border-emerald-500/50 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/10 file:text-emerald-500 hover:file:bg-emerald-500/20">
-                        <div v-if="form.errors.file" class="text-red-500 text-xs mt-1">{{ form.errors.file }}</div>
+                    <div class="w-full md:flex-1">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Pilih File Excel (.xlsx, .csv)</label>
+                        <input type="file" id="file-upload" @change="handleFileChange" accept=".xlsx,.xls,.csv" multiple required class="w-full bg-[#0a0d0b] border border-slate-800 rounded-lg px-4 py-1.5 text-slate-200 focus:outline-none focus:border-emerald-500/50 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/10 file:text-emerald-500 hover:file:bg-emerald-500/20">
+                        <div v-if="form.errors.files" class="text-red-500 text-xs mt-1">{{ form.errors.files }}</div>
                     </div>
                     <div class="w-full md:w-auto">
-                        <button type="submit" :disabled="form.processing" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                        <button type="submit" :disabled="form.processing || form.files.length === 0" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                             <Upload class="w-4 h-4" />
-                            {{ form.processing ? 'Uploading...' : 'Upload Data' }}
+                            {{ form.processing ? 'Uploading...' : `Upload ${form.files.length > 0 ? form.files.length + ' File(s)' : 'Data'}` }}
                         </button>
                     </div>
                 </form>
