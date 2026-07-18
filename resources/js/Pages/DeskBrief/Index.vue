@@ -388,6 +388,21 @@ const hasMovers = computed(() => gainers.value.length > 0 || losers.value.length
 // Historical Regime Chart
 // ──────────────────────────────────────────────
 const hoveredScore = ref(null);
+const regimeTimeframe = ref('6M');
+const regimeTimeframes = ['1M', '6M', '1Y'];
+
+const filteredHistoricalScores = computed(() => {
+  const scores = props.historicalScores;
+  if (!scores || scores.length === 0) return [];
+  
+  const tf = regimeTimeframe.value;
+  const cutoff = new Date(scores[scores.length - 1].date);
+  if (tf === '1M') cutoff.setMonth(cutoff.getMonth() - 1);
+  else if (tf === '6M') cutoff.setMonth(cutoff.getMonth() - 6);
+  else if (tf === '1Y') cutoff.setFullYear(cutoff.getFullYear() - 1);
+  
+  return scores.filter(s => new Date(s.date) >= cutoff);
+});
 
 const activeScore = computed(() => {
   if (hoveredScore.value) return hoveredScore.value;
@@ -395,15 +410,17 @@ const activeScore = computed(() => {
 });
 
 const chartData = computed(() => {
-  if (!props.historicalScores || props.historicalScores.length === 0) {
+  const scores = filteredHistoricalScores.value;
+  if (scores.length === 0) {
     return { 
       raw: [], 
       points: '14,80 50,75 86,50 122,55 158,90 194,60 230,40 266,45 300,35', 
-      lastPoint: {x: 300, y: 35} 
+      lastPoint: {x: 300, y: 35},
+      isUp: true,
+      firstY: 80
     };
   }
   
-  const scores = props.historicalScores;
   const stepX = (300 - 14) / Math.max(1, scores.length - 1);
   
   const pts = scores.map((s, i) => {
@@ -412,23 +429,30 @@ const chartData = computed(() => {
     return { x, y, data: s };
   });
   
+  const isUp = scores[scores.length - 1].score >= scores[0].score;
+  const firstY = pts[0].y;
+  
   return {
     raw: pts,
     points: pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '),
-    lastPoint: pts[pts.length - 1]
+    lastPoint: pts[pts.length - 1],
+    isUp,
+    firstY
   };
 });
 
 const avgScore = computed(() => {
-  if (!props.historicalScores || props.historicalScores.length === 0) return 58;
-  const sum = props.historicalScores.reduce((acc, s) => acc + parseFloat(s.score), 0);
-  return Math.round(sum / props.historicalScores.length);
+  const scores = filteredHistoricalScores.value;
+  if (scores.length === 0) return 58;
+  const sum = scores.reduce((acc, s) => acc + parseFloat(s.score), 0);
+  return Math.round(sum / scores.length);
 });
 
 const trendLabel = computed(() => {
-  if (!props.historicalScores || props.historicalScores.length < 30) return 'Warming';
-  const recent = props.historicalScores[props.historicalScores.length - 1].score;
-  const old = props.historicalScores[props.historicalScores.length - 30].score;
+  const scores = filteredHistoricalScores.value;
+  if (scores.length < 2) return 'Warming';
+  const recent = scores[scores.length - 1].score;
+  const old = scores[0].score;
   return recent >= old ? 'Warming' : 'Cooling';
 });
 
@@ -701,25 +725,30 @@ function getConfClass(label) {
 
     <!-- 4. REGIME TREND CHART -->
     <div class="card span3">
-      <div class="chd"><div class="t"><b>4.</b>REGIME SCORE TREND</div><div class="toggles"><span class="tg">1M</span><span class="tg on">6M</span><span class="tg">1Y</span></div></div>
-      <div style="font-size:9px;color:var(--muted);margin-bottom:4px">Historical Regime Score (6M)</div>
+      <div class="chd">
+        <div class="t"><b>4.</b>REGIME SCORE TREND</div>
+        <div class="toggles">
+          <span v-for="tf in regimeTimeframes" :key="tf" :class="['tg', regimeTimeframe === tf ? 'on' : '']" @click="regimeTimeframe = tf">{{ tf }}</span>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:4px">Historical Regime Score ({{ regimeTimeframe }})</div>
       <svg width="100%" viewBox="0 0 320 120" style="display:block; overflow:visible" @mouseleave="hoveredScore = null">
-        <line x1="14" y1="60" x2="314" y2="60" stroke="#2E2E2E" stroke-dasharray="3 4"/>
-        <polyline :points="chartData.points" fill="none" stroke="#46C46E" stroke-width="2.2" stroke-linejoin="round"/>
-        <circle v-if="chartData.lastPoint" :cx="chartData.lastPoint.x" :cy="chartData.lastPoint.y" r="4" fill="#46C46E"/>
+        <line x1="14" :y1="chartData.firstY" x2="314" :y2="chartData.firstY" stroke="#2E2E2E" stroke-dasharray="3 4"/>
+        <polyline :points="chartData.points" fill="none" :stroke="chartData.isUp ? '#46C46E' : '#E2705C'" stroke-width="2.2" stroke-linejoin="round"/>
+        <circle v-if="chartData.lastPoint" :cx="chartData.lastPoint.x" :cy="chartData.lastPoint.y" r="4" :fill="chartData.isUp ? '#46C46E' : '#E2705C'"/>
         <circle v-for="(pt, i) in chartData.raw" :key="'hover_'+i"
                 :cx="pt.x" :cy="pt.y" r="8" fill="transparent"
                 style="cursor:crosshair"
                 @mouseenter="hoveredScore = pt.data" />
         <g font-size="7.5" fill="#7C7C76">
-          <text x="14" y="115">{{ historicalScores.length ? new Date(historicalScores[0].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : '6M Ago' }}</text>
-          <text x="300" y="115" text-anchor="end">{{ historicalScores.length ? new Date(historicalScores[historicalScores.length - 1].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : 'Now' }}</text>
+          <text x="14" y="115">{{ filteredHistoricalScores.length ? new Date(filteredHistoricalScores[0].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : regimeTimeframe + ' Ago' }}</text>
+          <text x="300" y="115" text-anchor="end">{{ filteredHistoricalScores.length ? new Date(filteredHistoricalScores[filteredHistoricalScores.length - 1].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : 'Now' }}</text>
         </g>
       </svg>
       <div class="smstats">
         <div class="sms"><div class="k">Selected Score</div><div class="v pos">{{ activeScore.score }}</div><div class="s">{{ activeScore.label }}</div></div>
-        <div class="sms"><div class="k">Avg (6M)</div><div class="v">{{ avgScore }}</div><div class="s">moderate</div></div>
-        <div class="sms"><div class="k">Trend</div><div class="v pos" :class="trendLabel === 'Cooling' ? 'neg' : ''">{{ trendLabel }}</div><div class="s">vs last month</div></div>
+        <div class="sms"><div class="k">Avg ({{ regimeTimeframe }})</div><div class="v">{{ avgScore }}</div><div class="s">moderate</div></div>
+        <div class="sms"><div class="k">Trend</div><div class="v pos" :class="trendLabel === 'Cooling' ? 'neg' : ''">{{ trendLabel }}</div><div class="s">vs {{ regimeTimeframe }} ago</div></div>
       </div>
       <div class="csrc">Source: Avenir Regime Calculation · {{ activeScore.date ? new Date(activeScore.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '27 Jun 2026' }}</div>
     </div>

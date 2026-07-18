@@ -96,7 +96,7 @@ class DeskBriefController extends Controller
             'deskBrief' => $latestBrief,
             'snapshots' => $this->getSnapshots(),
             'topMovers' => $this->getTopMovers($date),
-            'historicalScores' => \App\Models\MarketStanceDaily::where('date', '>=', \Carbon\Carbon::parse($date)->subMonths(6))
+            'historicalScores' => \App\Models\MarketStanceDaily::where('date', '>=', \Carbon\Carbon::parse($date)->subYears(1))
                 ->where('date', '<=', $date)
                 ->orderBy('date', 'asc')
                 ->get(['date', 'score', 'label']),
