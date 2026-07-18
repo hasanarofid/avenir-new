@@ -12,13 +12,29 @@ const form = useForm({
     files: [],
 });
 
+const uploadError = ref(null);
+
 const submit = () => {
+    uploadError.value = null;
+    
+    // Validasi frontend untuk jumlah file (Opsional, menghindari limit PHP)
+    if (form.files.length > 20) {
+        uploadError.value = "Maksimal upload 20 file sekaligus (Limit Server).";
+        return;
+    }
+
     form.post(route('admin.eod-uploads.store'), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
             document.getElementById('file-upload').value = '';
         },
+        onError: (errors) => {
+            console.error(errors);
+            if (Object.keys(errors).length === 0) {
+                uploadError.value = "Gagal mengunggah file. Kemungkinan ukuran total terlalu besar atau melebihi batas server.";
+            }
+        }
     });
 };
 
@@ -63,6 +79,11 @@ const getStatusIcon = (status) => {
 
             <!-- Upload Form -->
             <div class="bg-[#121614] border border-slate-800 rounded-xl p-6">
+                <div v-if="uploadError" class="mb-4 bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                    <AlertCircle class="w-5 h-5" />
+                    {{ uploadError }}
+                </div>
+                
                 <form @submit.prevent="submit" class="flex flex-col md:flex-row gap-4 items-end">
                     <div class="w-full md:flex-1">
                         <label class="block text-sm font-medium text-slate-300 mb-2">Pilih File Excel (.xlsx, .csv)</label>
