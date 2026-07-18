@@ -2,6 +2,7 @@
 import { computed, ref, onMounted } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import IhsgChart from './Partials/IhsgChart.vue';
 
 
 
@@ -24,6 +25,7 @@ const props = defineProps({
   yesterdayStance: { type: Object, default: null },
   periodConclusion: { type: String, default: null },
   historicalScores: { type: Array, default: () => [] },
+  ihsgHistory: { type: Array, default: () => [] },
 });
 
 // ──────────────────────────────────────────────
@@ -527,6 +529,8 @@ function getConfClass(label) {
 </div>
 
 <div class="wrap">
+  <IhsgChart :history="ihsgHistory" />
+
   <!-- HERO -->
   <div class="hero dh">
     <div class="mstance">
@@ -708,8 +712,8 @@ function getConfClass(label) {
                 style="cursor:crosshair"
                 @mouseenter="hoveredScore = pt.data" />
         <g font-size="7.5" fill="#7C7C76">
-          <text x="14" y="115">6M Ago</text>
-          <text x="300" y="115" text-anchor="end">Now</text>
+          <text x="14" y="115">{{ historicalScores.length ? new Date(historicalScores[0].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : '6M Ago' }}</text>
+          <text x="300" y="115" text-anchor="end">{{ historicalScores.length ? new Date(historicalScores[historicalScores.length - 1].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : 'Now' }}</text>
         </g>
       </svg>
       <div class="smstats">

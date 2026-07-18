@@ -100,6 +100,9 @@ class DeskBriefController extends Controller
                 ->where('date', '<=', $date)
                 ->orderBy('date', 'asc')
                 ->get(['date', 'score', 'label']),
+            'ihsgHistory' => \App\Models\MarketSnapshot::where('symbol_or_metric', 'IHSG')
+                ->orderBy('date', 'asc')
+                ->get(['date', 'value', 'change_abs', 'change_pct']),
             'mostTraded' => $this->getMostTraded(),
             'apiStatus' => $this->getApiStatus(),
             'sectorBias' => SectorBiasDaily::whereDate('date', $date)->get(),
