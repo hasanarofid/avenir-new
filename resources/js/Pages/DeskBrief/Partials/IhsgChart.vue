@@ -21,15 +21,17 @@ const getCutoffDate = (tf) => {
   return now;
 };
 
-const chartData = computed(() => {
+const chartDataRaw = computed(() => {
   const cutoff = getCutoffDate(activeTimeframe.value);
-  const filtered = props.history.filter(item => new Date(item.date) >= cutoff);
-  
-  if (filtered.length === 0) return [];
+  return props.history.filter(item => new Date(item.date) >= cutoff);
+});
+
+const chartData = computed(() => {
+  if (chartDataRaw.value.length === 0) return [];
   
   return [{
     name: 'IHSG',
-    data: filtered.map(item => ({
+    data: chartDataRaw.value.map(item => ({
       x: new Date(item.date).getTime(),
       y: parseFloat(item.value)
     }))
@@ -37,13 +39,39 @@ const chartData = computed(() => {
 });
 
 const latestData = computed(() => {
-  if (!props.history.length) return null;
-  return props.history[props.history.length - 1];
+  if (chartDataRaw.value.length === 0) return null;
+  return chartDataRaw.value[chartDataRaw.value.length - 1];
+});
+
+const startData = computed(() => {
+  if (chartDataRaw.value.length === 0) return null;
+  return chartDataRaw.value[0];
+});
+
+const periodChangeAbs = computed(() => {
+  if (!latestData.value || !startData.value) return 0;
+  return parseFloat(latestData.value.value) - parseFloat(startData.value.value);
+});
+
+const periodChangePct = computed(() => {
+  if (!latestData.value || !startData.value || parseFloat(startData.value.value) === 0) return 0;
+  return (periodChangeAbs.value / parseFloat(startData.value.value)) * 100;
 });
 
 const isUp = computed(() => {
-  if (!latestData.value) return true;
-  return parseFloat(latestData.value.change_pct) >= 0;
+  return periodChangeAbs.value >= 0;
+});
+
+const periodLabel = computed(() => {
+  const map = {
+    '1M': '1 Bulan Terakhir',
+    '3M': '3 Bulan Terakhir',
+    '6M': '6 Bulan Terakhir',
+    'YTD': 'Tahun Ini (YTD)',
+    '1Y': '1 Tahun Terakhir',
+    'All': 'Keseluruhan',
+  };
+  return map[activeTimeframe.value] || activeTimeframe.value;
 });
 
 const chartOptions = computed(() => ({
@@ -65,6 +93,16 @@ const chartOptions = computed(() => ({
       stops: [0, 90, 100]
     }
   },
+  annotations: {
+    yaxes: startData.value ? [
+      {
+        y: parseFloat(startData.value.value),
+        borderColor: '#6b7280', // gray-500
+        strokeDashArray: 5,
+        opacity: 0.8,
+      }
+    ] : []
+  },
   dataLabels: { enabled: false },
   stroke: { curve: 'smooth', width: 2 },
   xaxis: {
@@ -83,8 +121,8 @@ const chartOptions = computed(() => ({
   grid: {
     borderColor: '#374151', // gray-700
     strokeDashArray: 4,
-    xaxis: { lines: { show: true } },
-    yaxis: { lines: { show: true } },
+    xaxis: { lines: { show: false } },
+    yaxis: { lines: { show: false } },
     padding: { top: 0, right: 0, bottom: 0, left: 10 }
   },
   tooltip: {
@@ -108,8 +146,9 @@ const chartOptions = computed(() => ({
           <span :class="['text-sm font-semibold flex items-center', isUp ? 'text-emerald-400' : 'text-red-400']">
             <svg v-if="isUp" class="w-4 h-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
             <svg v-else class="w-4 h-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" /></svg>
-            {{ latestData && parseFloat(latestData.change_abs) > 0 ? '+' : '' }}{{ latestData ? parseFloat(latestData.change_abs).toFixed(2) : '0' }} 
-            ({{ latestData && parseFloat(latestData.change_pct) > 0 ? '+' : '' }}{{ latestData ? parseFloat(latestData.change_pct).toFixed(2) : '0' }}%)
+            {{ periodChangeAbs > 0 ? '+' : '' }}{{ periodChangeAbs.toFixed(2) }} 
+            ({{ periodChangePct > 0 ? '+' : '' }}{{ periodChangePct.toFixed(2) }}%)
+            <span class="text-gray-400 font-normal ml-1.5">{{ periodLabel }}</span>
           </span>
         </div>
       </div>
