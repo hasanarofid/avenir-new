@@ -76,6 +76,9 @@ Route::post('/langganan/kirim', [HomeController::class, 'kirimPembayaran'])->nam
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirect'])->name('google.login');
+Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'callback'])->name('google.callback');
+
 Route::get('/migrate-setup', [MigratedPasswordController::class, 'showSetupForm'])->name('password.migrate.setup');
 Route::post('/migrate-setup', [MigratedPasswordController::class, 'storeNewPassword'])->name('password.migrate.store');
 
@@ -87,7 +90,7 @@ Route::get('/dashboard', function () {
         return redirect()->route('mitra.dashboard');
     }
     // Fallback for standard users without specific dashboard
-    return Inertia\Inertia::render('User/Dashboard', ['user' => $user]);
+    return Inertia::render('User/Dashboard', ['user' => $user]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

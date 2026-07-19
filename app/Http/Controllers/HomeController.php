@@ -909,13 +909,14 @@ class HomeController extends Controller
             return back()->withErrors(['error' => 'Anda sudah pernah menikmati masa percobaan atau sudah berlangganan sebelumnya.']);
         }
 
-        \Illuminate\Support\Facades\DB::table('user_profiles')
-            ->where('user_id', $user->id)
-            ->update([
+        \Illuminate\Support\Facades\DB::table('user_profiles')->updateOrInsert(
+            ['user_id' => $user->id],
+            [
                 'is_subscriber' => true,
                 'subscription_ends_at' => now()->addDays(7),
                 'updated_at' => now(),
-            ]);
+            ]
+        );
 
         // Optional log
         \App\Models\ActivityLog::create([

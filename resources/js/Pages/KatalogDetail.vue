@@ -1,8 +1,7 @@
 <script setup>
-import { Head, usePage, Link, useForm } from '@inertiajs/vue3';
+import { Head, usePage, Link, useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Paywall from '@/Components/Paywall.vue';
-import { authStore } from '@/Stores/authStore';
 import { computed, ref } from 'vue';
 
 const props = defineProps({
@@ -88,7 +87,7 @@ const isBookmarkLoading = ref(false);
 
 const handleBookmark = async () => {
     if (!isLoggedIn.value) {
-        authStore.open('login');
+        router.visit(route('login'));
         return;
     }
     if (isBookmarkLoading.value) return;
@@ -485,10 +484,10 @@ const handleShare = async () => {
                 <!-- Actions -->
                 <div class="ac-actions">
                   <template v-if="isLocked">
-                    <button class="ac-btn-download" @click="authStore.open('login')">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      Lihat Laporan Lengkap
-                    </button>
+                    <Link :href="route('login')" class="ac-btn-download">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Login untuk Mengunduh
+                    </Link>
                     <p class="text-[10px] text-center text-slate-500 mt-3 px-2">Anda memerlukan akses Premium untuk mengunduh laporan ini.</p>
                   </template>
                   <template v-else>
@@ -513,10 +512,10 @@ const handleShare = async () => {
       <!-- Sticky Bottom Action Bar (Mobile Only) -->
       <div v-if="!hasCustomHtml && !hasCustomHero" class="kdp-sticky-bottom block md:hidden">
          <template v-if="isLocked">
-            <button class="ac-btn-download w-full" @click="authStore.open('login')">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Lihat Laporan Lengkap
-            </button>
+            <Link :href="route('login')" class="ac-btn-download w-full">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Login untuk Mengunduh PDF
+            </Link>
          </template>
          <template v-else>
             <a v-if="research.pdf_path" :href="`/katalog/${research.id}/download`" target="_blank" download class="ac-btn-download w-full shadow-lg shadow-emerald-500/20">

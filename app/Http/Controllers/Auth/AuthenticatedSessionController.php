@@ -31,9 +31,8 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Redirect to 2FA challenge page
+        return redirect()->route('2fa.challenge');
     }
 
     /**

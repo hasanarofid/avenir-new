@@ -1,7 +1,6 @@
 <script setup>
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { authStore } from '@/Stores/authStore';
 import { ref, computed } from 'vue';
 import Swal from 'sweetalert2';
 
@@ -58,7 +57,7 @@ const getPaketLabel = (key) => {
 
 const handleSelectPackage = (pkg) => {
   if (!isLoggedIn.value) {
-    authStore.open('login');
+    router.visit(route('login'));
     return;
   }
 
@@ -219,9 +218,9 @@ const handleCloseModal = () => {
             <div class="banner-msg">
               Anda perlu <strong>login terlebih dahulu</strong> sebelum berlangganan. Silakan masuk ke akun Anda atau daftar baru.
             </div>
-            <button @click="authStore.open('login')" class="banner-cta">
+            <Link :href="route('login')" class="banner-cta">
               LOGIN / DAFTAR →
-            </button>
+            </Link>
           </div>
 
           <!-- Pending status -->

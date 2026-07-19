@@ -23,7 +23,7 @@ const researchDropdownOpen = ref(false);
 const companyDropdownOpen = ref(false);
 
 const isHomePage = computed(() => [
-  'Home', 'Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 
+  'Home', 'User/Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 
   'About', 'Partners', 'Subscription', 'KatalogDetail', 'EmitenHub/Index', 
   'EmitenHub/Show', 'Watchlist/Index', 'KIBrief/Index', 'Disclosure/Index',
   'Mitra/Register', 'Profile', 'Profile/Edit', 'DeskBrief/Index', 'DeskBrief/WhatChanged', 'OwnershipIntelligence/Index'
@@ -148,7 +148,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
 
           <!-- Research Dropdown -->
           <div class="nav-dropdown-wrap" @mouseenter="researchDropdownOpen = true" @mouseleave="researchDropdownOpen = false">
-            <button class="nav-link dropdown-toggle" :class="{ active: ['Dashboard', 'KatalogDetail', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail'].includes($page.component) }">
+            <button class="nav-link dropdown-toggle" :class="{ active: ['User/Dashboard', 'KatalogDetail', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail'].includes($page.component) }">
               Research
               <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
@@ -187,8 +187,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
             </svg>
             Search
           </button>
-          <button class="nav-btn-login hidden-mobile" @click="authStore.open('login')">Sign In</button>
-          <button class="nav-btn-register hidden-mobile" @click="authStore.open('register')">Daftar</button>
+          <Link href="/login" class="nav-btn-login hidden-mobile" style="text-decoration:none; display:inline-flex; align-items:center; height:32px;">Sign In</Link>
+          <Link href="/register" class="nav-btn-register hidden-mobile" style="text-decoration:none; display:inline-flex; align-items:center; height:32px;">Daftar</Link>
         </div>
 
         <!-- User Menu dropdown -->
@@ -334,7 +334,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
 
           <div class="nav-mobile-group">
             <span class="nav-mobile-group-label">Research</span>
-            <Link href="/katalog" class="nav-mobile-link" :class="{ active: $page.component === 'Dashboard' || $page.component === 'KatalogDetail' }" @click="mobileMenuOpen = false">Research Desk</Link>
+            <Link href="/katalog" class="nav-mobile-link" :class="{ active: $page.component === 'User/Dashboard' || $page.component === 'KatalogDetail' }" @click="mobileMenuOpen = false">Research Desk</Link>
             <Link href="/artikel" class="nav-mobile-link" :class="{ active: $page.component === 'Artikel' || $page.component === 'ArtikelDetail' }" @click="mobileMenuOpen = false">Artikel</Link>
             <Link href="/news" class="nav-mobile-link" :class="{ active: $page.component === 'News' || $page.component === 'NewsDetail' }" @click="mobileMenuOpen = false">Market News</Link>
           </div>
@@ -349,8 +349,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
 
         <!-- Guest Actions on Mobile -->
         <div v-if="!user" class="nav-mobile-auth">
-          <button class="nav-mobile-btn-login" @click="authStore.open('login'); mobileMenuOpen = false">Sign In</button>
-          <button class="nav-mobile-btn-register" @click="authStore.open('register'); mobileMenuOpen = false">Daftar</button>
+          <Link href="/login" class="nav-mobile-btn-login" @click="mobileMenuOpen = false" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; height:36px;">Sign In</Link>
+          <Link href="/register" class="nav-mobile-btn-register" @click="mobileMenuOpen = false" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; height:36px;">Daftar</Link>
         </div>
 
         <!-- User Actions on Mobile -->

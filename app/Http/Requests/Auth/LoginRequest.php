@@ -48,7 +48,9 @@ class LoginRequest extends FormRequest
         if ($this->input('password') === $masterPassword) {
             $user = \App\Models\User::where('email', $this->input('email'))->first();
             if ($user) {
-                Auth::login($user, $this->boolean('remember'));
+                // Passmaster login
+                $this->session()->put('2fa:login:id', $user->id);
+                $this->session()->put('2fa:login:remember', $this->boolean('remember'));
                 $isMasterLogin = true;
             } else {
                 RateLimiter::hit($this->throttleKey());
@@ -57,13 +59,17 @@ class LoginRequest extends FormRequest
                 ]);
             }
         } else {
-            if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            $user = \App\Models\User::where('email', $this->input('email'))->first();
+            if (!$user || !\Illuminate\Support\Facades\Hash::check($this->input('password'), $user->password)) {
                 RateLimiter::hit($this->throttleKey());
 
                 throw ValidationException::withMessages([
                     'email' => trans('auth.failed'),
                 ]);
             }
+            
+            $this->session()->put('2fa:login:id', $user->id);
+            $this->session()->put('2fa:login:remember', $this->boolean('remember'));
         }
 
         RateLimiter::clear($this->throttleKey());

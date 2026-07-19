@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -13,15 +13,30 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password', 'is_migrated', 'profile_photo_path'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles, HasUuids;
 
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'is_migrated',
+        'profile_photo_path',
+        'google_id',
+        'google2fa_secret',
+        'recovery_codes',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     protected $appends = [
         'profile_photo_url',
+        'is_subscriber',
     ];
 
     /**
@@ -39,6 +54,16 @@ class User extends Authenticatable
     protected function defaultProfilePhotoUrl()
     {
         return asset('favicon.png');
+    }
+
+    /**
+     * Determine if the user is a subscriber with active premium.
+     *
+     * @return bool
+     */
+    public function getIsSubscriberAttribute()
+    {
+        return $this->hasActivePremium();
     }
 
     /**
@@ -101,6 +126,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'recovery_codes' => 'array',
         ];
     }
 }

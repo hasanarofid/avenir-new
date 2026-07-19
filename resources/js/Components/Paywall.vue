@@ -1,5 +1,9 @@
 <script setup>
-import { authStore } from '@/Stores/authStore';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const page = usePage();
+const user = computed(() => page.props.auth.user);
 
 defineProps({
     title: {
@@ -31,16 +35,23 @@ defineProps({
         <div class="pw-price" v-html="price"></div>
         
         <div class="pw-actions">
-            <button class="pw-btn-primary" @click="authStore.open('register')">
-                Mulai Trial 7 Hari
-            </button>
-            <button class="pw-btn-secondary" @click="authStore.open('login')">
-                Sudah Punya Akun
-            </button>
+            <template v-if="!user">
+                <Link :href="route('register')" class="pw-btn-primary text-center">
+                    Mulai Trial 7 Hari
+                </Link>
+                <Link :href="route('login')" class="pw-btn-secondary text-center">
+                    Sudah Punya Akun
+                </Link>
+            </template>
+            <template v-else>
+                <Link href="/langganan" class="pw-btn-primary text-center">
+                    Tingkatkan ke Premium
+                </Link>
+            </template>
         </div>
         
-        <div class="pw-link">
-            <a href="/langganan">Lihat detail paket</a>
+        <div class="pw-link" v-if="!user">
+            <Link href="/langganan">Lihat detail paket</Link>
         </div>
     </div>
 </template>
@@ -115,6 +126,7 @@ defineProps({
 
 .pw-btn-primary,
 .pw-btn-secondary {
+    display: inline-block;
     padding: 14px 32px;
     border-radius: 12px;
     font-weight: 700;
@@ -123,6 +135,7 @@ defineProps({
     transition: all .2s ease;
     border: none;
     font-family: inherit;
+    text-decoration: none;
 }
 
 .pw-btn-primary {
@@ -135,6 +148,7 @@ defineProps({
     background: #10b981;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    color: #fff;
 }
 
 .pw-btn-secondary {
@@ -147,6 +161,7 @@ defineProps({
     background: #1a201d;
     border-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
+    color: #f8fafc;
 }
 
 .pw-link {

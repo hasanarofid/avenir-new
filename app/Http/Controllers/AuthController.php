@@ -20,14 +20,17 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'fname' => 'required|string|max:255',
-                'lname' => 'required|string|max:255',
+                'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8|confirmed',
             ]);
 
+            $nameParts = explode(' ', trim($request->name), 2);
+            $fname = $nameParts[0];
+            $lname = isset($nameParts[1]) ? $nameParts[1] : '';
+
             $user = new User();
-            $user->name = trim($request->fname . ' ' . $request->lname);
+            $user->name = trim($request->name);
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
             $user->save();
@@ -38,17 +41,29 @@ class AuthController extends Controller
             // Create user profile
             \Illuminate\Support\Facades\DB::table('user_profiles')->insert([
                 'user_id' => $user->id,
-                'first_name' => $request->fname,
-                'last_name' => $request->lname,
+                'first_name' => $fname,
+                'last_name' => $lname,
                 'is_subscriber' => false,
                 'subscription_ends_at' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            Auth::login($user);
+            // Generate 2FA Secret
+            $google2fa = app('pragmarx.google2fa');
+            $user->google2fa_secret = $google2fa->generateSecretKey();
+            
+            // Generate Recovery Codes
+            $recovery_codes = collect(range(1, 8))->map(function () {
+                return \Illuminate\Support\Str::random(10) . '-' . \Illuminate\Support\Str::random(10);
+            })->toArray();
+            $user->recovery_codes = $recovery_codes;
+            $user->save();
 
-            return redirect()->back();
+            // Store user ID in session for 2FA Setup
+            $request->session()->put('2fa:user:id', $user->id);
+
+            return redirect()->route('2fa.setup');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->validator)->withInput();
         } catch (\Exception $e) {

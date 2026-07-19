@@ -37,16 +37,27 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        $secret = $google2fa->generateSecretKey();
+        
+        $recoveryCodes = [];
+        for ($i = 0; $i < 8; $i++) {
+            $recoveryCodes[] = \Illuminate\Support\Str::random(10);
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'google2fa_secret' => $secret,
+            'recovery_codes' => $recoveryCodes,
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // JANGAN langsung login. Simpan ID ke session untuk setup 2FA
+        $request->session()->put('2fa:user:id', $user->id);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('2fa.setup');
     }
 }

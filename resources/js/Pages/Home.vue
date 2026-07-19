@@ -1,7 +1,6 @@
 <script setup>
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { authStore } from '@/Stores/authStore';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
@@ -221,12 +220,12 @@ const headlinesPasar = computed(() => {
             </p>
             
             <div class="hero-cta-group">
-              <button class="btn-primary-green" @click="authStore.open('register')">
-                Berlangganan Sekarang
+              <Link :href="route('register')" class="btn-primary-green">
+                Buat Akun Gratis
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="inline-block ml-1">
                   <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
-              </button>
+              </Link>
               <button class="btn-secondary-outline" @click="router.visit('/katalog')">
                 <span class="play-icon-circle">
                   <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor" class="play-icon-svg">
