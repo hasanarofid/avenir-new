@@ -247,14 +247,17 @@ class DeskBriefController extends Controller
             $movers = Cache::get('sectors_top_movers', ['gainers' => [], 'losers' => []]);
         }
         
-        // Attach logo_url from master_stocks
+        // Attach logo_url, name, and sector from master_stocks
         $symbols = collect(array_merge($movers['gainers'] ?? [], $movers['losers'] ?? []))->pluck('symbol')->unique()->toArray();
-        $logos = \DB::table('master_stocks')->whereIn('code', $symbols)->pluck('logo_url', 'code');
+        $stockData = \DB::table('master_stocks')->whereIn('code', $symbols)->get()->keyBy('code');
         
         foreach (['gainers', 'losers'] as $type) {
             if (isset($movers[$type])) {
                 foreach ($movers[$type] as &$item) {
-                    $item['logo_url'] = $logos[$item['symbol']] ?? null;
+                    $stock = $stockData[$item['symbol']] ?? null;
+                    $item['logo_url'] = $stock->logo_url ?? null;
+                    $item['name'] = $stock->name ?? null;
+                    $item['sector'] = $stock->sector ?? null;
                 }
             }
         }
