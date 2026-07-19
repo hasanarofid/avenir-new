@@ -376,13 +376,18 @@ const riskIndexColor = computed(() => {
 const expandMovers = ref(false);
 const gainers = computed(() => {
   const all = props.topMovers?.gainers || [];
-  return expandMovers.value ? all.slice(0, 20) : all.slice(0, 10);
+  return expandMovers.value ? all.slice(0, 20) : all.slice(0, 5);
 });
 const losers  = computed(() => {
   const all = props.topMovers?.losers || [];
-  return expandMovers.value ? all.slice(0, 20) : all.slice(0, 10);
+  return expandMovers.value ? all.slice(0, 20) : all.slice(0, 5);
 });
 const hasMovers = computed(() => gainers.value.length > 0 || losers.value.length > 0);
+const canExpandMovers = computed(() => {
+  const gLen = props.topMovers?.gainers?.length || 0;
+  const lLen = props.topMovers?.losers?.length || 0;
+  return gLen > 5 || lLen > 5;
+});
 
 // ──────────────────────────────────────────────
 // Historical Regime Chart
@@ -880,7 +885,7 @@ function getConfClass(label) {
           <div v-if="!losers.length" style="padding:10px;font-size:11px;color:var(--muted)">No losers data available.</div>
         </div>
       </div>
-      <div v-if="hasMovers" style="text-align:center; padding: 10px; margin-top: 10px; grid-column: span 12;">
+      <div v-if="canExpandMovers" style="text-align:center; padding: 10px; margin-top: 10px; grid-column: span 12;">
         <button @click="expandMovers = !expandMovers" class="btn ghost" style="font-size:11px; cursor:pointer; padding: 6px 12px">
           {{ expandMovers ? 'Lebih Sedikit ∧' : 'Selengkapnya (Top 20) ∨' }}
         </button>

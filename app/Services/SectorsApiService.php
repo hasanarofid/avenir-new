@@ -304,8 +304,8 @@ class SectorsApiService
                 };
 
                 return [
-                    'gainers' => array_slice($normalize($gainers), 0, 5),
-                    'losers'  => array_slice($normalize($losers),  0, 5),
+                    'gainers' => array_slice($normalize($gainers), 0, 20),
+                    'losers'  => array_slice($normalize($losers),  0, 20),
                 ];
             }
 

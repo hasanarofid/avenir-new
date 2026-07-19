@@ -23,7 +23,7 @@ const researchDropdownOpen = ref(false);
 const companyDropdownOpen = ref(false);
 
 const isHomePage = computed(() => [
-  'Home', 'User/Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 
+  'Home', 'Dashboard', 'User/Dashboard', 'Artikel', 'ArtikelDetail', 'News', 'NewsDetail', 
   'About', 'Partners', 'Subscription', 'KatalogDetail', 'EmitenHub/Index', 
   'EmitenHub/Show', 'Watchlist/Index', 'KIBrief/Index', 'Disclosure/Index',
   'Mitra/Register', 'Profile', 'Profile/Edit', 'DeskBrief/Index', 'DeskBrief/WhatChanged', 'OwnershipIntelligence/Index'
