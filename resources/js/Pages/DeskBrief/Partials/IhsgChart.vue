@@ -62,6 +62,30 @@ const isUp = computed(() => {
   return periodChangeAbs.value >= 0;
 });
 
+const hoveredData = ref(null);
+
+const displayData = computed(() => hoveredData.value || latestData.value);
+
+const displayChangeAbs = computed(() => {
+  if (!displayData.value || !startData.value) return 0;
+  return parseFloat(displayData.value.value) - parseFloat(startData.value.value);
+});
+
+const displayChangePct = computed(() => {
+  if (!displayData.value || !startData.value || parseFloat(startData.value.value) === 0) return 0;
+  return (displayChangeAbs.value / parseFloat(startData.value.value)) * 100;
+});
+
+const displayIsUp = computed(() => displayChangeAbs.value >= 0);
+
+const displayDateLabel = computed(() => {
+  if (hoveredData.value) {
+    const d = new Date(hoveredData.value.date);
+    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  return periodLabel.value;
+});
+
 const periodLabel = computed(() => {
   const map = {
     '1M': '1 Bulan Terakhir',
@@ -81,7 +105,17 @@ const chartOptions = computed(() => ({
     background: 'transparent',
     parentHeightOffset: 0,
     zoom: { enabled: false },
-    animations: { enabled: false }
+    animations: { enabled: false },
+    events: {
+      mouseMove: function(event, chartContext, config) {
+        if (config.dataPointIndex !== -1 && chartDataRaw.value[config.dataPointIndex]) {
+          hoveredData.value = chartDataRaw.value[config.dataPointIndex];
+        }
+      },
+      mouseLeave: function() {
+        hoveredData.value = null;
+      }
+    }
   },
   colors: [isUp.value ? '#10b981' : '#ef4444'], // emerald-500 or red-500
   fill: {
@@ -134,31 +168,32 @@ const chartOptions = computed(() => ({
 </script>
 
 <template>
-  <div class="bg-gray-900 border border-gray-800 rounded-2xl p-5 mb-8 shadow-xl">
+  <div class="card" style="padding:24px; margin-bottom:24px; display:block">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
       <div>
-        <div class="flex items-center gap-2">
-          <h2 class="text-xl font-bold text-white tracking-tight">IHSG</h2>
-          <span class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-800 text-gray-400">INDEX</span>
+        <div class="flex items-center gap-3">
+          <h2 class="text-xl font-bold text-white tracking-tight" style="margin:0">IHSG</h2>
+          <span class="text-xs font-semibold" style="color:var(--muted); background:var(--bg2); padding:3px 8px; border-radius:4px">Indeks Harga Saham Gabungan</span>
         </div>
-        <div class="mt-1 flex items-baseline gap-3">
-          <span class="text-3xl font-bold text-white">{{ latestData ? parseFloat(latestData.value).toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2}) : '0' }}</span>
-          <span :class="['text-sm font-semibold flex items-center', isUp ? 'text-emerald-400' : 'text-red-400']">
-            <svg v-if="isUp" class="w-4 h-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+        <div class="mt-2 flex items-baseline gap-3">
+          <span class="text-3xl font-bold text-white" style="font-variant-numeric:tabular-nums">{{ displayData ? parseFloat(displayData.value).toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2}) : '0' }}</span>
+          <span :class="['text-sm font-semibold flex items-center', displayIsUp ? 'pos' : 'neg']">
+            <svg v-if="displayIsUp" class="w-4 h-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
             <svg v-else class="w-4 h-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" /></svg>
-            {{ periodChangeAbs > 0 ? '+' : '' }}{{ periodChangeAbs.toFixed(2) }} 
-            ({{ periodChangePct > 0 ? '+' : '' }}{{ periodChangePct.toFixed(2) }}%)
-            <span class="text-gray-400 font-normal ml-1.5">{{ periodLabel }}</span>
+            {{ displayChangeAbs > 0 ? '+' : '' }}{{ displayChangeAbs.toFixed(2) }} 
+            ({{ displayChangePct > 0 ? '+' : '' }}{{ displayChangePct.toFixed(2) }}%)
+            <span style="color:var(--muted); font-weight:normal; margin-left:8px">{{ displayDateLabel }}</span>
           </span>
         </div>
       </div>
       
-      <div class="mt-4 md:mt-0 flex flex-wrap gap-1 bg-gray-800/50 p-1 rounded-lg">
+      <div class="mt-4 md:mt-0 flex flex-wrap gap-1 p-1 rounded-lg" style="background:var(--bg2)">
         <button 
           v-for="tf in timeframes" 
           :key="tf"
           @click="activeTimeframe = tf"
-          :class="['px-3 py-1 text-xs font-medium rounded-md transition-colors', activeTimeframe === tf ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-white hover:bg-gray-700/50']"
+          :class="['px-3 py-1 text-xs font-medium rounded-md transition-colors', activeTimeframe === tf ? 'text-white shadow-sm' : 'hover:text-white']"
+          :style="activeTimeframe === tf ? 'background:var(--card)' : 'color:var(--muted)'"
         >
           {{ tf }}
         </button>
