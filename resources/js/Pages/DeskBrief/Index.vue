@@ -162,7 +162,7 @@ const brief = computed(() => {
       quote: data.what_to_do || mockData.analyst.quote,
       author: data.analyst_id ? 'Analyst' : mockData.analyst.author,
       role: 'Research',
-      topPicks: data.radar_stocks?.map(r => r.ticker) || mockData.analyst.topPicks,
+      topPicks: (data.radar_stocks && data.radar_stocks.length > 0) ? data.radar_stocks.map(r => r.ticker) : mockData.analyst.topPicks,
     }
   };
 });
@@ -581,9 +581,6 @@ function getConfClass(label) {
       <h2>{{ brief.headline }}</h2>
       <p>{{ brief.subHeadline }}</p>
       
-      <div v-if="brief.analyst && brief.analyst.quote" class="analyst-takeaway" style="background:var(--card2); border-left:4px solid var(--blue); padding:14px 18px; margin:20px 0; border-radius:0 8px 8px 0; color:var(--ink); font-size:14px; line-height:1.7; word-wrap:break-word;">
-        <strong style="color:var(--blue); font-weight:700;">Analyst Takeaway:</strong> {{ brief.analyst.quote }}
-      </div>
 
       <div class="chips">
         <span class="kchip">Disinflation + Growth</span>
@@ -814,9 +811,17 @@ function getConfClass(label) {
     <!-- 10. ANALYST TAKEAWAY -->
     <div class="card span3">
       <div class="chd"><div class="t"><b>10.</b>ANALYST TAKEAWAY</div></div>
-      <div style="font-size:12px;line-height:1.6;color:var(--ink2);font-style:italic">Selective risk-on. Lean ke <b style="color:var(--ink);font-style:normal">confluence tertinggi (Banks, Telco)</b> dengan domestic revenue &amp; dividend. Ikuti akumulasi diam-diam (BMRI/ASII), hindari mengejar spike retail. Avoid Property &amp; Tech sampai yield mereda.</div>
-      <div class="byline" style="margin-top:13px"><div class="av">AR</div><div><div class="nm">Riset Avenir Research</div><div class="rl">Head of Market Intelligence · reviewed</div></div></div>
-      <div class="picks"><span class="pl">Top Picks</span><span class="pk">BBCA</span><span class="pk">TLKM</span><span class="pk">UNVR</span><span class="pk">AMMN</span><span class="pk">PGAS</span></div>
+      <div style="font-size:12px;line-height:1.6;color:var(--ink2);font-style:italic">
+        {{ brief.analyst.quote }}
+      </div>
+      <div class="byline" style="margin-top:13px">
+        <img src="/favicon.png" alt="Avenir" style="width:28px;height:28px;border-radius:50%;object-fit:contain;background:#fff;" />
+        <div><div class="nm">{{ brief.analyst.author }}</div><div class="rl">{{ brief.analyst.role }} · reviewed</div></div>
+      </div>
+      <div class="picks" v-if="brief.analyst.topPicks && brief.analyst.topPicks.length">
+        <span class="pl">Top Picks</span>
+        <span class="pk" v-for="t in brief.analyst.topPicks" :key="t">{{ t }}</span>
+      </div>
     </div>
 
     <!-- 11. STOCK HEATMAP -->
