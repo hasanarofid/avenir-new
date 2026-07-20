@@ -55,7 +55,26 @@
         <div class="val">{{ hoveredPoint.val }}</div>
       </div>
     </div>
-    <div class="csrc">Source: Avenir Research · {{ timeframe }} · EOD</div>
+    
+    <div class="smstats">
+      <div class="sms">
+        <div class="k">CURRENT</div>
+        <div class="v" :style="{ color: chartColor }">{{ chartStats.current }}</div>
+        <div class="s">{{ chartStats.lvl }}</div>
+      </div>
+      <div class="sms">
+        <div class="k">AVG {{ timeframe }}</div>
+        <div class="v">{{ chartStats.avg }}</div>
+        <div class="s">rata-rata</div>
+      </div>
+      <div class="sms">
+        <div class="k">RANGE</div>
+        <div class="v">{{ chartStats.min }}–{{ chartStats.max }}</div>
+        <div class="s">min–max</div>
+      </div>
+    </div>
+    
+    <div class="csrc">Source: Avenir Research - {{ sourceDesc }} (0-100) - {{ timeframe }} EOD</div>
   </div>
 </template>
 
@@ -84,6 +103,13 @@ const chartColor = computed(() => {
   if (selectedChart.value === 'momentum') return '#46C46E';
   if (selectedChart.value === 'stress') return '#E2705C';
   return '#46C46E';
+});
+
+const sourceDesc = computed(() => {
+  if (selectedChart.value === 'regime') return 'engine Avenir - 5-komponen';
+  if (selectedChart.value === 'momentum') return 'momentum asing';
+  if (selectedChart.value === 'stress') return 'tekanan pasar';
+  return '';
 });
 
 const closeDd = (e) => {
@@ -151,6 +177,39 @@ const chartData = computed(() => {
   
   return { points, raw, firstY, lastPoint, isUp };
 });
+
+const chartStats = computed(() => {
+  const { raw } = chartData.value;
+  if (!raw || !raw.length) return { current: '-', avg: '-', min: '-', max: '-', lvl: '-' };
+  
+  const values = raw.map(d => parseFloat(d.val));
+  const current = values[values.length - 1];
+  const avg = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
+  const min = Math.min(...values).toFixed(1);
+  const max = Math.max(...values).toFixed(1);
+  
+  let lvl = 'Neutral';
+  if (selectedChart.value === 'stress') {
+    if (current < 40) lvl = 'Benign';
+    else if (current > 70) lvl = 'Extreme';
+    else lvl = 'Elevated';
+  } else {
+    if (current > 60) lvl = 'Bullish';
+    else if (current < 40) lvl = 'Bearish';
+    else lvl = 'Neutral';
+  }
+  
+  // Custom format current based on mock image (some have decimals)
+  const currentFormatted = selectedChart.value === 'regime' ? Math.round(current).toString() : current.toFixed(1);
+  
+  return {
+    current: currentFormatted,
+    avg,
+    min,
+    max,
+    lvl
+  };
+});
 </script>
 
 <style scoped>
@@ -178,4 +237,9 @@ const chartData = computed(() => {
 .chart-tooltip {position:absolute;background:#161616;border:1px solid var(--line2);padding:4px 8px;border-radius:4px;font-size:10px;color:var(--ink);pointer-events:none;transform:translate(-50%, -100%);white-space:nowrap;z-index:10;}
 .chart-tooltip .date {color:var(--muted);font-size:9px;margin-bottom:2px;}
 .chart-tooltip .val {font-weight:700;}
+.smstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}
+.sms{background:var(--inset);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+.sms .k{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:600}
+.sms .v{font-size:14px;font-weight:700;margin-top:4px}
+.sms .s{font-size:8.5px;color:var(--faint);margin-top:1px}
 </style>

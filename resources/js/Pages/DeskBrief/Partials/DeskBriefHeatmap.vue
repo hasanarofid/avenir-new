@@ -1,7 +1,7 @@
 <template>
   <div class="card span12 stmap-wrap">
     <div class="stmap-head">
-      <div class="chd" style="margin:0"><div class="t"><b>11.</b>PETA BURSA — STOCK HEATMAP <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(1D · ukuran = market cap · warna = return)</span></div></div>
+      <div class="chd" style="margin:0"><div class="t"><b>11.</b>PETA BURSA — STOCK HEATMAP <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(1D · ukuran = market cap · warna = return · klik sektor untuk zoom)</span></div></div>
       <div class="seg" id="stmapSeg">
         <button :class="{ on: sortMode === 'mcap' }" @click="sortMode = 'mcap'; draw()">Market Cap</button>
         <button :class="{ on: sortMode === 'ret' }" @click="sortMode = 'ret'; draw()">Return</button>
