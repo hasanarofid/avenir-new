@@ -95,6 +95,27 @@ class DeskBriefDraftCommand extends Command
         $this->info("  → Generating Period Conclusion...");
         $conclusion = $scoringEngine->generatePeriodConclusion($date);
 
+        $this->info("  → Generating Regime Text & Analyst Takeaway via OpenRouter...");
+        $openRouter = app(\App\Services\OpenRouterService::class);
+        $systemPrompt = "You are a professional quantitative financial analyst at Avenir Research. Write in Indonesian. Provide output strictly in JSON format.";
+        $userPrompt = "Given the following market data for today: \n"
+            . "- Market Stance: {$stance->label} (Score: {$stance->score}/100)\n"
+            . "- Conclusion/Market Read: {$conclusion}\n"
+            . "- Delta/What Changed: " . json_encode($delta) . "\n\n"
+            . "Please generate a JSON object with two keys:\n"
+            . "1. 'regime_text': A 1-2 sentence explanation of what the current regime score means for the market condition.\n"
+            . "2. 'analyst_takeaway': A 2-3 sentence actionable takeaway/advice for investors (what to buy/avoid, what to watch). Keep it concise, insightful, and professional.";
+            
+        $regimeText = '';
+        $analystTakeaway = '';
+        try {
+            $aiResult = $openRouter->generateStructuredJson($systemPrompt, $userPrompt);
+            $regimeText = $aiResult['structured_json']['regime_text'] ?? 'Regime score saat ini mencerminkan kondisi pasar yang sejalan dengan stance ' . $stance->label . '.';
+            $analystTakeaway = $aiResult['structured_json']['analyst_takeaway'] ?? 'Pantau volatilitas pasar dan sesuaikan eksposur portofolio secara bertahap.';
+        } catch (\Exception $e) {
+            $this->warn("  ! AI Generation failed: " . $e->getMessage());
+        }
+
         $this->info("  → Creating Desk Brief draft...");
 
         $brief = DeskBrief::create([
@@ -105,8 +126,8 @@ class DeskBriefDraftCommand extends Command
             'published_at' => now(),
             'title' => 'Desk Brief - ' . Carbon::parse($date)->format('d M Y'),
             'market_read' => $conclusion,
-            'so_what' => '',
-            'what_to_do' => '',
+            'so_what' => $regimeText,
+            'what_to_do' => $analystTakeaway,
         ]);
 
         $this->info("  ✓ Desk Brief draft created successfully! (ID: {$brief->id})");

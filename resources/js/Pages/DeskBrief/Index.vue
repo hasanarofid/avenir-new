@@ -569,8 +569,8 @@ function getConfClass(label) {
       <div class="lab">Market Stance</div>
       <div class="big" :class="scoreColor.text">{{ brief.marketStance.label }}</div>
       <div class="meta">
-        <div class="m"><span class="k">Tactical view</span><span class="v">{{ brief.marketStance.view }}</span></div>
-        <div class="m"><span class="k">Time horizon</span><span class="v">{{ brief.marketStance.horizon }}</span></div>
+        <!-- <div class="m"><span class="k">Tactical view</span><span class="v">{{ brief.marketStance.view }}</span></div>
+        <div class="m"><span class="k">Time horizon</span><span class="v">{{ brief.marketStance.horizon }}</span></div> -->
         <div class="m"><span class="k">Regime score</span><span class="v pos" :class="scoreColor.text">{{ brief.marketStance.score }} / 100</span></div>
       </div>
     </div>
