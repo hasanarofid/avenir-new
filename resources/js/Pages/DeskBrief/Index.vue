@@ -552,11 +552,13 @@ function getConfClass(label) {
   </div>
   <div class="right">
     <div class="lastupd">Last Update: <b>{{ brief.lastUpdate }}</b><br><span style="font-size:8.5px;font-weight:normal;color:#999;letter-spacing:0">(Updated daily at EOD)</span></div>
-    <div class="pbtns">
+ 
+    <!-- <div class="pbtns">
       <div class="btn green">⤴ Share Desk Brief</div>
       <div class="btn ghost" @click="printPage">⎙ Print / PDF</div>
       <div class="btn dots">⋮</div>
     </div>
+     -->
   </div>
 </div>
 

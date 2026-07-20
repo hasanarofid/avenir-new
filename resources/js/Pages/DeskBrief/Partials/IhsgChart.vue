@@ -177,7 +177,7 @@ const chartOptions = computed(() => ({
         </div>
         <div class="mt-2 flex items-baseline gap-3">
           <span class="text-3xl font-bold text-white" style="font-variant-numeric:tabular-nums">{{ displayData ? parseFloat(displayData.value).toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2}) : '0' }}</span>
-          <span :class="['text-sm font-semibold flex items-center', displayIsUp ? 'pos' : 'neg']">
+          <span :class="['text-sm font-semibold flex items-center']" :style="{ color: displayIsUp ? '#46C46E' : '#E2705C' }">
             <svg v-if="displayIsUp" class="w-4 h-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
             <svg v-else class="w-4 h-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" /></svg>
             {{ displayChangeAbs > 0 ? '+' : '' }}{{ displayChangeAbs.toFixed(2) }} 
