@@ -225,12 +225,6 @@ const chartOptions = computed(() => ({
         <svg v-else class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 7L7 17M7 17H17M7 17V7" /></svg>
         <span>{{ displayChangeAbs > 0 ? '+' : '' }}{{ displayChangeAbs.toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2}) }} ({{ displayChangePct > 0 ? '+' : '' }}{{ displayChangePct.toFixed(2) }}%) <span style="color:var(--muted); font-weight:normal; margin-left:4px">{{ periodLabel }}</span></span>
       </div>
-      
-      <!-- Tags for mobile -->
-      <div class="flex flex-wrap gap-2 mt-4">
-        <span class="px-2 py-1 text-xs rounded border" :style="{ borderColor: displayIsUp ? 'rgba(70,196,110,0.4)' : 'rgba(226,112,92,0.4)', color: displayIsUp ? '#46C46E' : '#E2705C' }">Composite</span>
-        <span class="px-2 py-1 text-xs rounded border" :style="{ borderColor: displayIsUp ? 'rgba(70,196,110,0.4)' : 'rgba(226,112,92,0.4)', color: displayIsUp ? '#46C46E' : '#E2705C' }">Market Index</span>
-      </div>
     </div>
     
     <div class="h-72 w-full">

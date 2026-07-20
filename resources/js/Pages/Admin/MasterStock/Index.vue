@@ -266,9 +266,11 @@ const goPage = (p) => { page.value = Math.max(1, Math.min(p, totalPages.value));
                                 <td><span class="font-mono font-bold text-[#6dff9d]">{{ stock.code }}</span></td>
                                 <td class="max-w-[220px] truncate" :title="stock.name">{{ stock.name }}</td>
                                 <td>
-                                    <span class="badge">{{ stock.sector }}</span>
+                                    <span class="text-[var(--text2)] text-xs">{{ stock.sector }}</span>
                                 </td>
-                                <td class="text-[var(--text2)] text-xs">{{ stock.sub_industry }}</td>
+                                <td>
+                                    <span class="badge">{{ stock.sub_industry }}</span>
+                                </td>
                                 <td><span class="font-mono text-xs text-[var(--muted)]">{{ stock.sub_industry_code }}</span></td>
                                 <td>
                                     <span :class="stock.is_sharia ? 'badge-sharia' : 'text-[var(--muted)] text-xs'">
