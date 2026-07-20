@@ -3,6 +3,9 @@ import { computed, ref, onMounted } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import IhsgChart from './Partials/IhsgChart.vue';
+import DeskBriefHeatmap from './Partials/DeskBriefHeatmap.vue';
+import DeskBriefPanel4 from './Partials/DeskBriefPanel4.vue';
+import DeskBriefCalendar from './Partials/DeskBriefCalendar.vue';
 
 
 
@@ -729,34 +732,7 @@ function getConfClass(label) {
     </div>
 
     <!-- 4. REGIME TREND CHART -->
-    <div class="card span3">
-      <div class="chd">
-        <div class="t"><b>4.</b>REGIME SCORE TREND</div>
-        <div class="toggles">
-          <span v-for="tf in regimeTimeframes" :key="tf" :class="['tg', regimeTimeframe === tf ? 'on' : '']" @click="regimeTimeframe = tf">{{ tf }}</span>
-        </div>
-      </div>
-      <div style="font-size:9px;color:var(--muted);margin-bottom:4px">Historical Regime Score ({{ regimeTimeframe }})</div>
-      <svg width="100%" viewBox="0 0 320 120" style="display:block; overflow:visible" @mouseleave="hoveredScore = null">
-        <line x1="14" :y1="chartData.firstY" x2="314" :y2="chartData.firstY" stroke="#2E2E2E" stroke-dasharray="3 4"/>
-        <polyline :points="chartData.points" fill="none" :stroke="chartData.isUp ? '#46C46E' : '#E2705C'" stroke-width="2.2" stroke-linejoin="round"/>
-        <circle v-if="chartData.lastPoint" :cx="chartData.lastPoint.x" :cy="chartData.lastPoint.y" r="4" :fill="chartData.isUp ? '#46C46E' : '#E2705C'"/>
-        <circle v-for="(pt, i) in chartData.raw" :key="'hover_'+i"
-                :cx="pt.x" :cy="pt.y" r="8" fill="transparent"
-                style="cursor:crosshair"
-                @mouseenter="hoveredScore = pt.data" />
-        <g font-size="7.5" fill="#7C7C76">
-          <text x="14" y="115">{{ filteredHistoricalScores.length ? new Date(filteredHistoricalScores[0].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : regimeTimeframe + ' Ago' }}</text>
-          <text x="300" y="115" text-anchor="end">{{ filteredHistoricalScores.length ? new Date(filteredHistoricalScores[filteredHistoricalScores.length - 1].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : 'Now' }}</text>
-        </g>
-      </svg>
-      <div class="smstats">
-        <div class="sms"><div class="k">Selected Score</div><div class="v pos">{{ activeScore.score }}</div><div class="s">{{ activeScore.label }}</div></div>
-        <div class="sms"><div class="k">Avg ({{ regimeTimeframe }})</div><div class="v">{{ avgScore }}</div><div class="s">moderate</div></div>
-        <div class="sms"><div class="k">Trend</div><div class="v pos" :class="trendLabel === 'Cooling' ? 'neg' : ''">{{ trendLabel }}</div><div class="s">vs {{ regimeTimeframe }} ago</div></div>
-      </div>
-      <div class="csrc">Source: Avenir Regime Calculation · {{ activeScore.date ? new Date(activeScore.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '27 Jun 2026' }}</div>
-    </div>
+    <DeskBriefPanel4 :historical-scores="historicalScores" />
 
     <!-- 5. SIGNAL CONFLUENCE -->
     <div class="card span6">
@@ -810,23 +786,7 @@ function getConfClass(label) {
     </div>
 
     <!-- 8. CATALYST CALENDAR -->
-    <div class="card span3">
-      <div class="chd"><div class="t"><b>8.</b>CATALYST CALENDAR</div></div>
-      <div class="caltabs"><span class="caltab on">Upcoming</span><span class="caltab">Past Events</span></div>
-      <div class="cal2-wrap">
-        <table class="cal2">
-          <thead><tr><th>Date</th><th>Event</th><th>Imp</th></tr></thead>
-          <tbody>
-            <tr v-for="(c, idx) in filteredCatalysts" :key="idx">
-              <td class="dt">{{ c.date }}</td>
-              <td class="ev" v-html="c.event"></td>
-              <td><span :class="'lvl-' + (c.impact === 'High' ? 'high' : (c.impact === 'Medium' ? 'med' : 'low'))" style="font-weight:700;font-size:9px">● {{ c.impact }}</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="viewall">View Full Calendar →</div>
-    </div>
+    <DeskBriefCalendar :catalysts="brief.catalysts" />
 
     <!-- 9. RISK MONITOR -->
     <div class="card span3">
@@ -851,6 +811,9 @@ function getConfClass(label) {
       <div class="byline" style="margin-top:13px"><div class="av">AR</div><div><div class="nm">Riset Avenir Research</div><div class="rl">Head of Market Intelligence · reviewed</div></div></div>
       <div class="picks"><span class="pl">Top Picks</span><span class="pk">BBCA</span><span class="pk">TLKM</span><span class="pk">UNVR</span><span class="pk">AMMN</span><span class="pk">PGAS</span></div>
     </div>
+
+    <!-- 11. STOCK HEATMAP -->
+    <DeskBriefHeatmap :sectors="brief.sectors" />
 
     <!-- TOP MOVERS -->
     <div class="card span12">
