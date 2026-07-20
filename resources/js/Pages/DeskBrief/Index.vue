@@ -132,7 +132,7 @@ const brief = computed(() => {
         ? new Date(data.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace('.', ':') + ' WIB' 
         : (props.date ? new Date(props.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' 17:00 WIB' : mockData.lastUpdate),
     headline: data.title || mockData.headline,
-    subHeadline: props.periodConclusion || data.market_read || mockData.subHeadline,
+    subHeadline: data.so_what || props.periodConclusion || data.market_read || mockData.subHeadline,
     regimeText: data.so_what || mockData.regimeText,
     macroCards: props.macroCards?.length ? props.macroCards.map(mc => ({
       title: mc.symbol_or_metric.replace('_', ' '),
@@ -580,6 +580,11 @@ function getConfClass(label) {
       <div class="eye">Desk Brief Headline</div>
       <h2>{{ brief.headline }}</h2>
       <p>{{ brief.subHeadline }}</p>
+      
+      <div v-if="brief.analyst && brief.analyst.quote" class="analyst-takeaway" style="background:var(--card2); border-left:4px solid var(--blue); padding:14px 18px; margin:20px 0; border-radius:0 8px 8px 0; color:var(--ink); font-size:14px; line-height:1.7; word-wrap:break-word;">
+        <strong style="color:var(--blue); font-weight:700;">Analyst Takeaway:</strong> {{ brief.analyst.quote }}
+      </div>
+
       <div class="chips">
         <span class="kchip">Disinflation + Growth</span>
         <span class="kchip">Foreign inflow</span>
