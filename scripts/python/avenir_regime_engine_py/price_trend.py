@@ -30,25 +30,19 @@ def prepare(raw):
 
 def add_features(df):
     df=df.sort_values('date').copy()
-    df['ma20']=df.close.rolling(20,min_periods=1).mean(); df['ma60']=df.close.rolling(60,min_periods=1).mean()
+    df['ma20']=df.close.rolling(20,min_periods=20).mean(); df['ma60']=df.close.rolling(60,min_periods=60).mean()
     df['ret_1d']=df.close.pct_change(1); df['ret_5d']=df.close.pct_change(5); df['ret_20d']=df.close.pct_change(20)
-    df['rolling_high_20d']=df.high.rolling(20,min_periods=1).max(); df['drawdown_20d']=df.close/df.rolling_high_20d-1
-    
-    # Binary Scoring based on Client's Rules
-    df['score_close_ma20'] = np.where(df.close > df.ma20, 30, 0)
-    df['score_ma20_ma60'] = np.where(df.ma20 > df.ma60, 25, 0)
-    df['score_ret_5d'] = np.where(df.ret_5d > 0, 20, 0)
-    df['score_ret_20d'] = np.where(df.ret_20d > 0, 15, 0)
-    df['score_dd_20d'] = np.where(df.drawdown_20d > -0.03, 10, 0)
-    
-    df['price_trend_score_raw'] = df['score_close_ma20'] + df['score_ma20_ma60'] + df['score_ret_5d'] + df['score_ret_20d'] + df['score_dd_20d']
-    df['price_trend_score'] = df['price_trend_score_raw'].fillna(0).astype(int)
-    df['price_trend_label'] = df['price_trend_score'].apply(label)
+    df['rolling_high_20d']=df.high.rolling(20,min_periods=20).max(); df['drawdown_20d']=df.close/df.rolling_high_20d-1
+    df['close_vs_ma20_score']=(df.close/df.ma20-1).apply(s_close)
+    df['ma20_vs_ma60_score']=(df.ma20/df.ma60-1).apply(s_ma)
+    df['return_5d_score']=df.ret_5d.apply(s_ret5); df['return_20d_score']=df.ret_20d.apply(s_ret20); df['drawdown_20d_score']=df.drawdown_20d.apply(s_dd)
+    df['price_trend_score_raw']=.30*df.close_vs_ma20_score+.25*df.ma20_vs_ma60_score+.20*df.return_5d_score+.15*df.return_20d_score+.10*df.drawdown_20d_score
+    df['price_trend_score']=df.price_trend_score_raw.apply(round_score); df['price_trend_label']=df.price_trend_score.apply(label)
     return df
 
 def latest_payload(df):
     r=df.dropna(subset=['price_trend_score']).iloc[-1]
-    return {'date':str(r.date.date()),'price_trend':r.price_trend_score,'price_trend_score':r.price_trend_score,'price_trend_score_raw':float(r.price_trend_score_raw),'price_trend_label':r.price_trend_label,'close':r.close,'ma20':r.ma20,'ma60':r.ma60,'ret_5d':r.ret_5d,'ret_20d':r.ret_20d,'drawdown_20d':r.drawdown_20d}
+    return {'date':str(r.date.date()),'price_trend':r.price_trend_score,'price_trend_score':r.price_trend_score,'price_trend_score_raw':round(r.price_trend_score_raw,1),'price_trend_label':r.price_trend_label,'close':r.close,'ma20':r.ma20,'ma60':r.ma60,'ret_5d':r.ret_5d,'ret_20d':r.ret_20d,'drawdown_20d':r.drawdown_20d}
 
 def run(input_path, output_dir='output_price_trend', sheet_name=0):
     out=Path(output_dir); out.mkdir(exist_ok=True,parents=True)
