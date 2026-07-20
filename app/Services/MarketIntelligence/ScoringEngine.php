@@ -546,7 +546,13 @@ class ScoringEngine
 
         $total = $advancers + $decliners + $stable;
         if ($total > 0) {
-            $score = ($advancers / $total) * 100;
+            $ad_ratio = $advancers / $total;
+            // Piecewise logic for ad_score based on Breadth spec
+            // (0%: 10), (25%: 35), (40%: 45), (50%: 55), (60%: 65), (75%: 85), (100%: 100)
+            $ad_score = $this->scorePiecewise($ad_ratio, [
+                [0.00, 10], [0.25, 35], [0.40, 45], [0.50, 55], [0.60, 65], [0.75, 85], [1.00, 100]
+            ]);
+            $score = $ad_score; // Approximate using just ad_score if full data not available
         } else {
             $score = 0;
         }
@@ -606,28 +612,26 @@ class ScoringEngine
                     return $points[$i][1] + $ratio * ($points[$i+1][1] - $points[$i][1]);
                 }
             }
-            return 50;
+            return null;
         };
 
         $scoreIntensity = function($intensity) use ($scorePiecewise) {
+            // Spec s_int: (-1.5%: 5), (-1%: 15), (-0.5%: 30), (0: 50), (0.5%: 70), (1%: 85), (2%: 100)
             return $scorePiecewise($intensity, [
-                [-0.050, 5], [-0.030, 15], [-0.015, 30], [-0.005, 42],
-                [0.000, 50], [0.005, 60], [0.015, 75], [0.030, 90], [0.050, 100],
+                [-0.015, 5], [-0.010, 15], [-0.005, 30], [0.000, 50],
+                [0.005, 70], [0.010, 85], [0.020, 100]
             ]);
         };
-
-        $scoreConsistency = function($days) {
-            if ($days >= 5) return 100;
-            if ($days == 4) return 85;
-            if ($days == 3) return 65;
-            if ($days == 2) return 45;
-            if ($days == 1) return 25;
-            return 10;
+        $scoreConsistency = function($days) use ($scorePiecewise) {
+            // Spec s_consist: (0: 10), (1: 25), (2: 45), (3: 65), (4: 85), (5: 100)
+            return $scorePiecewise($days, [
+                [0, 10], [1, 25], [2, 45], [3, 65], [4, 85], [5, 100]
+            ]);
         };
-
         $scoreLiquidity = function($ratio) use ($scorePiecewise) {
+            // Spec s_flowliq: (0: 10), (0.3: 20), (0.5: 35), (0.8: 50), (1.0: 70), (1.2: 85), (1.5: 100)
             return $scorePiecewise($ratio, [
-                [0.30, 15], [0.50, 30], [0.70, 45], [0.90, 60],
+                [0.00, 10], [0.30, 20], [0.50, 35], [0.80, 50],
                 [1.00, 70], [1.20, 85], [1.50, 100],
             ]);
         };
@@ -652,7 +656,11 @@ class ScoringEngine
 
         if ($totalSectors == 0) return 50;
 
-        $score = ($positiveSectors / $totalSectors) * 100;
+        $sector_return_breadth_score = $this->scorePiecewise($positiveSectors / $totalSectors, [
+            [0.00, 10], [0.25, 35], [0.40, 45], [0.50, 55], [0.60, 65], [0.75, 85], [1.00, 100]
+        ]);
+        
+        $score = $sector_return_breadth_score; // Approximated fallback
 
         return $this->clamp((int)round($score));
     }
@@ -690,29 +698,30 @@ class ScoringEngine
             return null;
         };
 
-        $volScore = $scorePiecewise($volatilityPercentile, [
-            [0.00, 45], [0.10, 60], [0.25, 85], [0.50, 100], [0.70, 75], [0.85, 45], [1.00, 15],
+        // Volatility regime score mapping (Spec s_vol)
+        $volScore = $this->scorePiecewise($volatilityPercentile, [
+            [0.00, 100], [0.20, 85], [0.40, 65], [0.60, 45], [0.80, 25], [1.00, 10],
         ]);
 
         $liquidityRatio = $avgValue20d > 0 ? $valueTraded / $avgValue20d : null;
         $liqScore = null;
         if ($liquidityRatio !== null) {
             if ($ihsgReturn1d >= 0) {
-                $liqScore = $scorePiecewise($liquidityRatio, [
-                    [0.30, 20], [0.50, 35], [0.70, 50], [0.90, 65], [1.10, 80], [1.30, 90], [1.50, 100],
+                $liqScore = $this->scorePiecewise($liquidityRatio, [
+                    [0.30, 20], [0.50, 35], [0.70, 50], [0.90, 65], [1.00, 75], [1.20, 90], [1.50, 100],
                 ]);
             } else {
-                $liqScore = $scorePiecewise($liquidityRatio, [
+                $liqScore = $this->scorePiecewise($liquidityRatio, [
                     [0.30, 55], [0.50, 50], [0.70, 42], [0.90, 35], [1.10, 25], [1.30, 15], [1.50, 10],
                 ]);
             }
         }
 
-        $rangeScore = $scorePiecewise($dailyRangePct, [
+        $rangeScore = $this->scorePiecewise($dailyRangePct, [
             [0.000, 70], [0.005, 90], [0.010, 85], [0.015, 75], [0.020, 60], [0.030, 40], [0.050, 20], [0.080, 10],
         ]);
 
-        $shockScore = $scorePiecewise($ihsgReturn1d, [
+        $shockScore = $this->scorePiecewise($ihsgReturn1d, [
             [-0.060, 5], [-0.040, 15], [-0.025, 30], [-0.015, 45], [-0.005, 60], [0.000, 70], [0.010, 80], [0.020, 90], [0.040, 100],
         ]);
 
@@ -723,7 +732,7 @@ class ScoringEngine
                 $closeLocScore = 50;
             } else {
                 $closeLoc = ($close - $low) / $dayRange;
-                $closeLocScore = $scorePiecewise($closeLoc, [
+                $closeLocScore = $this->scorePiecewise($closeLoc, [
                     [0.00, 10], [0.20, 25], [0.40, 45], [0.50, 55], [0.60, 65], [0.80, 85], [1.00, 100],
                 ]);
             }

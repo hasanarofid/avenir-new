@@ -4,7 +4,7 @@ from common import *
 
 RISK_ON=['Energy','Basic Materials','Industrials','Consumer Cyclicals','Financials','Properties & Real Estate','Technology','Infrastructures','Transportation & Logistic']
 DEF=['Consumer Non-Cyclicals','Healthcare']
-WEIGHTS={'sector_return_breadth_score':.25,'risk_on_participation_score':.20,'sector_value_confirmation_score':.20,'sector_breadth_score':.15,'leadership_breadth_score':.10,'risk_on_vs_defensive_score':.10}
+WEIGHTS={'sector_return_breadth_score':.25,'risk_on_participation_score':.25,'sector_value_confirmation_score':.15,'sector_breadth_score':.15,'leadership_breadth_score':.10,'risk_on_vs_defensive_score':.10}
 
 def label(x):
     if x>=80: return 'Strong Sector Rotation'
@@ -38,7 +38,10 @@ def leader_score(sec_ret):
     if len(pos)==1: return 25
     w=pos/pos.sum(); hhi=np.sum(w**2); return max(10,min((1-hhi)/(1-1/len(pos))*100,100))
 
-def s_spread(x): return score_piecewise(x,[(-.03,10),(-.02,20),(-.01,35),(0,50),(.005,65),(.01,75),(.02,90),(.03,100)])
+def s_spread(x): return score_piecewise(x,[(-.02,10),(-.01,30),(-.005,45),(0,55),(.005,70),(.01,85),(.02,100)])
+def s_breadth(x): return score_piecewise(x, [(0, 10), (0.25, 35), (0.40, 45), (0.50, 55), (0.60, 65), (0.75, 85), (1.00, 100)])
+def s_val_conf(x): return score_piecewise(x, [(0, 20), (0.30, 40), (0.50, 60), (0.70, 80), (1.00, 100)])
+def s_sec_breadth(x): return score_piecewise(x, [(0, 10), (0.30, 35), (0.50, 55), (0.70, 75), (1.00, 100)])
 
 def calculate(stock, master):
     merged=stock.merge(master,on='code',how='left'); missing=int(merged.sector.isna().sum()); merged=merged.dropna(subset=['sector']).copy()
@@ -47,7 +50,7 @@ def calculate(stock, master):
     detail['sector_breadth_ratio']=detail.apply(lambda r:safe_div(r.advancers,r.advancers+r.decliners),axis=1)
     total=len(detail); pos=int((detail.sector_return>0).sum()); risk=detail[detail.sector.isin(RISK_ON)]; defensive=detail[detail.sector.isin(DEF)]
     risk_pos=int((risk.sector_return>0).sum()); val_pos=detail.loc[detail.sector_return>0,'sector_value'].sum(); val_neg=detail.loc[detail.sector_return<0,'sector_value'].sum(); spread=risk.sector_return.mean()-defensive.sector_return.mean()
-    comp={'sector_return_breadth_score':safe_div(pos,total)*100,'risk_on_participation_score':safe_div(risk_pos,len(risk))*100,'sector_value_confirmation_score':safe_div(val_pos,val_pos+val_neg)*100,'sector_breadth_score':detail.sector_breadth_ratio.mean()*100,'leadership_breadth_score':leader_score(detail.sector_return),'risk_on_vs_defensive_score':s_spread(spread)}
+    comp={'sector_return_breadth_score':s_breadth(safe_div(pos,total)),'risk_on_participation_score':s_breadth(safe_div(risk_pos,len(risk))),'sector_value_confirmation_score':s_val_conf(safe_div(val_pos,val_pos+val_neg)),'sector_breadth_score':s_sec_breadth(detail.sector_breadth_ratio.mean()),'leadership_breadth_score':s_sec_breadth(leader_score(detail.sector_return)/100),'risk_on_vs_defensive_score':s_spread(spread)}
     raw=weighted_score(comp,WEIGHTS); score=round_score(raw); lead=detail.sort_values('sector_return',ascending=False).iloc[0]; lag=detail.sort_values('sector_return').iloc[0]
     p={'sector_rotation':score,'sector_rotation_score':score,'sector_rotation_score_raw':round(raw,1),'sector_rotation_label':label(score),'positive_sector_count':pos,'total_sector_count':total,'risk_on_positive_count':risk_pos,'risk_on_total':len(risk),'leader_sector':lead.sector,'leader_return':float(lead.sector_return),'laggard_sector':lag.sector,'laggard_return':float(lag.sector_return),'risk_on_avg_return':float(risk.sector_return.mean()),'defensive_avg_return':float(defensive.sector_return.mean()),'risk_on_vs_defensive_spread':float(spread),'missing_sector_mapping_count':missing}
     p.update({k:round(v,1) for k,v in comp.items()})

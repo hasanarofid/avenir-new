@@ -113,7 +113,7 @@ const formatPercent = (num) => {
                         <div><div class="text-gray-500 text-xs">Drawdown 20d</div><div class="font-bold text-white">{{ formatPercent(result.raw_data.drawdown_20d) }}</div></div>
                     </div>
                     <div class="mt-3 text-xs text-gray-400">
-                        <span class="font-bold">Rumus:</span> Close > MA20 (+30), MA20 > MA60 (+25), Ret 5d > 0 (+20), Ret 20d > 0 (+15), Drawdown > -3% (+10).
+                        <span class="font-bold">Rumus:</span> Interpolasi piecewise linier berdasarkan spesifikasi resmi (close_vs_ma20, ma20_vs_ma60, ret_5d, ret_20d, drawdown_20d).
                     </div>
                 </div>
 
@@ -134,7 +134,7 @@ const formatPercent = (num) => {
                         <div><div class="text-gray-500 text-xs">Saham Turun (Decliners)</div><div class="font-bold text-red-400">{{ formatNumber(result.raw_data.decliners) }}</div></div>
                     </div>
                     <div class="mt-3 text-xs text-gray-400">
-                        <span class="font-bold">Rumus:</span> (Saham Naik / (Saham Naik + Saham Turun)) * 100.
+                        <span class="font-bold">Rumus:</span> Interpolasi piecewise berdasarkan spesifikasi resmi (ad_score, strong_movers, mcap_breadth, value_breadth, active_participation).
                     </div>
                 </div>
 
@@ -157,7 +157,7 @@ const formatPercent = (num) => {
                         <div><div class="text-gray-500 text-xs">Market Gross</div><div class="font-bold text-white">{{ formatNumber(result.raw_data.total_market_value_5d) }}</div></div>
                     </div>
                     <div class="mt-3 text-xs text-gray-400">
-                        <span class="font-bold">Rumus:</span> Foreign Net > 0 (+35), Inst Net > 0 (+25), Days >= 3 (+20), Intensity > 0 (+20).
+                        <span class="font-bold">Rumus:</span> Interpolasi piecewise berdasarkan spesifikasi resmi (foreign_flow_trend, flow_consistency, liquidity_confirmation).
                     </div>
                 </div>
 
@@ -180,7 +180,7 @@ const formatPercent = (num) => {
                         <div><div class="text-gray-500 text-xs">Consistency</div><div class="font-bold text-white">{{ result.raw_data.leadership_consistency_days }} Hari</div></div>
                     </div>
                     <div class="mt-3 text-xs text-gray-400">
-                        <span class="font-bold">Rumus:</span> Pos Ratio > 55% (+35), Cyclical > 50% (+30), Conc < 40% (+20), Consistent >= 2 (+15).
+                        <span class="font-bold">Rumus:</span> Interpolasi piecewise berdasarkan spesifikasi resmi (sector_return, risk_on_part, sector_val_conf, sector_breadth, leadership_hhi, risk_on_vs_def).
                     </div>
                 </div>
 
@@ -192,8 +192,8 @@ const formatPercent = (num) => {
                             Volatility & Liquidity
                         </h4>
                         <div class="text-right">
-                            <div class="text-2xl font-bold text-emerald-400">{{ result.scores.volatility_liquidity }}</div>
-                            <div class="text-xs text-gray-500">Bobot 10% = {{ (result.scores.volatility_liquidity * 0.1).toFixed(2) }}</div>
+                            <div class="text-2xl font-bold text-emerald-400">{{ result.scores.volatility_stability }}</div>
+                            <div class="text-xs text-gray-500">Bobot 10% = {{ ((result.scores.volatility_stability || 0) * 0.1).toFixed(2) }}</div>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm bg-black/20 p-4 rounded-lg">
@@ -203,7 +203,7 @@ const formatPercent = (num) => {
                         <div><div class="text-gray-500 text-xs">IHSG 1D Ret</div><div class="font-bold text-white">{{ formatPercent(result.raw_data.ihsg_return_1d) }}</div></div>
                     </div>
                     <div class="mt-3 text-xs text-gray-400">
-                        <span class="font-bold">Rumus:</span> Vol antara 25%-75% (+30), Val > Avg & IHSG Naik (+40), Val > 80% Avg (+30).
+                        <span class="font-bold">Rumus:</span> Interpolasi piecewise berdasarkan spesifikasi resmi (volatility_regime, liquidity_quality, intraday_range, return_shock, close_location).
                     </div>
                 </div>
 

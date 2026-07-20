@@ -4,7 +4,7 @@ $app = require_once 'bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-$date = '2026-07-08';
+$date = '2026-07-20';
 $bridge = new \App\Services\MarketIntelligence\PythonBridge();
 
 // Export CSVs WITHOUT cleanup

@@ -45,7 +45,7 @@ def parse_number(x):
     try: return float(s)*mult
     except Exception: return np.nan
 
-def parse_date(s): return pd.to_datetime(s, errors='coerce', dayfirst=False)
+def parse_date(s): return pd.to_datetime(s, errors='coerce', dayfirst=True)
 
 def load_table(path, sheet_name=0):
     p=Path(path)
@@ -83,9 +83,9 @@ def round_score(x):
 def save_json(payload,path):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     def clean(v):
-        if isinstance(v, (bool, np.bool_)): return int(v)
         if pd.isna(v): return None
         if isinstance(v,(np.integer,np.floating)): return float(v)
+        if isinstance(v, np.bool_): return bool(v)
         return v
     def rec(o):
         if isinstance(o,dict): return {k:rec(v) for k,v in o.items()}
