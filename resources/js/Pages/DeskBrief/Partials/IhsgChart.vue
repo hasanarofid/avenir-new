@@ -181,7 +181,8 @@ const chartOptions = computed(() => ({
 
 <template>
   <div class="card" style="padding:24px; margin-bottom:24px; display:block">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+    <!-- DESKTOP HEADER (hidden on mobile) -->
+    <div class="hidden md:flex flex-row justify-between items-center mb-6">
       <div>
         <div class="flex items-center gap-3">
           <h2 class="text-xl font-bold text-white tracking-tight" style="margin:0">IHSG</h2>
@@ -199,7 +200,7 @@ const chartOptions = computed(() => ({
         </div>
       </div>
       
-      <div class="mt-4 md:mt-0 flex flex-wrap gap-1 p-1 rounded-lg" style="background:var(--bg2)">
+      <div class="flex flex-wrap gap-1 p-1 rounded-lg" style="background:var(--bg2)">
         <button 
           v-for="tf in timeframes" 
           :key="tf"
@@ -209,6 +210,26 @@ const chartOptions = computed(() => ({
         >
           {{ tf }}
         </button>
+      </div>
+    </div>
+
+    <!-- MOBILE HEADER (hidden on desktop) -->
+    <div class="flex md:hidden flex-col mb-4">
+      <div class="text-xs font-medium" style="color:var(--muted); margin-bottom:4px">Indeks Harga Saham Gabungan</div>
+      <div class="flex justify-between items-center">
+        <div class="text-4xl font-bold text-white tracking-tight" style="font-variant-numeric:tabular-nums">{{ displayData ? parseFloat(displayData.value).toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2}) : '0' }}</div>
+        <img src="/favicon.png" alt="Logo" class="w-10 h-10 rounded-full object-contain bg-white p-1" />
+      </div>
+      <div class="mt-1 flex items-center text-sm font-semibold" :style="{ color: displayIsUp ? '#46C46E' : '#E2705C' }">
+        <svg v-if="displayIsUp" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7V17" /></svg>
+        <svg v-else class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 7L7 17M7 17H17M7 17V7" /></svg>
+        <span>{{ displayChangeAbs > 0 ? '+' : '' }}{{ displayChangeAbs.toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2}) }} ({{ displayChangePct > 0 ? '+' : '' }}{{ displayChangePct.toFixed(2) }}%) <span style="color:var(--muted); font-weight:normal; margin-left:4px">{{ periodLabel }}</span></span>
+      </div>
+      
+      <!-- Tags for mobile -->
+      <div class="flex flex-wrap gap-2 mt-4">
+        <span class="px-2 py-1 text-xs rounded border" :style="{ borderColor: displayIsUp ? 'rgba(70,196,110,0.4)' : 'rgba(226,112,92,0.4)', color: displayIsUp ? '#46C46E' : '#E2705C' }">Composite</span>
+        <span class="px-2 py-1 text-xs rounded border" :style="{ borderColor: displayIsUp ? 'rgba(70,196,110,0.4)' : 'rgba(226,112,92,0.4)', color: displayIsUp ? '#46C46E' : '#E2705C' }">Market Index</span>
       </div>
     </div>
     
@@ -223,6 +244,19 @@ const chartOptions = computed(() => ({
       <div v-else class="h-full flex items-center justify-center text-gray-500">
         No data available
       </div>
+    </div>
+
+    <!-- MOBILE TIMEFRAMES (hidden on desktop) -->
+    <div class="flex md:hidden mt-4 flex-wrap justify-between items-center px-1">
+      <button 
+        v-for="tf in timeframes" 
+        :key="tf"
+        @click="activeTimeframe = tf"
+        class="text-xs font-semibold px-2 py-1 transition-colors"
+        :style="activeTimeframe === tf ? 'color:#fff; border-bottom:2px solid ' + (displayIsUp ? '#46C46E' : '#E2705C') : 'color:var(--muted); border-bottom:2px solid transparent'"
+      >
+        {{ tf }}
+      </button>
     </div>
   </div>
 </template>
