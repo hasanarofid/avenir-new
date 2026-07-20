@@ -146,9 +146,20 @@ const chartOptions = computed(() => ({
     axisTicks: { show: false },
     tooltip: { enabled: false }
   },
+  responsive: [
+    {
+      breakpoint: 640,
+      options: {
+        xaxis: {
+          labels: { show: false }
+        }
+      }
+    }
+  ],
   yaxis: {
     labels: {
       align: 'left',
+      offsetX: -15,
       formatter: (value) => value.toLocaleString('id-ID', { maximumFractionDigits: 0 }),
       style: { colors: '#9ca3af' },
     }
@@ -158,7 +169,7 @@ const chartOptions = computed(() => ({
     strokeDashArray: 4,
     xaxis: { lines: { show: false } },
     yaxis: { lines: { show: false } },
-    padding: { top: 0, right: 0, bottom: 0, left: 10 }
+    padding: { top: 0, right: 0, bottom: 0, left: 0 }
   },
   tooltip: {
     theme: 'dark',
