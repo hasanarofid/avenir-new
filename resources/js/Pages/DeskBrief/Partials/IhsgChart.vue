@@ -148,7 +148,8 @@ const chartOptions = computed(() => ({
   },
   yaxis: {
     labels: {
-      formatter: (value) => value.toFixed(0),
+      align: 'left',
+      formatter: (value) => value.toLocaleString('id-ID', { maximumFractionDigits: 0 }),
       style: { colors: '#9ca3af' },
     }
   },

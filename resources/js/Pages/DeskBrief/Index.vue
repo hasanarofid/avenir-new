@@ -1340,6 +1340,20 @@ function getConfClass(label) {
 }
 
 @media screen and (max-width: 640px) {
+  .card, .hero {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-shadow: none !important;
+    border-bottom: 8px solid var(--line) !important;
+    margin-bottom: 16px !important;
+    padding-bottom: 24px !important;
+  }
+  .card:last-child, .hero:last-child {
+    border-bottom: none !important;
+  }
   .idx3, .oa, .intern, .smstats, .sheat {
     grid-template-columns: 1fr;
   }
