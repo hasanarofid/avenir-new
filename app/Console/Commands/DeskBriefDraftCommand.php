@@ -97,21 +97,24 @@ class DeskBriefDraftCommand extends Command
 
         $this->info("  → Generating Regime Text & Analyst Takeaway via OpenRouter...");
         $openRouter = app(\App\Services\OpenRouterService::class);
-        $systemPrompt = "You are a professional quantitative financial analyst at Avenir Research. Write in Indonesian. Provide output strictly in JSON format.";
+        $systemPrompt = "You are a professional quantitative financial analyst at Avenir Research. Write in Indonesian, but use common English market terms naturally. Provide output strictly in JSON format.";
         $userPrompt = "Given the following market data for today: \n"
             . "- Market Stance: {$stance->label} (Score: {$stance->score}/100)\n"
             . "- Conclusion/Market Read: {$conclusion}\n"
             . "- Delta/What Changed: " . json_encode($delta) . "\n\n"
-            . "Please generate a JSON object with two keys:\n"
+            . "Please generate a JSON object with three keys:\n"
             . "1. 'regime_text': A 1-2 sentence explanation of what the current regime score means for the market condition.\n"
-            . "2. 'analyst_takeaway': A 2-3 sentence actionable takeaway/advice for investors (what to buy/avoid, what to watch). Keep it concise, insightful, and professional.";
+            . "2. 'analyst_takeaway': A 2-3 sentence actionable takeaway/advice for investors (what to buy/avoid, what to watch). Keep it concise, punchy, and use a mix of Indonesian and English trading slang. Style example: 'Selective risk-on. Lean ke confluence tertinggi (Banks, Telco) dengan domestic revenue. Ikuti akumulasi diam-diam, hindari mengejar spike retail. Avoid Property & Tech sampai yield mereda.'\n"
+            . "3. 'top_picks': An array of 3 to 5 string tickers (e.g. [\"BBCA\", \"TLKM\", \"UNVR\"]) that represent the best stocks to buy or watch given this condition.";
             
         $regimeText = '';
         $analystTakeaway = '';
+        $topPicks = [];
         try {
             $aiResult = $openRouter->generateStructuredJson($systemPrompt, $userPrompt);
             $regimeText = $aiResult['structured_json']['regime_text'] ?? 'Regime score saat ini mencerminkan kondisi pasar yang sejalan dengan stance ' . $stance->label . '.';
             $analystTakeaway = $aiResult['structured_json']['analyst_takeaway'] ?? 'Pantau volatilitas pasar dan sesuaikan eksposur portofolio secara bertahap.';
+            $topPicks = $aiResult['structured_json']['top_picks'] ?? [];
         } catch (\Exception $e) {
             $this->warn("  ! AI Generation failed: " . $e->getMessage());
         }
@@ -146,6 +149,17 @@ class DeskBriefDraftCommand extends Command
             ]);
         }
         $this->info("  ✓ Key Drivers saved successfully!");
+
+        $this->info("  → Saving Radar Stocks (Top Picks)...");
+        if (is_array($topPicks) && count($topPicks) > 0) {
+            foreach ($topPicks as $index => $ticker) {
+                $brief->radarStocks()->create([
+                    'ticker' => $ticker,
+                    'priority' => $index + 1
+                ]);
+            }
+            $this->info("  ✓ Top Picks saved successfully!");
+        }
 
         $this->info("  ⚠ Please review and publish via Admin Panel.");
         $this->info("[deskbrief:draft] Done.");
