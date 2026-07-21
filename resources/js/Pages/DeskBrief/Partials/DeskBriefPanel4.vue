@@ -41,9 +41,6 @@
           </div>
         </div>
       </div>
-      <div class="toggles">
-        <span v-for="tf in timeframes" :key="tf" :class="['tg', timeframe === tf ? 'on' : '']" @click.stop="timeframe = tf">{{ tf }}</span>
-      </div>
     </div>
     
     <div style="position:relative" @mouseleave="hoveredPoint = null">
@@ -77,6 +74,10 @@
           {{ val.label }}: {{ val.value }}
         </div>
       </div>
+    </div>
+    
+    <div class="toggles" style="justify-content: flex-end; margin-top: 10px;">
+      <span v-for="tf in timeframes" :key="tf" :class="['tg', timeframe === tf ? 'on' : '']" @click.stop="timeframe = tf">{{ tf }}</span>
     </div>
     
     <div class="smstats">
