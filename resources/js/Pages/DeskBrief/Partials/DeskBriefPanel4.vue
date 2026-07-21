@@ -63,7 +63,7 @@
                 @mouseenter="hoveredPoint = pt" />
                 
         <g font-size="7.5" fill="#7C7C76">
-          <text x="14" y="115">{{ chartData.cutoff ? chartData.cutoff.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : timeframe + ' Ago' }}</text>
+          <text x="14" y="115">{{ chartData.raw.length ? new Date(chartData.raw[0].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : timeframe + ' Ago' }}</text>
           <text x="290" y="115">Now</text>
         </g>
       </svg>
@@ -167,17 +167,8 @@ const chartData = computed(() => {
     filtered = all.filter(d => new Date(d.date) >= cutoff);
   }
   
-  if (!filtered.length) return { lines: [], raw: [], firstY: 0, cutoff: new Date() };
-
-  let lastDate = new Date(filtered[filtered.length - 1].date);
-  const msPerDay = 24 * 60 * 60 * 1000;
-  let days = 30;
-  if (timeframe.value === '6M') days = 180;
-  if (timeframe.value === '1Y') days = 365;
-  const cutoff = new Date(lastDate.getTime() - days * msPerDay);
+  if (!filtered.length) return { lines: [], raw: [], firstY: 0 };
   
-  const timeRange = lastDate.getTime() - cutoff.getTime() || 1;
-
   const width = 300;
   const height = 80;
   const paddingX = 14;
@@ -214,10 +205,7 @@ const chartData = computed(() => {
   const lines = linesConfig.map(cfg => {
     const rawPoints = filtered.map((d, i) => {
       const val = d[cfg.key] ?? 50;
-      const pointDate = new Date(d.date);
-      // Ensure points don't go out of bounds on the left (if some slightly older data was included)
-      const clampedDate = Math.max(cutoff.getTime(), pointDate.getTime());
-      const x = paddingX + ((clampedDate - cutoff.getTime()) / timeRange) * width;
+      const x = paddingX + (i / (Math.max(1, filtered.length - 1))) * width;
       const y = paddingY + height - ((val - minVal) / range) * height;
       return { x, y, val: parseFloat(val).toFixed(1), date: d.date };
     });
@@ -235,9 +223,7 @@ const chartData = computed(() => {
   
   // For hover interactions, we need a single array of X points that contain all values
   const raw = filtered.map((d, i) => {
-    const pointDate = new Date(d.date);
-    const clampedDate = Math.max(cutoff.getTime(), pointDate.getTime());
-    const x = paddingX + ((clampedDate - cutoff.getTime()) / timeRange) * width;
+    const x = paddingX + (i / (Math.max(1, filtered.length - 1))) * width;
     const pVal = getPrimaryVal(d);
     const y = paddingY + height - ((pVal - minVal) / range) * height; // Main Y for tooltip position
     
@@ -253,9 +239,9 @@ const chartData = computed(() => {
   });
 
   // Calculate firstY based on primary line to draw the dashed horizontal line
-  const firstY = lines[0] && lines[0].rawPoints.length ? lines[0].rawPoints[0].y : 0;
+  const firstY = lines[0].rawPoints[0].y;
   
-  return { lines, raw, firstY, cutoff };
+  return { lines, raw, firstY };
 });
 
 const chartStats = computed(() => {
