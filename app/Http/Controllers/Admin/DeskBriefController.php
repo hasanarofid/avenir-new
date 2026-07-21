@@ -412,9 +412,16 @@ PYTHON;
     public function uploadForeignFlow(Request $request)
     {
         $request->validate([
-            'foreign_flow' => 'required|file|mimes:xlsx,xls|max:51200',
+            // Memperlonggar validasi mimes karena terkadang file .xlsx dari OS/Browser tertentu 
+            // dibaca sebagai application/zip atau application/octet-stream oleh server.
+            'foreign_flow' => 'required|file|max:51200',
             'date'         => 'required|date'
         ]);
+
+        $extension = $request->file('foreign_flow')->getClientOriginalExtension();
+        if (!in_array(strtolower($extension), ['xlsx', 'xls'])) {
+            return back()->withErrors(['foreign_flow' => 'File harus berupa Excel (.xlsx atau .xls)']);
+        }
 
         try {
             $path     = $request->file('foreign_flow')->store('foreign_flow');
