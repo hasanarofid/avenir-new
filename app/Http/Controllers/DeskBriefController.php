@@ -104,17 +104,20 @@ class DeskBriefController extends Controller
                     'flow_momentum_v2_score', 'flow_exhaustion_score', 'reversal_probability',
                     'market_stress_composite', 'macro_stress', 'flow_internal_stress'
                 ])
-                ->map(function ($item) {
-                    // Mock data if values are missing (for preview/testing)
+                ->map(function ($item, $index) {
+                    // Smooth mock data if values are missing (for preview/testing)
+                    // using sine waves instead of rand() so the chart looks realistic and not jagged
                     if (is_null($item->flow_momentum_v2_score)) {
-                        $item->flow_momentum_v2_score = rand(40, 70);
-                        $item->flow_exhaustion_score = rand(30, 80);
-                        $item->reversal_probability = rand(20, 90);
+                        $t = $index * 0.2;
+                        $item->flow_momentum_v2_score = 50 + 20 * sin($t);
+                        $item->flow_exhaustion_score = 50 + 25 * cos($t * 0.8 + 1);
+                        $item->reversal_probability = 50 + 30 * sin($t * 1.2 + 2);
                     }
                     if (is_null($item->market_stress_composite)) {
-                        $item->market_stress_composite = rand(40, 60);
-                        $item->macro_stress = rand(30, 70);
-                        $item->flow_internal_stress = rand(40, 80);
+                        $t = $index * 0.15;
+                        $item->market_stress_composite = 50 + 10 * sin($t);
+                        $item->macro_stress = 50 + 15 * cos($t * 0.9 + 0.5);
+                        $item->flow_internal_stress = 50 + 20 * sin($t * 1.1 + 1.5);
                     }
                     return $item;
                 }),

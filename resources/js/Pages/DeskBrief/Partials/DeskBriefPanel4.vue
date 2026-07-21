@@ -194,12 +194,12 @@ const chartData = computed(() => {
     linesConfig.push({ key: 'score', label: 'Regime Score', color: '#5FA0D8', width: 2.2 });
   } else if (selectedChart.value === 'momentum') {
     linesConfig.push({ key: 'flow_momentum_v2_score', label: 'Flow Momentum', color: '#888888', width: 2.2 });
-    linesConfig.push({ key: 'flow_exhaustion_score', label: 'Flow Exhaustion', color: '#4E7D52', width: 2, dasharray: '4 3' });
-    linesConfig.push({ key: 'reversal_probability', label: 'Reversal Prob.', color: '#8A5A5A', width: 2, dasharray: '2 2' });
+    linesConfig.push({ key: 'flow_exhaustion_score', label: 'Flow Exhaustion', color: '#46C46E', width: 2, dasharray: '4 3' });
+    linesConfig.push({ key: 'reversal_probability', label: 'Reversal Prob.', color: '#E2705C', width: 2, dasharray: '2 2' });
   } else if (selectedChart.value === 'stress') {
     linesConfig.push({ key: 'market_stress_composite', label: 'Composite Stress', color: '#888888', width: 2.2 });
-    linesConfig.push({ key: 'macro_stress', label: 'Macro Stress', color: '#4E7D52', width: 2, dasharray: '4 3' });
-    linesConfig.push({ key: 'flow_internal_stress', label: 'Flow/Internal', color: '#8A5A5A', width: 2, dasharray: '2 2' });
+    linesConfig.push({ key: 'macro_stress', label: 'Macro Stress', color: '#46C46E', width: 2, dasharray: '4 3' });
+    linesConfig.push({ key: 'flow_internal_stress', label: 'Flow/Internal', color: '#E2705C', width: 2, dasharray: '2 2' });
   }
 
   const lines = linesConfig.map(cfg => {
