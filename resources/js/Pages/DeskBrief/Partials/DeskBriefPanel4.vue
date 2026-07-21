@@ -14,15 +14,15 @@
           </div>
           <div class="p4dd-item" :class="{ on: selectedChart === 'momentum' }" @click.stop="selectChart('momentum')">
             <div style="display:flex;align-items:center;gap:10px">
-              <span class="p4dd-dot" style="background:#46C46E"></span>
+              <span class="p4dd-dot" style="background:#FFFFFF"></span>
               <span>Foreign Momentum v2</span>
             </div>
             <span class="p4dd-check">✓</span>
           </div>
           <div class="p4dd-item" :class="{ on: selectedChart === 'stress' }" @click.stop="selectChart('stress')">
             <div style="display:flex;align-items:center;gap:10px">
-              <span class="p4dd-dot" style="background:#E2705C"></span>
-              <span>Market Stress</span>
+              <span class="p4dd-dot" style="background:#FFFFFF"></span>
+              <span>Market Stress Engine</span>
             </div>
             <span class="p4dd-check">✓</span>
           </div>
@@ -124,9 +124,9 @@ const selectedChartLabel = computed(() => {
 
 const chartColor = computed(() => {
   if (selectedChart.value === 'regime') return '#5FA0D8';
-  if (selectedChart.value === 'momentum') return '#46C46E';
-  if (selectedChart.value === 'stress') return '#E2705C';
-  return '#46C46E';
+  if (selectedChart.value === 'momentum') return '#FFFFFF';
+  if (selectedChart.value === 'stress') return '#FFFFFF';
+  return '#FFFFFF';
 });
 
 const sourceDesc = computed(() => {
@@ -193,13 +193,13 @@ const chartData = computed(() => {
   if (selectedChart.value === 'regime') {
     linesConfig.push({ key: 'score', label: 'Regime Score', color: '#5FA0D8', width: 2.2 });
   } else if (selectedChart.value === 'momentum') {
-    linesConfig.push({ key: 'flow_momentum_v2_score', label: 'Flow Momentum', color: '#888888', width: 2.2 });
-    linesConfig.push({ key: 'flow_exhaustion_score', label: 'Flow Exhaustion', color: '#46C46E', width: 2, dasharray: '4 3' });
-    linesConfig.push({ key: 'reversal_probability', label: 'Reversal Prob.', color: '#E2705C', width: 2, dasharray: '2 2' });
+    linesConfig.push({ key: 'flow_momentum_v2_score', label: 'Flow Momentum V2', color: '#FFFFFF', width: 2.4 });
+    linesConfig.push({ key: 'flow_exhaustion_score', label: 'Flow Exhaustion', color: '#4E7D52', width: 2.2, dasharray: '6 4' });
+    linesConfig.push({ key: 'reversal_probability', label: 'Reversal Probability', color: '#8A5A5A', width: 2.1, dasharray: '4 2 1 2' });
   } else if (selectedChart.value === 'stress') {
-    linesConfig.push({ key: 'market_stress_composite', label: 'Composite Stress', color: '#888888', width: 2.2 });
-    linesConfig.push({ key: 'macro_stress', label: 'Macro Stress', color: '#46C46E', width: 2, dasharray: '4 3' });
-    linesConfig.push({ key: 'flow_internal_stress', label: 'Flow/Internal', color: '#E2705C', width: 2, dasharray: '2 2' });
+    linesConfig.push({ key: 'market_stress_composite', label: 'Market Stress Composite', color: '#FFFFFF', width: 2.4 });
+    linesConfig.push({ key: 'macro_stress', label: 'Macro Stress', color: '#4E7D52', width: 2.2, dasharray: '6 4' });
+    linesConfig.push({ key: 'flow_internal_stress', label: 'Flow & Internal Stress', color: '#8A5A5A', width: 2.1, dasharray: '4 2 1 2' });
   }
 
   const lines = linesConfig.map(cfg => {
