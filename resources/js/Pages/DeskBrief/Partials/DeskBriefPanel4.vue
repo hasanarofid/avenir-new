@@ -29,8 +29,18 @@
         </div>
       </div>
     </div>
-    <div style="font-size:9px;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between">
-      <span>Historical {{ selectedChartLabel }}</span>
+    
+    <div style="font-size:9px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <span>Historical {{ selectedChartLabel }}</span>
+        <!-- Legend for multiple lines -->
+        <div v-if="chartData.lines.length > 1" style="display:flex;gap:10px;margin-top:6px">
+          <div v-for="(line, idx) in chartData.lines" :key="idx" style="display:flex;align-items:center;gap:4px;font-size:8.5px">
+            <span :style="{ width: '10px', height: '2px', background: line.color }"></span>
+            <span style="color:var(--ink2)">{{ line.label }}</span>
+          </div>
+        </div>
+      </div>
       <div class="toggles">
         <span v-for="tf in timeframes" :key="tf" :class="['tg', timeframe === tf ? 'on' : '']" @click.stop="timeframe = tf">{{ tf }}</span>
       </div>
@@ -39,20 +49,33 @@
     <div style="position:relative" @mouseleave="hoveredPoint = null">
       <svg width="100%" viewBox="0 0 320 120" style="display:block; overflow:visible">
         <line x1="14" :y1="chartData.firstY" x2="314" :y2="chartData.firstY" stroke="#2E2E2E" stroke-dasharray="3 4"/>
-        <polyline :points="chartData.points" fill="none" :stroke="chartColor" stroke-width="2.2" stroke-linejoin="round"/>
-        <circle v-if="chartData.lastPoint" :cx="chartData.lastPoint.x" :cy="chartData.lastPoint.y" r="4" :fill="chartColor"/>
+        
+        <polyline v-for="(line, idx) in chartData.lines" :key="'poly_'+idx" 
+                  :points="line.points" fill="none" :stroke="line.color" 
+                  :stroke-width="line.width || 2.2" 
+                  :stroke-dasharray="line.dasharray || ''" 
+                  stroke-linejoin="round"/>
+                  
+        <circle v-for="(line, idx) in chartData.lines" :key="'circ_'+idx" 
+                v-show="line.lastPoint" :cx="line.lastPoint?.x" :cy="line.lastPoint?.y" r="4" :fill="line.color"/>
+                
+        <!-- Hover targets (invisible) -->
         <circle v-for="(pt, i) in chartData.raw" :key="'hover_'+i"
-                :cx="pt.x" :cy="pt.y" r="8" fill="transparent"
+                :cx="pt.x" :cy="pt.y" r="10" fill="transparent"
                 style="cursor:crosshair"
                 @mouseenter="hoveredPoint = pt" />
+                
         <g font-size="7.5" fill="#7C7C76">
           <text x="14" y="115">{{ chartData.raw.length ? new Date(chartData.raw[0].date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }) : timeframe + ' Ago' }}</text>
           <text x="290" y="115">Now</text>
         </g>
       </svg>
+      
       <div v-if="hoveredPoint" class="chart-tooltip" :style="{ left: hoveredPoint.x + 'px', top: (hoveredPoint.y - 20) + 'px' }">
         <div class="date">{{ new Date(hoveredPoint.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) }}</div>
-        <div class="val">{{ hoveredPoint.val }}</div>
+        <div v-for="(val, idx) in hoveredPoint.values" :key="idx" class="val" :style="{ color: val.color }">
+          {{ val.label }}: {{ val.value }}
+        </div>
       </div>
     </div>
     
@@ -143,46 +166,89 @@ const chartData = computed(() => {
     filtered = all.filter(d => new Date(d.date) >= cutoff);
   }
   
-  if (!filtered.length) return { points: '', raw: [], firstY: 0, lastPoint: null, isUp: true };
-  
-  // extract value based on selectedChart
-  const getVal = (d) => {
-    if (selectedChart.value === 'regime') return d.score || 50;
-    if (selectedChart.value === 'momentum') return d.flow_momentum_v2_score || 50;
-    if (selectedChart.value === 'stress') return d.market_stress_composite || 50;
-    return 50;
-  };
-
-  const values = filtered.map(d => getVal(d));
-  const minVal = Math.min(...values);
-  const maxVal = Math.max(...values);
-  const range = maxVal - minVal || 1;
+  if (!filtered.length) return { lines: [], raw: [], firstY: 0 };
   
   const width = 300;
   const height = 80;
   const paddingX = 14;
   const paddingY = 10;
   
-  const raw = filtered.map((d, i) => {
-    const val = getVal(d);
-    const x = paddingX + (i / (Math.max(1, filtered.length - 1))) * width;
-    const y = paddingY + height - ((val - minVal) / range) * height;
-    return { x, y, val: val.toFixed(1), date: d.date, rawData: d };
+  // Base scales based on primary value
+  const getPrimaryVal = (d) => {
+    if (selectedChart.value === 'regime') return d.score || 50;
+    if (selectedChart.value === 'momentum') return d.flow_momentum_v2_score || 50;
+    if (selectedChart.value === 'stress') return d.market_stress_composite || 50;
+    return 50;
+  };
+
+  const primaryValues = filtered.map(d => getPrimaryVal(d));
+  // Use fixed scale 0-100 for proper multi-line alignment as in Python scripts
+  const minVal = 0;
+  const maxVal = 100;
+  const range = 100;
+  
+  const linesConfig = [];
+  
+  if (selectedChart.value === 'regime') {
+    linesConfig.push({ key: 'score', label: 'Regime Score', color: '#5FA0D8', width: 2.2 });
+  } else if (selectedChart.value === 'momentum') {
+    linesConfig.push({ key: 'flow_momentum_v2_score', label: 'Flow Momentum', color: '#888888', width: 2.2 });
+    linesConfig.push({ key: 'flow_exhaustion_score', label: 'Flow Exhaustion', color: '#4E7D52', width: 2, dasharray: '4 3' });
+    linesConfig.push({ key: 'reversal_probability', label: 'Reversal Prob.', color: '#8A5A5A', width: 2, dasharray: '2 2' });
+  } else if (selectedChart.value === 'stress') {
+    linesConfig.push({ key: 'market_stress_composite', label: 'Composite Stress', color: '#888888', width: 2.2 });
+    linesConfig.push({ key: 'macro_stress', label: 'Macro Stress', color: '#4E7D52', width: 2, dasharray: '4 3' });
+    linesConfig.push({ key: 'flow_internal_stress', label: 'Flow/Internal', color: '#8A5A5A', width: 2, dasharray: '2 2' });
+  }
+
+  const lines = linesConfig.map(cfg => {
+    const rawPoints = filtered.map((d, i) => {
+      const val = d[cfg.key] ?? 50;
+      const x = paddingX + (i / (Math.max(1, filtered.length - 1))) * width;
+      const y = paddingY + height - ((val - minVal) / range) * height;
+      return { x, y, val: parseFloat(val).toFixed(1), date: d.date };
+    });
+    
+    return {
+      label: cfg.label,
+      color: cfg.color,
+      width: cfg.width,
+      dasharray: cfg.dasharray,
+      points: rawPoints.map(p => `${p.x},${p.y}`).join(' '),
+      lastPoint: rawPoints[rawPoints.length - 1],
+      rawPoints
+    };
   });
   
-  const points = raw.map(p => `${p.x},${p.y}`).join(' ');
-  const firstY = raw[0].y;
-  const lastPoint = raw[raw.length - 1];
-  const isUp = raw.length > 1 ? raw[raw.length - 1].val >= raw[0].val : true;
+  // For hover interactions, we need a single array of X points that contain all values
+  const raw = filtered.map((d, i) => {
+    const x = paddingX + (i / (Math.max(1, filtered.length - 1))) * width;
+    const pVal = getPrimaryVal(d);
+    const y = paddingY + height - ((pVal - minVal) / range) * height; // Main Y for tooltip position
+    
+    const values = linesConfig.map(cfg => {
+      return {
+        label: cfg.label,
+        value: parseFloat(d[cfg.key] ?? 50).toFixed(1),
+        color: cfg.color
+      };
+    });
+    
+    return { x, y, date: d.date, values };
+  });
+
+  // Calculate firstY based on primary line to draw the dashed horizontal line
+  const firstY = lines[0].rawPoints[0].y;
   
-  return { points, raw, firstY, lastPoint, isUp };
+  return { lines, raw, firstY };
 });
 
 const chartStats = computed(() => {
-  const { raw } = chartData.value;
-  if (!raw || !raw.length) return { current: '-', avg: '-', min: '-', max: '-', lvl: '-' };
+  const { lines } = chartData.value;
+  if (!lines || !lines.length) return { current: '-', avg: '-', min: '-', max: '-', lvl: '-' };
   
-  const values = raw.map(d => parseFloat(d.val));
+  const primaryLine = lines[0]; // First line is always the main score
+  const values = primaryLine.rawPoints.map(d => parseFloat(d.val));
   const current = values[values.length - 1];
   const avg = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
   const min = Math.min(...values).toFixed(1);
@@ -193,13 +259,17 @@ const chartStats = computed(() => {
     if (current < 40) lvl = 'Benign';
     else if (current > 70) lvl = 'Extreme';
     else lvl = 'Elevated';
+  } else if (selectedChart.value === 'momentum') {
+    // Phase logic from momentum python script approx
+    if (current > 60) lvl = 'Accumulation';
+    else if (current < 40) lvl = 'Distribution';
+    else lvl = 'Neutral';
   } else {
     if (current > 60) lvl = 'Bullish';
     else if (current < 40) lvl = 'Bearish';
     else lvl = 'Neutral';
   }
   
-  // Custom format current based on mock image (some have decimals)
   const currentFormatted = selectedChart.value === 'regime' ? Math.round(current).toString() : current.toFixed(1);
   
   return {
@@ -234,12 +304,13 @@ const chartStats = computed(() => {
 .p4dd-item .p4dd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .p4dd-item .p4dd-check{font-size:11px;opacity:0}
 .p4dd-item.on .p4dd-check{opacity:1}
-.chart-tooltip {position:absolute;background:#161616;border:1px solid var(--line2);padding:4px 8px;border-radius:4px;font-size:10px;color:var(--ink);pointer-events:none;transform:translate(-50%, -100%);white-space:nowrap;z-index:10;}
-.chart-tooltip .date {color:var(--muted);font-size:9px;margin-bottom:2px;}
-.chart-tooltip .val {font-weight:700;}
+.chart-tooltip {position:absolute;background:#161616;border:1px solid var(--line2);padding:6px 10px;border-radius:6px;font-size:10.5px;color:var(--ink);pointer-events:none;transform:translate(-50%, -100%);white-space:nowrap;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
+.chart-tooltip .date {color:var(--muted);font-size:9.5px;margin-bottom:4px;border-bottom:1px solid var(--line3);padding-bottom:3px;}
+.chart-tooltip .val {font-weight:600;margin-top:3px;display:flex;justify-content:space-between;gap:12px;}
 .smstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}
 .sms{background:var(--inset);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
 .sms .k{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:600}
 .sms .v{font-size:14px;font-weight:700;margin-top:4px}
 .sms .s{font-size:8.5px;color:var(--faint);margin-top:1px}
 </style>
+

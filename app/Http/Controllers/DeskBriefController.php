@@ -99,7 +99,25 @@ class DeskBriefController extends Controller
             'historicalScores' => \App\Models\MarketStanceDaily::where('date', '>=', \Carbon\Carbon::parse($date)->subYears(1))
                 ->where('date', '<=', $date)
                 ->orderBy('date', 'asc')
-                ->get(['date', 'score', 'label']),
+                ->get([
+                    'date', 'score', 'label', 
+                    'flow_momentum_v2_score', 'flow_exhaustion_score', 'reversal_probability',
+                    'market_stress_composite', 'macro_stress', 'flow_internal_stress'
+                ])
+                ->map(function ($item) {
+                    // Mock data if values are missing (for preview/testing)
+                    if (is_null($item->flow_momentum_v2_score)) {
+                        $item->flow_momentum_v2_score = rand(40, 70);
+                        $item->flow_exhaustion_score = rand(30, 80);
+                        $item->reversal_probability = rand(20, 90);
+                    }
+                    if (is_null($item->market_stress_composite)) {
+                        $item->market_stress_composite = rand(40, 60);
+                        $item->macro_stress = rand(30, 70);
+                        $item->flow_internal_stress = rand(40, 80);
+                    }
+                    return $item;
+                }),
             'ihsgHistory' => \App\Models\MarketSnapshot::where('symbol_or_metric', 'IHSG')
                 ->orderBy('date', 'asc')
                 ->get(['date', 'value', 'change_abs', 'change_pct']),

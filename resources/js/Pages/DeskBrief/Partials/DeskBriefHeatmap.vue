@@ -125,7 +125,7 @@ watch(() => props.sectors, draw, { deep: true });
 .chd .t{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);font-weight:700}
 .chd .t b{color:#888888;font-weight:700;margin-right:5px}
 .stmap-wrap{position:relative}
-.stmap-head{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.stmap-head{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap;}
 .stmap-head .seg{display:flex;background:#161616;border:1px solid var(--line2);border-radius:7px;overflow:hidden;margin-left:auto}
 .stmap-head .seg button{background:none;border:none;color:var(--muted);padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans)}
 .stmap-head .seg button+button{border-left:1px solid var(--line2)}
@@ -139,4 +139,22 @@ watch(() => props.sectors, draw, { deep: true });
 .stmap-fab .ar{color:var(--green);font-size:15px}
 .stmap-fab .sub{font-size:10.5px;color:var(--muted);font-weight:400;font-family:var(--mono)}
 .scale{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--muted);margin-top:11px}
+
+@media (max-width: 600px) {
+  .stmap-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .stmap-head .seg {
+    margin-left: 0;
+    width: 100%;
+  }
+  .stmap-head .seg button {
+    flex: 1;
+  }
+  #stmap {
+    height: 400px;
+  }
+}
 </style>
