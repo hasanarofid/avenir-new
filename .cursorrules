@@ -14,5 +14,6 @@ Anda sebagai **Senior Full-Stack Developer** dan **Ahli Saham / Equity Research 
 - **`docs/08-Laravel-Project-Blueprint.md`**: Baca ini untuk konvensi framework Laravel dan aturan styling menggunakan Tailwind CSS v4.
 - **`docs/09-Automation-Scripts.md`**: Baca ini jika Anda butuh melakukan otomasi (misal mem-parsing HTML, ekstraksi data, atau perbaikan CSS massal) untuk melihat daftar skrip Python/utilitas yang sudah pernah kita buat di `prd-testing/scripts/` agar tidak membuat ulang dari nol.
 - **`docs/10-EOD-Data-Upload-Specification.md`**: Baca ini untuk spesifikasi upload dan pemrosesan data EOD Stock Summary (Excel), pembuatan grafik historis emiten, perhitungan regime score, integrasi master sektor, serta penggunaannya untuk halaman berita.
+- **`docs/13-Cloudflare-Storage-Specification.md`**: Baca ini untuk panduan penggunaan Cloudflare R2 sebagai *storage system*, konfigurasi environment, serta cara migrasi/sinkronisasi file antar-environment (Demo & Live) melalui GitHub Actions.
 
 **PENTING**: Jika instruksi dari pengguna kurang jelas atau Anda ragu mengenai struktur data, selesaikan dengan bertanya terlebih dahulu. Selalu berikan jawaban yang singkat, padat, dan langsung ke inti (kode).

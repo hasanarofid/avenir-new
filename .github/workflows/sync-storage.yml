@@ -1,0 +1,51 @@
+name: Sync Cloudflare R2 Storage
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_env:
+        description: 'Source Environment (demo / live)'
+        required: true
+        default: 'demo'
+        type: choice
+        options:
+          - demo
+          - live
+      target_env:
+        description: 'Target Environment (demo / live)'
+        required: true
+        default: 'live'
+        type: choice
+        options:
+          - demo
+          - live
+
+jobs:
+  sync_storage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+          aws-region: auto
+      
+      - name: Execute Sync
+        run: |
+          if [ "${{ inputs.source_env }}" == "${{ inputs.target_env }}" ]; then
+            echo "Source and Target cannot be the same."
+            exit 1
+          fi
+
+          SOURCE_BUCKET="avenir-${{ inputs.source_env }}"
+          TARGET_BUCKET="avenir-${{ inputs.target_env }}"
+          ENDPOINT="https://${{ secrets.CF_R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"
+
+          echo "Syncing from s3://$SOURCE_BUCKET to s3://$TARGET_BUCKET ..."
+
+          aws s3 sync s3://$SOURCE_BUCKET s3://$TARGET_BUCKET \
+            --endpoint-url $ENDPOINT
