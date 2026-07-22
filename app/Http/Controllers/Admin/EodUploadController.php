@@ -13,8 +13,13 @@ class EodUploadController extends Controller
 {
     public function index(Request $request)
     {
-        $query = EodUpload::with('user')
-            ->orderBy('created_at', 'desc');
+        $query = EodUpload::with('user');
+
+        if (!auth()->user()->hasRole('admin')) {
+            $query->where('user_id', auth()->id());
+        }
+
+        $query->orderBy('created_at', 'desc');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -86,6 +91,10 @@ class EodUploadController extends Controller
     {
         $upload = EodUpload::findOrFail($id);
 
+        if (!auth()->user()->hasRole('admin') && $upload->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate([
             'trading_date' => 'required|date',
             'status' => 'required|string|in:pending,processing,completed,failed',
@@ -103,6 +112,10 @@ class EodUploadController extends Controller
     {
         $upload = EodUpload::findOrFail($id);
 
+        if (!auth()->user()->hasRole('admin') && $upload->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         if ($upload->file_path && Storage::exists($upload->file_path)) {
             Storage::delete($upload->file_path);
         }
@@ -119,7 +132,11 @@ class EodUploadController extends Controller
             'ids.*' => 'exists:eod_uploads,id',
         ]);
 
-        $uploads = EodUpload::whereIn('id', $request->ids)->get();
+        $query = EodUpload::whereIn('id', $request->ids);
+        if (!auth()->user()->hasRole('admin')) {
+            $query->where('user_id', auth()->id());
+        }
+        $uploads = $query->get();
 
         foreach ($uploads as $upload) {
             if ($upload->file_path && Storage::exists($upload->file_path)) {
@@ -128,12 +145,16 @@ class EodUploadController extends Controller
             $upload->delete();
         }
 
-        return back()->with('success', count($request->ids) . ' riwayat upload EOD berhasil dihapus.');
+        return back()->with('success', count($uploads) . ' riwayat upload EOD berhasil dihapus.');
     }
 
     public function reprocess($id)
     {
         $upload = EodUpload::findOrFail($id);
+
+        if (!auth()->user()->hasRole('admin') && $upload->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         if (!$upload->file_path || !Storage::exists($upload->file_path)) {
             return back()->with('error', 'File fisik Excel tidak ditemukan di server.');
