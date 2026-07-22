@@ -29,6 +29,7 @@ const props = defineProps({
   periodConclusion: { type: String, default: null },
   historicalScores: { type: Array, default: () => [] },
   ihsgHistory: { type: Array, default: () => [] },
+  sectorStocks: { type: Object, default: () => ({}) },
 });
 
 // ──────────────────────────────────────────────
@@ -825,7 +826,7 @@ function getConfClass(label) {
     </div>
 
     <!-- 11. STOCK HEATMAP -->
-    <DeskBriefHeatmap :sectors="brief.sectors" />
+    <DeskBriefHeatmap :sectors="brief.sectors" :sector-stocks="sectorStocks" />
 
     <!-- TOP MOVERS -->
     <div class="card span12">

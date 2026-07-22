@@ -25,7 +25,7 @@
               <div class="p4dd-item" :class="{ on: selectedChart === 'momentum' }" @click.stop="selectChart('momentum')">
                 <div style="display:flex;align-items:center;gap:10px">
                   <span class="p4dd-dot" style="background:#FFFFFF"></span>
-                  <span>Foreign Momentum v2</span>
+                  <span>Foreign Momentum</span>
                 </div>
                 <span class="p4dd-check">✓</span>
               </div>
@@ -139,7 +139,7 @@ function selectChart(val) {
 
 const selectedChartLabel = computed(() => {
   if (selectedChart.value === 'regime') return 'Regime Score';
-  if (selectedChart.value === 'momentum') return 'Foreign Momentum v2';
+  if (selectedChart.value === 'momentum') return 'Foreign Momentum';
   if (selectedChart.value === 'stress') return 'Market Stress Engine';
   return '';
 });
@@ -227,7 +227,7 @@ const endValues = computed(() => {
 
   if (selectedChart.value === 'momentum') {
     return [
-      { label: 'Flow Momentum V2', value: parseFloat(row.flow_momentum_v2_score ?? row.score ?? 50).toFixed(1), color: '#FFFFFF' },
+      { label: 'Flow Momentum', value: parseFloat(row.flow_momentum_v2_score ?? row.score ?? 50).toFixed(1), color: '#FFFFFF' },
       { label: 'Flow Exhaustion', value: parseFloat(row.flow_exhaustion_score ?? 20).toFixed(1), color: '#46C46E' },
       { label: 'Reversal Probability', value: parseFloat(row.reversal_probability ?? 50).toFixed(1) + '%', color: '#E2705C' }
     ];
@@ -263,7 +263,7 @@ const chartSeries = computed(() => {
   if (selectedChart.value === 'momentum') {
     return [
       {
-        name: 'Flow Momentum V2',
+        name: 'Flow Momentum',
         data: data.map(d => ({ x: new Date(d.date).getTime(), y: parseFloat(d.flow_momentum_v2_score ?? d.score ?? 50) }))
       },
       {

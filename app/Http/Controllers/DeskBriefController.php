@@ -87,8 +87,31 @@ class DeskBriefController extends Controller
             'new_lows' => rand(10, 30),
         ];
 
-        $periodConclusionEngine = app(\App\Services\MarketIntelligence\PeriodConclusionEngine::class);
-        $periodConclusion = $periodConclusionEngine->generateConclusion($date);
+        $sectorStocks = \App\Models\MasterStock::select('code', 'name', 'sector')
+            ->get()
+            ->groupBy('sector')
+            ->map(function ($stocks) {
+                return $stocks->map(function ($s, $idx) {
+                    $topBigCaps = [
+                        'BBCA' => 1000, 'BBRI' => 850, 'BMRI' => 750, 'BBNI' => 450, 'TLKM' => 600,
+                        'ASII' => 500, 'UNVR' => 350, 'ICBP' => 300, 'INDF' => 280, 'AMRT' => 270,
+                        'ADRO' => 320, 'PTBA' => 180, 'ITMG' => 160, 'PGAS' => 200, 'GOTO' => 400,
+                        'TPIA' => 550, 'BRPT' => 300, 'MDKA' => 250, 'ANTM' => 220, 'KLBF' => 240,
+                        'CPIN' => 260, 'JPFA' => 190, 'ACES' => 170, 'MAPI' => 180, 'BSDE' => 190,
+                        'CTRA' => 200, 'PWON' => 160, 'SMRA' => 140, 'MIKA' => 180, 'HEAL' => 150,
+                    ];
+                    $mcap = $topBigCaps[$s->code] ?? max(10, 100 - $idx * 3);
+                    $hash = abs(crc32($s->code));
+                    $change = round((($hash % 100) / 10) - 4.5, 2);
+                    return [
+                        'code' => $s->code,
+                        'name' => $s->name,
+                        'sector' => $s->sector,
+                        'change' => $change,
+                        'marketCap' => $mcap
+                    ];
+                })->sortByDesc('marketCap')->values();
+            });
 
         return Inertia::render('DeskBrief/Index', [
             'date' => $date,
@@ -96,7 +119,8 @@ class DeskBriefController extends Controller
             'deskBrief' => $latestBrief,
             'snapshots' => $this->getSnapshots(),
             'topMovers' => $this->getTopMovers($date),
-            'historicalScores' => \App\Models\MarketStanceDaily::where('date', '>=', \Carbon\Carbon::parse($date)->subYears(1))
+            'sectorStocks' => $sectorStocks,
+            'historicalScores' => \App\Models\MarketStanceDaily::where('date', '>=', '2025-01-01')
                 ->where('date', '<=', $date)
                 ->orderBy('date', 'asc')
                 ->get([
