@@ -410,6 +410,89 @@ def main():
     stats['changes'] = len(changes)
 
     # -----------------------------------------------------------
+    # Hitung stats move (untuk Change Monitor hero cards)
+    # -----------------------------------------------------------
+    stats['moveIncrease'] = sum(1 for c in changes if c['direction'] == 'BUY')
+    stats['moveNew']      = sum(1 for c in changes if c['direction'] == 'NEW')
+    stats['moveDecrease'] = sum(1 for c in changes if c['direction'] == 'SELL')
+    stats['moveExit']     = sum(1 for c in changes if c['direction'] == 'EXIT')
+
+    # Hitung issuers yang dimiliki entitas pemerintah
+    gov_issuers = set()
+    for e in edges:
+        if e.get('is_government') or 'PEMERINTAH' in str(e.get('investor','')).upper():
+            gov_issuers.add(e['to'])
+    stats['govIssuers'] = len(gov_issuers)
+
+    # -----------------------------------------------------------
+    # Build audits per issuer (HHI, residual, floatProxy)
+    # -----------------------------------------------------------
+    from collections import defaultdict
+    issuer_edges = defaultdict(list)
+    for e in edges:
+        issuer_edges[e['to']].append(e)
+
+    for ek, elist in issuer_edges.items():
+        total_pct = sum(e['pct'] for e in elist)
+        hhi = int(sum((e['pct'] ** 2) for e in elist))
+        residual = max(0.0, 100.0 - total_pct)
+        float_proxy = residual
+        has_gov = any(e.get('is_government') for e in elist)
+        n_owners = len(elist)
+        if total_pct >= 50:
+            control_label = 'Terkonsentrasi tinggi'
+        elif total_pct >= 25:
+            control_label = 'Terkonsentrasi sedang'
+        else:
+            control_label = 'Tersebar'
+        audits[ek] = {
+            'hhi': hhi,
+            'residual': round(residual, 2),
+            'floatProxy': round(float_proxy, 2),
+            'totalMapped': round(total_pct, 2),
+            'nOwners': n_owners,
+            'hasGov': has_gov,
+            'controlLabel': control_label
+        }
+
+    # -----------------------------------------------------------
+    # Build govHoldings (list of edges oleh entitas pemerintah)
+    # -----------------------------------------------------------
+    govHoldings = [
+        {'investor': e['investor'], 'ticker': e['ticker'], 'issuer': e['issuer'],
+         'pct': e['pct'], 'shares': e.get('shares', 0)}
+        for e in edges if e.get('is_government')
+    ]
+    govHoldings.sort(key=lambda x: x['pct'], reverse=True)
+
+    # -----------------------------------------------------------
+    # Build investorSummaries (per investor: total issuers, total pct)
+    # -----------------------------------------------------------
+    inv_map = defaultdict(lambda: {'issuers': [], 'totalPct': 0.0, 'label': ''})
+    for e in edges:
+        ik = e['from']
+        inv_map[ik]['label'] = e['investor']
+        inv_map[ik]['issuers'].append({'ticker': e['ticker'], 'pct': e['pct']})
+        inv_map[ik]['totalPct'] += e['pct']
+    investorSummaries = {k: {'label': v['label'], 'nIssuers': len(v['issuers']),
+                              'totalPct': round(v['totalPct'], 2),
+                              'issuers': sorted(v['issuers'], key=lambda x: x['pct'], reverse=True)[:10]}
+                         for k, v in inv_map.items()}
+
+    # -----------------------------------------------------------
+    # Build groups (investor yang memegang >= 2 emiten dengan >= 5%)
+    # -----------------------------------------------------------
+    for ik, summary in investorSummaries.items():
+        big_holds = [i for i in summary['issuers'] if i['pct'] >= 5]
+        if len(big_holds) >= 2:
+            groups[ik] = {
+                'label': summary['label'],
+                'members': [i['ticker'] for i in big_holds],
+                'totalPct': summary['totalPct'],
+                'nIssuers': len(big_holds)
+            }
+
+    # -----------------------------------------------------------
     # Prepare the Insider & Monthly Data for Vue Client rendering
     # -----------------------------------------------------------
     
