@@ -115,6 +115,83 @@ class PythonBridge
     }
 
     /**
+     * Export historical stock prices for standard JdK calculation.
+     */
+    public function exportPricesCsv(string $date, int $days = 90): string
+    {
+        $rows = \DB::table('stock_prices')
+            ->join('master_stocks', 'stock_prices.kode', '=', 'master_stocks.code')
+            ->whereDate('stock_prices.date', '<=', $date)
+            ->orderBy('stock_prices.date', 'desc')
+            ->get([
+                'stock_prices.date',
+                'stock_prices.kode as code',
+                'stock_prices.close',
+                'stock_prices.volume',
+                'stock_prices.value',
+                'stock_prices.frequency',
+                'stock_prices.listed_shares',
+                'master_stocks.name',
+                'master_stocks.sector'
+            ]);
+            
+        $csv = "date,code,close,volume,value,frequency,listed_shares,name,sector\n";
+        foreach ($rows as $r) {
+            $csv .= implode(',', [
+                substr((string)$r->date, 0, 10),
+                $r->code,
+                $r->close ?? 0,
+                $r->volume ?? 0,
+                $r->value ?? 0,
+                $r->frequency ?? 0,
+                $r->listed_shares ?? 1000000,
+                '"' . str_replace('"', '""', $r->name) . '"',
+                '"' . str_replace('"', '""', $r->sector) . '"',
+            ]) . "\n";
+        }
+        
+        $path = $this->tempDir . "/prices_{$date}.csv";
+        file_put_contents($path, $csv);
+        return $path;
+    }
+
+    /**
+     * Export benchmark (IHSG) history for standard JdK calculation.
+     */
+    public function exportBenchmarkCsv(string $date, int $days = 90): string
+    {
+        $rows = MarketSnapshot::where('symbol_or_metric', 'IHSG')
+            ->whereDate('date', '<=', $date)
+            ->orderBy('date', 'desc')
+            ->limit($days)
+            ->get(['date', 'value']);
+            
+        $csv = "date,value\n";
+        foreach ($rows as $r) {
+            $csv .= substr((string)$r->date, 0, 10) . "," . ($r->value ?? 0) . "\n";
+        }
+        
+        $path = $this->tempDir . "/benchmark_{$date}.csv";
+        file_put_contents($path, $csv);
+        return $path;
+    }
+
+    /**
+     * Export sector master for standard JdK calculation.
+     */
+    public function exportSectorMasterCsv(string $date): string
+    {
+        $rows = \DB::table('master_stocks')->get(['code', 'sector']);
+        $csv = "code,sector\n";
+        foreach ($rows as $r) {
+            $csv .= "{$r->code},\"" . str_replace('"', '""', $r->sector) . "\"\n";
+        }
+        $path = $this->tempDir . "/sector_master_{$date}.csv";
+        file_put_contents($path, $csv);
+        return $path;
+    }
+
+    /**
      * Run a Python script and return the decoded JSON payload.
      * @param string $script   Relative filename inside $scriptsDir (e.g. 'flow.py')
      * @param array  $args     Associative CLI args: ['--input' => '/path', '--output-dir' => '/path']

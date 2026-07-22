@@ -78,12 +78,25 @@ class BreadthService
             $mbCsvPath = $mbOutDir . '/market_breadth_stock_detail.csv';
             if (file_exists($mbCsvPath)) {
                 $stocks = [];
+                $upserts = [];
                 if (($handle = fopen($mbCsvPath, 'r')) !== false) {
                     $header = fgetcsv($handle);
                     while (($row = fgetcsv($handle)) !== false) {
                         $data = array_combine($header, $row);
                         if (isset($data['symbol']) && isset($data['return_pct'])) {
                             $pct = (float)$data['return_pct'] * 100;
+                            // Add to bulk upserts for stock_prices
+                            $upserts[] = [
+                                'kode' => $data['symbol'],
+                                'date' => $date,
+                                'close' => (float)($data['close'] ?? 0),
+                                'volume' => (int)($data['volume'] ?? 0),
+                                'value' => (float)($data['trading_value'] ?? 0),
+                                'frequency' => (int)($data['frequency'] ?? 0),
+                                'listed_shares' => isset($data['listed_shares']) ? (int)$data['listed_shares'] : null,
+                                'source' => 'ringkasan_saham',
+                                'price_type' => 'close'
+                            ];
                             // Ensure realistic constraints for valid movers
                             if ($pct > -100 && $pct < 500) {
                                 $stocks[] = [
@@ -99,6 +112,14 @@ class BreadthService
                         }
                     }
                     fclose($handle);
+                }
+
+                if (!empty($upserts)) {
+                    \App\Models\StockPrice::upsert(
+                        $upserts,
+                        ['kode', 'date'],
+                        ['close', 'volume', 'value', 'frequency', 'listed_shares', 'source', 'price_type']
+                    );
                 }
                 
                 usort($stocks, fn($a, $b) => $b['price_pct'] <=> $a['price_pct']);

@@ -1,5 +1,5 @@
 <template>
-  <div class="card span3">
+  <div class="card span4">
     <div class="chd"><div class="t"><b>8.</b>CATALYST CALENDAR</div></div>
     <div class="caltabs">
       <span class="caltab" :class="{ on: activeTab === 'upcoming' }" @click="activeTab = 'upcoming'">Upcoming</span>
@@ -80,8 +80,26 @@ const props = defineProps({
 const activeTab = ref('upcoming');
 const showModal = ref(false);
 
+const defaultCatalysts = [
+  { date: '27 Jun', event: 'US Durable Goods Orders', impact: 'Medium', region: 'US', isPast: false },
+  { date: '30 Jun', event: 'Indonesia Inflation Jun', impact: 'High', region: 'ID', isPast: false },
+  { date: '1 Jul',  event: 'China Caixin Manufacturing PMI', impact: 'Medium', region: 'CN', isPast: false },
+  { date: '3 Jul',  event: 'Indonesia FX Reserves Jun', impact: 'Low', region: 'ID', isPast: false },
+  { date: '8 Jul',  event: 'BI Board of Governors Meeting', impact: 'High', region: 'ID', isPast: false },
+  { date: '23 Mei', event: 'Indonesia GDP 1Q25 (Final)', impact: 'High', region: 'ID', isPast: true },
+  { date: '27 Mei', event: 'US Durable Goods Orders Apr', impact: 'Medium', region: 'US', isPast: true },
+  { date: '28 Mei', event: 'FOMC Minutes (Mei)', impact: 'Medium', region: 'US', isPast: true },
+];
+
+const activeCatalysts = computed(() => {
+  return props.catalysts && props.catalysts.length > 0 ? props.catalysts : defaultCatalysts;
+});
+
 const filteredCatalysts = computed(() => {
-  return props.catalysts.filter(c => activeTab.value === 'upcoming' ? !c.isPast : c.isPast).slice(0, 5);
+  return activeCatalysts.value.filter(c => {
+    const isPast = c.isPast !== undefined ? c.isPast : (c.is_past !== undefined ? !!c.is_past : false);
+    return activeTab.value === 'upcoming' ? !isPast : isPast;
+  }).slice(0, 8);
 });
 
 // Modal Logic
@@ -108,15 +126,22 @@ const isToday = (d) => {
 
 // API proxy ready structure - mapped from events
 const allEvents = computed(() => {
-  return props.catalysts.map(c => {
+  return activeCatalysts.value.map(c => {
     let parsedDate = null;
-    try {
-        if(c.date.length <= 6) {
-           parsedDate = new Date(`${c.date} ${viewYear.value}`);
-        } else {
-           parsedDate = new Date(c.date);
-        }
-    } catch(e) {}
+    if (c.date) {
+      if (typeof c.date === 'string' && c.date.match(/^\d{4}-\d{2}-\d{2}/)) {
+        const parts = c.date.split('T')[0].split('-');
+        parsedDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      } else {
+        try {
+          if (c.date.length <= 6) {
+            parsedDate = new Date(`${c.date} ${viewYear.value}`);
+          } else {
+            parsedDate = new Date(c.date);
+          }
+        } catch(e) {}
+      }
+    }
     
     return { ...c, parsedObj: parsedDate };
   });

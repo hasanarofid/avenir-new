@@ -20,11 +20,12 @@ return new class extends Migration
             $table->bigInteger('volume')->nullable();
             $table->decimal('value', 20, 2)->nullable();
             $table->bigInteger('frequency')->nullable();
+            $table->bigInteger('listed_shares')->nullable();
             $table->string('source')->nullable(); // vendor, manual
             $table->string('price_type')->default('close'); // close, delayed, realtime, manual
             $table->timestamps();
             
-            $table->index(['kode', 'date']);
+            $table->unique(['kode', 'date'], 'stock_prices_kode_date_unique');
         });
     }
 

@@ -5,7 +5,11 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import IhsgChart from './Partials/IhsgChart.vue';
 import DeskBriefHeatmap from './Partials/DeskBriefHeatmap.vue';
 import DeskBriefPanel4 from './Partials/DeskBriefPanel4.vue';
+import DeskBriefPanel5 from './Partials/DeskBriefPanel5.vue';
+import DeskBriefPanel6 from './Partials/DeskBriefPanel6.vue';
+import DeskBriefPanel7 from './Partials/DeskBriefPanel7.vue';
 import DeskBriefCalendar from './Partials/DeskBriefCalendar.vue';
+import DeskBriefTopMovers from './Partials/DeskBriefTopMovers.vue';
 
 
 
@@ -29,6 +33,9 @@ const props = defineProps({
   periodConclusion: { type: String, default: null },
   historicalScores: { type: Array, default: () => [] },
   ihsgHistory: { type: Array, default: () => [] },
+  ffd:         { type: Object, default: null },
+  rrgSector:   { type: Object, default: null },
+  rrgStocks:   { type: Object, default: null },
   sectorStocks: { type: Object, default: () => ({}) },
 });
 
@@ -755,61 +762,19 @@ function getConfClass(label) {
     <DeskBriefPanel4 :historical-scores="historicalScores" />
 
     <!-- 5. SIGNAL CONFLUENCE -->
-    <div class="card span6">
-      <div class="chd"><div class="t"><b>5.</b>SIGNAL CONFLUENCE <span style="color:var(--faint);font-weight:400;letter-spacing:0;text-transform:none">— di mana sinyal sepakat</span></div><div class="meta">Rotation × Flow × Valuation × Event</div></div>
-      <table class="conf">
-        <thead><tr><th>Sektor</th><th>Rotasi<br>1M</th><th>Smart<br>Money</th><th>Valuasi</th><th>Event</th><th>Confluence</th></tr></thead>
-        <tbody>
-          <tr v-for="sec in brief.sectorBiases" :key="sec.sector">
-            <td class="sct">{{ sec.sector }}</td>
-            <td :class="['sig', getSigClass(sec.rotation_score)]">{{ getSigIcon(sec.rotation_score) }}</td>
-            <td :class="['sig', getSigClass(sec.smart_money_score)]">{{ getSigIcon(sec.smart_money_score) }}</td>
-            <td :class="['sig', getSigClass(sec.valuation_score)]">{{ getSigIcon(sec.valuation_score) }}</td>
-            <td :class="['sig', getSigClass(sec.event_score)]">{{ getSigIcon(sec.event_score) }}</td>
-            <td><span :class="['confscore', getConfClass(sec.confluence_label)]">{{ sec.confluence_label }}</span></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="note">Confluence tertinggi di <b>Banking &amp; Telco</b> — rotasi, akumulasi asing, valuasi, dan katalis searah. Plantation menguat (flow + valuasi via Valuation Lab + CPO). <b>Property &amp; Tech</b>: keempat sinyal negatif → hindari.</div>
-    </div>
+    <DeskBriefPanel5 :date="props.date" />
 
     <!-- 6. SMART MONEY LENS -->
-    <div class="card span6">
-      <div class="chd"><div class="t"><b>6.</b>SMART MONEY LENS <span style="color:var(--faint);font-weight:400;letter-spacing:0;text-transform:none">— yang retail tak lihat</span></div><div class="meta">Badarmologi · 5D net</div></div>
-      <div class="smlens">
-        <div class="smlblock">
-          <div class="h pos">▲ Stealth Accumulation <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">· harga diam, asing/bandar masuk</span></div>
-          <div class="smlrow"><span class="tk">BMRI</span><span class="px neg">−0.4%</span><span class="fl pos">+Rp 210 bn</span><span class="nt">foreign 5D</span></div>
-          <div class="smlrow"><span class="tk">ICBP</span><span class="px pos">+0.2%</span><span class="fl pos">+Rp 88 bn</span><span class="nt">broker net buy</span></div>
-          <div class="smlrow"><span class="tk">ASII</span><span class="px neg">−0.6%</span><span class="fl pos">+Rp 95 bn</span><span class="nt">foreign 5D</span></div>
-        </div>
-        <div class="smlblock">
-          <div class="h" style="color:var(--amber)">⚠ Distribution into Strength <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">· harga naik, bandar keluar</span></div>
-          <div class="smlrow"><span class="tk">BHAT</span><span class="px pos">+20.2%</span><span class="fl" style="color:var(--amber)">retail spike</span><span class="nt">foreign absen</span></div>
-          <div class="smlrow"><span class="tk">SURE</span><span class="px pos">+9.8%</span><span class="fl" style="color:var(--amber)">−Rp 41 bn</span><span class="nt">broker net sell</span></div>
-          <div class="smlrow"><span class="tk">MGLV</span><span class="px neg">−9.9%</span><span class="fl" style="color:var(--amber)">no support</span><span class="nt">likuiditas tipis</span></div>
-        </div>
-      </div>
-      <div class="note warn">Top gainer hari ini (<b>BHAT +20%</b>) <b>tidak terkonfirmasi smart money</b> — pola retail-driven, rawan reversal. Sebaliknya BMRI &amp; ASII diakumulasi diam-diam meski harga datar.</div>
-    </div>
+    <DeskBriefPanel6 :ffd="props.ffd" />
 
     <!-- 7. SECTOR ROTATION -->
-    <div class="card span3">
-      <div class="chd"><div class="t"><b>7.</b>SECTOR ROTATION</div><div class="meta">Heatmap · 1M Chg%</div></div>
-      <div class="sheat">
-        <div class="sh" v-for="sec in brief.sectors" :key="sec.name" :style="{ background: sectorBg(sec.change) }">
-          <div class="n">{{ sec.name }}</div>
-          <div class="p">{{ sec.change > 0 ? '+' : '' }}{{ sec.change }}%</div>
-        </div>
-      </div>
-      <div class="scale"><span>−5%</span><span>Avenir · {{ todayStance ? new Date(todayStance.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) : '27 Jun' }}</span><span>+5%</span></div>
-    </div>
+    <DeskBriefPanel7 :rrg-sector="props.rrgSector" :rrg-stocks="props.rrgStocks" />
 
     <!-- 8. CATALYST CALENDAR -->
     <DeskBriefCalendar :catalysts="brief.catalysts" />
 
     <!-- 9. RISK MONITOR -->
-    <div class="card span3">
+    <div class="card span4">
       <div class="chd"><div class="t"><b>9.</b>RISK MONITOR</div><div class="meta amb">↑ rising</div></div>
       <div class="risk">
         <div class="rkr"><span class="n">US Policy / Rates Shock</span><span class="lvl lvl-high"><span class="dt"></span>High ▲</span></div>
@@ -825,7 +790,7 @@ function getConfClass(label) {
     </div>
 
     <!-- 10. ANALYST TAKEAWAY -->
-    <div class="card span3">
+    <div class="card span4">
       <div class="chd"><div class="t"><b>10.</b>ANALYST TAKEAWAY</div></div>
       <div style="font-size:12px;line-height:1.6;color:var(--ink2);font-style:italic">
         {{ brief.analyst.quote }}
@@ -844,88 +809,10 @@ function getConfClass(label) {
     <DeskBriefHeatmap :sectors="brief.sectors" :sector-stocks="sectorStocks" />
 
     <!-- TOP MOVERS -->
-    <div class="card span12">
-      <div class="chd"><div class="t">TOP MOVERS IDX <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(1D — Sectors.app EOD · ⚑ = flow-confirmed)</span></div><div class="meta"><span class="live"><span class="d"></span>Live EOD</span></div></div>
-      <div class="movers">
-        <div>
-          <div class="movhd pos">▲ Top Gainers</div>
-          <div class="mvr" v-for="(g, idx) in gainers" :key="g.symbol">
-            <span class="rk">{{ idx + 1 }}</span>
-            <span :class="['ff', g.flow_confirmed !== false ? 'ff-ok' : 'ff-warn']">{{ g.flow_confirmed !== false ? '⚑' : '⚠' }}</span>
-            <img v-if="g.logo_url" :src="g.logo_url" :alt="g.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
-            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ g.symbol.substring(0,2) }}</span>
-            <span class="tk">{{ g.symbol }}</span>
-            <span class="nm">{{ g.name || g.symbol }}</span>
-            <span class="pr">{{ g.last_close || '-' }}</span>
-            <span class="ch pos">+{{ g.price_pct }}%</span>
-          </div>
-          <div v-if="!gainers.length" style="padding:10px;font-size:11px;color:var(--muted)">No gainers data available.</div>
-        </div>
-        <div>
-          <div class="movhd neg">▼ Top Losers</div>
-          <div class="mvr" v-for="(l, idx) in losers" :key="l.symbol">
-            <span class="rk">{{ idx + 1 }}</span>
-            <span :class="['ff', l.flow_confirmed !== false ? 'ff-warn' : 'ff-ok']">{{ l.flow_confirmed !== false ? '⚠' : '⚑' }}</span>
-            <img v-if="l.logo_url" :src="l.logo_url" :alt="l.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
-            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ l.symbol.substring(0,2) }}</span>
-            <span class="tk">{{ l.symbol }}</span>
-            <span class="nm">{{ l.name || l.symbol }}</span>
-            <span class="pr">{{ l.last_close || '-' }}</span>
-            <span class="ch neg">{{ l.price_pct }}%</span>
-          </div>
-          <div v-if="!losers.length" style="padding:10px;font-size:11px;color:var(--muted)">No losers data available.</div>
-        </div>
-        <div>
-          <div class="movhd" style="color: var(--blue)">◆ Top Volume</div>
-          <div class="mvr" v-for="(v, idx) in volumes" :key="v.symbol">
-            <span class="rk">{{ idx + 1 }}</span>
-            <span :class="['ff', v.flow_confirmed !== false ? 'ff-ok' : 'ff-warn']">{{ v.flow_confirmed !== false ? '⚑' : '⚠' }}</span>
-            <img v-if="v.logo_url" :src="v.logo_url" :alt="v.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
-            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ v.symbol.substring(0,2) }}</span>
-            <span class="tk">{{ v.symbol }}</span>
-            <span class="nm">{{ v.name || v.symbol }}</span>
-            <span class="pr">{{ v.last_close || '-' }}</span>
-            <span class="ch" style="color: var(--blue)">{{ (v.volume / 1000000).toFixed(1) }}M</span>
-          </div>
-          <div v-if="!volumes.length" style="padding:10px;font-size:11px;color:var(--muted)">No volume data available.</div>
-        </div>
-        <div>
-          <div class="movhd" style="color: var(--gold)">★ Top Value</div>
-          <div class="mvr" v-for="(v, idx) in valuesList" :key="v.symbol">
-            <span class="rk">{{ idx + 1 }}</span>
-            <span :class="['ff', v.flow_confirmed !== false ? 'ff-ok' : 'ff-warn']">{{ v.flow_confirmed !== false ? '⚑' : '⚠' }}</span>
-            <img v-if="v.logo_url" :src="v.logo_url" :alt="v.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
-            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ v.symbol.substring(0,2) }}</span>
-            <span class="tk">{{ v.symbol }}</span>
-            <span class="nm">{{ v.name || v.symbol }}</span>
-            <span class="pr">{{ v.last_close || '-' }}</span>
-            <span class="ch" style="color: var(--gold)">{{ (v.trading_value / 1000000000).toFixed(1) }}B</span>
-          </div>
-          <div v-if="!valuesList.length" style="padding:10px;font-size:11px;color:var(--muted)">No value data available.</div>
-        </div>
-        <div>
-          <div class="movhd" style="color: var(--purple)">⚡ Top Frequency</div>
-          <div class="mvr" v-for="(f, idx) in frequencies" :key="f.symbol">
-            <span class="rk">{{ idx + 1 }}</span>
-            <span :class="['ff', f.flow_confirmed !== false ? 'ff-ok' : 'ff-warn']">{{ f.flow_confirmed !== false ? '⚑' : '⚠' }}</span>
-            <img v-if="f.logo_url" :src="f.logo_url" :alt="f.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
-            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ f.symbol.substring(0,2) }}</span>
-            <span class="tk">{{ f.symbol }}</span>
-            <span class="nm">{{ f.name || f.symbol }}</span>
-            <span class="pr">{{ f.last_close || '-' }}</span>
-            <span class="ch" style="color: var(--purple)">{{ (f.frequency / 1000).toFixed(1) }}k</span>
-          </div>
-          <div v-if="!frequencies.length" style="padding:10px;font-size:11px;color:var(--muted)">No frequency data available.</div>
-        </div>
-      </div>
-      <div v-if="canExpandMovers" style="text-align:center; padding: 10px; margin-top: 10px; grid-column: span 12;">
-        <button @click="expandMovers = !expandMovers" class="btn ghost" style="font-size:11px; cursor:pointer; padding: 6px 12px">
-          {{ expandMovers ? 'Lebih Sedikit ∧' : 'Selengkapnya (Top 20) ∨' }}
-        </button>
-      </div>
-    </div>
+    <DeskBriefTopMovers :top-movers="props.topMovers" />
   </div>
 </div>
+
 
 
 
@@ -1355,10 +1242,38 @@ function getConfClass(label) {
 .mvr .ff{font-size:10px;font-weight:700;width:14px;text-align:center;flex-shrink:0}
 .ff-ok{color:var(--green)}.ff-warn{color:var(--amber)}
 
+.phead {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 20px 26px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.phead .ptitle {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.phead .psub {
+  font-size: 13px;
+  color: var(--ink2);
+  margin-top: 4px;
+}
+.wrap {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 18px 26px 30px;
+}
+
 /* calendar impact subline */
 .imp-sub{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.35}
 .imp-sub b{color:#7FB98C;font-weight:600}
-
 
 
 @media screen and (max-width: 1024px) {

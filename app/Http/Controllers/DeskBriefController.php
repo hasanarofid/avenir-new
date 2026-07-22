@@ -116,12 +116,78 @@ class DeskBriefController extends Controller
                 })->sortByDesc('marketCap')->values();
             });
 
+        $dates22 = MarketSnapshot::where('symbol_or_metric', 'IHSG')
+            ->where('date', '<=', $date)
+            ->orderBy('date', 'desc')
+            ->limit(22)
+            ->pluck('date')
+            ->map(fn($d) => $d->toDateString())
+            ->toArray();
+
+        $ffd = [];
+        foreach ([5, 10, 22] as $w) {
+            $wDates = array_slice($dates22, 0, $w);
+            if (empty($wDates)) {
+                $ffd[$w] = null;
+                continue;
+            }
+            $from = end($wDates);
+            $to = reset($wDates);
+            $sum = MarketSnapshot::whereIn('date', $wDates)
+                ->where('symbol_or_metric', 'FOREIGN_NET_TODAY')
+                ->sum('value');
+            
+            $ffd[$w] = [
+                'from' => $from,
+                'to' => $to,
+                'tot' => (float)$sum,
+            ];
+        }
+
+        $bridge = new \App\Services\MarketIntelligence\PythonBridge();
+        $pricesCsv = $bridge->exportPricesCsv($date, 90);
+        $benchCsv = $bridge->exportBenchmarkCsv($date, 90);
+        $secCsv = $bridge->exportSectorMasterCsv($date);
+
+        $outDir = $bridge->getTempDir() . "/rrg_{$date}";
+        @mkdir($outDir, 0755, true);
+
+        $secJson = $outDir . "/rrg_sector.json";
+        $stkJson = $outDir . "/rrg_stocks.json";
+
+        $rrgSector = null;
+        $rrgStocks = null;
+
+        if (file_exists($secJson) && file_exists($stkJson)) {
+            $rrgSector = json_decode(file_get_contents($secJson), true);
+            $rrgStocks = json_decode(file_get_contents($stkJson), true);
+        } else {
+            $payload = $bridge->run('rrg_jdk.py', [
+                '--prices' => $pricesCsv,
+                '--benchmark' => $benchCsv,
+                '--sector-master' => $secCsv,
+                '--output-dir' => $outDir,
+            ], $secJson);
+
+            if ($payload) {
+                $rrgSector = $payload;
+                if (file_exists($stkJson)) {
+                    $rrgStocks = json_decode(file_get_contents($stkJson), true);
+                }
+            }
+        }
+
+        $bridge->cleanup([$pricesCsv, $benchCsv, $secCsv]);
+
         return Inertia::render('DeskBrief/Index', [
             'date' => $date,
             'isPreview' => $previewId && $latestBrief && $latestBrief->status !== 'published',
             'deskBrief' => $latestBrief,
             'snapshots' => $this->getSnapshots(),
             'topMovers' => $this->getTopMovers($date),
+            'ffd' => $ffd,
+            'rrgSector' => $rrgSector,
+            'rrgStocks' => $rrgStocks,
             'sectorStocks' => $sectorStocks,
             'historicalScores' => \App\Models\MarketStanceDaily::where('date', '>=', '2025-01-01')
                 ->where('date', '<=', $date)
@@ -155,7 +221,17 @@ class DeskBriefController extends Controller
             'riskAlerts' => RiskAlert::whereDate('date', $date)->get(),
             'smartMoney' => SmartMoneyFlow::whereDate('date', $date)->first(),
             'internals' => $internalsData,
-            'events' => EconomicEvent::orderBy('date', 'desc')->take(10)->get(),
+            'events' => EconomicEvent::whereBetween('date', [
+                now()->subMonths(2)->toDateString(),
+                now()->addMonths(3)->toDateString(),
+            ])
+            ->orderBy('date', 'asc')
+            ->get()
+            ->map(function ($event) {
+                $arr = $event->toArray();
+                $arr['isPast'] = (bool) $event->is_past;
+                return $arr;
+            }),
             'macroCards' => MarketSnapshot::whereIn('symbol_or_metric', ['GLOBAL_GROWTH', 'US_INFLATION', 'G3_LIQUIDITY'])
                 ->orderBy('date', 'desc')->get()->unique('symbol_or_metric')->values(),
             'delta' => $delta,
@@ -286,24 +362,49 @@ class DeskBriefController extends Controller
             ->where('symbol_or_metric', 'TOP_MOVERS')
             ->first();
             
-        $movers = ['gainers' => [], 'losers' => [], 'volumes' => [], 'values' => [], 'frequencies' => []];
+        $movers = [
+            'gainers' => [],
+            'losers' => [],
+            'volumes' => [],
+            'values' => [],
+            'frequencies' => [],
+            'net_buy' => [],
+            'net_sell' => [],
+        ];
+        
         if ($snap && is_array($snap->sparkline_json)) {
-            $movers = $snap->sparkline_json;
+            $movers = array_merge($movers, $snap->sparkline_json);
         } else {
-            $movers = Cache::get('sectors_top_movers', ['gainers' => [], 'losers' => [], 'volumes' => [], 'values' => [], 'frequencies' => []]);
+            $cached = Cache::get('sectors_top_movers', []);
+            if (is_array($cached)) {
+                $movers = array_merge($movers, $cached);
+            }
         }
         
         // Attach logo_url, name, and sector from master_stocks
-        $symbols = collect(array_merge($movers['gainers'] ?? [], $movers['losers'] ?? [], $movers['volumes'] ?? [], $movers['values'] ?? [], $movers['frequencies'] ?? []))->pluck('symbol')->unique()->toArray();
-        $stockData = \DB::table('master_stocks')->whereIn('code', $symbols)->get()->keyBy('code');
+        $symbols = collect(array_merge(
+            $movers['gainers'] ?? [],
+            $movers['losers'] ?? [],
+            $movers['volumes'] ?? [],
+            $movers['values'] ?? [],
+            $movers['frequencies'] ?? [],
+            $movers['net_buy'] ?? [],
+            $movers['net_sell'] ?? []
+        ))->pluck('symbol')->filter()->unique()->toArray();
         
-        foreach (['gainers', 'losers', 'volumes', 'values', 'frequencies'] as $type) {
-            if (isset($movers[$type])) {
-                foreach ($movers[$type] as &$item) {
-                    $stock = $stockData[$item['symbol']] ?? null;
-                    $item['logo_url'] = $stock->logo_url ?? null;
-                    $item['name'] = $stock->name ?? null;
-                    $item['sector'] = $stock->sector ?? null;
+        if (!empty($symbols)) {
+            $stockData = \DB::table('master_stocks')->whereIn('code', $symbols)->get()->keyBy('code');
+            
+            foreach (['gainers', 'losers', 'volumes', 'values', 'frequencies', 'net_buy', 'net_sell'] as $type) {
+                if (isset($movers[$type]) && is_array($movers[$type])) {
+                    foreach ($movers[$type] as &$item) {
+                        if (isset($item['symbol'])) {
+                            $stock = $stockData[$item['symbol']] ?? null;
+                            $item['logo_url'] = $item['logo_url'] ?? ($stock->logo_url ?? null);
+                            $item['name'] = $item['name'] ?? ($stock->name ?? $item['symbol']);
+                            $item['sector'] = $stock->sector ?? null;
+                        }
+                    }
                 }
             }
         }
