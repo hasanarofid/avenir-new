@@ -130,7 +130,7 @@ export function setOwnershipData(DATA) {
 }
 
 // Async Load Data
-export async function loadOwnershipData(url = '/admin/desk-brief/ownership/data', force = false) {
+export async function loadOwnershipData(url = '/desk-brief/ownership-intelligence/data', force = false) {
     if (dataLoaded.value && !force) return;
     // Reset if force-loading (e.g. mockup vs production)
     if (force) dataLoaded.value = false;

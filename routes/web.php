@@ -41,6 +41,10 @@ Route::get('/desk-brief/what-changed', [\App\Http\Controllers\DeskBriefControlle
 Route::get('/desk-brief/ownership-intelligence', [\App\Http\Controllers\DeskBriefController::class, 'ownership'])->name('desk-brief.ownership');
 Route::get('/desk-brief/ownership-intelligence-mockup', [\App\Http\Controllers\DeskBriefController::class, 'ownershipMockup'])->name('desk-brief.ownership-mockup');
 
+// Public API: Ownership Intelligence data (membaca JSON file langsung, tanpa auth admin)
+Route::get('/desk-brief/ownership-intelligence/data', [\App\Http\Controllers\Admin\OwnershipController::class, 'getOwnershipData'])->name('desk-brief.ownership.public-data');
+
+
 // Market Tickers API for News Marquee
 Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
 
