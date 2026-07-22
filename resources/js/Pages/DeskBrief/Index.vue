@@ -386,11 +386,26 @@ const losers  = computed(() => {
   const all = props.topMovers?.losers || [];
   return expandMovers.value ? all.slice(0, 20) : all.slice(0, 5);
 });
-const hasMovers = computed(() => gainers.value.length > 0 || losers.value.length > 0);
+const volumes  = computed(() => {
+  const all = props.topMovers?.volumes || [];
+  return expandMovers.value ? all.slice(0, 20) : all.slice(0, 5);
+});
+const valuesList  = computed(() => {
+  const all = props.topMovers?.values || [];
+  return expandMovers.value ? all.slice(0, 20) : all.slice(0, 5);
+});
+const frequencies  = computed(() => {
+  const all = props.topMovers?.frequencies || [];
+  return expandMovers.value ? all.slice(0, 20) : all.slice(0, 5);
+});
+const hasMovers = computed(() => gainers.value.length > 0 || losers.value.length > 0 || volumes.value.length > 0 || valuesList.value.length > 0 || frequencies.value.length > 0);
 const canExpandMovers = computed(() => {
   const gLen = props.topMovers?.gainers?.length || 0;
   const lLen = props.topMovers?.losers?.length || 0;
-  return gLen > 5 || lLen > 5;
+  const vLen = props.topMovers?.volumes?.length || 0;
+  const valLen = props.topMovers?.values?.length || 0;
+  const fLen = props.topMovers?.frequencies?.length || 0;
+  return gLen > 5 || lLen > 5 || vLen > 5 || valLen > 5 || fLen > 5;
 });
 
 // ──────────────────────────────────────────────
@@ -859,6 +874,48 @@ function getConfClass(label) {
             <span class="ch neg">{{ l.price_pct }}%</span>
           </div>
           <div v-if="!losers.length" style="padding:10px;font-size:11px;color:var(--muted)">No losers data available.</div>
+        </div>
+        <div>
+          <div class="movhd" style="color: var(--blue)">◆ Top Volume</div>
+          <div class="mvr" v-for="(v, idx) in volumes" :key="v.symbol">
+            <span class="rk">{{ idx + 1 }}</span>
+            <span :class="['ff', v.flow_confirmed !== false ? 'ff-ok' : 'ff-warn']">{{ v.flow_confirmed !== false ? '⚑' : '⚠' }}</span>
+            <img v-if="v.logo_url" :src="v.logo_url" :alt="v.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
+            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ v.symbol.substring(0,2) }}</span>
+            <span class="tk">{{ v.symbol }}</span>
+            <span class="nm">{{ v.name || v.symbol }}</span>
+            <span class="pr">{{ v.last_close || '-' }}</span>
+            <span class="ch" style="color: var(--blue)">{{ (v.volume / 1000000).toFixed(1) }}M</span>
+          </div>
+          <div v-if="!volumes.length" style="padding:10px;font-size:11px;color:var(--muted)">No volume data available.</div>
+        </div>
+        <div>
+          <div class="movhd" style="color: var(--gold)">★ Top Value</div>
+          <div class="mvr" v-for="(v, idx) in valuesList" :key="v.symbol">
+            <span class="rk">{{ idx + 1 }}</span>
+            <span :class="['ff', v.flow_confirmed !== false ? 'ff-ok' : 'ff-warn']">{{ v.flow_confirmed !== false ? '⚑' : '⚠' }}</span>
+            <img v-if="v.logo_url" :src="v.logo_url" :alt="v.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
+            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ v.symbol.substring(0,2) }}</span>
+            <span class="tk">{{ v.symbol }}</span>
+            <span class="nm">{{ v.name || v.symbol }}</span>
+            <span class="pr">{{ v.last_close || '-' }}</span>
+            <span class="ch" style="color: var(--gold)">{{ (v.trading_value / 1000000000).toFixed(1) }}B</span>
+          </div>
+          <div v-if="!valuesList.length" style="padding:10px;font-size:11px;color:var(--muted)">No value data available.</div>
+        </div>
+        <div>
+          <div class="movhd" style="color: var(--purple)">⚡ Top Frequency</div>
+          <div class="mvr" v-for="(f, idx) in frequencies" :key="f.symbol">
+            <span class="rk">{{ idx + 1 }}</span>
+            <span :class="['ff', f.flow_confirmed !== false ? 'ff-ok' : 'ff-warn']">{{ f.flow_confirmed !== false ? '⚑' : '⚠' }}</span>
+            <img v-if="f.logo_url" :src="f.logo_url" :alt="f.symbol" style="width:16px; height:16px; border-radius:50%; object-fit:cover; flex-shrink:0" />
+            <span v-else style="width:16px; height:16px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:7px; color:#666; font-weight:700; flex-shrink:0">{{ f.symbol.substring(0,2) }}</span>
+            <span class="tk">{{ f.symbol }}</span>
+            <span class="nm">{{ f.name || f.symbol }}</span>
+            <span class="pr">{{ f.last_close || '-' }}</span>
+            <span class="ch" style="color: var(--purple)">{{ (f.frequency / 1000).toFixed(1) }}k</span>
+          </div>
+          <div v-if="!frequencies.length" style="padding:10px;font-size:11px;color:var(--muted)">No frequency data available.</div>
         </div>
       </div>
       <div v-if="canExpandMovers" style="text-align:center; padding: 10px; margin-top: 10px; grid-column: span 12;">

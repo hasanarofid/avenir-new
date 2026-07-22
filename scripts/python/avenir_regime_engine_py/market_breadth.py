@@ -12,10 +12,12 @@ def mb_label(x):
     return 'Broad Weakness'
 
 def calculate(raw):
-    code=find_col(raw,['kode_saham','kode','code','symbol']); prev=find_col(raw,['sebelumnya','previous','prev','prev_close']); close=find_col(raw,['penutupan','close','closing_price','last']); shares=find_col(raw,['listed_shares','listed_share','saham_tercatat']); val=find_col(raw,['nilai','value','trading_value'])
+    code=find_col(raw,['kode_saham','kode','code','symbol']); prev=find_col(raw,['sebelumnya','previous','prev','prev_close']); close=find_col(raw,['penutupan','close','closing_price','last']); shares=find_col(raw,['listed_shares','listed_share','saham_tercatat']); val=find_col(raw,['nilai','value','trading_value']); volume=find_col(raw,['volume','vol','trading_volume']); freq=find_col(raw,['frekuensi','freq','frequency'])
     miss=[n for n,c in {'code':code,'previous':prev,'close':close,'listed_shares':shares,'value':val}.items() if c is None]
     if miss: raise ValueError(f'Kolom wajib tidak ditemukan: {miss}')
     df=pd.DataFrame(); df['symbol']=raw[code].astype(str).str.strip().str.upper(); df['previous']=raw[prev].apply(parse_number); df['close']=raw[close].apply(parse_number); df['listed_shares']=raw[shares].apply(parse_number); df['trading_value_raw']=raw[val].apply(parse_number); df['trading_value_negative_flag']=df.trading_value_raw<0; df['trading_value']=df.trading_value_raw.abs()
+    if volume: df['volume']=raw[volume].apply(parse_number)
+    if freq: df['frequency']=raw[freq].apply(parse_number)
     df=df[df.symbol.notna() & ~df.symbol.str.lower().isin(['nan','total','']) & df.previous.notna() & df.close.notna() & df.listed_shares.notna() & df.trading_value.notna() & (df.previous>0) & (df.close>0) & (df.listed_shares>0) & (df.trading_value>=0)].copy()
     df['return_pct']=df.close/df.previous-1; df['market_cap']=df.close*df.listed_shares; eps=1e-12
     df['bucket']=np.select([df.return_pct < -0.02,(df.return_pct>=-0.02)&(df.return_pct < -eps),df.return_pct.abs()<=eps,(df.return_pct>eps)&(df.return_pct<=0.02),df.return_pct>0.02],['down_gt2','down_0_2','stable','up_0_2','up_gt2'],'unknown')

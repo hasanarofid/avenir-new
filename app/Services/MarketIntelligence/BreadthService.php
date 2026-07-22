@@ -90,7 +90,10 @@ class BreadthService
                                     'symbol' => $data['symbol'],
                                     'price_pct' => round($pct, 2),
                                     'last_close' => $data['close'],
-                                    'flow_confirmed' => true // Default true, can be enhanced with Foreign Flow later
+                                    'flow_confirmed' => true, // Default true, can be enhanced with Foreign Flow later
+                                    'trading_value' => (float)($data['trading_value'] ?? 0),
+                                    'volume' => (float)($data['volume'] ?? 0),
+                                    'frequency' => (float)($data['frequency'] ?? 0)
                                 ];
                             }
                         }
@@ -105,10 +108,22 @@ class BreadthService
                 usort($stocks, fn($a, $b) => $a['price_pct'] <=> $b['price_pct']);
                 $losers = array_filter($stocks, fn($s) => $s['price_pct'] < 0);
                 $losers = array_slice($losers, 0, 20);
+
+                usort($stocks, fn($a, $b) => $b['volume'] <=> $a['volume']);
+                $volumes = array_slice($stocks, 0, 20);
+
+                usort($stocks, fn($a, $b) => $b['trading_value'] <=> $a['trading_value']);
+                $values = array_slice($stocks, 0, 20);
+
+                usort($stocks, fn($a, $b) => $b['frequency'] <=> $a['frequency']);
+                $frequencies = array_slice($stocks, 0, 20);
                 
                 $topMoversPayload = [
                     'gainers' => array_values($gainers),
-                    'losers' => array_values($losers)
+                    'losers' => array_values($losers),
+                    'volumes' => array_values($volumes),
+                    'values' => array_values($values),
+                    'frequencies' => array_values($frequencies)
                 ];
                 
                 MarketSnapshot::updateOrCreate(

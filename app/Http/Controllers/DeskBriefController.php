@@ -286,18 +286,18 @@ class DeskBriefController extends Controller
             ->where('symbol_or_metric', 'TOP_MOVERS')
             ->first();
             
-        $movers = ['gainers' => [], 'losers' => []];
+        $movers = ['gainers' => [], 'losers' => [], 'volumes' => [], 'values' => [], 'frequencies' => []];
         if ($snap && is_array($snap->sparkline_json)) {
             $movers = $snap->sparkline_json;
         } else {
-            $movers = Cache::get('sectors_top_movers', ['gainers' => [], 'losers' => []]);
+            $movers = Cache::get('sectors_top_movers', ['gainers' => [], 'losers' => [], 'volumes' => [], 'values' => [], 'frequencies' => []]);
         }
         
         // Attach logo_url, name, and sector from master_stocks
-        $symbols = collect(array_merge($movers['gainers'] ?? [], $movers['losers'] ?? []))->pluck('symbol')->unique()->toArray();
+        $symbols = collect(array_merge($movers['gainers'] ?? [], $movers['losers'] ?? [], $movers['volumes'] ?? [], $movers['values'] ?? [], $movers['frequencies'] ?? []))->pluck('symbol')->unique()->toArray();
         $stockData = \DB::table('master_stocks')->whereIn('code', $symbols)->get()->keyBy('code');
         
-        foreach (['gainers', 'losers'] as $type) {
+        foreach (['gainers', 'losers', 'volumes', 'values', 'frequencies'] as $type) {
             if (isset($movers[$type])) {
                 foreach ($movers[$type] as &$item) {
                     $stock = $stockData[$item['symbol']] ?? null;
