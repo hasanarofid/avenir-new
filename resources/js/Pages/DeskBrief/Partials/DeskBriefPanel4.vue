@@ -124,7 +124,7 @@ const props = defineProps({
 });
 
 const ddOpen = ref(false);
-const selectedChart = ref('momentum'); // default to 'momentum' or 'regime'
+const selectedChart = ref('regime'); // default to 'regime'
 const timeframes = ['1M', '3M', '6M', 'YTD', '1Y', 'All'];
 const activeTimeframe = ref('6M');
 
