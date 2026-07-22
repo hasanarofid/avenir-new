@@ -87,6 +87,9 @@ class DeskBriefController extends Controller
             'new_lows' => rand(10, 30),
         ];
 
+        $periodConclusionEngine = app(\App\Services\MarketIntelligence\PeriodConclusionEngine::class);
+        $periodConclusion = $periodConclusionEngine->generateConclusion($date);
+
         $sectorStocks = \App\Models\MasterStock::select('code', 'name', 'sector')
             ->get()
             ->groupBy('sector')
