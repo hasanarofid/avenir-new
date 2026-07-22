@@ -15,9 +15,9 @@ class EodUploadController extends Controller
     {
         $query = EodUpload::with('user');
 
-        if (!auth()->user()->hasRole('admin')) {
-            $query->where('user_id', auth()->id());
-        }
+        // if (!auth()->user()->hasRole('admin')) {
+        //     $query->where('user_id', auth()->id());
+        // }
 
         $query->orderBy('created_at', 'desc');
 
