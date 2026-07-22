@@ -33,7 +33,10 @@ class ImportDeskBriefScores extends Command
         $this->info("Starting score import process...");
 
         // Auto-run Python calculation script to generate latest output CSVs if script exists
-        $calcScript = base_path('prd-testing/desk-brief/run_calculations.py');
+        $calcScript = base_path('scripts/python/run_calculations.py');
+        if (!file_exists($calcScript)) {
+            $calcScript = base_path('prd-testing/desk-brief/run_calculations.py');
+        }
         if (file_exists($calcScript)) {
             $this->info("Executing calculation engine ({$calcScript})...");
             $process = new \Symfony\Component\Process\Process(['python3', $calcScript]);

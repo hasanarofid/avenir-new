@@ -496,7 +496,10 @@ PYTHON;
             }
 
             // Automatically calculate rolling scores and update MarketStanceDaily for all historical dates
-            $calcScript = base_path('prd-testing/desk-brief/run_calculations.py');
+            $calcScript = base_path('scripts/python/run_calculations.py');
+            if (!file_exists($calcScript)) {
+                $calcScript = base_path('prd-testing/desk-brief/run_calculations.py');
+            }
             if (file_exists($calcScript)) {
                 $process = new \Symfony\Component\Process\Process(['python3', $calcScript]);
                 $process->run();
