@@ -495,6 +495,16 @@ PYTHON;
                 }
             }
 
+            // Automatically calculate rolling scores and update MarketStanceDaily for all historical dates
+            $calcScript = base_path('prd-testing/desk-brief/run_calculations.py');
+            if (file_exists($calcScript)) {
+                $process = new \Symfony\Component\Process\Process(['python3', $calcScript]);
+                $process->run();
+                if ($process->isSuccessful()) {
+                    \Illuminate\Support\Facades\Artisan::call('deskbrief:import-scores');
+                }
+            }
+
             // Generate Draft automatically
             \Illuminate\Support\Facades\Artisan::call('deskbrief:draft', [
                 'date' => $date,

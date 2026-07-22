@@ -80,6 +80,7 @@
     <div class="h-80 w-full relative">
       <VueApexCharts
         v-if="chartSeries.length && filteredHistoricalScores.length"
+        :key="selectedChart + '_' + activeTimeframe"
         type="line"
         height="100%"
         :options="chartOptions"
@@ -161,15 +162,15 @@ const sourceDesc = computed(() => {
 const getCutoffDate = (tf) => {
   if (tf === 'All') return new Date(0);
   const data = props.historicalScores;
-  const now = data && data.length 
+  const lastDate = (data && data.length) 
     ? new Date(data[data.length - 1].date)
     : new Date();
-  const cutoff = new Date(now);
-  if (tf === '1M') cutoff.setMonth(cutoff.getMonth() - 1);
-  else if (tf === '3M') cutoff.setMonth(cutoff.getMonth() - 3);
-  else if (tf === '6M') cutoff.setMonth(cutoff.getMonth() - 6);
-  else if (tf === 'YTD') { cutoff.setMonth(0); cutoff.setDate(1); }
-  else if (tf === '1Y') cutoff.setFullYear(cutoff.getFullYear() - 1);
+  const cutoff = new Date(lastDate.getTime());
+  if (tf === '1M') cutoff.setDate(cutoff.getDate() - 30);
+  else if (tf === '3M') cutoff.setDate(cutoff.getDate() - 90);
+  else if (tf === '6M') cutoff.setDate(cutoff.getDate() - 180);
+  else if (tf === 'YTD') { cutoff.setFullYear(lastDate.getFullYear(), 0, 1); cutoff.setHours(0, 0, 0, 0); }
+  else if (tf === '1Y') cutoff.setDate(cutoff.getDate() - 365);
   return cutoff;
 };
 

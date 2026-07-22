@@ -12,13 +12,17 @@ const activeTimeframe = ref('1Y');
 // Helper to get cutoff date based on timeframe
 const getCutoffDate = (tf) => {
   if (tf === 'All') return new Date(0);
-  const now = new Date();
-  if (tf === '1M') now.setMonth(now.getMonth() - 1);
-  else if (tf === '3M') now.setMonth(now.getMonth() - 3);
-  else if (tf === '6M') now.setMonth(now.getMonth() - 6);
-  else if (tf === 'YTD') { now.setMonth(0); now.setDate(1); }
-  else if (tf === '1Y') now.setFullYear(now.getFullYear() - 1);
-  return now;
+  const data = props.history;
+  const lastDate = (data && data.length)
+    ? new Date(data[data.length - 1].date)
+    : new Date();
+  const cutoff = new Date(lastDate.getTime());
+  if (tf === '1M') cutoff.setDate(cutoff.getDate() - 30);
+  else if (tf === '3M') cutoff.setDate(cutoff.getDate() - 90);
+  else if (tf === '6M') cutoff.setDate(cutoff.getDate() - 180);
+  else if (tf === 'YTD') { cutoff.setFullYear(lastDate.getFullYear(), 0, 1); cutoff.setHours(0, 0, 0, 0); }
+  else if (tf === '1Y') cutoff.setDate(cutoff.getDate() - 365);
+  return cutoff;
 };
 
 const chartDataRaw = computed(() => {
