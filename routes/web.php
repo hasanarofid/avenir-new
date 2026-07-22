@@ -193,8 +193,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/master-stock/{code}', [\App\Http\Controllers\Admin\MasterStockController::class, 'destroy'])->name('master-stock.destroy');
 
         // EOD Uploads
+        Route::delete('/eod-uploads/bulk-delete', [\App\Http\Controllers\Admin\EodUploadController::class, 'bulkDestroy'])->name('eod-uploads.bulk-destroy');
         Route::get('/eod-uploads', [\App\Http\Controllers\Admin\EodUploadController::class, 'index'])->name('eod-uploads.index');
         Route::post('/eod-uploads', [\App\Http\Controllers\Admin\EodUploadController::class, 'store'])->name('eod-uploads.store');
+        Route::put('/eod-uploads/{id}', [\App\Http\Controllers\Admin\EodUploadController::class, 'update'])->name('eod-uploads.update');
+        Route::delete('/eod-uploads/{id}', [\App\Http\Controllers\Admin\EodUploadController::class, 'destroy'])->name('eod-uploads.destroy');
+        Route::post('/eod-uploads/{id}/reprocess', [\App\Http\Controllers\Admin\EodUploadController::class, 'reprocess'])->name('eod-uploads.reprocess');
 
         // Internal APIs
         Route::get('/api/stocks/{code}/historical', [\App\Http\Controllers\Api\StockHistoricalController::class, 'show'])->name('api.stocks.historical');

@@ -25,6 +25,15 @@ class DummyDataSeeder extends Seeder
         );
         $admin->assignRole('admin');
 
+        $timInternal = User::updateOrCreate(
+            ['email' => 'timinternal@avenir.test'],
+            [
+                'name' => 'Tim Internal Avenir',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $timInternal->assignRole('tim_internal');
+
         DB::table('user_profiles')->updateOrInsert(
             ['user_id' => $admin->id],
             [
