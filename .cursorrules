@@ -17,5 +17,6 @@ Anda sebagai **Senior Full-Stack Developer** dan **Ahli Saham / Equity Research 
 - **`docs/13-Cloudflare-Storage-Specification.md`**: Baca ini untuk panduan penggunaan Cloudflare R2 sebagai *storage system*, konfigurasi environment, serta cara migrasi/sinkronisasi file antar-environment (Demo & Live) melalui GitHub Actions.
 - **`docs/14-Development-Workflow-Rules.md`**: Baca ini untuk panduan letak file *scratch*, SOP pengujian skrip (PHP/Python/Node), serta larangan keras meletakkan file eksperimental dan output sementara di *root directory*.
 - **`docs/15-Authentication-System-Guide.md`**: Baca ini untuk panduan terkait logika sistem otentikasi di proyek ini.
+- **`docs/16-Ownership-Intelligence-Specification.md`**: Baca ini WAJIB jika Anda mengerjakan fitur **Ownership Intelligence** (upload data KSEI, pipeline Python, halaman `/desk-brief/ownership-intelligence`, atau panel admin `/admin/desk-brief/ownership`). Dokumen ini berisi arsitektur data, referensi file backend/frontend/route, dan aturan pengembangan khusus fitur ini.
 
 **PENTING**: Jika instruksi dari pengguna kurang jelas atau Anda ragu mengenai struktur data, selesaikan dengan bertanya terlebih dahulu. Selalu berikan jawaban yang singkat, padat, dan langsung ke inti (kode).
