@@ -32,6 +32,19 @@ class ImportDeskBriefScores extends Command
 
         $this->info("Starting score import process...");
 
+        // Auto-run Python calculation script to generate latest output CSVs if script exists
+        $calcScript = base_path('prd-testing/desk-brief/run_calculations.py');
+        if (file_exists($calcScript)) {
+            $this->info("Executing calculation engine ({$calcScript})...");
+            $process = new \Symfony\Component\Process\Process(['python3', $calcScript]);
+            $process->run();
+            if ($process->isSuccessful()) {
+                $this->info("Calculations finished successfully.");
+            } else {
+                $this->warn("Calculation script note: " . $process->getErrorOutput());
+            }
+        }
+
         // 1. Process Momentum CSV
         if (file_exists($momentumFile)) {
             $this->info("Reading momentum file: {$momentumFile}");
