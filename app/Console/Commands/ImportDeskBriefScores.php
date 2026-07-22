@@ -89,6 +89,8 @@ class ImportDeskBriefScores extends Command
                     ->updateOrInsert(
                         ['date' => $date],
                         [
+                            'score' => DB::raw('COALESCE(score, 50)'),
+                            'label' => DB::raw("COALESCE(label, 'Neutral')"),
                             'flow_momentum_v2_score' => is_numeric($row[$momentumIdx]) ? $row[$momentumIdx] : null,
                             'flow_exhaustion_score' => is_numeric($row[$exhaustionIdx]) ? $row[$exhaustionIdx] : null,
                             'reversal_probability' => is_numeric($row[$reversalIdx]) ? $row[$reversalIdx] : null,
@@ -144,6 +146,8 @@ class ImportDeskBriefScores extends Command
                     ->updateOrInsert(
                         ['date' => $date],
                         [
+                            'score' => DB::raw('COALESCE(score, 50)'),
+                            'label' => DB::raw("COALESCE(label, 'Neutral')"),
                             'market_stress_composite' => is_numeric($row[$compositeIdx]) ? $row[$compositeIdx] : null,
                             'macro_stress' => is_numeric($row[$macroIdx]) ? $row[$macroIdx] : null,
                             'flow_internal_stress' => is_numeric($row[$flowInternalIdx]) ? $row[$flowInternalIdx] : null,

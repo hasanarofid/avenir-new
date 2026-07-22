@@ -108,16 +108,14 @@ class DeskBriefController extends Controller
                     // Smooth mock data if values are missing (for preview/testing)
                     // using sine waves instead of rand() so the chart looks realistic and not jagged
                     if (is_null($item->flow_momentum_v2_score)) {
-                        $t = $index * 0.2;
-                        $item->flow_momentum_v2_score = 50 + 20 * sin($t);
-                        $item->flow_exhaustion_score = 50 + 25 * cos($t * 0.8 + 1);
-                        $item->reversal_probability = 50 + 30 * sin($t * 1.2 + 2);
+                        $item->flow_momentum_v2_score = round(min(100, max(0, $item->score * 0.85 + 10)), 1);
+                        $item->flow_exhaustion_score = round(min(100, max(0, 100 - $item->score)), 1);
+                        $item->reversal_probability = round(min(100, max(0, $item->score * 0.9 + 5)), 1);
                     }
                     if (is_null($item->market_stress_composite)) {
-                        $t = $index * 0.15;
-                        $item->market_stress_composite = 50 + 10 * sin($t);
-                        $item->macro_stress = 50 + 15 * cos($t * 0.9 + 0.5);
-                        $item->flow_internal_stress = 50 + 20 * sin($t * 1.1 + 1.5);
+                        $item->market_stress_composite = round(min(100, max(0, 100 - $item->score * 0.8)), 1);
+                        $item->macro_stress = round(min(100, max(0, 100 - $item->score * 0.7)), 1);
+                        $item->flow_internal_stress = round(min(100, max(0, 100 - $item->score * 0.85)), 1);
                     }
                     return $item;
                 }),

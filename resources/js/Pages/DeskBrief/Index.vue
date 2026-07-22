@@ -651,7 +651,7 @@ function getConfClass(label) {
     </div>
 
     <!-- 1. REGIME SUMMARY -->
-    <div class="card span3">
+    <div class="card span4">
       <div class="chd"><div class="t"><b>1.</b>REGIME SUMMARY</div></div>
       <div class="regime-ring" style="align-self:center; display:flex; flex-direction:column; align-items:center; position:relative; margin-top:8px">
         <div class="rw" style="position:relative; width:120px; height:70px; display:flex; justify-content:center">
@@ -682,7 +682,7 @@ function getConfClass(label) {
     </div>
 
     <!-- 2. KEY DRIVERS -->
-    <div class="card span3">
+    <div class="card span4">
       <div class="chd"><div class="t"><b>2.</b>KEY DRIVERS</div><div class="meta">Ranked by impact</div></div>
       <div class="kd">
         <div class="kdr" v-for="driver in deskBrief.drivers" :key="driver.id">
@@ -709,7 +709,7 @@ function getConfClass(label) {
     </div>
 
     <!-- 3. CROSS-ASSET SNAPSHOT + INTERNALS -->
-    <div class="card span3">
+    <div class="card span4">
       <div class="chd"><div class="t"><b>3.</b>CROSS-ASSET &amp; INTERNALS</div><div class="meta"><span class="live"><span class="d"></span>Live EOD</span></div></div>
       <div class="idx3">
         <div class="idxc" v-for="s in idxSnapshots" :key="s.symbol">
