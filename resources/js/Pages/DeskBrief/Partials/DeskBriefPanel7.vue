@@ -129,8 +129,10 @@ const evFor = (key) => mode.value === 'stock' ? (activeRotev.value.stock[cur.val
 
 const fmt = d => {
   if (!d) return '—';
+  const s = typeof d === 'string' ? d : String(d);
+  if (!s.includes('-')) return s;
   const M = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-  const a = d.split('-'); return +a[2] + ' ' + M[+a[1] - 1];
+  const a = s.split('-'); return +a[2] + ' ' + M[+a[1] - 1];
 };
 
 const metaText = computed(() => {

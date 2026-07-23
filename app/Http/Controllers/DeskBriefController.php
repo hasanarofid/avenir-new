@@ -61,11 +61,19 @@ class DeskBriefController extends Controller
                 ->first();
         }
 
-        $date = $latestBrief ? $latestBrief->date : today()->toDateString();
+        $date = $latestBrief ? $latestBrief->date->toDateString() : today()->toDateString();
 
-        $latestTwoStances = \App\Models\MarketStanceDaily::orderBy('date', 'desc')->take(2)->get();
-        $todayStance = $latestTwoStances->first();
-        $yesterdayStance = $latestTwoStances->last();
+        // Gunakan relasi langsung dari brief agar skor komponen selalu konsisten dengan headline score
+        $todayStance = $latestBrief?->marketStance;
+        if (!$todayStance) {
+            $todayStance = \App\Models\MarketStanceDaily::where('date', $date)->first()
+                ?? \App\Models\MarketStanceDaily::where('date', '<=', $date)
+                    ->orderBy('date', 'desc')
+                    ->first();
+        }
+        $yesterdayStance = \App\Models\MarketStanceDaily::where('date', '<', $todayStance?->date ?? $date)
+            ->orderBy('date', 'desc')
+            ->first();
 
         $delta = $deltaEngine->getWhatChanged($date);
 
@@ -323,7 +331,7 @@ class DeskBriefController extends Controller
     {
         $latestTwoStances = \App\Models\MarketStanceDaily::orderBy('date', 'desc')->take(2)->get();
         $todayStance = $latestTwoStances->first();
-        $yesterdayStance = $latestTwoStances->last();
+        $yesterdayStance = $latestTwoStances->count() === 2 ? $latestTwoStances->last() : null;
 
         $date = $todayStance ? $todayStance->date : today()->toDateString();
         $delta = $deltaEngine->getWhatChanged($date);
