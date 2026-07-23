@@ -66,7 +66,19 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $appends = [
         'profile_photo_url',
         'is_subscriber',
+        'has_verified_email',
     ];
+
+    /**
+     * Get the has_verified_email status attribute for Inertia JSON serialization.
+     *
+     * @return bool
+     */
+    public function getHasVerifiedEmailAttribute(): bool
+    {
+        return $this->hasVerifiedEmail();
+    }
+
 
     /**
      * Get the URL to the user's profile photo.
