@@ -37,8 +37,8 @@ const verificationLinkSent = computed(
             </p>
         </div>
 
-        <div class="mb-5 p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-sm text-slate-300 leading-relaxed">
-            Kami telah mengirimkan link aktivasi ke email Anda. Silakan periksa folder inbox atau spam email Anda dan klik link tersebut untuk mengaktifkan akun.
+        <div class="mb-5 p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-sm text-slate-300 leading-relaxed text-center">
+            Silakan tekan tombol <strong>Kirim Ulang Email Aktivasi</strong> di bawah ini untuk mengirimkan link aktivasi ke inbox email Anda.
         </div>
 
         <div

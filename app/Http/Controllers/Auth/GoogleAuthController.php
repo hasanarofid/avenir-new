@@ -33,18 +33,18 @@ class GoogleAuthController extends Controller
                 // Update google_id jika belum terhubung
                 if (!$existingUser->google_id) {
                     $existingUser->google_id = $googleUser->id;
+                    $existingUser->save();
                 }
-                // Otomatis verifikasi email karena login via Google
-                if (!$existingUser->email_verified_at) {
-                    $existingUser->email_verified_at = now();
-                }
-                $existingUser->save();
 
                 Auth::login($existingUser, true);
 
+                if (!$existingUser->hasVerifiedEmail()) {
+                    return redirect()->route('verification.notice');
+                }
+
                 return redirect()->intended(route('dashboard', absolute: false));
             } else {
-                // Buat user baru dengan status email terverifikasi
+                // Buat user baru dengan status email belum terverifikasi (memerlukan aktivasi)
                 $nameParts = explode(' ', trim($googleUser->name), 2);
                 $fname = $nameParts[0];
                 $lname = isset($nameParts[1]) ? $nameParts[1] : '';
@@ -54,7 +54,7 @@ class GoogleAuthController extends Controller
                     'email' => $googleUser->email,
                     'google_id' => $googleUser->id,
                     'password' => bcrypt(Str::random(16)),
-                    'email_verified_at' => now(), // Terverifikasi via Google
+                    'email_verified_at' => null, // Tidak otomatis terverifikasi
                 ]);
 
                 // Assign default role
@@ -73,7 +73,7 @@ class GoogleAuthController extends Controller
 
                 Auth::login($user, true);
 
-                return redirect()->intended(route('dashboard', absolute: false));
+                return redirect()->route('verification.notice');
             }
 
         } catch (\Exception $e) {

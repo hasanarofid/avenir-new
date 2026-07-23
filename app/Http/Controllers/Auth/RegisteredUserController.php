@@ -53,8 +53,6 @@ class RegisteredUserController extends Controller
             'recovery_codes' => $recoveryCodes,
         ]);
 
-        event(new Registered($user));
-
         // JANGAN langsung login. Simpan ID ke session untuk setup 2FA
         $request->session()->put('2fa:user:id', $user->id);
 

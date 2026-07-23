@@ -49,10 +49,7 @@ class AuthController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Send Email Verification Notification
-            event(new \Illuminate\Auth\Events\Registered($user));
-
-            // Log in user
+            // Log in user (Tanpa otomatis kirim email aktivasi, user harus klik kirim aktivasi)
             Auth::login($user);
 
             return redirect()->route('verification.notice');
@@ -96,19 +93,28 @@ class AuthController extends Controller
                     'user_agent' => $request->userAgent(),
                 ]);
 
+                if (!$user->hasVerifiedEmail()) {
+                    return redirect()->route('verification.notice');
+                }
+
                 return redirect()->back();
             }
         } else {
             if (Auth::attempt($request->only('email', 'password'), true)) {
                 $request->session()->regenerate();
                 
+                $loggedInUser = Auth::user();
                 \App\Models\ActivityLog::create([
-                    'user_id' => Auth::id(),
+                    'user_id' => $loggedInUser->id,
                     'action' => 'Login Normal',
                     'description' => 'User logged in to the system via AuthController.',
                     'ip_address' => $request->ip(),
                     'user_agent' => $request->userAgent(),
                 ]);
+
+                if (!$loggedInUser->hasVerifiedEmail()) {
+                    return redirect()->route('verification.notice');
+                }
 
                 return redirect()->back();
             }
