@@ -146,7 +146,7 @@ const scopeText = computed(() => {
   const rs = activeRrgs.value;
   return mode.value === 'sector'
     ? `Benchmark: <b>IHSG (Composite)</b> · ${r.meta?.universe || 900} emiten, cap-weighted`
-    : `Benchmark: <b>index ${rs.short[cur.value]}</b> · 20 emiten teraktif (median nilai transaksi)`;
+    : `Benchmark: <b>index ${rs.short[cur.value]}</b> · 15 emiten teraktif (median nilai transaksi)`;
 });
 
 const tipOpacity = ref('0');

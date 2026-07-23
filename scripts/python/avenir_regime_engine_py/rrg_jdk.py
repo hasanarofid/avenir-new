@@ -201,9 +201,9 @@ def main():
     for sec in available_sectors:
         sec_prices = merged_prices[merged_prices['sector'] == sec].copy()
         
-        # Get top 20 stocks by average trading value
+        # Get top 15 stocks by average trading value
         avg_values = sec_prices.groupby('code')['value'].mean().sort_values(ascending=False)
-        top_stocks = avg_values.head(20).index.tolist()
+        top_stocks = avg_values.head(15).index.tolist()
         
         if len(top_stocks) < 3:
             continue

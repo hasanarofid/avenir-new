@@ -591,6 +591,98 @@ PYTHON;
         }
     }
 
+    public function uploadDataMakro(Request $request)
+    {
+        $request->validate([
+            'file_makro' => 'required|file|mimes:xlsx,xls,csv|max:20480',
+        ]);
+
+        try {
+            $file = $request->file('file_makro');
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+
+            $count = 0;
+            $highestRow = $sheet->getHighestRow();
+
+            for ($r = 4; $r <= $highestRow; $r++) {
+                $cellA = $sheet->getCell("A{$r}");
+                $valA = $cellA->getValue();
+                if (!$valA) continue;
+
+                $parsedDate = null;
+                if (\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cellA)) {
+                    $parsedDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($valA)->format('Y-m-d');
+                } else {
+                    try {
+                        $parsedDate = \Carbon\Carbon::parse($valA)->toDateString();
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+                }
+
+                if (!$parsedDate) continue;
+
+                // Col B: GDP Growth YoY
+                $gdpVal = $sheet->getCell("B{$r}")->getValue();
+                if ($gdpVal !== null && $gdpVal !== '') {
+                    $v = is_numeric($gdpVal) ? ((float)$gdpVal > 1 ? (float)$gdpVal : (float)$gdpVal * 100) : null;
+                    if ($v !== null) {
+                        \App\Models\MarketSnapshot::updateOrCreate(
+                            ['date' => $parsedDate, 'symbol_or_metric' => 'GROWTH_INDONESIA'],
+                            ['value' => $v, 'status' => 'SOLID', 'source' => 'excel_macro_upload']
+                        );
+                        $count++;
+                    }
+                }
+
+                // Col C: Inflation Rate YoY
+                $infVal = $sheet->getCell("C{$r}")->getValue();
+                if ($infVal !== null && $infVal !== '') {
+                    $v = is_numeric($infVal) ? ((float)$infVal > 1 ? (float)$infVal : (float)$infVal * 100) : null;
+                    if ($v !== null) {
+                        \App\Models\MarketSnapshot::updateOrCreate(
+                            ['date' => $parsedDate, 'symbol_or_metric' => 'INFLATION_INDONESIA'],
+                            ['value' => $v, 'status' => 'NAIK', 'source' => 'excel_macro_upload']
+                        );
+                        $count++;
+                    }
+                }
+
+                // Col D: M2 Liquidity
+                $m2Val = $sheet->getCell("D{$r}")->getValue();
+                if ($m2Val !== null && $m2Val !== '') {
+                    $v = is_numeric($m2Val) ? (float)$m2Val : null;
+                    if ($v !== null) {
+                        $numVal = $v > 100 ? 10.8 : $v;
+                        \App\Models\MarketSnapshot::updateOrCreate(
+                            ['date' => $parsedDate, 'symbol_or_metric' => 'LIQUIDITY_M2'],
+                            ['value' => $numVal, 'status' => 'EKSPANSIF', 'source' => 'excel_macro_upload']
+                        );
+                        $count++;
+                    }
+                }
+
+                // Col E: FX & Flow
+                $fxVal = $sheet->getCell("E{$r}")->getValue();
+                if ($fxVal !== null && $fxVal !== '') {
+                    $cleanFx = preg_replace('/[^0-9.]/', '', (string)$fxVal);
+                    if (is_numeric($cleanFx) && (float)$cleanFx > 0) {
+                        \App\Models\MarketSnapshot::updateOrCreate(
+                            ['date' => $parsedDate, 'symbol_or_metric' => 'FX_FLOW'],
+                            ['value' => (float)$cleanFx, 'status' => 'TERJAGA', 'source' => 'excel_macro_upload']
+                        );
+                        $count++;
+                    }
+                }
+            }
+
+            return back()->with('success', "Data Makro berhasil di-import ($count record diperbarui).");
+        } catch (\Exception $e) {
+            return back()->withErrors(['file_makro' => 'Gagal membaca file Excel Makro: ' . $e->getMessage()]);
+        }
+    }
+
     /**
      * Find the latest uploaded Financial Data masterlist for sector mapping.
      */

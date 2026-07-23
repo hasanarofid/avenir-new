@@ -19,6 +19,7 @@ const showUploadCsvModal = ref(false);
 const showMasterlistModal = ref(false);
 const showRingkasanSahamModal = ref(false);
 const showForeignFlowModal = ref(false);
+const showDataMakroModal = ref(false);
 
 const form = useForm({
   pdf_file: null,
@@ -41,6 +42,10 @@ const ringkasanSahamForm = useForm({
 const foreignFlowForm = useForm({
   foreign_flow: null,
   date: new Date().toISOString().split('T')[0],
+});
+
+const dataMakroForm = useForm({
+  file_makro: null,
 });
 
 const handleFileChange = (e) => {
@@ -209,6 +214,30 @@ const submitForeignFlowUpload = () => {
     },
     onError: (errors) => {
       Swal.fire('Gagal', errors.foreign_flow || 'Terjadi kesalahan saat memproses file.', 'error');
+    }
+  });
+};
+
+const handleDataMakroChange = (e) => {
+  if (e.target.files.length > 0) {
+    dataMakroForm.file_makro = e.target.files[0];
+  }
+};
+
+const submitDataMakroUpload = () => {
+  if (!dataMakroForm.file_makro) {
+    Swal.fire('Error', 'Pilih file Excel Data Makro terlebih dahulu', 'error');
+    return;
+  }
+  dataMakroForm.post(route('admin.desk-brief.upload-data-makro'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      showDataMakroModal.value = false;
+      dataMakroForm.reset();
+      Swal.fire('Berhasil!', 'File Data Makro Avenir berhasil di-import.', 'success');
+    },
+    onError: (errors) => {
+      Swal.fire('Gagal', errors.file_makro || 'Terjadi kesalahan saat memproses file.', 'error');
     }
   });
 };
@@ -422,7 +451,7 @@ const showBreakdown = (stance) => {
           <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
         </summary>
         
-        <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 cursor-default">
+        <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-4 cursor-default">
           <!-- Masterlist -->
           <div class="bg-[#2a2a2a] p-4 rounded-lg border border-indigo-500/20 flex flex-col justify-between">
             <div>
@@ -453,6 +482,17 @@ const showBreakdown = (stance) => {
             </div>
             <button @click.stop="showUploadModal = true" class="w-full py-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
               <Upload class="w-4 h-4" /> Upload PDF
+            </button>
+          </div>
+
+          <!-- Upload Data Makro Avenir -->
+          <div class="bg-[#2a2a2a] p-4 rounded-lg border border-amber-500/20 flex flex-col justify-between">
+            <div>
+              <div class="text-amber-400 font-bold mb-1">Data Makro Avenir</div>
+              <p class="text-xs text-gray-400 mb-4 leading-relaxed">Upload Excel GDP, Inflasi, M2, FX & Flow.</p>
+            </div>
+            <button @click.stop="showDataMakroModal = true" class="w-full py-2 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400 border border-amber-500/30 rounded-lg text-sm font-medium transition-colors flex justify-center items-center gap-2">
+              <Upload class="w-4 h-4" /> Upload Data Makro
             </button>
           </div>
         </div>
@@ -726,6 +766,52 @@ const showBreakdown = (stance) => {
       </div>
     </div>
 
+    <!-- Upload Data Makro Modal -->
+    <div v-if="showDataMakroModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-[#1A1A1A] border border-gray-800 rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#222]">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <Upload class="w-5 h-5 text-amber-400" />
+            Upload Data Makro Avenir (Excel)
+          </h3>
+          <button @click="showDataMakroModal = false" class="text-gray-400 hover:text-white transition-colors">
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+        
+        <form @submit.prevent="submitDataMakroUpload" class="p-6">
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-2">File Excel (Data Makro Avenir.xlsx)</label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700 border-dashed rounded-lg hover:border-amber-500 hover:bg-amber-500/5 transition-all">
+              <div class="space-y-1 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div class="flex text-sm text-gray-400 justify-center">
+                  <label for="makro-upload" class="relative cursor-pointer bg-[#1A1A1A] rounded-md font-medium text-amber-400 hover:text-amber-300 focus-within:outline-none">
+                    <span>Upload a file</span>
+                    <input id="makro-upload" name="makro-upload" type="file" accept=".xlsx,.xls,.csv" class="sr-only" @change="handleDataMakroChange" />
+                  </label>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  {{ dataMakroForm.file_makro ? dataMakroForm.file_makro.name : 'Excel up to 20MB' }}
+                </p>
+              </div>
+            </div>
+            <p v-if="dataMakroForm.errors.file_makro" class="mt-2 text-sm text-red-500">{{ dataMakroForm.errors.file_makro }}</p>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-8">
+            <button type="button" @click="showDataMakroModal = false" class="px-4 py-2 bg-transparent text-gray-400 hover:text-white transition-colors">Batal</button>
+            <button type="submit" :disabled="dataMakroForm.processing || !dataMakroForm.file_makro" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+              <span v-if="dataMakroForm.processing" class="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></span>
+              {{ dataMakroForm.processing ? 'Memproses...' : 'Proses Data Makro' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Tabs Navigation -->
     <div class="flex border-b border-gray-800 mb-6 gap-6">
       <button 
@@ -735,6 +821,7 @@ const showBreakdown = (stance) => {
         Daftar Desk Brief
       </button>
       <button 
+        v-if="false"
         @click="activeTab = 'simulator'"
         :class="['pb-3 font-medium transition-colors border-b-2', activeTab === 'simulator' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-gray-500 hover:text-gray-300']"
       >
