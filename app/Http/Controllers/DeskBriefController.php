@@ -188,33 +188,75 @@ class DeskBriefController extends Controller
         ->unique('symbol_or_metric')
         ->keyBy('symbol_or_metric');
 
+        $growthSnap = $macroSnapshots->get('GROWTH_INDONESIA');
+        $infSnap    = $macroSnapshots->get('INFLATION_INDONESIA');
+        $m2Snap     = $macroSnapshots->get('LIQUIDITY_M2');
+        $fxSnap     = $macroSnapshots->get('FX_FLOW');
+
+        // Dynamic Growth
+        $growthVal    = $growthSnap?->value ? ('+' . number_format($growthSnap->value, 2) . '%') : '+5.61%';
+        $growthStatus = $growthSnap?->status ?: ($growthSnap?->value >= 5.0 ? 'SOLID' : 'MODERAT');
+        $growthDesc   = 'GDP Q1 2026 YoY (BPS)';
+        if ($growthSnap?->date) {
+            $gd = \Carbon\Carbon::parse($growthSnap->date);
+            $q  = ceil($gd->month / 3);
+            $growthDesc = "GDP Q{$q} {$gd->year} YoY (BPS)";
+        }
+
+        // Dynamic Inflation
+        $infVal    = $infSnap?->value ? (number_format($infSnap->value, 2) . '%') : '3.34%';
+        $infStatus = $infSnap?->status ?: 'NAIK';
+        $infDesc   = 'IHK Jun 2026 YoY (BI)';
+        if ($infSnap?->date) {
+            $id = \Carbon\Carbon::parse($infSnap->date);
+            $infDesc = "IHK " . $id->format('M Y') . " YoY (BI)";
+        }
+
+        // Dynamic M2
+        $m2Val    = $m2Snap?->value ? ('+' . number_format($m2Snap->value, 1) . '%') : '+10.8%';
+        $m2Status = $m2Snap?->status ?: 'EKSPANSIF';
+        $m2Desc   = 'M2 growth May 2026 YoY (BI)';
+        if ($m2Snap?->date) {
+            $md = \Carbon\Carbon::parse($m2Snap->date);
+            $m2Desc = "M2 growth " . $md->format('M Y') . " YoY (BI)";
+        }
+
+        // Dynamic FX
+        $fxVal    = $fxSnap?->value ? ('$' . number_format($fxSnap->value, 1) . 'B') : '$145.6B';
+        $fxStatus = $fxSnap?->status ?: 'TERJAGA';
+        $fxDesc   = 'Cadangan Devisa Jun 2026 · Portfolio inflow +$0.70M (30d)';
+        if ($fxSnap?->date) {
+            $fd = \Carbon\Carbon::parse($fxSnap->date);
+            $fxDesc = "Cadangan Devisa " . $fd->format('M Y') . " · Portfolio inflow +$0.70M (30d)";
+        }
+
         $macroCards = [
             [
                 'title'  => 'GROWTH (INDONESIA)',
-                'status' => $macroSnapshots->get('GROWTH_INDONESIA')?->status ?? 'SOLID',
-                'value'  => $macroSnapshots->get('GROWTH_INDONESIA')?->value ? ('+' . number_format($macroSnapshots->get('GROWTH_INDONESIA')->value, 2) . '%') : '+5.61%',
-                'desc'   => 'GDP Q1 2026 YoY (BPS)',
+                'status' => $growthStatus,
+                'value'  => $growthVal,
+                'desc'   => $growthDesc,
                 'icon'   => '📈',
             ],
             [
                 'title'  => 'INFLATION (INDONESIA)',
-                'status' => $macroSnapshots->get('INFLATION_INDONESIA')?->status ?? 'NAIK',
-                'value'  => $macroSnapshots->get('INFLATION_INDONESIA')?->value ? (number_format($macroSnapshots->get('INFLATION_INDONESIA')->value, 2) . '%') : '3.34%',
-                'desc'   => 'IHK Jun 2026 YoY (BI)',
+                'status' => $infStatus,
+                'value'  => $infVal,
+                'desc'   => $infDesc,
                 'icon'   => '📊',
             ],
             [
                 'title'  => 'LIQUIDITY (M2)',
-                'status' => $macroSnapshots->get('LIQUIDITY_M2')?->status ?? 'EKSPANSIF',
-                'value'  => $macroSnapshots->get('LIQUIDITY_M2')?->value ? ('+' . number_format($macroSnapshots->get('LIQUIDITY_M2')->value, 1) . '%') : '+10.8%',
-                'desc'   => 'M2 growth May 2026 YoY (BI)',
+                'status' => $m2Status,
+                'value'  => $m2Val,
+                'desc'   => $m2Desc,
                 'icon'   => '💧',
             ],
             [
                 'title'  => 'FX & FLOW',
-                'status' => $macroSnapshots->get('FX_FLOW')?->status ?? 'TERJAGA',
-                'value'  => $macroSnapshots->get('FX_FLOW')?->value ? ('$' . number_format($macroSnapshots->get('FX_FLOW')->value, 1) . 'B') : '$145.6B',
-                'desc'   => 'Cadangan Devisa Jun 2026 · Portfolio inflow +$0.70M (30d)',
+                'status' => $fxStatus,
+                'value'  => $fxVal,
+                'desc'   => $fxDesc,
                 'icon'   => '💵',
             ],
         ];

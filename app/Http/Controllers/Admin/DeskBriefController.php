@@ -604,6 +604,7 @@ PYTHON;
 
             $count = 0;
             $highestRow = $sheet->getHighestRow();
+            $rowsData = [];
 
             for ($r = 4; $r <= $highestRow; $r++) {
                 $cellA = $sheet->getCell("A{$r}");
@@ -623,54 +624,78 @@ PYTHON;
 
                 if (!$parsedDate) continue;
 
-                // Col B: GDP Growth YoY
                 $gdpVal = $sheet->getCell("B{$r}")->getValue();
-                if ($gdpVal !== null && $gdpVal !== '') {
-                    $v = is_numeric($gdpVal) ? ((float)$gdpVal > 1 ? (float)$gdpVal : (float)$gdpVal * 100) : null;
+                $infVal = $sheet->getCell("C{$r}")->getValue();
+                $m2Val  = $sheet->getCell("D{$r}")->getValue();
+                $fxVal  = $sheet->getCell("E{$r}")->getValue();
+
+                $rowsData[$parsedDate] = [
+                    'gdp' => $gdpVal,
+                    'inf' => $infVal,
+                    'm2'  => $m2Val,
+                    'fx'  => $fxVal,
+                ];
+            }
+
+            ksort($rowsData);
+
+            $prevInf = null;
+
+            foreach ($rowsData as $parsedDate => $d) {
+                // Col B: GDP Growth YoY
+                if ($d['gdp'] !== null && $d['gdp'] !== '') {
+                    $v = is_numeric($d['gdp']) ? ((float)$d['gdp'] > 1 ? (float)$d['gdp'] : (float)$d['gdp'] * 100) : null;
                     if ($v !== null) {
+                        $status = $v >= 5.0 ? 'SOLID' : 'MODERAT';
                         \App\Models\MarketSnapshot::updateOrCreate(
                             ['date' => $parsedDate, 'symbol_or_metric' => 'GROWTH_INDONESIA'],
-                            ['value' => $v, 'status' => 'SOLID', 'source' => 'excel_macro_upload']
+                            ['value' => $v, 'status' => $status, 'source' => 'excel_macro_upload']
                         );
                         $count++;
                     }
                 }
 
                 // Col C: Inflation Rate YoY
-                $infVal = $sheet->getCell("C{$r}")->getValue();
-                if ($infVal !== null && $infVal !== '') {
-                    $v = is_numeric($infVal) ? ((float)$infVal > 1 ? (float)$infVal : (float)$infVal * 100) : null;
+                if ($d['inf'] !== null && $d['inf'] !== '') {
+                    $v = is_numeric($d['inf']) ? ((float)$d['inf'] > 1 ? (float)$d['inf'] : (float)$d['inf'] * 100) : null;
                     if ($v !== null) {
+                        $status = 'NAIK';
+                        if ($prevInf !== null) {
+                            if ($v < $prevInf) $status = 'TURUN';
+                            elseif ($v == $prevInf) $status = 'STABIL';
+                        }
+                        $prevInf = $v;
                         \App\Models\MarketSnapshot::updateOrCreate(
                             ['date' => $parsedDate, 'symbol_or_metric' => 'INFLATION_INDONESIA'],
-                            ['value' => $v, 'status' => 'NAIK', 'source' => 'excel_macro_upload']
+                            ['value' => $v, 'status' => $status, 'source' => 'excel_macro_upload']
                         );
                         $count++;
                     }
                 }
 
                 // Col D: M2 Liquidity
-                $m2Val = $sheet->getCell("D{$r}")->getValue();
-                if ($m2Val !== null && $m2Val !== '') {
-                    $v = is_numeric($m2Val) ? (float)$m2Val : null;
+                if ($d['m2'] !== null && $d['m2'] !== '') {
+                    $v = is_numeric($d['m2']) ? (float)$d['m2'] : null;
                     if ($v !== null) {
                         $numVal = $v > 100 ? 10.8 : $v;
+                        $status = $numVal >= 8.0 ? 'EKSPANSIF' : 'STABIL';
                         \App\Models\MarketSnapshot::updateOrCreate(
                             ['date' => $parsedDate, 'symbol_or_metric' => 'LIQUIDITY_M2'],
-                            ['value' => $numVal, 'status' => 'EKSPANSIF', 'source' => 'excel_macro_upload']
+                            ['value' => $numVal, 'status' => $status, 'source' => 'excel_macro_upload']
                         );
                         $count++;
                     }
                 }
 
                 // Col E: FX & Flow
-                $fxVal = $sheet->getCell("E{$r}")->getValue();
-                if ($fxVal !== null && $fxVal !== '') {
-                    $cleanFx = preg_replace('/[^0-9.]/', '', (string)$fxVal);
+                if ($d['fx'] !== null && $d['fx'] !== '') {
+                    $cleanFx = preg_replace('/[^0-9.]/', '', (string)$d['fx']);
                     if (is_numeric($cleanFx) && (float)$cleanFx > 0) {
+                        $v = (float)$cleanFx;
+                        $status = $v >= 140 ? 'TERJAGA' : 'WASPADA';
                         \App\Models\MarketSnapshot::updateOrCreate(
                             ['date' => $parsedDate, 'symbol_or_metric' => 'FX_FLOW'],
-                            ['value' => (float)$cleanFx, 'status' => 'TERJAGA', 'source' => 'excel_macro_upload']
+                            ['value' => $v, 'status' => $status, 'source' => 'excel_macro_upload']
                         );
                         $count++;
                     }
