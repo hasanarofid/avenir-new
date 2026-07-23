@@ -5,7 +5,7 @@
         <div class="t">
           <b>11.</b>PETA BURSA — STOCK HEATMAP 
           <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">
-            (1D · ukuran = market cap · warna = return · klik sektor untuk zoom)
+            (ukuran = {{ sortMode === 'mcap' ? 'market cap' : 'return' }} · warna = return · klik sektor untuk zoom)
           </span>
         </div>
       </div>
@@ -190,6 +190,34 @@ function getColor(c) {
   return '#222222';
 }
 
+function getStocksForSector(secName) {
+  const stdName = sectorNameMap[secName] || secName;
+  const propList = props.sectorStocks ? (props.sectorStocks[secName] || props.sectorStocks[stdName]) : null;
+  if (propList && propList.length) {
+    return propList.map(s => ({
+      code: s.code,
+      name: s.name || s.code,
+      wret: Number(s.change || 0),
+      mcap: Number(s.marketCap || 50),
+      value: Number(s.marketCap || 50)
+    }));
+  }
+  
+  const fallback = fallbackStockMap[stdName] || fallbackStockMap['Financials'];
+  return fallback.map(s => ({
+    code: s.code,
+    name: s.name,
+    wret: s.change,
+    mcap: s.marketCap,
+    value: s.marketCap
+  }));
+}
+
+function getSectorMarketCap(secName) {
+  const stocks = getStocksForSector(secName);
+  return stocks.reduce((sum, s) => sum + (s.mcap || s.value || 50), 0);
+}
+
 function getSectorData() {
   const mapSectors = (props.sectors && props.sectors.length) ? props.sectors : [
     { name: 'Financials', change: 0.57 },
@@ -207,34 +235,15 @@ function getSectorData() {
 
   return mapSectors.map(s => {
     const stdName = sectorNameMap[s.name] || s.name;
+    const mcap = getSectorMarketCap(stdName);
     return {
       name: stdName,
       rawName: s.name,
       wret: Number(s.change || 0),
-      value: Math.abs(Number(s.change || 0)) * 100 + 30
+      mcap: mcap,
+      value: mcap
     };
   });
-}
-
-function getStocksForSector(secName) {
-  const stdName = sectorNameMap[secName] || secName;
-  const propList = props.sectorStocks ? (props.sectorStocks[secName] || props.sectorStocks[stdName]) : null;
-  if (propList && propList.length) {
-    return propList.map(s => ({
-      code: s.code,
-      name: s.name || s.code,
-      wret: Number(s.change || 0),
-      value: Number(s.marketCap || 50)
-    }));
-  }
-  
-  const fallback = fallbackStockMap[stdName] || fallbackStockMap['Financials'];
-  return fallback.map(s => ({
-    code: s.code,
-    name: s.name,
-    wret: s.change,
-    value: s.marketCap
-  }));
 }
 
 function draw() {
@@ -255,15 +264,15 @@ function draw() {
     root = d3.hierarchy({ name: "IHSG", children: sectorData });
 
     if (sortMode.value === 'ret') {
-      root.sum(d => d.wret ? Math.max(0.1, Math.abs(d.wret)) : 0);
+      root.sum(d => d.wret !== undefined ? Math.max(0.1, d.wret + 6) : 0);
     } else {
-      root.sum(d => d.value || 1);
+      root.sum(d => d.mcap || d.value || 1);
     }
 
     d3.treemap()
       .tile(d3.treemapBinary)
       .size([W, H])
-      .paddingInner(10)
+      .paddingInner(8)
       .round(true)(root);
 
     const nodes = svg.selectAll("g")
@@ -289,24 +298,24 @@ function draw() {
     // Sector Name Label
     nodes.append("text")
       .attr("class", "sec-name")
-      .attr("x", 12)
-      .attr("y", 26)
+      .attr("x", 10)
+      .attr("y", 24)
       .attr("fill", "#ffffff")
-      .style("font-size", d => (d.x1 - d.x0) > 100 ? "15px" : "12px")
+      .style("font-size", d => (d.x1 - d.x0) > 120 ? "14px" : (d.x1 - d.x0) > 70 ? "11px" : "9px")
       .style("font-weight", "700")
       .style("pointer-events", "none")
-      .text(d => d.data.name);
+      .text(d => (d.x1 - d.x0) > 40 ? d.data.name : '');
 
     // Sector Change Return %
     nodes.append("text")
       .attr("class", "sec-ret")
-      .attr("x", 12)
-      .attr("y", 46)
+      .attr("x", 10)
+      .attr("y", d => (d.x1 - d.x0) > 120 ? 44 : 38)
       .attr("fill", "#ffffff")
-      .style("font-size", d => (d.x1 - d.x0) > 100 ? "13px" : "11px")
+      .style("font-size", d => (d.x1 - d.x0) > 120 ? "13px" : (d.x1 - d.x0) > 70 ? "11px" : "9px")
       .style("font-weight", "700")
       .style("pointer-events", "none")
-      .text(d => (d.data.wret > 0 ? '+' : '') + d.data.wret.toFixed(2) + '%');
+      .text(d => (d.x1 - d.x0) > 40 ? ((d.data.wret > 0 ? '+' : '') + d.data.wret.toFixed(2) + '%') : '');
   } 
   // ZOOMED MODE: Render Stocks in Selected Sector
   else {
@@ -314,9 +323,9 @@ function draw() {
     root = d3.hierarchy({ name: currentZoom.value, children: stocks });
 
     if (sortMode.value === 'ret') {
-      root.sum(d => d.wret ? Math.max(0.1, Math.abs(d.wret)) : 0);
+      root.sum(d => d.wret !== undefined ? Math.max(0.1, d.wret + 6) : 0);
     } else {
-      root.sum(d => d.value || 1);
+      root.sum(d => d.mcap || d.value || 1);
     }
 
     d3.treemap()
@@ -343,26 +352,26 @@ function draw() {
     // Stock Code Label
     nodes.append("text")
       .attr("class", "stk-code")
-      .attr("x", d => Math.max(6, (d.x1 - d.x0) / 2))
-      .attr("y", d => Math.max(16, (d.y1 - d.y0) / 2 - 4))
+      .attr("x", d => (d.x1 - d.x0) / 2)
+      .attr("y", d => (d.y1 - d.y0) / 2 - 2)
       .attr("text-anchor", "middle")
       .attr("fill", "#ffffff")
-      .style("font-size", d => Math.min(15, Math.max(10, (d.x1 - d.x0) / 4)) + "px")
+      .style("font-size", d => Math.min(14, Math.max(10, (d.x1 - d.x0) / 4)) + "px")
       .style("font-weight", "800")
       .style("pointer-events", "none")
-      .text(d => (d.x1 - d.x0 > 30 && d.y1 - d.y0 > 20) ? d.data.code : '');
+      .text(d => (d.x1 - d.x0 > 28 && d.y1 - d.y0 > 20) ? d.data.code : '');
 
     // Stock Return % Label
     nodes.append("text")
       .attr("class", "stk-ret")
-      .attr("x", d => Math.max(6, (d.x1 - d.x0) / 2))
-      .attr("y", d => Math.max(30, (d.y1 - d.y0) / 2 + 12))
+      .attr("x", d => (d.x1 - d.x0) / 2)
+      .attr("y", d => (d.y1 - d.y0) / 2 + 12)
       .attr("text-anchor", "middle")
       .attr("fill", "#ffffff")
       .style("font-size", d => Math.min(12, Math.max(9, (d.x1 - d.x0) / 5)) + "px")
       .style("font-weight", "600")
       .style("pointer-events", "none")
-      .text(d => (d.x1 - d.x0 > 40 && d.y1 - d.y0 > 35) ? ((d.data.wret > 0 ? '+' : '') + d.data.wret.toFixed(1) + '%') : '');
+      .text(d => (d.x1 - d.x0 > 36 && d.y1 - d.y0 > 32) ? ((d.data.wret > 0 ? '+' : '') + d.data.wret.toFixed(1) + '%') : '');
   }
 }
 

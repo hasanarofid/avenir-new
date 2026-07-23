@@ -58,37 +58,34 @@ const fallbackData = {
     { symbol: 'MDKA', name: 'Merdeka Copper Gold Tbk.', last_close: 2280, change_abs: -70, price_pct: -2.98, badge: '!', badge_type: 'danger', logo_url: getStockLogo('MDKA') },
   ],
   value: [
-    { symbol: 'BBCA', name: 'Bank Central Asia Tbk.', last_close: 9850, value_str: '1.25T', change_abs: 125, price_pct: 1.29, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BBCA') },
-    { symbol: 'BBRI', name: 'Bank Rakyat Indonesia Tbk.', last_close: 5125, value_str: '980.4B', change_abs: 75, price_pct: 1.49, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BBRI') },
-    { symbol: 'BMRI', name: 'Bank Mandiri Tbk.', last_close: 6400, value_str: '842.1B', change_abs: 100, price_pct: 1.59, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BMRI') },
-    { symbol: 'TLKM', name: 'Telkom Indonesia Tbk.', last_close: 2850, value_str: '625.8B', change_abs: 50, price_pct: 1.79, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('TLKM') },
-    { symbol: 'ASII', name: 'Astra International Tbk.', last_close: 4750, value_str: '450.2B', change_abs: -25, price_pct: -0.52, badge: '!', badge_type: 'warn', logo_url: getStockLogo('ASII') },
-    { symbol: 'BBNI', name: 'Bank Negara Indonesia Tbk.', last_close: 4950, value_str: '388.9B', change_abs: 60, price_pct: 1.23, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BBNI') },
-    { symbol: 'AMMN', name: 'Amman Mineral Internasional Tbk.', last_close: 8900, value_str: '345.6B', change_abs: 250, price_pct: 2.89, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('AMMN') },
+    { symbol: 'TPIA', name: 'Chandra Asri Pacific Tbk.', last_close: 2280, value_str: '2,28 T', value: 2280000000000, change_abs: 30, price_pct: 1.33, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('TPIA') },
+    { symbol: 'DSSA', name: 'Dian Swastatika Sentosa Tbk.', last_close: 905, value_str: '1,45 T', value: 1450000000000, change_abs: -54, price_pct: -3.72, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('DSSA') },
+    { symbol: 'BBCA', name: 'Bank Central Asia Tbk.', last_close: 6500, value_str: '1,25 T', value: 1250000000000, change_abs: -25, price_pct: -0.38, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BBCA') },
+    { symbol: 'BRPT', name: 'Barito Pacific Tbk.', last_close: 1830, value_str: '980,4 M', value: 980400000000, change_abs: -29, price_pct: -1.61, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BRPT') },
+    { symbol: 'BBRI', name: 'Bank Rakyat Indonesia Tbk.', last_close: 3020, value_str: '850,2 M', value: 850200000000, change_abs: -49, price_pct: -1.63, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BBRI') },
+    { symbol: 'BMRI', name: 'Bank Mandiri Tbk.', last_close: 6400, value_str: '842,1 M', value: 842100000000, change_abs: 100, price_pct: 1.59, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BMRI') },
+    { symbol: 'TLKM', name: 'Telkom Indonesia Tbk.', last_close: 2850, value_str: '625,8 M', value: 625800000000, change_abs: 50, price_pct: 1.79, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('TLKM') },
   ],
   volume: [
-    { symbol: 'BRMS', name: 'Bumi Resources Minerals Tbk.', last_close: 340, volume_str: '4.8M lot', change_abs: 18, price_pct: 5.59, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BRMS') },
-    { symbol: 'DEWA', name: 'Dewa Mining Tbk.', last_close: 185, volume_str: '3.9M lot', change_abs: 12, price_pct: 6.94, badge: '!', badge_type: 'warn', logo_url: getStockLogo('DEWA') },
-    { symbol: 'BUMI', name: 'Bumi Resources Tbk.', last_close: 142, volume_str: '3.2M lot', change_abs: 4, price_pct: 2.90, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BUMI') },
-    { symbol: 'ENRG', name: 'Energi Mega Persada Tbk.', last_close: 260, volume_str: '2.5M lot', change_abs: 14, price_pct: 5.69, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('ENRG') },
-    { symbol: 'PSAB', name: 'J Resources Asia Pasifik Tbk.', last_close: 298, volume_str: '2.1M lot', change_abs: 16, price_pct: 5.67, badge: '!', badge_type: 'warn', logo_url: getStockLogo('PSAB') },
-    { symbol: 'KPGM', name: 'MNC Land Tbk.', last_close: 165, volume_str: '1.9M lot', change_abs: 8, price_pct: 5.10, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('KPGM') },
+    { symbol: 'BRMS', name: 'Bumi Resources Minerals Tbk.', last_close: 340, volume_str: '4,8M lot', volume: 4800000, change_abs: 18, price_pct: 5.59, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BRMS') },
+    { symbol: 'DEWA', name: 'Dewa Mining Tbk.', last_close: 185, volume_str: '3,9M lot', volume: 3900000, change_abs: 12, price_pct: 6.94, badge: '!', badge_type: 'warn', logo_url: getStockLogo('DEWA') },
+    { symbol: 'BUMI', name: 'Bumi Resources Tbk.', last_close: 142, volume_str: '3,2M lot', volume: 3200000, change_abs: 4, price_pct: 2.90, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('BUMI') },
+    { symbol: 'ENRG', name: 'Energi Mega Persada Tbk.', last_close: 260, volume_str: '2,5M lot', volume: 2500000, change_abs: 14, price_pct: 5.69, badge: 'C', badge_type: 'purp', logo_url: getStockLogo('ENRG') },
+    { symbol: 'PSAB', name: 'J Resources Asia Pasifik Tbk.', last_close: 298, volume_str: '2,1M lot', volume: 2100000, change_abs: 16, price_pct: 5.67, badge: '!', badge_type: 'warn', logo_url: getStockLogo('PSAB') },
   ],
   net_buy: [
-    { symbol: 'BBCA', name: 'Bank Central Asia Tbk.', last_close: 9850, net_flow: '+450.2B', change_abs: 125, price_pct: 1.29, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('BBCA') },
-    { symbol: 'BMRI', name: 'Bank Mandiri Tbk.', last_close: 6400, net_flow: '+310.8B', change_abs: 100, price_pct: 1.59, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('BMRI') },
-    { symbol: 'TLKM', name: 'Telkom Indonesia Tbk.', last_close: 2850, net_flow: '+185.5B', change_abs: 50, price_pct: 1.79, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('TLKM') },
-    { symbol: 'AMMN', name: 'Amman Mineral Internasional Tbk.', last_close: 8900, net_flow: '+142.1B', change_abs: 250, price_pct: 2.89, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('AMMN') },
-    { symbol: 'BBNI', name: 'Bank Negara Indonesia Tbk.', last_close: 4950, net_flow: '+98.4B', change_abs: 60, price_pct: 1.23, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('BBNI') },
-    { symbol: 'ICBP', name: 'Indofood CBP Sukses Makmur Tbk.', last_close: 10800, net_flow: '+76.5B', change_abs: 150, price_pct: 1.41, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('ICBP') },
+    { symbol: 'BBCA', name: 'Bank Central Asia Tbk.', last_close: 9850, net_flow: '+450,2 M', value: 450200000000, change_abs: 125, price_pct: 1.29, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('BBCA') },
+    { symbol: 'BMRI', name: 'Bank Mandiri Tbk.', last_close: 6400, net_flow: '+310,8 M', value: 310800000000, change_abs: 100, price_pct: 1.59, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('BMRI') },
+    { symbol: 'TLKM', name: 'Telkom Indonesia Tbk.', last_close: 2850, net_flow: '+185,5 M', value: 185500000000, change_abs: 50, price_pct: 1.79, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('TLKM') },
+    { symbol: 'AMMN', name: 'Amman Mineral Internasional Tbk.', last_close: 8900, net_flow: '+142,1 M', value: 142100000000, change_abs: 250, price_pct: 2.89, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('AMMN') },
+    { symbol: 'BBNI', name: 'Bank Negara Indonesia Tbk.', last_close: 4950, net_flow: '+98,4 M', value: 98400000000, change_abs: 60, price_pct: 1.23, badge: '⚑', badge_type: 'ok', logo_url: getStockLogo('BBNI') },
   ],
   net_sell: [
-    { symbol: 'ADRO', name: 'Adaro Energy Indonesia Tbk.', last_close: 2380, net_flow: '-185.4B', change_abs: -170, price_pct: -6.67, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('ADRO') },
-    { symbol: 'BUKA', name: 'PT Bukalapak.com Tbk.', last_close: 120, net_flow: '-92.1B', change_abs: -12, price_pct: -9.09, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('BUKA') },
-    { symbol: 'GOTO', name: 'GoTo Gojek Tokopedia Tbk.', last_close: 52, net_flow: '-78.6B', change_abs: -6, price_pct: -10.34, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('GOTO') },
-    { symbol: 'ASII', name: 'Astra International Tbk.', last_close: 4750, net_flow: '-64.2B', change_abs: -25, price_pct: -0.52, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('ASII') },
-    { symbol: 'UNVR', name: 'Unilever Indonesia Tbk.', last_close: 2210, net_flow: '-45.8B', change_abs: -30, price_pct: -1.34, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('UNVR') },
-    { symbol: 'INDF', name: 'Indofood Sukses Makmur Tbk.', last_close: 6450, net_flow: '-38.2B', change_abs: -325, price_pct: -4.80, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('INDF') },
+    { symbol: 'ADRO', name: 'Adaro Energy Indonesia Tbk.', last_close: 2380, net_flow: '-185,4 M', value: -185400000000, change_abs: -170, price_pct: -6.67, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('ADRO') },
+    { symbol: 'BUKA', name: 'PT Bukalapak.com Tbk.', last_close: 120, net_flow: '-92,1 M', value: -92100000000, change_abs: -12, price_pct: -9.09, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('BUKA') },
+    { symbol: 'GOTO', name: 'GoTo Gojek Tokopedia Tbk.', last_close: 52, net_flow: '-78,6 M', value: -78600000000, change_abs: -6, price_pct: -10.34, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('GOTO') },
+    { symbol: 'ASII', name: 'Astra International Tbk.', last_close: 4750, net_flow: '-64,2 M', value: -64200000000, change_abs: -25, price_pct: -0.52, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('ASII') },
+    { symbol: 'UNVR', name: 'Unilever Indonesia Tbk.', last_close: 2210, net_flow: '-45,8 M', value: -45800000000, change_abs: -30, price_pct: -1.34, badge: '⚠', badge_type: 'danger', logo_url: getStockLogo('UNVR') },
   ]
 };
 
@@ -124,19 +121,99 @@ function formatPrice(val) {
   return Number(val).toLocaleString('id-ID');
 }
 
-function formatChange(item) {
-  if (item.change_str) return item.change_str;
+function formatMoneyValue(val) {
+  if (val === null || val === undefined || isNaN(val)) return null;
+  const num = Number(val);
+  const abs = Math.abs(num);
+  const prefix = num < 0 ? '-' : (num > 0 ? '+' : '');
+
+  if (abs >= 1_000_000_000_000) {
+    return prefix + (abs / 1_000_000_000_000).toFixed(2).replace('.', ',') + ' T';
+  } else if (abs >= 1_000_000_000) {
+    return prefix + (abs / 1_000_000_000).toFixed(1).replace('.', ',') + ' M';
+  } else if (abs >= 1_000_000) {
+    return prefix + (abs / 1_000_000).toFixed(1).replace('.', ',') + ' Jt';
+  }
+  return prefix + abs.toLocaleString('id-ID');
+}
+
+function formatVolumeValue(val) {
+  if (val === null || val === undefined || isNaN(val)) return null;
+  const num = Number(val);
+  const abs = Math.abs(num);
+  if (abs >= 1_000_000) {
+    return (abs / 1_000_000).toFixed(1).replace('.', ',') + 'M lot';
+  } else if (abs >= 1_000) {
+    return (abs / 1_000).toFixed(1).replace('.', ',') + 'rb lot';
+  }
+  return abs.toLocaleString('id-ID') + ' lot';
+}
+
+function formatDisplayValue(item) {
+  if (!item) return '-';
+
+  // For Gainer & Loser: Display Stock Last Close Price
+  if (activeTab.value === 'gainer' || activeTab.value === 'loser') {
+    return formatPrice(item.last_close);
+  }
+
+  // For Top Value
+  if (activeTab.value === 'value') {
+    if (item.value_str) return item.value_str;
+    if (item.value !== undefined) return formatMoneyValue(item.value);
+    if (item.val !== undefined) return formatMoneyValue(item.val);
+    if (item.value_traded !== undefined) return formatMoneyValue(item.value_traded);
+    return formatPrice(item.last_close);
+  }
+
+  // For Top Volume
+  if (activeTab.value === 'volume') {
+    if (item.volume_str) return item.volume_str;
+    if (item.volume !== undefined) return formatVolumeValue(item.volume);
+    if (item.vol !== undefined) return formatVolumeValue(item.vol);
+    return formatPrice(item.last_close);
+  }
+
+  // For Top Net Buy Foreign
+  if (activeTab.value === 'net_buy') {
+    if (item.net_flow) return item.net_flow;
+    if (item.net_buy !== undefined) return formatMoneyValue(item.net_buy);
+    if (item.value !== undefined) return formatMoneyValue(item.value);
+    return formatPrice(item.last_close);
+  }
+
+  // For Top Net Sell Foreign
+  if (activeTab.value === 'net_sell') {
+    if (item.net_flow) return item.net_flow;
+    if (item.net_sell !== undefined) return formatMoneyValue(item.net_sell);
+    if (item.value !== undefined) return formatMoneyValue(item.value);
+    return formatPrice(item.last_close);
+  }
+
+  return formatPrice(item.last_close);
+}
+
+function formatDisplaySub(item) {
+  if (!item) return '-';
+
   const pctVal = item.price_pct !== undefined ? Number(item.price_pct) : 0;
   const pctStr = item.price_pct !== undefined ? (pctVal > 0 ? `+${pctVal.toFixed(2)}%` : `${pctVal.toFixed(2)}%`) : '';
 
-  if (activeTab.value === 'net_buy' && item.net_flow) return `${item.net_flow} (${pctStr})`;
-  if (activeTab.value === 'net_sell' && item.net_flow) return `${item.net_flow} (${pctStr})`;
-  if (activeTab.value === 'value' && item.value_str) return `${item.value_str} (${pctStr})`;
-  if (activeTab.value === 'volume' && item.volume_str) return `${item.volume_str} (${pctStr})`;
+  // For Gainer & Loser: show change_abs + price_pct e.g. "+30(+1.33%)"
+  if (activeTab.value === 'gainer' || activeTab.value === 'loser') {
+    const abs = item.change_abs !== undefined 
+      ? (item.change_abs > 0 ? `+${Number(item.change_abs).toLocaleString('id-ID')}` : `${Number(item.change_abs).toLocaleString('id-ID')}`)
+      : (item.last_close && item.price_pct ? (pctVal > 0 ? `+${Math.round(item.last_close * (pctVal / 100))}` : `${Math.round(item.last_close * (pctVal / 100))}`) : '');
 
+    if (abs && pctStr) return `${abs}(${pctStr})`;
+    if (pctStr) return pctStr;
+    return '-';
+  }
+
+  // For Value, Volume, Net Buy, Net Sell: show change_abs & pctStr
   const abs = item.change_abs !== undefined 
     ? (item.change_abs > 0 ? `+${Number(item.change_abs).toLocaleString('id-ID')}` : `${Number(item.change_abs).toLocaleString('id-ID')}`)
-    : (item.last_close && item.price_pct ? (item.price_pct > 0 ? `+${Math.round(item.last_close * (pctVal / 100))}` : `${Math.round(item.last_close * (pctVal / 100))}`) : '');
+    : '';
 
   if (abs && pctStr) return `${abs}(${pctStr})`;
   if (pctStr) return pctStr;
@@ -233,14 +310,14 @@ function getAvatarBg(symbol) {
           </div>
         </div>
 
-        <!-- Right: Price & Change -->
+        <!-- Right: Price / Metric Value & Change -->
         <div class="mover-right">
-          <div class="price-text">{{ formatPrice(item.last_close) }}</div>
+          <div class="price-text">{{ formatDisplayValue(item) }}</div>
           <div
             class="change-text"
             :class="isPositive(item) ? 'pos' : 'neg'"
           >
-            {{ formatChange(item) }}
+            {{ formatDisplaySub(item) }}
           </div>
         </div>
       </div>

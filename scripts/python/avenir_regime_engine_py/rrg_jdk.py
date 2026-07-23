@@ -27,7 +27,8 @@ def get_quadrant(x, y):
 
 def calculate_rrg_metrics(prices_df, benchmark_df, target_cols, id_col, value_col):
     """
-    Computes standard JdK RS-Ratio and RS-Momentum.
+    Computes RS-Ratio (EMA-8 smoothed) and RS-Momentum (lag-8 ROC)
+    according to Avenir Research Panel 7 PRD v1.0.
     """
     # 1. Create a wide format price dataframe: index = date, columns = security/sector identifiers
     price_pivot = prices_df.pivot(index='date', columns=id_col, values=value_col)
@@ -37,44 +38,42 @@ def calculate_rrg_metrics(prices_df, benchmark_df, target_cols, id_col, value_co
     merged = merged.sort_index()
     
     dates = merged.index.tolist()
-    if len(dates) < 28:
-        raise ValueError("Price history must contain at least 28 sessions for rolling standard JdK calculation.")
+    if len(dates) < 16:
+        raise ValueError("Price history must contain at least 16 sessions for lag-8 RRG calculation.")
         
     bench = merged['benchmark']
     
     # 2. Base Relative Strength (RS)
     rs_df = merged[target_cols].div(bench, axis=0) * 100
     
-    # 3. RS-Ratio: Double 14-period EMA smoothing
-    rs_ema1 = rs_df.ewm(span=14, adjust=False).mean()
-    rs_ema2 = rs_ema1.ewm(span=14, adjust=False).mean()
-    
-    # Cross-sectional normalization for RS-Ratio
-    rs_ratio_df = pd.DataFrame(index=rs_df.index, columns=target_cols)
+    # 3. RS-Ratio_raw: Cross-sectional z-score * 2 + 100
+    rs_ratio_raw = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
     for date in dates:
-        row = rs_ema2.loc[date]
+        row = rs_df.loc[date].astype(float)
         mean_val = row.mean()
-        std_val = row.std()
+        std_val = row.std(ddof=0)
         if pd.isna(std_val) or std_val == 0:
-            rs_ratio_df.loc[date] = 100
+            rs_ratio_raw.loc[date] = 100.0
         else:
-            rs_ratio_df.loc[date] = 100 + ((row - mean_val) / std_val) * 1
+            rs_ratio_raw.loc[date] = 100.0 + ((row - mean_val) / std_val) * 2.0
             
-    # 4. RS-Momentum: Double 14-period EMA smoothing of daily difference
-    diff_df = rs_ratio_df.diff()
-    diff_ema1 = diff_df.ewm(span=14, adjust=False).mean()
-    diff_ema2 = diff_ema1.ewm(span=14, adjust=False).mean()
+    # 4. RS-Ratio: EMA-8 Smoothing
+    rs_ratio_df = rs_ratio_raw.ewm(span=8, adjust=False).mean()
     
-    # Cross-sectional normalization for RS-Momentum
-    rs_mom_df = pd.DataFrame(index=rs_df.index, columns=target_cols)
+    # 5. RS-Momentum: Lag-8 ROC Cross-sectional z-score * 2 + 100
+    roc_8 = (rs_ratio_df / rs_ratio_df.shift(8) - 1.0) * 100.0
+    rs_mom_df = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
     for date in dates:
-        row = diff_ema2.loc[date]
+        row = roc_8.loc[date].astype(float)
+        if row.isna().any():
+            rs_mom_df.loc[date] = np.nan
+            continue
         mean_val = row.mean()
-        std_val = row.std()
+        std_val = row.std(ddof=0)
         if pd.isna(std_val) or std_val == 0:
-            rs_mom_df.loc[date] = 100
+            rs_mom_df.loc[date] = 100.0
         else:
-            rs_mom_df.loc[date] = 100 + ((row - mean_val) / std_val) * 1
+            rs_mom_df.loc[date] = 100.0 + ((row - mean_val) / std_val) * 2.0
             
     return rs_ratio_df, rs_mom_df, dates
 
@@ -126,8 +125,9 @@ def main():
         sector_index_series, benchmark, available_sectors, 'sector', 'cap_value'
     )
     
-    # Limit visualization to last 22 days
-    vis_dates = dates[-22:]
+    # Filter for valid dates where momentum is defined
+    valid_dates = [d for d in dates if not pd.isna(rs_mom_sec.loc[d].iloc[0])]
+    vis_dates = valid_dates[-15:] if len(valid_dates) >= 15 else valid_dates
     
     sector_series = []
     rotev_sector = {}
@@ -151,7 +151,7 @@ def main():
         # Calculate rotation event (rotev)
         current_q = get_quadrant(pts[-1]["x"], pts[-1]["y"])
         dwell = 1
-        frm = "LAGGING"
+        frm = None
         for p in reversed(pts[:-1]):
             q = get_quadrant(p["x"], p["y"])
             if q == current_q:
@@ -159,18 +159,26 @@ def main():
             else:
                 frm = q
                 break
-        rotev_sector[sec] = {
-            "frm": frm,
-            "to": current_q,
-            "dwell": dwell,
-            "status": "fresh" if dwell == 1 else "confirmed"
-        }
+        if frm is not None and frm != current_q:
+            rotev_sector[sec] = {
+                "frm": frm,
+                "to": current_q,
+                "dwell": dwell,
+                "status": "fresh" if dwell == 1 else "confirmed"
+            }
         
     rrg_sector = {
         "dates": vis_dates,
-        "lag": 3,
+        "lag": 8,
         "series": sector_series,
-        "rotev": rotev_sector
+        "rotev": rotev_sector,
+        "meta": {
+            "universe": 900,
+            "sessions": len(dates),
+            "valid": len(vis_dates),
+            "from": dates[0] if dates else "",
+            "to": dates[-1] if dates else ""
+        }
     }
     
     # Save rrg_sector.json
@@ -199,15 +207,18 @@ def main():
             # Benchmark is respective Sector Index
             sector_bench = sector_index_series[sector_index_series['sector'] == sec][['date', 'cap_value']].rename(columns={'cap_value': 'value'})
             
-            rs_ratio_stk, rs_mom_stk, _ = calculate_rrg_metrics(
+            rs_ratio_stk, rs_mom_stk, stk_dates = calculate_rrg_metrics(
                 sec_prices[sec_prices['code'].isin(top_stocks)], sector_bench, top_stocks, 'code', 'close'
             )
+            
+            stk_valid_dates = [d for d in stk_dates if not pd.isna(rs_mom_stk.loc[d].iloc[0])]
+            stk_vis_dates = stk_valid_dates[-15:] if len(stk_valid_dates) >= 15 else stk_valid_dates
             
             stock_series = []
             rotev_stock = {}
             for stk in top_stocks:
                 pts = []
-                for d in vis_dates:
+                for d in stk_vis_dates:
                     if d in rs_ratio_stk.index and stk in rs_ratio_stk.columns:
                         pts.append({
                             "d": d,
@@ -224,14 +235,14 @@ def main():
                     "name": name,
                     "pts": pts,
                     "chg": 0.0,
-                    "val": round(float(sec_prices[(sec_prices['code'] == stk) & (sec_prices['date'] == vis_dates[-1])]['value'].iloc[0]) / 1e9, 2) if not sec_prices[(sec_prices['code'] == stk) & (sec_prices['date'] == vis_dates[-1])].empty else 0.0
+                    "val": round(float(sec_prices[(sec_prices['code'] == stk) & (sec_prices['date'] == stk_vis_dates[-1])]['value'].iloc[0]) / 1e9, 2) if not sec_prices[(sec_prices['code'] == stk) & (sec_prices['date'] == stk_vis_dates[-1])].empty else 0.0
                 })
                 
                 # Calculate stock rotation event
                 if len(pts) > 1:
                     current_q = get_quadrant(pts[-1]["x"], pts[-1]["y"])
                     dwell = 1
-                    frm = "LAGGING"
+                    frm = None
                     for p in reversed(pts[:-1]):
                         q = get_quadrant(p["x"], p["y"])
                         if q == current_q:
@@ -239,12 +250,13 @@ def main():
                         else:
                             frm = q
                             break
-                    rotev_stock[stk] = {
-                        "frm": frm,
-                        "to": current_q,
-                        "dwell": dwell,
-                        "status": "fresh" if dwell == 1 else "confirmed"
-                    }
+                    if frm is not None and frm != current_q:
+                        rotev_stock[stk] = {
+                            "frm": frm,
+                            "to": current_q,
+                            "dwell": dwell,
+                            "status": "fresh" if dwell == 1 else "confirmed"
+                        }
                 
             rrg_stocks["sectors"][sec] = {
                 "series": stock_series,

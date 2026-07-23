@@ -39,7 +39,7 @@
         <div class="rrgctl">
           <div class="lab">Panjang Tail</div>
           <div class="rrgtail">
-            <input type="range" id="p7Tail" min="1" max="8" v-model="tail" step="1">
+            <input type="range" id="p7Tail" min="1" :max="N || 15" v-model="tail" step="1">
             <span class="v" id="p7TailV">{{ tail }} sesi</span>
           </div>
         </div>
@@ -276,13 +276,14 @@ const legendItems = computed(() => {
       const L = item.s.pts[item.s.pts.length - 1];
       const q = quad(L.x, L.y);
       const ev = evFor(item.s.key);
+      const validEv = (ev && ev.frm && ev.frm !== ev.to) ? ev : null;
       return {
         ...item,
         q,
         qc: QC[q][0],
         qs: QS[q],
-        ev,
-        title: item.s.full + (ev ? ` — ${ev.frm} → ${ev.to}` : '')
+        ev: validEv,
+        title: item.s.full + (validEv ? ` — ${validEv.frm} → ${validEv.to}` : '')
       };
     });
 });
@@ -295,15 +296,15 @@ const noteHtml = computed(() => {
   if(!top.length) return '—';
   const r = activeRrg.value;
   const sessions = r.meta?.sessions || r.dates.length;
-  const lag = r.lag || 3;
-  return `<b>${top[0].lbl}</b> &amp; <b>${top[1].lbl}</b> memimpin; <b>${top[top.length - 1].lbl}</b> paling tertinggal.<br>${cnt.LEADING} leading · ${cnt.IMPROVING} improving · ${cnt.WEAKENING} weakening · ${cnt.LAGGING} lagging.<br><span style="color:var(--amber)">⚠</span> Basis ${sessions} sesi harian (bukan mingguan). Momentum lag ${lag} sesi — ekor masih sensitif terhadap data baru.`;
+  const lag = r.lag || 8;
+  return `<b>${top[0].lbl}</b> &amp; <b>${top[1].lbl}</b> memimpin; <b>${top[top.length - 1].lbl}</b> paling tertinggal.<br>${cnt.LEADING} leading · ${cnt.IMPROVING} improving · ${cnt.WEAKENING} weakening · ${cnt.LAGGING} lagging.<br><span style="color:var(--amber)">⚠</span> Basis ${sessions} sesi harian (bukan mingguan). Momentum lag ${lag} sesi — disamakan dengan EMA-8.`;
 });
 
 const narrativeHtml = computed(() => {
   sVersion.value;
   const confirmed = [], fresh = [];
   S.forEach(s => {
-    const ev = evFor(s.key); if (!ev) return;
+    const ev = evFor(s.key); if (!ev || !ev.frm || ev.frm === ev.to) return;
     (ev.status === 'confirmed' ? confirmed : fresh).push({ s, ev });
   });
   confirmed.sort((a, b) => b.ev.dwell - a.ev.dwell);

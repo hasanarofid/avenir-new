@@ -56,9 +56,10 @@ const mockData = {
   headline: 'Pasar konstruktif di tengah perbaikan global; Indonesia masih menarik bagi asing',
   subHeadline: 'Perbaikan sentimen global dan tekanan inflasi yang melandai mendukung risk appetite. IHSG berpotensi menguat selektif, didorong sektor Banking, Telco, dan Consumer Staples dengan fundamental solid.',
   macroCards: [
-    { title: 'GLOBAL GROWTH', status: 'Stable',  value: '3.1%',  desc: '2025E Global GDP',   icon: '🌐' },
-    { title: 'INFLATION (US)', status: 'Cooling', value: '2.3%',  desc: 'Apr-25 PCE YoY',    icon: '📊' },
-    { title: 'LIQUIDITY (G3)', status: 'Ample',   value: '$6.1T', desc: 'CB Balance Sheet',   icon: '💧' },
+    { title: 'GROWTH (INDONESIA)', status: 'SOLID', value: '+5.61%', desc: 'GDP Q1 2026 YoY (BPS)', icon: '📈' },
+    { title: 'INFLATION (INDONESIA)', status: 'NAIK', value: '3.34%', desc: 'IHK Jun 2026 YoY (BI)', icon: '📊' },
+    { title: 'LIQUIDITY (M2)', status: 'EKSPANSIF', value: '+10.8%', desc: 'M2 growth May 2026 YoY (BI)', icon: '💧' },
+    { title: 'FX & FLOW', status: 'TERJAGA', value: '$145.6B', desc: 'Cadangan Devisa Jun 2026 · Portfolio inflow +$0.70M (30d)', icon: '💵' },
   ],
   regimeText: 'Selective risk-on: pasar konstruktif namun hanya untuk sektor dan saham terpilih. Likuiditas asing masih oke, yield manageable. Fokus pada quality earnings dengan domestic demand exposure.',
   drivers: [
