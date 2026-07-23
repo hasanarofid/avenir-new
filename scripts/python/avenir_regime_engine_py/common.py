@@ -45,7 +45,7 @@ def parse_number(x):
     try: return float(s)*mult
     except Exception: return np.nan
 
-def parse_date(s): return pd.to_datetime(s, errors='coerce', dayfirst=True)
+def parse_date(s): return pd.to_datetime(s, errors='coerce')
 
 def load_table(path, sheet_name=0):
     p=Path(path)

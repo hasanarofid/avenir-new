@@ -13,7 +13,7 @@ def run(input_path, output_path):
     low_col  = [c for c in df.columns if 'low' == c][0]
     price_col = [c for c in df.columns if 'price' == c or 'close' == c][0]
 
-    df[date_col] = pd.to_datetime(df[date_col], format='mixed', dayfirst=True).dt.strftime('%Y-%m-%d')
+    df[date_col] = pd.to_datetime(df[date_col], format='mixed').dt.strftime('%Y-%m-%d')
     
     from common import parse_number
 

@@ -30,15 +30,18 @@ def calc_row(r):
     wt={'trend':.40,'consistency':.25,'liquidity':.25,'broker':.10}; return round(weighted_score(comp,wt),0)
 
 def add_features(df):
-    df=df.sort_values('date').copy(); df['foreign_net_1d']=df.foreign_net; df['foreign_net_5d']=df.foreign_net.rolling(5,min_periods=5).sum(); df['foreign_net_20d']=df.foreign_net.rolling(20,min_periods=20).sum(); df['market_value_1d']=df.market_value; df['total_market_value_5d']=df.market_value.rolling(5,min_periods=5).sum(); df['total_market_value_20d']=df.market_value.rolling(20,min_periods=20).sum(); df['avg_market_value_20d']=df.market_value.rolling(20,min_periods=20).mean(); df['positive_foreign_flow_days_5d']=(df.foreign_net>0).astype(int).rolling(5,min_periods=5).sum()
+    df=df.sort_values('date').copy(); df['foreign_net_1d']=df.foreign_net; df['foreign_net_5d']=df.foreign_net.rolling(5,min_periods=1).sum(); df['foreign_net_20d']=df.foreign_net.rolling(20,min_periods=1).sum(); df['market_value_1d']=df.market_value; df['total_market_value_5d']=df.market_value.rolling(5,min_periods=1).sum(); df['total_market_value_20d']=df.market_value.rolling(20,min_periods=1).sum(); df['avg_market_value_20d']=df.market_value.rolling(20,min_periods=1).mean(); df['positive_foreign_flow_days_5d']=(df.foreign_net>0).astype(int).rolling(5,min_periods=1).sum()
     df['foreign_intensity_1d']=df.apply(lambda r:safe_div(r.foreign_net_1d,r.market_value_1d),axis=1); df['foreign_intensity_5d']=df.apply(lambda r:safe_div(r.foreign_net_5d,r.total_market_value_5d),axis=1); df['foreign_intensity_20d']=df.apply(lambda r:safe_div(r.foreign_net_20d,r.total_market_value_20d),axis=1); df['liquidity_ratio_5d_vs_20d_avg']=df.apply(lambda r:safe_div(r.total_market_value_5d,r.avg_market_value_20d*5 if pd.notna(r.avg_market_value_20d) else np.nan),axis=1)
-    df['foreign_flow_1d_score']=df.foreign_intensity_1d.apply(s_int); df['foreign_flow_5d_score']=df.foreign_intensity_5d.apply(s_int); df['foreign_flow_20d_score']=df.foreign_intensity_20d.apply(s_int); df['foreign_flow_trend_score']=.20*df.foreign_flow_1d_score+.50*df.foreign_flow_5d_score+.30*df.foreign_flow_20d_score; df['flow_consistency_score']=df.positive_foreign_flow_days_5d.apply(s_cons); df['liquidity_confirmation_score']=df.liquidity_ratio_5d_vs_20d_avg.apply(s_liq); df['broker_pulse_score_clean']=df.broker_pulse_score.apply(lambda x:np.nan if pd.isna(x) else clamp(x)); df['flow_score']=df.apply(calc_row,axis=1); df['flow_label']=df.flow_score.apply(lambda x:None if pd.isna(x) else label(x)); return df
+    df['foreign_flow_1d_score']=df.foreign_intensity_1d.apply(s_int); df['foreign_flow_5d_score']=df.foreign_intensity_5d.apply(s_int).fillna(df.foreign_flow_1d_score); df['foreign_flow_20d_score']=df.foreign_intensity_20d.apply(s_int).fillna(df.foreign_flow_5d_score); df['foreign_flow_trend_score']=.20*df.foreign_flow_1d_score+.50*df.foreign_flow_5d_score+.30*df.foreign_flow_20d_score; df['flow_consistency_score']=df.positive_foreign_flow_days_5d.apply(s_cons); df['liquidity_confirmation_score']=df.liquidity_ratio_5d_vs_20d_avg.apply(s_liq); df['broker_pulse_score_clean']=df.broker_pulse_score.apply(lambda x:np.nan if pd.isna(x) else clamp(x)); df['flow_score']=df.apply(calc_row,axis=1); df['flow_label']=df.flow_score.apply(lambda x:None if pd.isna(x) else label(x)); return df
 
 def latest(df):
-    r=df.dropna(subset=['flow_score']).iloc[-1]
+    valid=df.dropna(subset=['flow_score'])
+    r=valid.iloc[-1] if len(valid)>0 else df.iloc[-1]
     keys=['foreign_net_1d','foreign_net_5d','foreign_net_20d','market_value_raw','market_value_negative_flag','market_value_1d','total_market_value_5d','total_market_value_20d','avg_market_value_20d','foreign_intensity_1d','foreign_intensity_5d','foreign_intensity_20d','positive_foreign_flow_days_5d','liquidity_ratio_5d_vs_20d_avg','foreign_flow_trend_score','flow_consistency_score','liquidity_confirmation_score']
-    p={'date':str(r.date.date()),'flow':r.flow_score,'flow_score':r.flow_score,'flow_label':r.flow_label}
-    for k in keys: p[k]=r.get(k)
+    flow_val=int(r.flow_score) if pd.notna(r.get('flow_score')) else 50
+    flow_lbl=r.flow_label if r.get('flow_label') else label(flow_val)
+    p={'date':str(r.date.date()) if hasattr(r.date,'date') else str(r.date)[:10],'flow':flow_val,'flow_score':flow_val,'flow_label':flow_lbl}
+    for k in keys: p[k]=r.get(k) if pd.notna(r.get(k)) else 0
     return p
 
 def run(input_path, output_dir='output_flow_score'):
