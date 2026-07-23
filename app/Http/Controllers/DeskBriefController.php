@@ -219,6 +219,8 @@ class DeskBriefController extends Controller
             ],
         ];
 
+        $eventsList = $this->getEconomicEvents($date);
+
         return Inertia::render('DeskBrief/Index', [
             'date' => $date,
             'isPreview' => $previewId && $latestBrief && $latestBrief->status !== 'published',
@@ -259,19 +261,8 @@ class DeskBriefController extends Controller
             'riskAlerts' => RiskAlert::whereDate('date', $date)->get(),
             'smartMoney' => SmartMoneyFlow::whereDate('date', $date)->first(),
             'internals' => $internalsData,
-            'events' => EconomicEvent::whereBetween('date', [
-                now()->subMonths(2)->toDateString(),
-                now()->addMonths(3)->toDateString(),
-            ])
-            ->orderBy('date', 'asc')
-            ->get(),
-            'economicEvents' => EconomicEvent::orderBy('date', 'asc')
-                ->get()
-                ->map(function ($event) {
-                    $arr = $event->toArray();
-                    $arr['isPast'] = (bool) $event->is_past;
-                    return $arr;
-                }),
+            'events' => $eventsList,
+            'economicEvents' => $eventsList,
             'macroCards' => $macroCards,
             'delta' => $delta,
             'todayStance' => $todayStance,
@@ -497,5 +488,67 @@ class DeskBriefController extends Controller
                 default => 'fresh',
             },
         ];
+    }
+
+    /**
+     * Get economic events formatted with isPast evaluated dynamically relative to the brief date.
+     */
+    private function getEconomicEvents(string $date): array
+    {
+        $dbEvents = EconomicEvent::orderBy('date', 'asc')->get();
+
+        if ($dbEvents->isEmpty()) {
+            $defaultEvents = [
+                ['date' => '2026-06-01', 'event' => 'Indonesia Nikkei Manufacturing PMI', 'impact' => 'Low', 'region' => 'ID'],
+                ['date' => '2026-06-02', 'event' => 'Indonesia Inflation May', 'impact' => 'High', 'region' => 'ID'],
+                ['date' => '2026-06-05', 'event' => 'US Non-Farm Payrolls May', 'impact' => 'High', 'region' => 'US'],
+                ['date' => '2026-06-08', 'event' => 'Indonesia Consumer Confidence May', 'impact' => 'Medium', 'region' => 'ID'],
+                ['date' => '2026-06-10', 'event' => 'US CPI Inflation May', 'impact' => 'High', 'region' => 'US'],
+                ['date' => '2026-06-11', 'event' => 'US FOMC Rate Decision', 'impact' => 'High', 'region' => 'US'],
+                ['date' => '2026-06-15', 'event' => 'Indonesia Trade Balance May', 'impact' => 'Medium', 'region' => 'ID'],
+                ['date' => '2026-06-17', 'event' => 'BI Board of Governors Meeting', 'impact' => 'High', 'region' => 'ID'],
+                ['date' => '2026-06-23', 'event' => 'Indonesia GDP 1Q26 (Final)', 'impact' => 'High', 'region' => 'ID'],
+                ['date' => '2026-06-25', 'event' => 'US GDP Growth Q1 (Final)', 'impact' => 'Medium', 'region' => 'US'],
+                ['date' => '2026-06-27', 'event' => 'US Durable Goods Orders', 'impact' => 'Medium', 'region' => 'US'],
+                ['date' => '2026-07-01', 'event' => 'Indonesia Nikkei Manufacturing PMI Jun', 'impact' => 'Medium', 'region' => 'ID'],
+                ['date' => '2026-07-01', 'event' => 'China Caixin Manufacturing PMI', 'impact' => 'Medium', 'region' => 'CN'],
+                ['date' => '2026-07-03', 'event' => 'Indonesia FX Reserves Jun', 'impact' => 'Low', 'region' => 'ID'],
+                ['date' => '2026-07-08', 'event' => 'BI Board of Governors Meeting', 'impact' => 'High', 'region' => 'ID'],
+                ['date' => '2026-07-10', 'event' => 'China CPI Inflation Jun', 'impact' => 'Medium', 'region' => 'CN'],
+                ['date' => '2026-07-15', 'event' => 'Indonesia Trade Balance Jun', 'impact' => 'Medium', 'region' => 'ID'],
+                ['date' => '2026-07-17', 'event' => 'US Retail Sales Jun', 'impact' => 'Medium', 'region' => 'US'],
+                ['date' => '2026-07-22', 'event' => 'BI Rate Decision & Press Conference', 'impact' => 'High', 'region' => 'ID'],
+                ['date' => '2026-07-23', 'event' => 'US S&P Global Flash PMI Jul', 'impact' => 'Low', 'region' => 'US'],
+                ['date' => '2026-07-24', 'event' => 'Indonesia M2 Money Supply Jun', 'impact' => 'Medium', 'region' => 'ID'],
+                ['date' => '2026-07-29', 'event' => 'US FOMC Rate Decision', 'impact' => 'High', 'region' => 'US'],
+                ['date' => '2026-07-31', 'event' => 'China Official Manufacturing PMI Jul', 'impact' => 'Medium', 'region' => 'CN'],
+                ['date' => '2026-08-03', 'event' => 'Indonesia Inflation Jul', 'impact' => 'High', 'region' => 'ID'],
+                ['date' => '2026-08-05', 'event' => 'Indonesia GDP Q2 2026', 'impact' => 'High', 'region' => 'ID'],
+                ['date' => '2026-08-07', 'event' => 'US Non-Farm Payrolls Jul', 'impact' => 'High', 'region' => 'US'],
+                ['date' => '2026-08-19', 'event' => 'BI Rate Decision Aug', 'impact' => 'High', 'region' => 'ID'],
+            ];
+
+            return array_map(function ($ev) use ($date) {
+                $isPast = $ev['date'] < $date;
+                return array_merge($ev, [
+                    'isPast' => $isPast,
+                    'is_past' => $isPast,
+                ]);
+            }, $defaultEvents);
+        }
+
+        return $dbEvents->map(function ($event) use ($date) {
+            $eventDate = $event->date ? substr((string)$event->date, 0, 10) : '';
+            $isPast = $eventDate ? ($eventDate < $date) : (bool)$event->is_past;
+            return [
+                'id' => $event->id,
+                'date' => $eventDate ?: $event->date,
+                'event' => $event->title ?? $event->event ?? 'Event',
+                'impact' => $event->impact ?? 'Medium',
+                'region' => $event->country_code ?? $event->region ?? 'ID',
+                'isPast' => $isPast,
+                'is_past' => $isPast,
+            ];
+        })->toArray();
     }
 }
