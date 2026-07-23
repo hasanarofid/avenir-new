@@ -33,9 +33,11 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user();
         if ($user) {
             $user->load(['partner', 'roles']);
+            $user->has_verified_email = $user->hasVerifiedEmail();
         }
         
         return [
+
             ...parent::share($request),
             'auth' => [
                 'user' => $user,

@@ -21,29 +21,44 @@ Route::get('/syarat-penggunaan', [HomeController::class, 'syaratPenggunaan'])->n
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/katalog', [HomeController::class, 'katalog'])->name('katalog');
-Route::get('/katalog/{slug}', [HomeController::class, 'katalogDetail'])->name('katalog.detail');
-Route::get('/katalog/{id}/download', [HomeController::class, 'downloadKatalogPdf'])->name('katalog.download');
-Route::post('/katalog/{id}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
 Route::get('/artikel', [HomeController::class, 'artikel'])->name('artikel');
 Route::get('/artikel/{slug}', [HomeController::class, 'artikelDetail'])->name('artikel.detail');
 Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/news/{slug}', [HomeController::class, 'newsDetail'])->name('news.detail');
 Route::get('/api/market-chart/{symbol}', [HomeController::class, 'marketChartApi'])->name('api.market-chart');
 
-// Interactions
-Route::post('/interaction/{type}/{id}/like', [\App\Http\Controllers\InteractionController::class, 'toggleLike'])->name('interaction.like');
-Route::post('/interaction/{type}/{id}/comment', [\App\Http\Controllers\InteractionController::class, 'addComment'])->name('interaction.comment');
-Route::post('/interaction/{type}/{id}/share', [\App\Http\Controllers\InteractionController::class, 'incrementShare'])->name('interaction.share');
-// Market Intelligence (Desk Brief)
-Route::get('/desk-brief', [\App\Http\Controllers\DeskBriefController::class, 'index'])->name('desk-brief.index');
+// Protected Routes (Memerlukan Login & Aktivasi Email)
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Katalog Riset Detail & Download
+    Route::get('/katalog/{slug}', [HomeController::class, 'katalogDetail'])->name('katalog.detail');
+    Route::get('/katalog/{id}/download', [HomeController::class, 'downloadKatalogPdf'])->name('katalog.download');
+    Route::post('/katalog/{id}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
+    Route::post('/katalog/{id}/bookmark', [\App\Http\Controllers\BookmarkController::class, 'toggle'])->name('katalog.bookmark');
+
+    // Market Intelligence (Desk Brief)
+    Route::get('/desk-brief', [\App\Http\Controllers\DeskBriefController::class, 'index'])->name('desk-brief.index');
+    Route::get('/desk-brief/what-changed', [\App\Http\Controllers\DeskBriefController::class, 'whatChanged'])->name('desk-brief.what-changed');
+    Route::get('/desk-brief/ownership-intelligence', [\App\Http\Controllers\DeskBriefController::class, 'ownership'])->name('desk-brief.ownership');
+
+    // Watchlist
+    Route::get('/watchlist', [\App\Http\Controllers\WatchlistController::class, 'index'])->name('watchlist.index');
+    Route::post('/watchlist/toggle/{tickerId}', [\App\Http\Controllers\WatchlistController::class, 'toggle'])->name('watchlist.toggle');
+
+    // Subscription Actions
+    Route::post('/langganan/trial', [HomeController::class, 'aktifkanTrial'])->name('langganan.trial');
+    Route::post('/langganan/kirim', [HomeController::class, 'kirimPembayaran'])->name('langganan.kirim');
+
+    // Interactions
+    Route::post('/interaction/{type}/{id}/like', [\App\Http\Controllers\InteractionController::class, 'toggleLike'])->name('interaction.like');
+    Route::post('/interaction/{type}/{id}/comment', [\App\Http\Controllers\InteractionController::class, 'addComment'])->name('interaction.comment');
+    Route::post('/interaction/{type}/{id}/share', [\App\Http\Controllers\InteractionController::class, 'incrementShare'])->name('interaction.share');
+});
+
 Route::get('/desk-brief-mockup', [\App\Http\Controllers\DeskBriefController::class, 'mockup'])->name('desk-brief.mockup');
-Route::get('/desk-brief/what-changed', [\App\Http\Controllers\DeskBriefController::class, 'whatChanged'])->name('desk-brief.what-changed');
-Route::get('/desk-brief/ownership-intelligence', [\App\Http\Controllers\DeskBriefController::class, 'ownership'])->name('desk-brief.ownership');
 Route::get('/desk-brief/ownership-intelligence-mockup', [\App\Http\Controllers\DeskBriefController::class, 'ownershipMockup'])->name('desk-brief.ownership-mockup');
 
 // Public API: Ownership Intelligence data (membaca JSON file langsung, tanpa auth admin)
 Route::get('/desk-brief/ownership-intelligence/data', [\App\Http\Controllers\Admin\OwnershipController::class, 'getOwnershipData'])->name('desk-brief.ownership.public-data');
-
 
 // Market Tickers API for News Marquee
 Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::class, 'tickers'])->name('emiten.tickers');
@@ -51,31 +66,17 @@ Route::get('/api/market-tickers', [\App\Http\Controllers\EmitenHubController::cl
 // Master Stock API — emiten list dengan sektor, sub-industry, logo (publik, no auth)
 Route::get('/api/master-stocks', [\App\Http\Controllers\Admin\MasterStockController::class, 'apiList'])->name('master-stock.api-list');
 
-
 // Deprecated Market Hub Routes
-// Emiten Hub (V1)
 Route::get('/emiten', [\App\Http\Controllers\EmitenHubController::class, 'index'])->name('emiten.index');
 Route::get('/emiten/{symbol}', [\App\Http\Controllers\EmitenHubController::class, 'show'])->name('emiten.show');
-
-// KI Brief (V1.5 moved to V1)
 Route::get('/ki-brief', [\App\Http\Controllers\KIBriefController::class, 'index'])->name('ki-brief.index');
-
-// Disclosure Radar (V1.5)
 Route::get('/disclosure-radar', [\App\Http\Controllers\DisclosureController::class, 'index'])->name('disclosure.index');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/watchlist', [\App\Http\Controllers\WatchlistController::class, 'index'])->name('watchlist.index');
-    Route::post('/watchlist/toggle/{tickerId}', [\App\Http\Controllers\WatchlistController::class, 'toggle'])->name('watchlist.toggle');
-    Route::post('/katalog/{id}/bookmark', [\App\Http\Controllers\BookmarkController::class, 'toggle'])->name('katalog.bookmark');
-});
-
 
 Route::get('/p/{slug}', [\App\Http\Controllers\PageController::class, 'show'])->name('page.show');
 Route::get('/tentang', [HomeController::class, 'tentang'])->name('tentang');
 Route::get('/mitra', [HomeController::class, 'mitra'])->name('mitra');
 Route::get('/langganan', [HomeController::class, 'langganan'])->name('langganan');
-Route::post('/langganan/trial', [HomeController::class, 'aktifkanTrial'])->name('langganan.trial')->middleware('auth');
-Route::post('/langganan/kirim', [HomeController::class, 'kirimPembayaran'])->name('langganan.kirim')->middleware('auth');
+
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);

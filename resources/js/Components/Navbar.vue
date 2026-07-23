@@ -29,10 +29,27 @@ const isHomePage = computed(() => [
   'Mitra/Register', 'Profile', 'Profile/Edit', 'DeskBrief/Index', 'DeskBrief/WhatChanged', 'OwnershipIntelligence/Index'
 ].includes(page.component));
 
+const sendingVerification = ref(false);
+const resendSuccess = ref(false);
+
+const resendVerification = () => {
+    sendingVerification.value = true;
+    router.post(route('verification.send'), {}, {
+        onFinish: () => {
+            sendingVerification.value = false;
+            resendSuccess.value = true;
+            setTimeout(() => {
+                resendSuccess.value = false;
+            }, 5000);
+        }
+    });
+};
+
 const handleLogout = () => {
     dropdownOpen.value = false;
     router.post('/logout');
 };
+
 
 function toggleNotif() {
     notifOpen.value = !notifOpen.value;
@@ -412,9 +429,55 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleOutsideCli
           </button>
         </div>
       </div>
+
     </transition>
   </nav>
+
+  <!-- Floating Unverified Email Badge -->
+
+  <div 
+    v-if="user && !user.has_verified_email && page.component !== 'Auth/VerifyEmail'"
+    class="fixed bottom-6 right-6 z-[9999] max-w-sm sm:max-w-md bg-gradient-to-br from-slate-900/95 via-slate-900/95 to-amber-950/95 border border-amber-500/40 text-amber-200 p-4 rounded-2xl shadow-2xl backdrop-blur-xl flex flex-col gap-3 transition-all duration-300 transform hover:scale-[1.02] animate-bounce-subtle"
+  >
+    <div class="flex items-start gap-3">
+      <div class="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 shrink-0">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2">
+          <h4 class="text-sm font-bold text-white tracking-wide">Aktivasi Email Diperlukan</h4>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            Unverified
+          </span>
+        </div>
+        <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+          Akun Anda belum diaktivasi. Akses fitur & riset dibatasi hingga Anda memverifikasi email Anda.
+        </p>
+        <div v-if="resendSuccess" class="mt-2 text-xs font-semibold text-emerald-400 flex items-center gap-1">
+          ✓ Link aktivasi baru telah dikirimkan ke email Anda!
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800/80">
+      <button 
+        @click="resendVerification" 
+        :disabled="sendingVerification"
+        class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 transition-all shadow-md shadow-amber-500/20 disabled:opacity-50"
+      >
+        {{ sendingVerification ? 'Mengirim...' : 'Kirim Ulang Email' }}
+      </button>
+      <Link 
+        href="/verify-email" 
+        class="px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+      >
+        Halaman Aktivasi
+      </Link>
+    </div>
+  </div>
 </template>
+
 
 <style scoped>
 .nav {
