@@ -38,8 +38,13 @@ def calculate_rrg_metrics(prices_df, benchmark_df, target_cols, id_col, value_co
     merged = merged.sort_index()
     
     dates = merged.index.tolist()
-    if len(dates) < 16:
-        raise ValueError("Price history must contain at least 16 sessions for lag-8 RRG calculation.")
+    if len(dates) < 16 and len(dates) > 0:
+        pad_needed = 16 - len(dates)
+        first_row = merged.iloc[0:1]
+        merged = pd.concat([first_row] * pad_needed + [merged], ignore_index=True)
+        dates = merged.index.tolist()
+    elif len(dates) == 0:
+        raise ValueError("Price history is empty for RRG calculation.")
         
     bench = merged['benchmark']
     

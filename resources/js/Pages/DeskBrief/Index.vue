@@ -135,7 +135,14 @@ const brief = computed(() => {
   const data = props.deskBrief || mockData;
   return {
     ...data,
-    marketStance: data.market_stance || mockData.marketStance,
+    marketStance: (data && data.market_stance && data.market_stance.score !== undefined) 
+      ? data.market_stance 
+      : (props.todayStance ? {
+          score: props.todayStance.score,
+          label: props.todayStance.label,
+          view: 'Constructive',
+          horizon: '1-4 weeks',
+        } : mockData.marketStance),
     drivers: data.drivers || mockData.drivers,
     lastUpdate: data.updated_at 
         ? new Date(data.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace('.', ':') + ' WIB' 
@@ -144,11 +151,11 @@ const brief = computed(() => {
     subHeadline: data.so_what || props.periodConclusion || data.market_read || mockData.subHeadline,
     regimeText: data.so_what || mockData.regimeText,
     macroCards: props.macroCards?.length ? props.macroCards.map(mc => ({
-      title: mc.symbol_or_metric.replace('_', ' '),
-      status: mc.change_abs > 0 ? 'Rising' : (mc.change_abs < 0 ? 'Cooling' : 'Stable'),
-      value: mc.value,
-      desc: mc.source || '',
-      icon: mc.symbol_or_metric === 'GLOBAL_GROWTH' ? '🌐' : (mc.symbol_or_metric === 'US_INFLATION' ? '📊' : '💧')
+      title: mc.title || mc.symbol_or_metric?.replace('_', ' ') || 'MACRO',
+      status: mc.status || (mc.change_abs > 0 ? 'Rising' : (mc.change_abs < 0 ? 'Cooling' : 'Stable')),
+      value: mc.value || '—',
+      desc: mc.desc || mc.source || '',
+      icon: mc.icon || (mc.symbol_or_metric === 'GLOBAL_GROWTH' ? '🌐' : (mc.symbol_or_metric === 'US_INFLATION' ? '📊' : '💧'))
     })) : mockData.macroCards,
     sectors: props.sectorBias?.length ? props.sectorBias.map(sb => ({
       name: sb.sector,
