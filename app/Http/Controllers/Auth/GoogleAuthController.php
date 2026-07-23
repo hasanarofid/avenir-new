@@ -30,40 +30,50 @@ class GoogleAuthController extends Controller
             $existingUser = User::where('email', $googleUser->email)->first();
             
             if ($existingUser) {
-                // Jika sudah ada, update google_id jika kosong
+                // Update google_id jika belum terhubung
                 if (!$existingUser->google_id) {
-                    $existingUser->update(['google_id' => $googleUser->id]);
+                    $existingUser->google_id = $googleUser->id;
                 }
-                
-                // Redirect ke 2FA Challenge (tidak langsung login)
-                request()->session()->put('2fa:login:id', $existingUser->id);
-                request()->session()->put('2fa:login:remember', true); // Google login usually remembered
-                
-                return redirect()->route('2fa.challenge');
+                // Otomatis verifikasi email karena login via Google
+                if (!$existingUser->email_verified_at) {
+                    $existingUser->email_verified_at = now();
+                }
+                $existingUser->save();
+
+                Auth::login($existingUser, true);
+
+                return redirect()->intended(route('dashboard', absolute: false));
             } else {
-                // Jika belum ada, buat user baru
-                $google2fa = new \PragmaRX\Google2FA\Google2FA();
-                $secret = $google2fa->generateSecretKey();
-                
-                $recoveryCodes = [];
-                for ($i = 0; $i < 8; $i++) {
-                    $recoveryCodes[] = Str::random(10);
-                }
-                
+                // Buat user baru dengan status email terverifikasi
+                $nameParts = explode(' ', trim($googleUser->name), 2);
+                $fname = $nameParts[0];
+                $lname = isset($nameParts[1]) ? $nameParts[1] : '';
+
                 $user = User::create([
                     'name' => $googleUser->name,
                     'email' => $googleUser->email,
                     'google_id' => $googleUser->id,
-                    'password' => bcrypt(Str::random(16)), // Password acak
-                    'email_verified_at' => now(), // Anggap terverifikasi karena dari Google
-                    'google2fa_secret' => $secret,
-                    'recovery_codes' => $recoveryCodes,
+                    'password' => bcrypt(Str::random(16)),
+                    'email_verified_at' => now(), // Terverifikasi via Google
                 ]);
-                
-                // Redirect ke 2FA Setup (tidak langsung login)
-                request()->session()->put('2fa:user:id', $user->id);
-                
-                return redirect()->route('2fa.setup');
+
+                // Assign default role
+                $user->assignRole('user');
+
+                // Create profile
+                \Illuminate\Support\Facades\DB::table('user_profiles')->insert([
+                    'user_id' => $user->id,
+                    'first_name' => $fname,
+                    'last_name' => $lname,
+                    'is_subscriber' => false,
+                    'subscription_ends_at' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                Auth::login($user, true);
+
+                return redirect()->intended(route('dashboard', absolute: false));
             }
 
         } catch (\Exception $e) {

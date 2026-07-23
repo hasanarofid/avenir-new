@@ -1,66 +1,81 @@
-# Panduan Sistem Otentikasi & Keamanan (Login, Register & Lupa Password)
+# Panduan Sistem Otentikasi & Keamanan (Login, Register & Email Activation)
 
-Dokumen ini menjelaskan alur sistem otentikasi terbaru yang telah diimplementasikan pada platform Avenir Research, yang mencakup keamanan tingkat tinggi menggunakan **Google Authenticator (2FA)** dan integrasi **Google Login (SSO)**.
+Dokumen ini menjelaskan alur sistem otentikasi terbaru yang diimplementasikan pada platform Avenir Research, yang menggunakan **Email Activation (Verifikasi Email via SMTP)** dan **Google Login (SSO)**.
 
 ---
 
 ## 1. Alur Registrasi (Pembuatan Akun Baru)
 
-Sistem pendaftaran kini dirancang untuk lebih terpusat dan aman. 
+Sistem pendaftaran dirancang aman dengan verifikasi email terlebih dahulu sebelum akun dapat digunakan secara penuh.
 
-### A. Registrasi Manual (Menggunakan Email & Password)
-1. Pengguna mengunjungi halaman **Register** (tidak lagi menggunakan *pop-up modal* untuk meningkatkan kenyamanan di perangkat *mobile*).
+### A. Registrasi Manual (Email & Password)
+1. Pengguna mengunjungi halaman **Register**.
 2. Pengguna mengisi Form: Nama, Email, Password, dan Konfirmasi Password.
-3. Setelah klik daftar, sistem akan langsung membuatkan **QR Code rahasia**.
-4. Pengguna **diwajibkan** mengunduh aplikasi Google Authenticator di *smartphone* mereka dan memindai QR Code tersebut.
-5. Pengguna harus memasukkan 6-digit OTP dari aplikasi untuk memverifikasi pemasangan 2FA.
-6. Sistem akan memberikan **Recovery Codes** (Kode Pemulihan). Pengguna wajib menyimpannya di tempat yang aman.
-7. Setelah selesai, akun akan otomatis mendapatkan profil dan bisa mengklaim paket **Free Trial**.
+3. Setelah mendaftar, sistem membuat akun dengan status `email_verified_at = NULL`.
+4. Sistem mengirimkan **Email Aktivasi / Verifikasi** secara otomatis via SMTP ke alamat email pengguna.
+5. Pengguna mengklik tombol/link verifikasi di inbox email mereka.
+6. Sistem memverifikasi token dan memperbarui status akun (`email_verified_at = now()`).
+7. Pengguna diarahkan ke Dashboard/Katalog dan otomatis mengaktifkan paket **Free Trial**.
 
 ### B. Registrasi via Google (Google Login / SSO)
 1. Pengguna mengklik tombol **"Lanjutkan dengan Google"**.
-2. Pengguna memilih akun Google mereka yang aktif (sistem mendapatkan nama dan email yang sudah pasti tervalidasi oleh Google).
-3. Sama seperti registrasi manual, setelah profil Google terhubung, pengguna akan **diarahkan ke halaman Setup 2FA**.
-4. Pengguna tetap harus memindai QR Code dan memasukkan OTP untuk menjaga standar keamanan yang seragam.
-5. Setelah 2FA selesai, akun siap digunakan.
-
-*(Catatan: Pengguna Google Login tidak memerlukan password, karena otentikasi ditangani langsung oleh Google).*
+2. Pengguna memilih akun Google yang aktif.
+3. Karena email sudah tervalidasi oleh Google, sistem secara otomatis mengeset `email_verified_at = now()`.
+4. Pengguna langsung dapat menggunakan akun tanpa perlu verifikasi email manual.
 
 ---
 
 ## 2. Alur Login (Masuk ke Akun)
 
 1. Pengguna mengunjungi halaman **Login**.
-2. Pengguna dapat memilih login manual (Email & Password) atau via **Google**.
-3. Jika kredensial benar, pengguna akan diarahkan ke halaman **Verifikasi 2FA**.
-4. Pengguna harus membuka aplikasi Google Authenticator di HP mereka dan memasukkan 6-digit angka yang berubah setiap 30 detik.
-5. Jika pengguna kehilangan HP atau akses ke Google Authenticator, mereka dapat menggunakan salah satu **Recovery Code** yang diberikan saat registrasi untuk masuk secara darurat.
-6. Setelah lolos tahap verifikasi 2FA, barulah pengguna masuk ke Dashboard/Katalog.
+2. Pengguna memasukkan Email & Password atau memilih **Google Login**.
+3. Sistem memeriksa kredensial:
+   - **Pengguna ber-role `admin` / `tim_internal`**: Bebas dari kewajiban aktivasi email (`hasVerifiedEmail()` otomatis mengembalikan `true`) dan langsung masuk ke Admin Dashboard.
+   - Jika kredensial valid namun **email pengguna umum belum diverifikasi**, sistem akan menampilkan notifikasi agar pengguna memeriksa inbox email (dengan opsi kirim ulang email verifikasi).
+   - Jika email sudah terverifikasi, pengguna langsung masuk ke Dashboard/Katalog.
 
 ---
 
+
 ## 3. Alur Lupa Password
 
-Alur lupa password telah dimodifikasi secara khusus agar mengakomodir pengguna baru dengan 2FA dan pengguna lama (Legacy).
+1. Pengguna mengunjungi halaman **Lupa Password** dan memasukkan email.
+2. Sistem mengirimkan **Link Reset Password** ke email pengguna via SMTP.
+3. Pengguna mengklik link dari email untuk membuat password baru.
 
-1. Pengguna mengunjungi halaman **Lupa Password** dan memasukkan email mereka.
-2. Sistem akan mendeteksi tipe akun pengguna tersebut:
-   
-   - **Tipe A (Akun Baru dengan 2FA Aktif):**
-     Sistem akan meminta pengguna untuk memasukkan **Kode 2FA OTP** (atau Recovery Code) untuk membuktikan bahwa itu benar-benar pemilik akun, bukan sekadar orang yang mengetahui emailnya. Setelah lolos, pengguna bisa memasukkan password baru.
-   
-   - **Tipe B (Akun Lama/Legacy tanpa 2FA):**
-     Karena akun lama belum mengaktifkan Google Authenticator di masa lalu, sistem akan **mengirimkan Link Reset Password ke Inbox Email** mereka secara otomatis (*Fallback*). Pengguna mengklik link dari email untuk mereset password dengan aman.
+---
+
+## 4. Konfigurasi SMTP (Webuzo VPS & Laravel .env)
+
+### A. Detail SMTP Server (dari Webuzo Panel)
+- **Username**: `admin@researchavenir.com`
+- **Password**: Password email `admin@researchavenir.com`
+- **Outgoing Server (Host)**: `mail.researchavenir.com` (atau IP VPS `101.50.1.12`)
+- **SMTP Port**: `465` (SSL) atau `587` (TLS)
+
+### B. Konfigurasi `.env` Laravel
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=mail.researchavenir.com
+MAIL_PORT=465
+MAIL_USERNAME=admin@researchavenir.com
+MAIL_PASSWORD=password_email_admin_anda
+MAIL_ENCRYPTION=ssl
+MAIL_FROM_ADDRESS="admin@researchavenir.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+*(Catatan: Jika menggunakan Port `465` set `MAIL_ENCRYPTION=ssl`. Jika menggunakan Port `587` set `MAIL_ENCRYPTION=tls`).*
 
 ---
 
 ## FAQ (Tanya Jawab Teknis)
 
-**1. Mengapa QR Code 2FA tidak dimunculkan saat Lupa Password?**
-Menampilkan QR Code di halaman publik hanya dengan modal mengetahui "Email" merupakan celah keamanan fatal. Siapapun bisa mengetik email pengguna lain dan mencuri akses 2FA-nya. QR Code hanya dibuat dan ditampilkan satu kali secara eksklusif saat pengguna *sudah berhasil melewati proses registrasi/login pertama kalinya*.
+**1. Mengapa beralih dari TOTP 2FA ke Email Activation?**
+Email activation via SMTP lebih ramah pengguna (*user friendly*) untuk platform katalog riset saham publik, memudahkan proses *onboarding*, dan memastikan setiap pengguna mendaftar dengan email aktif yang valid.
 
-**2. Apakah fitur Google Login memerlukan izin khusus dari Klien?**
-Developer cukup mendaftarkan *project* di Google Cloud Console menggunakan akun email admin/developer. Bebas menggunakan email Gmail klien ataupun developer, selama *Client ID* dan *Client Secret* didapatkan dan dimasukkan ke dalam *environment* sistem (file `.env`).
+**2. Bagaimana menangani email verifikasi yang masuk ke folder Spam?**
+Pastikan VPS Webuzo sudah dikonfigurasi record DNS berikut di domain Registrar/DNS Manager:
+- **SPF Record**: `v=spf1 ip4:101.50.1.12 ~all`
+- **DKIM & DMARC**: Aktifkan fitur DKIM di Webuzo (`Email -> DKIM Manager`) dan tambahkan DMARC record di DNS.
 
-**3. Apa yang terjadi jika pengguna benar-benar kehilangan HP dan Recovery Codes?**
-Ini adalah tingkat keamanan *strict*. Jika pengguna kehilangan keduanya, mereka kehilangan akses ke akun secara permanen kecuali mereka menghubungi *Customer Support* / Admin Avenir yang memiliki akses *database* untuk mereset *secret key* 2FA akun tersebut secara manual.

@@ -49,21 +49,13 @@ class AuthController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Generate 2FA Secret
-            $google2fa = app('pragmarx.google2fa');
-            $user->google2fa_secret = $google2fa->generateSecretKey();
-            
-            // Generate Recovery Codes
-            $recovery_codes = collect(range(1, 8))->map(function () {
-                return \Illuminate\Support\Str::random(10) . '-' . \Illuminate\Support\Str::random(10);
-            })->toArray();
-            $user->recovery_codes = $recovery_codes;
-            $user->save();
+            // Send Email Verification Notification
+            event(new \Illuminate\Auth\Events\Registered($user));
 
-            // Store user ID in session for 2FA Setup
-            $request->session()->put('2fa:user:id', $user->id);
+            // Log in user
+            Auth::login($user);
 
-            return redirect()->route('2fa.setup');
+            return redirect()->route('verification.notice');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->validator)->withInput();
         } catch (\Exception $e) {

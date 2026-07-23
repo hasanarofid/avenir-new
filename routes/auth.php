@@ -9,7 +9,6 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\Verify2FAController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -34,16 +33,8 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
-
-    Route::get('setup-2fa', [Verify2FAController::class, 'setup'])->name('2fa.setup');
-    Route::post('setup-2fa', [Verify2FAController::class, 'confirmSetup'])->name('2fa.confirm-setup');
-    
-    Route::get('verify-2fa', [Verify2FAController::class, 'verify'])->name('2fa.verify');
-    Route::post('verify-2fa', [Verify2FAController::class, 'confirmVerify'])->name('2fa.confirm-verify');
-    
-    Route::get('challenge-2fa', [Verify2FAController::class, 'challenge'])->name('2fa.challenge');
-    Route::post('challenge-2fa', [Verify2FAController::class, 'confirmChallenge'])->name('2fa.confirm-challenge');
 });
+
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)

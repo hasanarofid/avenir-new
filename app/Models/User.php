@@ -13,10 +13,39 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Storage;
 
-class User extends Authenticatable
+use App\Notifications\CustomVerifyEmailNotification;
+
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles, HasUuids;
+
+    /**
+     * Send the email verification notification.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmailNotification);
+    }
+
+    /**
+     * Determine if the user has verified their email address.
+     * Role Admin & Tim Internal tidak memerlukan aktivasi email.
+     *
+     * @return bool
+     */
+    public function hasVerifiedEmail()
+    {
+        if ($this->hasRole('admin') || $this->hasRole('tim_internal')) {
+            return true;
+        }
+
+        return ! is_null($this->email_verified_at);
+    }
+
+
 
     protected $fillable = [
         'name',
