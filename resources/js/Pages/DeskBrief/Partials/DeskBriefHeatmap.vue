@@ -193,24 +193,33 @@ function getColor(c) {
 function getStocksForSector(secName) {
   const stdName = sectorNameMap[secName] || secName;
   const propList = props.sectorStocks ? (props.sectorStocks[secName] || props.sectorStocks[stdName]) : null;
+  let list = [];
   if (propList && propList.length) {
-    return propList.map(s => ({
+    list = propList.map(s => ({
       code: s.code,
       name: s.name || s.code,
       wret: Number(s.change || 0),
       mcap: Number(s.marketCap || 50),
       value: Number(s.marketCap || 50)
     }));
+  } else {
+    const fallback = fallbackStockMap[stdName] || fallbackStockMap['Financials'];
+    list = fallback.map(s => ({
+      code: s.code,
+      name: s.name,
+      wret: s.change,
+      mcap: s.marketCap,
+      value: s.marketCap
+    }));
   }
-  
-  const fallback = fallbackStockMap[stdName] || fallbackStockMap['Financials'];
-  return fallback.map(s => ({
-    code: s.code,
-    name: s.name,
-    wret: s.change,
-    mcap: s.marketCap,
-    value: s.marketCap
-  }));
+
+  if (sortMode.value === 'ret') {
+    list.sort((a, b) => b.wret - a.wret);
+  } else {
+    list.sort((a, b) => b.mcap - a.mcap);
+  }
+
+  return list;
 }
 
 function getSectorMarketCap(secName) {
@@ -233,7 +242,7 @@ function getSectorData() {
     { name: 'Healthcare', change: -1.33 },
   ];
 
-  return mapSectors.map(s => {
+  const result = mapSectors.map(s => {
     const stdName = sectorNameMap[s.name] || s.name;
     const mcap = getSectorMarketCap(stdName);
     return {
@@ -244,6 +253,14 @@ function getSectorData() {
       value: mcap
     };
   });
+
+  if (sortMode.value === 'ret') {
+    result.sort((a, b) => b.wret - a.wret);
+  } else {
+    result.sort((a, b) => b.mcap - a.mcap);
+  }
+
+  return result;
 }
 
 function draw() {
@@ -264,10 +281,12 @@ function draw() {
     root = d3.hierarchy({ name: "IHSG", children: sectorData });
 
     if (sortMode.value === 'ret') {
-      root.sum(d => d.wret !== undefined ? Math.max(0.1, d.wret + 6) : 0);
+      root.sum(d => d.wret !== undefined ? Math.max(0.1, d.wret + 10) : 0);
     } else {
       root.sum(d => d.mcap || d.value || 1);
     }
+
+    root.sort((a, b) => b.value - a.value);
 
     d3.treemap()
       .tile(d3.treemapBinary)
@@ -323,10 +342,12 @@ function draw() {
     root = d3.hierarchy({ name: currentZoom.value, children: stocks });
 
     if (sortMode.value === 'ret') {
-      root.sum(d => d.wret !== undefined ? Math.max(0.1, d.wret + 6) : 0);
+      root.sum(d => d.wret !== undefined ? Math.max(0.1, d.wret + 10) : 0);
     } else {
       root.sum(d => d.mcap || d.value || 1);
     }
+
+    root.sort((a, b) => b.value - a.value);
 
     d3.treemap()
       .tile(d3.treemapBinary)
