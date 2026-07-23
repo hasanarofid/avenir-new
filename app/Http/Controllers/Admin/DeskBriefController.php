@@ -44,13 +44,7 @@ class DeskBriefController extends Controller
         ]);
 
         $deskBrief = DeskBrief::findOrFail($id);
-        
-        $deskBrief->update([
-            'title' => $request->title,
-            'market_read' => $request->market_read,
-            'so_what' => $request->so_what,
-            'what_to_do' => $request->what_to_do,
-        ]);
+        $soWhat = $request->so_what;
 
         if ($deskBrief->market_stance_id && $request->has('momentum_score')) {
             $stance = \App\Models\MarketStanceDaily::find($deskBrief->market_stance_id);
@@ -68,10 +62,34 @@ class DeskBriefController extends Controller
                               ($request->sector_score * 0.15) +
                               ($request->rupiah_score * 0.1);
                               
-                $stance->score = round($totalScore);
+                $newScore = (int) round($totalScore);
+                $stance->score = $newScore;
+
+                if ($newScore >= 75) $label = 'Risk-On Accumulation';
+                elseif ($newScore >= 65) $label = 'Constructive Rotation';
+                elseif ($newScore >= 55) $label = 'Neutral Rotation';
+                elseif ($newScore >= 45) $label = 'Defensive Neutral';
+                elseif ($newScore >= 35) $label = 'Risk-Off';
+                else $label = 'Stress / Risk-Off Pressure';
+
+                $stance->label = $label;
                 $stance->save();
+
+                // Auto-replace any hardcoded score in so_what text (e.g., "Regime score 63/100" -> "Regime score 60/100")
+                if ($soWhat) {
+                    $soWhat = preg_replace('/Regime score \d+\/100/i', "Regime score {$newScore}/100", $soWhat);
+                    $soWhat = preg_replace('/Skor \d+\/100/i', "Skor {$newScore}/100", $soWhat);
+                    $soWhat = preg_replace('/score \d+\/100/i', "score {$newScore}/100", $soWhat);
+                }
             }
         }
+
+        $deskBrief->update([
+            'title' => $request->title,
+            'market_read' => $request->market_read,
+            'so_what' => $soWhat,
+            'what_to_do' => $request->what_to_do,
+        ]);
 
         return redirect()->route('admin.desk-brief.index')->with('success', 'Desk Brief updated successfully.');
     }
