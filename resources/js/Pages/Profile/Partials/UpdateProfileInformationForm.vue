@@ -51,7 +51,7 @@ const updatePhotoPreview = (e) => {
         </header>
 
         <form
-            @submit.prevent="form.post(route('profile.update', { _method: 'patch' }))"
+            @submit.prevent="form.post(route('profile.update'), { forceFormData: true, preserveScroll: true })"
             class="mt-6 space-y-6"
         >
             <!-- Profile Photo -->

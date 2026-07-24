@@ -38,11 +38,12 @@ const hasRole = (roleName) => {
 };
 
 const isAdmin = computed(() => hasRole('admin'));
+const isInternal = computed(() => hasRole('admin') || hasRole('tim_internal'));
 const isMitra = computed(() => hasRole('mitra'));
 
 // Select layout dynamically based on role
 const activeLayout = computed(() => {
-    if (isAdmin.value) return AdminLayout;
+    if (isInternal.value) return AdminLayout;
     if (isMitra.value) return MitraLayout;
     return AppLayout;
 });
@@ -51,8 +52,8 @@ const activeLayout = computed(() => {
 <template>
   <Head title="Pengaturan Profil — Avenir Research" />
   <component :is="activeLayout">
-    <!-- Panel Mode: Admin or Mitra -->
-    <div v-if="isAdmin || isMitra" class="space-y-8">
+    <!-- Panel Mode: Admin, Tim Internal, or Mitra -->
+    <div v-if="isInternal || isMitra" class="space-y-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 class="text-3xl font-extrabold tracking-tight text-white">Pengaturan Profil</h2>

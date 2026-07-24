@@ -73,7 +73,7 @@ class ProfileController extends Controller
         }
 
         if ($request->hasFile('photo')) {
-            if ($user->profile_photo_path) {
+            if ($user->profile_photo_path && !str_starts_with($user->profile_photo_path, 'http')) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
             }
             $path = $request->file('photo')->store('profile-photos', 'public');
@@ -82,7 +82,21 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return Redirect::route('profile.edit');
+        // Synchronize first_name and last_name in user_profiles
+        $nameParts = explode(' ', trim($user->name), 2);
+        $fname = $nameParts[0];
+        $lname = isset($nameParts[1]) ? $nameParts[1] : '';
+
+        \Illuminate\Support\Facades\DB::table('user_profiles')->updateOrInsert(
+            ['user_id' => $user->id],
+            [
+                'first_name' => $fname,
+                'last_name' => $lname,
+                'updated_at' => now(),
+            ]
+        );
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
