@@ -87,9 +87,15 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getProfilePhotoUrlAttribute()
     {
-        return $this->profile_photo_path
-                    ? Storage::url($this->profile_photo_path)
-                    : $this->defaultProfilePhotoUrl();
+        if (! $this->profile_photo_path) {
+            return $this->defaultProfilePhotoUrl();
+        }
+
+        try {
+            return Storage::url($this->profile_photo_path);
+        } catch (\Throwable $e) {
+            return $this->defaultProfilePhotoUrl();
+        }
     }
 
     protected function defaultProfilePhotoUrl()
