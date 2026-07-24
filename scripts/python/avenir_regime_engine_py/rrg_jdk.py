@@ -25,12 +25,16 @@ def get_quadrant(x, y):
     else:
         return "IMPROVING" if y >= 100 else "LAGGING"
 
-def calculate_rrg_metrics(prices_df, benchmark_df, target_cols, id_col, value_col):
+def calculate_rrg_metrics(prices_df, benchmark_df, target_cols, id_col, value_col, window=14, lag=5, span=5):
     """
-    Computes RS-Ratio (EMA-8 smoothed) and RS-Momentum (lag-8 ROC)
-    according to Avenir Research Panel 7 PRD v1.0.
+    Computes RS-Ratio and RS-Momentum according to standard JdK Relative Rotation Graph specification.
+    1. Base RS = Price / Benchmark
+    2. RS-Ratio raw = (RS / SMA_14(RS)) * 100
+    3. RS-Ratio cross-sectional centering & EMA smoothing
+    4. RS-Momentum raw = (RS-Ratio / RS-Ratio(t-5)) * 100
+    5. RS-Momentum cross-sectional centering & EMA smoothing
     """
-    # 1. Create a wide format price dataframe: index = date, columns = security/sector identifiers
+    # 1. Create wide format price dataframe: index = date, columns = security/sector identifiers
     price_pivot = prices_df.pivot(index='date', columns=id_col, values=value_col)
     
     # Merge with benchmark
@@ -59,37 +63,44 @@ def calculate_rrg_metrics(prices_df, benchmark_df, target_cols, id_col, value_co
         
     bench = merged['benchmark']
     
-    # 2. Base Relative Strength (RS)
-    rs_df = merged[target_cols].div(bench, axis=0) * 100
+    # 2. Base Relative Strength (RS) per security / sector
+    rs_df = merged[target_cols].div(bench, axis=0)
     
-    # 3. RS-Ratio_raw: Cross-sectional z-score * 2 + 100
-    rs_ratio_raw = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
+    # 3. Time-series normalized RS-Ratio = (RS / Rolling_SMA(RS, window)) * 100
+    rs_sma = rs_df.rolling(window=window, min_periods=3).mean()
+    rs_ratio_base = (rs_df / rs_sma) * 100.0
+    
+    # Cross-sectional centering around 100 across target columns for each date
+    rs_ratio_cs = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
     for date in dates:
-        row = rs_df.loc[date].astype(float)
+        row = rs_ratio_base.loc[date].astype(float)
         mean_val = row.mean()
-        std_val = row.std(ddof=0)
-        if pd.isna(std_val) or std_val == 0:
-            rs_ratio_raw.loc[date] = 100.0
+        if pd.isna(mean_val):
+            rs_ratio_cs.loc[date] = 100.0
         else:
-            rs_ratio_raw.loc[date] = 100.0 + ((row - mean_val) / std_val) * 2.0
+            rs_ratio_cs.loc[date] = 100.0 + (row - mean_val)
             
-    # 4. RS-Ratio: EMA-8 Smoothing
-    rs_ratio_df = rs_ratio_raw.ewm(span=8, adjust=False).mean()
+    # RS-Ratio EMA Smoothing
+    rs_ratio_df = rs_ratio_cs.ewm(span=span, adjust=False).mean()
     
-    # 5. RS-Momentum: Lag-8 ROC Cross-sectional z-score * 2 + 100
-    roc_8 = (rs_ratio_df / rs_ratio_df.shift(8) - 1.0) * 100.0
-    rs_mom_df = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
+    # 4. RS-Momentum = (RS_Ratio / RS_Ratio.shift(lag)) * 100
+    rs_mom_base = (rs_ratio_df / rs_ratio_df.shift(lag)) * 100.0
+    
+    # Cross-sectional centering around 100 for RS-Momentum
+    rs_mom_cs = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
     for date in dates:
-        row = roc_8.loc[date].astype(float)
+        row = rs_mom_base.loc[date].astype(float)
         if row.isna().any():
-            rs_mom_df.loc[date] = np.nan
+            rs_mom_cs.loc[date] = np.nan
             continue
         mean_val = row.mean()
-        std_val = row.std(ddof=0)
-        if pd.isna(std_val) or std_val == 0:
-            rs_mom_df.loc[date] = 100.0
+        if pd.isna(mean_val):
+            rs_mom_cs.loc[date] = 100.0
         else:
-            rs_mom_df.loc[date] = 100.0 + ((row - mean_val) / std_val) * 2.0
+            rs_mom_cs.loc[date] = 100.0 + (row - mean_val)
+            
+    # RS-Momentum EMA Smoothing
+    rs_mom_df = rs_mom_cs.ewm(span=span, adjust=False).mean()
             
     return rs_ratio_df, rs_mom_df, dates
 

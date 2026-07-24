@@ -188,11 +188,10 @@ const bounds = () => {
   let a = [], b = [];
   S.forEach((s, i) => { if (off.value.has(i)) return; s.pts.slice(-tail.value).forEach(p => { a.push(p.x); b.push(p.y); }); });
   if (!a.length) { a = [98, 102]; b = [98, 102]; }
-  let x0 = Math.min(...a, 99.2), x1 = Math.max(...a, 100.8), y0 = Math.min(...b, 99.2), y1 = Math.max(...b, 100.8);
-  const mx = (x1 - x0) * 0.14 || 0.4, my = (y1 - y0) * 0.14 || 0.4;
-  x0 -= mx; x1 += mx; y0 -= my; y1 += my;
-  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, r = Math.max(x1 - x0, y1 - y0) / 2;
-  return { x0: cx - r, x1: cx + r, y0: cy - r, y1: cy + r };
+  const maxDx = Math.max(...a.map(x => Math.abs(x - 100)), 1.5);
+  const maxDy = Math.max(...b.map(y => Math.abs(y - 100)), 1.5);
+  const r = Math.max(maxDx, maxDy) * 1.18;
+  return { x0: 100 - r, x1: 100 + r, y0: 100 - r, y1: 100 + r };
 };
 
 const draw = () => {
