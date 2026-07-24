@@ -16,8 +16,8 @@
             <span>Semua Sektor</span><span class="p4dd-check">✓</span>
           </div>
           <div class="p4dd-item hdr">Level Emiten — pilih sektor</div>
-          <div v-for="(lbl, key) in activeRrgs.short" :key="key" class="p4dd-item" :class="{ on: mode === 'stock' && cur === key }" @click="selectScope(key, lbl)">
-            <span>{{ lbl }}</span><span class="p4dd-check">✓</span>
+          <div v-for="key in sortedSectorKeys" :key="key" class="p4dd-item" :class="{ on: mode === 'stock' && cur === key }" @click="selectScope(key, activeRrgs.short[key])">
+            <span>{{ activeRrgs.short[key] }}</span><span class="p4dd-check">✓</span>
           </div>
         </div>
       </div>
@@ -81,6 +81,7 @@ const off = ref(new Set());
 
 const activeRrg = computed(() => props.rrgSector || RRG);
 const activeRrgs = computed(() => props.rrgStocks || RRGS);
+const sortedSectorKeys = computed(() => Object.keys(activeRrgs.value.short || {}).sort());
 
 const activeRotev = computed(() => {
   const sectorEv = {};
@@ -147,8 +148,8 @@ const scopeText = computed(() => {
   const r = activeRrg.value;
   const rs = activeRrgs.value;
   return mode.value === 'sector'
-    ? `Benchmark: <b>IHSG (Composite)</b> · ${r.meta?.universe || 900} emiten, cap-weighted`
-    : `Benchmark: <b>index ${rs.short[cur.value]}</b> · 15 emiten teraktif (median nilai transaksi)`;
+    ? `Benchmark: <b>total bursa</b> · ${r.meta?.universe || 900} emiten, cap-weighted`
+    : `Benchmark: <b>index ${rs.short[cur.value]}</b> · 20 emiten teraktif (median nilai transaksi)`;
 });
 
 const tipOpacity = ref('0');
