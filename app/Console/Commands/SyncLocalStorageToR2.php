@@ -26,13 +26,30 @@ class SyncLocalStorageToR2 extends Command
      */
     public function handle()
     {
-        $key = config('filesystems.disks.s3.key');
-        $secret = config('filesystems.disks.s3.secret');
+        $envPath = base_path('.env');
+        $envExists = file_exists($envPath);
+        $envReadable = is_readable($envPath);
+        
+        $envKey = env('AWS_ACCESS_KEY_ID');
+        $envSecret = env('AWS_SECRET_ACCESS_KEY');
+        $configKey = config('filesystems.disks.s3.key');
+        $configSecret = config('filesystems.disks.s3.secret');
+
+        $this->info("--- DIAGNOSTIC INFO ---");
+        $this->info(".env path: {$envPath}");
+        $this->info(".env exists: " . ($envExists ? 'YES' : 'NO'));
+        $this->info(".env readable: " . ($envReadable ? 'YES' : 'NO'));
+        $this->info("env('AWS_ACCESS_KEY_ID'): " . ($envKey ? substr($envKey, 0, 5) . '...' : 'EMPTY/NULL'));
+        $this->info("env('AWS_SECRET_ACCESS_KEY'): " . ($envSecret ? substr($envSecret, 0, 5) . '...' : 'EMPTY/NULL'));
+        $this->info("config('filesystems.disks.s3.key'): " . ($configKey ? substr($configKey, 0, 5) . '...' : 'EMPTY/NULL'));
+        $this->info("config('filesystems.disks.s3.secret'): " . ($configSecret ? substr($configSecret, 0, 5) . '...' : 'EMPTY/NULL'));
+        $this->info("-----------------------");
+
+        $key = $configKey ?: $envKey;
+        $secret = $configSecret ?: $envSecret;
 
         if (empty($key) || empty($secret)) {
-            $this->error('ERROR: AWS_ACCESS_KEY_ID atau AWS_SECRET_ACCESS_KEY kosong di .env VPS Anda!');
-            $this->error('AWS_ACCESS_KEY_ID status: ' . ($key ? 'OK' : 'MISSING / KOSONG'));
-            $this->error('AWS_SECRET_ACCESS_KEY status: ' . ($secret ? 'OK' : 'MISSING / KOSONG'));
+            $this->error('ERROR: AWS_ACCESS_KEY_ID atau AWS_SECRET_ACCESS_KEY tidak terbaca oleh Laravel!');
             return 1;
         }
 
