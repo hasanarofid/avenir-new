@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue';
 import { Head, useForm, Link, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Save, ChevronLeft, Image as ImageIcon, Eye } from '@lucide/vue';
+import { Save, ChevronLeft, Image as ImageIcon, Eye, FileCode } from '@lucide/vue';
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
@@ -35,6 +35,7 @@ const isFormValid = computed(() => {
 });
 
 const localContent = ref(form.content);
+const fileInputRef = ref(null);
 
 const hasRawHtmlTags = (str) => {
   return typeof str === 'string' && (
@@ -61,6 +62,34 @@ watch(() => form.content, (newVal) => {
     localContent.value = newVal;
   }
 });
+
+const handleHtmlFileUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const rawHtml = event.target.result;
+    form.content = rawHtml;
+    localContent.value = rawHtml;
+    isRawHtmlMode.value = true;
+  };
+  reader.readAsText(file);
+};
+
+const handleQuillPaste = (e) => {
+  const clipboardData = e.clipboardData || window.clipboardData;
+  if (!clipboardData) return;
+
+  const text = clipboardData.getData('text/plain') || clipboardData.getData('text/html');
+  if (text && hasRawHtmlTags(text)) {
+    e.preventDefault();
+    e.stopPropagation();
+    isRawHtmlMode.value = true;
+    form.content = text;
+    localContent.value = text;
+  }
+};
+
 const imagePreview = ref(props.article?.cover_image || null);
 const isDragging = ref(false);
 
@@ -261,8 +290,26 @@ const submit = (onSuccessCb = null, onErrorCb = null) => {
 
           <!-- HTML Content / WYSIWYG Editor -->
           <div class="space-y-1 mt-6">
-            <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Isi Artikel HTML</label>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <div class="flex items-center gap-3">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Isi Artikel HTML</label>
+                
+                <input 
+                  type="file" 
+                  ref="fileInputRef" 
+                  accept=".html,.htm,.txt" 
+                  class="hidden" 
+                  @change="handleHtmlFileUpload" 
+                />
+                <button 
+                  type="button" 
+                  @click="fileInputRef?.click()" 
+                  class="px-2.5 py-1 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/30 rounded-lg text-xs font-semibold text-emerald-400 flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <FileCode class="w-3.5 h-3.5" />
+                  Upload File HTML Artikel
+                </button>
+              </div>
               
               <!-- Toggle switch for Raw HTML -->
               <label class="flex items-center cursor-pointer">
@@ -277,7 +324,7 @@ const submit = (onSuccessCb = null, onErrorCb = null) => {
               </label>
             </div>
 
-            <div v-if="!isRawHtmlMode" class="bg-[#090b0a] border border-emerald-950/40 rounded-xl overflow-hidden quill-wrapper">
+            <div v-if="!isRawHtmlMode" @paste="handleQuillPaste" class="bg-[#090b0a] border border-emerald-950/40 rounded-xl overflow-hidden quill-wrapper">
               <QuillEditor 
                 theme="snow" 
                 v-model:content="localContent" 
