@@ -25,14 +25,12 @@ def get_quadrant(x, y):
     else:
         return "IMPROVING" if y >= 100 else "LAGGING"
 
-def calculate_rrg_metrics(prices_df, benchmark_df, target_cols, id_col, value_col, window=14, lag=5, span=5):
+def calculate_rrg_metrics(prices_df, benchmark_df, target_cols, id_col, value_col, lag=3, span=5):
     """
-    Computes RS-Ratio and RS-Momentum according to standard JdK Relative Rotation Graph specification.
-    1. Base RS = Price / Benchmark
-    2. RS-Ratio raw = (RS / SMA_14(RS)) * 100
-    3. RS-Ratio cross-sectional centering & EMA smoothing
-    4. RS-Momentum raw = (RS-Ratio / RS-Ratio(t-5)) * 100
-    5. RS-Momentum cross-sectional centering & EMA smoothing
+    Computes RS-Ratio and RS-Momentum according to Avenir Research PRD v1.0 Section 3.3:
+    1. Base Relative Strength = Normalized Sector Price / Normalized Benchmark Price * 100
+    2. RS-Ratio = 100 + Cross-sectional Z-score of RS * 2 (EMA-smoothed)
+    3. RS-Momentum = 100 + Cross-sectional Z-score of RS-Ratio ROC (LAG=3) * 2 (EMA-smoothed)
     """
     # 1. Create wide format price dataframe: index = date, columns = security/sector identifiers
     price_pivot = prices_df.pivot(index='date', columns=id_col, values=value_col)
@@ -63,44 +61,46 @@ def calculate_rrg_metrics(prices_df, benchmark_df, target_cols, id_col, value_co
         
     bench = merged['benchmark']
     
-    # 2. Base Relative Strength (RS) per security / sector
-    rs_df = merged[target_cols].div(bench, axis=0)
+    # 2. Base Relative Strength: Normalize sector price and benchmark to 100 at window start
+    base_p = merged[target_cols].iloc[0]
+    base_b = bench.iloc[0]
     
-    # 3. Time-series normalized RS-Ratio = (RS / Rolling_SMA(RS, window)) * 100
-    rs_sma = rs_df.rolling(window=window, min_periods=3).mean()
-    rs_ratio_base = (rs_df / rs_sma) * 100.0
+    norm_p = merged[target_cols].div(base_p, axis=1) * 100.0
+    norm_b = (bench / base_b) * 100.0
     
-    # Cross-sectional centering around 100 across target columns for each date
-    rs_ratio_cs = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
+    rs_df = norm_p.div(norm_b, axis=0) * 100.0
+    
+    # 3. RS-Ratio: Cross-sectional z-score of relative strength across target items * 2 + 100
+    rs_ratio_raw = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
     for date in dates:
-        row = rs_ratio_base.loc[date].astype(float)
-        mean_val = row.mean()
-        if pd.isna(mean_val):
-            rs_ratio_cs.loc[date] = 100.0
+        row = rs_df.loc[date].astype(float)
+        m = row.mean()
+        s = row.std(ddof=0)
+        if pd.isna(s) or s == 0:
+            rs_ratio_raw.loc[date] = 100.0
         else:
-            rs_ratio_cs.loc[date] = 100.0 + (row - mean_val)
+            rs_ratio_raw.loc[date] = 100.0 + ((row - m) / s) * 2.0
             
     # RS-Ratio EMA Smoothing
-    rs_ratio_df = rs_ratio_cs.ewm(span=span, adjust=False).mean()
+    rs_ratio_df = rs_ratio_raw.ewm(span=span, adjust=False).mean()
     
-    # 4. RS-Momentum = (RS_Ratio / RS_Ratio.shift(lag)) * 100
-    rs_mom_base = (rs_ratio_df / rs_ratio_df.shift(lag)) * 100.0
-    
-    # Cross-sectional centering around 100 for RS-Momentum
-    rs_mom_cs = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
+    # 4. RS-Momentum: Rate of change of RS-Ratio over lag=3 periods
+    roc = (rs_ratio_df / rs_ratio_df.shift(lag) - 1.0) * 100.0
+    rs_mom_raw = pd.DataFrame(index=dates, columns=target_cols, dtype=float)
     for date in dates:
-        row = rs_mom_base.loc[date].astype(float)
+        row = roc.loc[date].astype(float)
         if row.isna().any():
-            rs_mom_cs.loc[date] = np.nan
+            rs_mom_raw.loc[date] = np.nan
             continue
-        mean_val = row.mean()
-        if pd.isna(mean_val):
-            rs_mom_cs.loc[date] = 100.0
+        m = row.mean()
+        s = row.std(ddof=0)
+        if pd.isna(s) or s == 0:
+            rs_mom_raw.loc[date] = 100.0
         else:
-            rs_mom_cs.loc[date] = 100.0 + (row - mean_val)
+            rs_mom_raw.loc[date] = 100.0 + ((row - m) / s) * 2.0
             
     # RS-Momentum EMA Smoothing
-    rs_mom_df = rs_mom_cs.ewm(span=span, adjust=False).mean()
+    rs_mom_df = rs_mom_raw.ewm(span=span, adjust=False).mean()
             
     return rs_ratio_df, rs_mom_df, dates
 
@@ -196,7 +196,7 @@ def main():
         
     rrg_sector = {
         "dates": vis_dates,
-        "lag": 8,
+        "lag": 3,
         "series": sector_series,
         "rotev": rotev_sector,
         "meta": {

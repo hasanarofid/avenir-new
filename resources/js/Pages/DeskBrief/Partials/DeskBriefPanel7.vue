@@ -298,8 +298,8 @@ const noteHtml = computed(() => {
   if(!top.length) return '—';
   const r = activeRrg.value;
   const sessions = r.meta?.sessions || r.dates.length;
-  const lag = r.lag || 8;
-  return `<b>${top[0].lbl}</b> &amp; <b>${top[1].lbl}</b> memimpin; <b>${top[top.length - 1].lbl}</b> paling tertinggal.<br>${cnt.LEADING} leading · ${cnt.IMPROVING} improving · ${cnt.WEAKENING} weakening · ${cnt.LAGGING} lagging.<br><span style="color:var(--amber)">⚠</span> Basis ${sessions} sesi harian (bukan mingguan). Momentum lag ${lag} sesi — disamakan dengan EMA-8.`;
+  const lag = r.lag || 3;
+  return `<b>${top[0].lbl}</b> &amp; <b>${top[1].lbl}</b> memimpin; <b>${top[top.length - 1].lbl}</b> paling tertinggal.<br>${cnt.LEADING} leading · ${cnt.IMPROVING} improving · ${cnt.WEAKENING} weakening · ${cnt.LAGGING} lagging.<br><span style="color:var(--amber)">⚠</span> Basis ${sessions} sesi harian (bukan mingguan). Momentum lag ${lag} sesi — arah ekor masih sensitif terhadap data baru.`;
 });
 
 const narrativeHtml = computed(() => {
