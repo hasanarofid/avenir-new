@@ -26,31 +26,34 @@ class SyncLocalStorageToR2 extends Command
      */
     public function handle()
     {
-        $this->info('Scanning local storage files...');
+        $this->info('Scanning local storage files in storage/app/public...');
 
-        $files = Storage::disk('local')->allFiles('public');
+        $files = Storage::disk('public')->allFiles();
+        // Exclude hidden files like .gitignore
+        $files = array_values(array_filter($files, function ($file) {
+            return ! str_starts_with(basename($file), '.');
+        }));
+
         $total = count($files);
 
         if ($total === 0) {
-            $this->info('No local files found to sync.');
+            $this->info('No local files found in storage/app/public.');
             return 0;
         }
 
-        $this->info("Found {$total} files. Starting upload to Cloudflare R2...");
+        $this->info("Found {$total} file(s). Starting upload to Cloudflare R2...");
         $bar = $this->output->createProgressBar($total);
 
         $success = 0;
         $failed = 0;
 
         foreach ($files as $file) {
-            $relativePath = preg_replace('/^public\//', '', $file);
-
             try {
-                $content = Storage::disk('local')->get($file);
-                Storage::disk('s3')->put($relativePath, $content);
+                $content = Storage::disk('public')->get($file);
+                Storage::disk('s3')->put($file, $content);
                 $success++;
             } catch (\Throwable $e) {
-                $this->error(" Failed {$relativePath}: " . $e->getMessage());
+                $this->error(" Failed {$file}: " . $e->getMessage());
                 $failed++;
             }
 
