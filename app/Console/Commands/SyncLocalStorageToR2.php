@@ -49,9 +49,26 @@ class SyncLocalStorageToR2 extends Command
 
         foreach ($files as $file) {
             try {
+                if (! Storage::disk('public')->exists($file)) {
+                    $this->error(" Skipped {$file}: File does not exist");
+                    $failed++;
+                    continue;
+                }
+
                 $content = Storage::disk('public')->get($file);
-                Storage::disk('s3')->put($file, $content);
-                $success++;
+                if ($content === null || $content === false) {
+                    $this->error(" Failed {$file}: Unable to read file content");
+                    $failed++;
+                    continue;
+                }
+
+                $uploaded = Storage::disk('s3')->put($file, $content);
+                if ($uploaded) {
+                    $success++;
+                } else {
+                    $this->error(" Failed {$file}: Upload to S3/R2 returned false");
+                    $failed++;
+                }
             } catch (\Throwable $e) {
                 $this->error(" Failed {$file}: " . $e->getMessage());
                 $failed++;
