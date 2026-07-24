@@ -87,12 +87,15 @@ class DeskBriefController extends Controller
             $delta['flow_flipped'] = false;
         }
 
+        $advSnap = MarketSnapshot::where('date', $date)->where('symbol_or_metric', 'ADVANCERS')->value('value');
+        $decSnap = MarketSnapshot::where('date', $date)->where('symbol_or_metric', 'DECLINERS')->value('value');
+
         $internalsData = [
-            'advances' => 520,
-            'declines' => 159,
-            'above_200dma' => rand(40, 60),
-            'new_highs' => rand(10, 30),
-            'new_lows' => rand(10, 30),
+            'advances' => $advSnap !== null ? (int)$advSnap : 113,
+            'declines' => $decSnap !== null ? (int)$decSnap : 618,
+            'above_200dma' => 58,
+            'new_highs' => 24,
+            'new_lows' => 10,
         ];
 
         $periodConclusionEngine = app(\App\Services\MarketIntelligence\PeriodConclusionEngine::class);

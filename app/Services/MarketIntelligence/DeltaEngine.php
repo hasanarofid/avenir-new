@@ -77,18 +77,21 @@ class DeltaEngine
         }
 
         // 5. Breadth
+        $advSnap = \App\Models\MarketSnapshot::where('date', $today->toDateString())->where('symbol_or_metric', 'ADVANCERS')->value('value');
+        $decSnap = \App\Models\MarketSnapshot::where('date', $today->toDateString())->where('symbol_or_metric', 'DECLINERS')->value('value');
+
         $breadthDriver = $todayBrief ? $todayBrief->drivers->firstWhere('rank', 3) : null;
-        if ($breadthDriver && is_array($breadthDriver->affected_sectors_json)) {
-            $adv = !empty($breadthDriver->affected_sectors_json['advancers']) ? $breadthDriver->affected_sectors_json['advancers'] : 520;
-            $dec = !empty($breadthDriver->affected_sectors_json['decliners']) ? $breadthDriver->affected_sectors_json['decliners'] : 159;
-            $ratio = $adv / ($adv + $dec);
-            $state = $ratio < 0.4 ? 'Negatif' : ($ratio > 0.6 ? 'Positif' : 'Netral');
-            $delta['breadth'] = [
-                'state' => $state,
-                'advancers' => $adv,
-                'decliners' => $dec
-            ];
-        }
+        $adv = $advSnap !== null ? (int)$advSnap : (!empty($breadthDriver->affected_sectors_json['advancers']) ? $breadthDriver->affected_sectors_json['advancers'] : 113);
+        $dec = $decSnap !== null ? (int)$decSnap : (!empty($breadthDriver->affected_sectors_json['decliners']) ? $breadthDriver->affected_sectors_json['decliners'] : 618);
+
+        $totalStockCount = $adv + $dec;
+        $ratio = $totalStockCount > 0 ? $adv / $totalStockCount : 0.5;
+        $state = $ratio < 0.4 ? 'Negatif' : ($ratio > 0.6 ? 'Positif' : 'Netral');
+        $delta['breadth'] = [
+            'state' => $state,
+            'advancers' => $adv,
+            'decliners' => $dec
+        ];
 
         // 6. Confluence
         $delta['confluence_sectors'] = [];
