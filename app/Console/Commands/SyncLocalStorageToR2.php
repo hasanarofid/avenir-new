@@ -26,6 +26,16 @@ class SyncLocalStorageToR2 extends Command
      */
     public function handle()
     {
+        $key = config('filesystems.disks.s3.key');
+        $secret = config('filesystems.disks.s3.secret');
+
+        if (empty($key) || empty($secret)) {
+            $this->error('ERROR: AWS_ACCESS_KEY_ID atau AWS_SECRET_ACCESS_KEY kosong di .env VPS Anda!');
+            $this->error('AWS_ACCESS_KEY_ID status: ' . ($key ? 'OK' : 'MISSING / KOSONG'));
+            $this->error('AWS_SECRET_ACCESS_KEY status: ' . ($secret ? 'OK' : 'MISSING / KOSONG'));
+            return 1;
+        }
+
         $this->info('Scanning local storage files in storage/app/public...');
 
         $files = Storage::disk('public')->allFiles();
