@@ -454,6 +454,13 @@ class DeskBriefController extends Controller
         
         if ($snap && is_array($snap->sparkline_json)) {
             $movers = array_merge($movers, $snap->sparkline_json);
+            $cached = Cache::get('sectors_top_movers', []);
+            if (empty($movers['net_buy']) && !empty($cached['net_buy'])) {
+                $movers['net_buy'] = $cached['net_buy'];
+            }
+            if (empty($movers['net_sell']) && !empty($cached['net_sell'])) {
+                $movers['net_sell'] = $cached['net_sell'];
+            }
         } else {
             $cached = Cache::get('sectors_top_movers', []);
             if (is_array($cached)) {

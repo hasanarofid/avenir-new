@@ -62,8 +62,17 @@ const fmtD = d => {
 };
 
 const money = v => {
-  const a = Math.abs(v);
-  return (v < 0 ? '−' : '+') + 'Rp ' + (a >= 1000 ? (a / 1000).toFixed(2) + ' T' : a.toFixed(0) + ' M');
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  let a = Math.abs(v);
+  const sign = v < 0 ? '−' : '+';
+  // If value is > 100,000, it's in Millions IDR -> convert to Miliar
+  if (a >= 100000) {
+    a = a / 1000;
+  }
+  if (a >= 1000) {
+    return sign + 'Rp ' + (a / 1000).toFixed(2).replace('.', ',') + ' T';
+  }
+  return sign + 'Rp ' + a.toFixed(0).replace('.', ',') + ' M';
 };
 
 const currentData = computed(() => {

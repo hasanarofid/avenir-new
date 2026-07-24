@@ -163,6 +163,7 @@ function formatDisplayValue(item) {
     if (item.value !== undefined) return formatMoneyValue(item.value);
     if (item.val !== undefined) return formatMoneyValue(item.val);
     if (item.value_traded !== undefined) return formatMoneyValue(item.value_traded);
+    if (item.trading_value !== undefined) return formatMoneyValue(item.trading_value);
     return formatPrice(item.last_close);
   }
 
@@ -179,6 +180,7 @@ function formatDisplayValue(item) {
     if (item.net_flow) return item.net_flow;
     if (item.net_buy !== undefined) return formatMoneyValue(item.net_buy);
     if (item.value !== undefined) return formatMoneyValue(item.value);
+    if (item.trading_value !== undefined) return formatMoneyValue(item.trading_value);
     return formatPrice(item.last_close);
   }
 
@@ -187,6 +189,7 @@ function formatDisplayValue(item) {
     if (item.net_flow) return item.net_flow;
     if (item.net_sell !== undefined) return formatMoneyValue(item.net_sell);
     if (item.value !== undefined) return formatMoneyValue(item.value);
+    if (item.trading_value !== undefined) return formatMoneyValue(item.trading_value);
     return formatPrice(item.last_close);
   }
 
