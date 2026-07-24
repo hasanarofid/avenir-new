@@ -91,11 +91,11 @@ class User extends Authenticatable implements MustVerifyEmail
             return $this->defaultProfilePhotoUrl();
         }
 
-        try {
-            return Storage::url($this->profile_photo_path);
-        } catch (\Throwable $e) {
-            return $this->defaultProfilePhotoUrl();
+        if (str_starts_with($this->profile_photo_path, 'http://') || str_starts_with($this->profile_photo_path, 'https://')) {
+            return $this->profile_photo_path;
         }
+
+        return asset('storage/' . ltrim($this->profile_photo_path, '/'));
     }
 
     protected function defaultProfilePhotoUrl()
