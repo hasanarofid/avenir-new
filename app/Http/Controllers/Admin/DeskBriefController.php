@@ -178,8 +178,8 @@ class DeskBriefController extends Controller
         ]);
 
         try {
-            $path = $request->file('pdf_file')->store('idx_pdfs');
-            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+            $path = $request->file('pdf_file')->store('idx_pdfs', 'local');
+            $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($path);
 
             $scriptPath = base_path('scripts/python/parse_idx_pdf.py');
             
@@ -286,8 +286,8 @@ class DeskBriefController extends Controller
         ]);
 
         try {
-            $path = $request->file('csv_file')->store('ihsg_csvs');
-            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+            $path = $request->file('csv_file')->store('ihsg_csvs', 'local');
+            $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($path);
 
             $scriptPath = base_path('scripts/python/ihsg_price_trend.py');
             
@@ -384,8 +384,8 @@ class DeskBriefController extends Controller
         ]);
 
         try {
-            $path     = $request->file('excel_file')->store('masterlist');
-            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+            $path     = $request->file('excel_file')->store('masterlist', 'local');
+            $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($path);
 
             \Maatwebsite\Excel\Facades\Excel::import(new \App\Imports\MasterStockImport, $fullPath);
 
@@ -442,8 +442,8 @@ PYTHON;
         }
 
         try {
-            $path     = $request->file('foreign_flow')->store('foreign_flow');
-            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+            $path     = $request->file('foreign_flow')->store('foreign_flow', 'local');
+            $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($path);
             $date     = \Carbon\Carbon::parse($request->date)->toDateString();
 
             $bridge = new \App\Services\MarketIntelligence\PythonBridge();
@@ -548,11 +548,11 @@ PYTHON;
         ]);
 
         try {
-            $path     = $request->file('ringkasan_saham')->store('ringkasan_saham');
-            $fullPath = \Illuminate\Support\Facades\Storage::path($path);
+            $path     = $request->file('ringkasan_saham')->store('ringkasan_saham', 'local');
+            $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($path);
             
-            $indexPath = $request->file('index_summary')->store('index_summary');
-            $indexFullPath = \Illuminate\Support\Facades\Storage::path($indexPath);
+            $indexPath = $request->file('index_summary')->store('index_summary', 'local');
+            $indexFullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($indexPath);
 
             $date     = \Carbon\Carbon::parse($request->date)->toDateString();
 

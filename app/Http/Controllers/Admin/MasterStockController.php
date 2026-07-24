@@ -46,8 +46,8 @@ class MasterStockController extends Controller
         ]);
 
         try {
-            $path = $request->file('file')->store('temp_master_stock');
-            $fullPath = storage_path('app/private/' . $path);
+            $path = $request->file('file')->store('temp_master_stock', 'local');
+            $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($path);
 
             $scriptPath = base_path('scripts/import_master_stocks.py');
             $command = escapeshellcmd("python3 " . escapeshellarg($scriptPath) . " " . escapeshellarg($fullPath));

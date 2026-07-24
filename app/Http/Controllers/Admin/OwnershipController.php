@@ -34,10 +34,10 @@ class OwnershipController extends Controller
         ]);
 
         try {
-            $daily5pctPath = $request->file('file_daily_5pct')->store('ownership_excel');
-            $monthlyTypePath = $request->file('file_monthly_type')->store('ownership_excel');
-            $monthlyClassificationPath = $request->file('file_monthly_classification')->store('ownership_excel');
-            $monthly1pctPath = $request->file('file_monthly_1pct')->store('ownership_excel');
+            $daily5pctPath = $request->file('file_daily_5pct')->store('ownership_excel', 'local');
+            $monthlyTypePath = $request->file('file_monthly_type')->store('ownership_excel', 'local');
+            $monthlyClassificationPath = $request->file('file_monthly_classification')->store('ownership_excel', 'local');
+            $monthly1pctPath = $request->file('file_monthly_1pct')->store('ownership_excel', 'local');
             
             // Store snapshot
             $snapshotId = DB::table('ownership_snapshots')->insertGetId([
