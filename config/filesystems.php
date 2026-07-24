@@ -56,7 +56,7 @@ return [
             'url' => env('AWS_URL') ?: (env('AWS_ENDPOINT') ? rtrim(env('AWS_ENDPOINT'), '/').'/'.(env('AWS_BUCKET') ?: 'avenir-live') : null),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
-            'throw' => false,
+            'throw' => true,
             'report' => false,
         ],
 
