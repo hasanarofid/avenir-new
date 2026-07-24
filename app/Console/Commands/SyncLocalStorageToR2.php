@@ -39,6 +39,16 @@ class SyncLocalStorageToR2 extends Command
         $this->info(".env path: {$envPath}");
         $this->info(".env exists: " . ($envExists ? 'YES' : 'NO'));
         $this->info(".env readable: " . ($envReadable ? 'YES' : 'NO'));
+
+        if ($envReadable) {
+            $lines = file($envPath, FILE_IGNORE_NEW_LINES);
+            $awsLines = array_filter($lines, fn($l) => str_contains($l, 'AWS'));
+            $this->info("Raw lines in .env containing 'AWS':");
+            foreach ($awsLines as $idx => $line) {
+                $this->info("  [Line " . ($idx + 1) . "]: " . trim($line));
+            }
+        }
+
         $this->info("env('AWS_ACCESS_KEY_ID'): " . ($envKey ? substr($envKey, 0, 5) . '...' : 'EMPTY/NULL'));
         $this->info("env('AWS_SECRET_ACCESS_KEY'): " . ($envSecret ? substr($envSecret, 0, 5) . '...' : 'EMPTY/NULL'));
         $this->info("config('filesystems.disks.s3.key'): " . ($configKey ? substr($configKey, 0, 5) . '...' : 'EMPTY/NULL'));
