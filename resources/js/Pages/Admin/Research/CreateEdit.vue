@@ -32,20 +32,32 @@ const form = useForm({
 });
 
 const localContent = ref(form.content);
+
+const hasRawHtmlTags = (str) => {
+  return typeof str === 'string' && (
+    str.includes('class=') || 
+    str.includes('<div') || 
+    str.includes('<table') || 
+    str.includes('<style') || 
+    str.includes('<section') || 
+    str.includes('<svg')
+  );
+};
+
+const isRawHtmlMode = ref(hasRawHtmlTags(props.research?.content || form.content));
+
 import { watch } from 'vue';
 watch(localContent, (newVal) => {
   form.content = newVal;
 });
 watch(() => form.content, (newVal) => {
+  if (newVal && hasRawHtmlTags(newVal) && !isRawHtmlMode.value) {
+    isRawHtmlMode.value = true;
+  }
   if (localContent.value !== newVal) {
     localContent.value = newVal;
   }
 });
-
-const isRawHtmlMode = ref(false);
-if (props.research?.content && (props.research.content.includes('class=') || props.research.content.includes('<div') || props.research.content.includes('<table'))) {
-  isRawHtmlMode.value = true;
-}
 
 const imagePreview = ref(props.research?.image || null);
 const isDragging = ref(false);

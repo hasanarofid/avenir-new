@@ -31,22 +31,31 @@ const form = useForm({
 });
 
 const localContent = ref(form.content);
+const hasRawHtmlTags = (str) => {
+  return typeof str === 'string' && (
+    str.includes('class=') || 
+    str.includes('<div') || 
+    str.includes('<table') || 
+    str.includes('<style') || 
+    str.includes('<section') || 
+    str.includes('<svg')
+  );
+};
+
+const isRawHtmlMode = ref(hasRawHtmlTags(props.news?.content || form.content));
+
 import { watch } from 'vue';
 watch(localContent, (newVal) => {
   form.content = newVal;
 });
 watch(() => form.content, (newVal) => {
+  if (newVal && hasRawHtmlTags(newVal) && !isRawHtmlMode.value) {
+    isRawHtmlMode.value = true;
+  }
   if (localContent.value !== newVal) {
     localContent.value = newVal;
   }
 });
-
-const isRawHtmlMode = ref(false);
-
-// Deteksi otomatis jika konten mengandung HTML kompleks (class/div/table statis)
-if (props.news?.content && (props.news.content.includes('class=') || props.news.content.includes('<div') || props.news.content.includes('<table'))) {
-  isRawHtmlMode.value = true;
-}
 
 const imagePreview = ref(props.news?.cover_image || null);
 const isDragging = ref(false);

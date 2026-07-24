@@ -557,6 +557,10 @@ class HomeController extends Controller
      */
     private function truncateForGuest($content)
     {
+        if (empty($content)) {
+            return $content;
+        }
+
         $bodyToken = '<div class="art-body">';
         $pos = strpos($content, $bodyToken);
         if ($pos !== false) {
@@ -581,8 +585,13 @@ class HomeController extends Controller
             }
         }
 
-        // Safe truncation: find the first </p> or </div> after 1500 chars
-        $minLen = 1500;
+        // Determine content offset excluding initial <style>...</style> block(s)
+        $contentOffset = 0;
+        if (preg_match('/^(?:\s*<style\b[^>]*>.*?<\/style>\s*)+/is', $content, $matches)) {
+            $contentOffset = strlen($matches[0]);
+        }
+
+        $minLen = $contentOffset + 1500;
         if (strlen($content) <= $minLen) {
             return $content;
         }
@@ -600,7 +609,14 @@ class HomeController extends Controller
         }
 
         if ($cutPos !== false) {
-            return substr($content, 0, $cutPos);
+            $truncated = substr($content, 0, $cutPos);
+            // Ensure main container wrapper is closed if opened
+            $openDivs = substr_count($truncated, '<div');
+            $closeDivs = substr_count($truncated, '</div>');
+            if ($openDivs > $closeDivs) {
+                $truncated .= str_repeat('</div>', $openDivs - $closeDivs);
+            }
+            return $truncated;
         }
 
         // Fallback to strip_tags if no safe HTML boundary is found
